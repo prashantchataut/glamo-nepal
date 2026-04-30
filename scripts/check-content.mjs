@@ -1,0 +1,60 @@
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { extname, join } from "node:path";
+
+const root = process.cwd();
+const scanRoots = [
+  "src",
+  "public",
+  "FRONTEND_HANDOFF.md",
+  "FINAL_CHANGELOG.md",
+  "NEXT_STEPS_FOR_OWNER.md",
+  "PRODUCT_DATA_GUIDE.md",
+  "DEPLOYMENT_CHECKLIST.md",
+].map((item) => join(root, item));
+
+const textExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".json", ".md", ".mjs", ".css", ".svg", ".txt", ".html"]);
+const required = [
+  ["Instagram URL", "https://www.instagram.com/glamo_nepal/"],
+  ["Instagram handle", "@glamo_nepal"],
+  ["Phone", "+977 9818212188"],
+  ["Address", "Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal"],
+];
+const forbidden = [/images\.unsplash\.com/i, /cdn\.daraz/i, /jeevee.*\.(jpg|jpeg|png|webp)/i, /beautynepal.*\.(jpg|jpeg|png|webp)/i, /dihho.*\.(jpg|jpeg|png|webp)/i, /foreveryng.*\.(jpg|jpeg|png|webp)/i];
+const files = [];
+
+function walk(target) {
+  try {
+    const stat = statSync(target);
+    if (stat.isDirectory()) {
+      for (const entry of readdirSync(target)) {
+        if (["node_modules", ".next", "dist", "build", ".turbo"].includes(entry)) continue;
+        walk(join(target, entry));
+      }
+      return;
+    }
+    if (textExtensions.has(extname(target))) files.push(target);
+  } catch {
+    // Optional docs may not exist in earlier zips.
+  }
+}
+
+scanRoots.forEach(walk);
+const bodies = files.map((file) => [file, readFileSync(file, "utf8")]);
+const text = bodies.map(([, body]) => body).join("\n");
+
+for (const [label, value] of required) {
+  if (!text.includes(value)) {
+    console.error(`[FAIL] Missing ${label}: ${value}`);
+    process.exit(1);
+  }
+}
+for (const [file, body] of bodies) {
+  for (const pattern of forbidden) {
+    if (pattern.test(body)) {
+      console.error(`[FAIL] Potential competitor/hotlinked asset in ${file.replace(root + "/", "")}`);
+      process.exit(1);
+    }
+  }
+}
+console.log(`[OK] Content safety checks passed across ${files.length} text files.`);
+process.exit(0);

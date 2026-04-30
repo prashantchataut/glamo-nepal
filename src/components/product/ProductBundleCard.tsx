@@ -1,0 +1,62 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Gift, ShoppingBag, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import type { HydratedProductBundle } from "@/lib/mock/bundles";
+import { trackEvent } from "@/lib/analytics";
+import { formatNpr } from "@/lib/utils";
+import { useCartStore } from "@/store/useCartStore";
+
+export function ProductBundleCard({ bundle, compact = false }: { bundle: HydratedProductBundle; compact?: boolean }) {
+  const addItem = useCartStore((state) => state.addItem);
+  const addBundle = () => {
+    const stocked = bundle.products.filter((product) => product.inStock);
+    stocked.forEach((product) => addItem(product));
+    trackEvent("bundle_add_to_cart", {
+      bundleSlug: bundle.slug,
+      value: stocked.reduce((sum, product) => sum + product.price, 0),
+      productCount: stocked.length,
+    });
+    toast.success(`${stocked.length} routine item${stocked.length === 1 ? "" : "s"} added to cart`);
+  };
+
+  return (
+    <article className="group overflow-hidden rounded-[2rem] border border-brand-secondary/20 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_70px_-30px_rgba(139,58,143,0.4)]">
+      <Link href={`/routines/${bundle.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-brand-bgLight">
+        <Image src={bundle.image} alt={bundle.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 33vw" />
+        <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary backdrop-blur">{bundle.eyebrow}</div>
+      </Link>
+      <div className="p-5 md:p-6">
+        <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+          <Sparkles size={14} /> Routine bundle
+        </div>
+        <Link href={`/routines/${bundle.slug}`}>
+          <h3 className="font-serif text-2xl font-semibold leading-tight text-brand-textPrimary transition-colors group-hover:text-brand-primary">{bundle.title}</h3>
+        </Link>
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-brand-textMuted">{bundle.description}</p>
+        {!compact ? (
+          <div className="mt-4 space-y-2">
+            {bundle.steps.slice(0, 3).map((step, index) => (
+              <div key={step.label} className="flex gap-3 rounded-2xl bg-brand-bgLight px-3 py-2 text-sm">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">{index + 1}</span>
+                <span className="text-brand-textMuted"><strong className="text-brand-textPrimary">{step.label}:</strong> {step.note}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
+          <div>
+            <div className="text-lg font-bold text-brand-gold">{formatNpr(bundle.bundlePrice)}</div>
+            <div className="text-xs text-brand-textMuted">Mock bundle save {formatNpr(bundle.savings)}</div>
+          </div>
+          <button type="button" onClick={addBundle} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40">
+            <ShoppingBag size={16} /> Add routine
+          </button>
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-xs text-brand-textMuted"><Gift size={14} /> Mock pricing only; final bundle rules need backend support.</div>
+      </div>
+    </article>
+  );
+}
