@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
-import { FaInstagram, FaFacebook, FaTwitter, FaYoutube } from "react-icons/fa";
+import { FaInstagram, FaFacebook } from "react-icons/fa";
 import { SITE_CONFIG } from "@/lib/constants";
 
 export default function ContactPage() {
@@ -103,8 +103,6 @@ export default function ContactPage() {
                 {[
                   { icon: <FaInstagram size={18} />, href: SITE_CONFIG.social.instagram },
                   { icon: <FaFacebook size={18} />, href: SITE_CONFIG.social.facebook },
-                  { icon: <FaTwitter size={18} />, href: SITE_CONFIG.social.twitter },
-                  { icon: <FaYoutube size={18} />, href: SITE_CONFIG.social.youtube },
                 ].map((s, i) => (
                   <a key={i} href={s.href} className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all duration-300">{s.icon}</a>
                 ))}

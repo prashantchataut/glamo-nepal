@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle, CheckCircle2, Gift, LockKeyhole, MapPin, ShieldCheck, Truck } from "lucide-react";
+import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 import { useCartStore } from "@/store/useCartStore";

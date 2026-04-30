@@ -1,4 +1,4 @@
-import type { ApiResponse, Order } from "@/lib/api/contracts";
+import type { Order } from "@/lib/api/contracts";
 import { apiRequest } from "@/lib/api/client";
 
 export interface OrderListParams {
@@ -16,7 +16,7 @@ function withQuery(path: string, params: Record<string, string | number | undefi
 }
 
 export const ordersApi = {
-  list: (params: OrderListParams = {}) => apiRequest<Order[]>(withQuery("/orders", params)),
+  list: (params: OrderListParams = {}) => apiRequest<Order[]>(withQuery("/orders", params as Record<string, string | number | undefined>)),
   get: (id: string) => apiRequest<Order>(`/orders/${id}`),
   cancel: (id: string) => apiRequest<Order>(`/orders/${id}/cancel`, { method: "POST" }),
 };

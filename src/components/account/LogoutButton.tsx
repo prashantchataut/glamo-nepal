@@ -9,7 +9,8 @@ export function LogoutButton() {
 
   function handleLogout() {
     logout();
-    document.cookie = "auth-token=; path=/; max-age=0; SameSite=Lax";
+    document.cookie = "glamo-auth-token=; path=/; max-age=0; SameSite=Lax";
+    document.cookie = "glamo-user-role=; path=/; max-age=0; SameSite=Lax";
     router.push("/login");
     router.refresh();
   }

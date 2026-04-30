@@ -1,4 +1,4 @@
-import type { ApiResponse, Order } from "@/lib/api/contracts";
+import type { Order } from "@/lib/api/contracts";
 import type { Product } from "@/store/useCartStore";
 import { apiRequest } from "@/lib/api/client";
 

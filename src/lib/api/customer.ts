@@ -1,4 +1,4 @@
-import type { Address, ApiResponse, Customer, Order, Wishlist } from "@/lib/api/contracts";
+import type { Address, Customer, Order, Wishlist } from "@/lib/api/contracts";
 import { apiRequest } from "@/lib/api/client";
 
 export const customerApi = {

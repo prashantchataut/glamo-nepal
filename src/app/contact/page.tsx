@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Camera, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SITE_CONFIG } from "@/lib/constants";
 import { createMetadata } from "@/lib/seo";
@@ -13,7 +13,7 @@ export const metadata = createMetadata({
 const contactCards = [
   { icon: Phone, label: "Phone", value: SITE_CONFIG.phone, href: `tel:${SITE_CONFIG.phone.replace(/\s/g, "")}` },
   { icon: MessageCircle, label: "WhatsApp", value: "Chat with us", href: SITE_CONFIG.whatsapp },
-  { icon: Instagram, label: "Instagram", value: SITE_CONFIG.instagramHandle, href: SITE_CONFIG.social.instagram },
+  { icon: Camera, label: "Instagram", value: SITE_CONFIG.instagramHandle, href: SITE_CONFIG.social.instagram },
   { icon: Mail, label: "Email", value: SITE_CONFIG.email, href: `mailto:${SITE_CONFIG.email}` },
 ];
 

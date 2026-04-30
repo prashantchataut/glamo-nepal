@@ -59,7 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
       return;
     }
     const ok = compare.addItem(product);
-    ok ? toast.success("Added to compare") : toast.error("Compare supports up to 3 products");
+    if (ok) { toast.success("Added to compare"); } else { toast.error("Compare supports up to 3 products"); }
     trackEvent("compare_toggle", { productId: product.id, productSlug: product.slug, action: ok ? "add" : "limit_reached" });
   }
 
