@@ -11,8 +11,8 @@ export const metadata = createMetadata({
 });
 
 const pillars = [
-  { icon: Sparkles, title: "Premium Nepali beauty", body: "A curated frontend experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first commerce." },
-  { icon: ShieldCheck, title: "Authenticity-first handoff", body: "Mock data is clearly marked so supplier-approved product claims, ingredients and images can replace placeholders cleanly." },
+  { icon: Sparkles, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first shopping." },
+  { icon: ShieldCheck, title: "Authenticity-first curation", body: "Product pages are designed to highlight supplier-approved claims, ingredients, sourcing and clear beauty guidance." },
   { icon: Store, title: "Kathmandu-ready", body: `Store, WhatsApp and pickup messaging centers on ${SITE_CONFIG.address}.` },
 ];
 
@@ -25,7 +25,7 @@ export default function AboutPage() {
           <div className="rounded-[2rem] bg-white p-7 shadow-sm">
             <MapPin className="text-brand-primary" size={30} />
             <h2 className="mt-4 font-serif text-4xl font-semibold text-brand-textPrimary">Built for the Nepal beauty customer</h2>
-            <p className="mt-4 leading-7 text-brand-textMuted">This frontend is designed for customers who want polished product discovery, Nepal-relevant delivery messaging, local payment methods and a premium beauty experience that feels trustworthy before backend launch.</p>
+            <p className="mt-4 leading-7 text-brand-textMuted">GLAMO NEPAL is designed for customers who want polished product discovery, Nepal-relevant delivery information, local payment options and a premium beauty experience that feels trustworthy from the first visit.</p>
             <div className="mt-6 space-y-2 text-sm text-brand-textMuted">
               <p><strong className="text-brand-textPrimary">Phone:</strong> {SITE_CONFIG.phone}</p>
               <p><strong className="text-brand-textPrimary">Instagram:</strong> {SITE_CONFIG.instagramHandle}</p>

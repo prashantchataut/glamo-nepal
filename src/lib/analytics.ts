@@ -60,8 +60,10 @@ export function trackEvent(event: GlamoAnalyticsEvent, payload: AnalyticsPayload
   window.dataLayer.push(data);
   window.gtag?.("event", event, data);
 
-  if (event === "add_to_cart") window.fbq?.("track", "AddToCart", { value: data.value, currency: "NPR", content_ids: data.sku ? [data.sku] : undefined });
-  if (event === "checkout_started") window.fbq?.("track", "InitiateCheckout", { value: data.value, currency: "NPR" });
+  const numericValue = typeof data.value === "number" ? data.value : undefined;
+
+  if (event === "add_to_cart") window.fbq?.("track", "AddToCart", { value: numericValue, currency: "NPR", content_ids: data.sku ? [data.sku] : undefined });
+  if (event === "checkout_started") window.fbq?.("track", "InitiateCheckout", { value: numericValue, currency: "NPR" });
 }
 
 export const analytics = {

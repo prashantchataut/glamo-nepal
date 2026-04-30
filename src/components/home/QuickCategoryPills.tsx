@@ -1,44 +1,35 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { MoveRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CATEGORY_PILLS } from "@/lib/constants";
 
 export function QuickCategoryPills() {
   return (
-    <div className="w-full bg-white py-6 md:py-8 border-b border-border/30">
-      <div className="container mx-auto px-4">
-        <div className="flex overflow-x-auto no-scrollbar gap-3 md:gap-4 pb-2 -mb-2 snap-x snap-mandatory">
+    <section className="bg-white py-8 md:py-10">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
+            <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary md:text-4xl">Find your beauty favorites</h2>
+          </div>
+          <Link href="/shop" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary transition hover:text-brand-bgDark">
+            View all products <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3 md:gap-4">
           {CATEGORY_PILLS.map((pill) => (
             <Link
               href={pill.link}
               key={pill.id}
-              className="flex-shrink-0 snap-start group"
+              className="inline-flex items-center rounded-full border border-brand-textPrimary/10 bg-[#FBF7F8] px-5 py-3 text-sm font-medium text-brand-textPrimary transition hover:border-brand-primary/30 hover:bg-white hover:text-brand-primary hover:shadow-sm"
             >
-              <div className="flex items-center gap-3 bg-brand-bgLight/80 hover:bg-brand-secondary/15 border border-brand-secondary/20 hover:border-brand-primary/30 rounded-full pr-5 pl-1.5 py-1.5 transition-all duration-300 hover:shadow-md">
-                <div className="relative w-11 h-11 rounded-full overflow-hidden bg-white shadow-sm border border-border/30">
-                  <Image
-                    src={pill.image}
-                    alt={pill.name}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    sizes="44px"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-brand-textPrimary group-hover:text-brand-primary transition-colors whitespace-nowrap">
-                    {pill.name}
-                  </span>
-                  <span className="text-[9px] text-brand-textMuted uppercase font-bold tracking-[0.1em] flex items-center gap-0.5 group-hover:text-brand-textPrimary transition-colors">
-                    Shop Now <MoveRight size={8} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
-                  </span>
-                </div>
-              </div>
+              {pill.name}
             </Link>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

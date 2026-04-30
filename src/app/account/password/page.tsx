@@ -3,7 +3,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Change Password",
-  description: "Update GLAMO NEPAL account password in the frontend mock dashboard.",
+  description: "Update your GLAMO NEPAL account password.",
   path: "/account/password",
   noIndex: true,
 });

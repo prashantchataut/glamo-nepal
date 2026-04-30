@@ -41,7 +41,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Curated edit</p>
             <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{products.length} products</h2>
           </div>
-          <p className="max-w-lg text-sm text-brand-textMuted">These collections are frontend-ready merchandising views. Connect backend collection rules and inventory before launch.</p>
+          <p className="max-w-lg text-sm text-brand-textMuted">Explore curated GLAMO selections built around beauty routines, occasions and easy Nepal shopping.</p>
         </div>
         {products.length ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4">

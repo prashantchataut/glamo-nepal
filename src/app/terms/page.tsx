@@ -9,5 +9,5 @@ export const metadata = createMetadata({
 });
 
 export default function TermsPage() {
-  return <LegalLayout title="Terms & Conditions" description="Draft ecommerce terms that require owner and legal approval before production launch." sections={termsSections} />;
+  return <LegalLayout title="Terms & Conditions" description="Terms and conditions for GLAMO NEPAL ecommerce shopping." sections={termsSections} />;
 }

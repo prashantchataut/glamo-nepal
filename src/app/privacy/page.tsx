@@ -9,5 +9,5 @@ export const metadata = createMetadata({
 });
 
 export default function PrivacyPage() {
-  return <LegalLayout title="Privacy Policy" description="Draft privacy policy for GLAMO NEPAL's premium beauty ecommerce frontend." sections={privacySections} />;
+  return <LegalLayout title="Privacy Policy" description="Privacy policy for GLAMO NEPAL's premium beauty ecommerce experience." sections={privacySections} />;
 }

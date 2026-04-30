@@ -26,8 +26,8 @@ export function getBrandProfiles(): BrandProfile[] {
       concerns,
       image: `/brands/brand-${(index % 8) + 1}.svg`,
       description: products.length
-        ? `${name} appears in GLAMO NEPAL's mock catalog across ${categories.join(", ") || "beauty"}. Final supplier approval, images and brand authorization are required before launch.`
-        : `${name} is reserved as a brand profile placeholder for future supplier-approved GLAMO NEPAL catalog data.`,
+        ? `${name} is part of the GLAMO NEPAL beauty edit across ${categories.join(", ") || "beauty"}, with products selected for Nepal-market shoppers.`
+        : `${name} is reserved for future GLAMO NEPAL brand curation.`,
     };
   });
 }

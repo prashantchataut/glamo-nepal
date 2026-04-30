@@ -99,7 +99,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
             <div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><p>{bundle.ownerNote}</p></div>
           </div>
           <div className="rounded-[2rem] bg-white p-5 text-sm text-brand-textMuted shadow-sm">
-            <div className="flex gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary" /><p>Bundle discounts are frontend-only. Final implementation should calculate pricing on the backend to prevent tampering.</p></div>
+            <div className="flex gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary" /><p>Bundle savings are shown for easy review. Final pricing is confirmed at checkout.</p></div>
           </div>
         </aside>
       </section>

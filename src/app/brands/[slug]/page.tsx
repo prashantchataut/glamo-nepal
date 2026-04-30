@@ -42,18 +42,18 @@ export default function BrandDetailPage({ params }: { params: { slug: string } }
             </div>
           </div>
           <div className="relative h-56 overflow-hidden rounded-[2rem] bg-white/10">
-            <Image src={brand.image} alt={`${brand.name} placeholder logo`} fill className="object-cover" />
+            <Image src={brand.image} alt={`${brand.name} brand visual`} fill className="object-cover" />
           </div>
         </div>
       </section>
 
       <section className="container mx-auto px-4 py-10 md:px-6 md:py-14">
         <div className="mb-6 rounded-[2rem] border border-amber-300/60 bg-amber-50 p-5 text-sm text-amber-900">
-          <div className="flex gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><p>Brand page is frontend-only. Confirm authorization, distributor documents, logo permissions, batch/expiry data and final MRP before public launch.</p></div>
+          <div className="flex gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><p>GLAMO highlights authenticity-first brand curation. Check product packaging and contact us if you need sourcing or batch details before purchase.</p></div>
         </div>
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Catalog preview</p>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Brand edit</p>
             <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{products.length} products</h2>
           </div>
           <Link href={`/shop?brands=${encodeURIComponent(brand.name)}`} className="text-sm font-semibold text-brand-primary underline underline-offset-4">Filter this brand in shop</Link>
@@ -65,7 +65,7 @@ export default function BrandDetailPage({ params }: { params: { slug: string } }
         ) : (
           <div className="rounded-[2rem] border border-dashed border-brand-secondary/40 bg-white p-12 text-center">
             <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">No products yet</h2>
-            <p className="mt-2 text-brand-textMuted">Add supplier-approved products before publishing this brand.</p>
+            <p className="mt-2 text-brand-textMuted">More products from this brand will be added soon.</p>
           </div>
         )}
       </section>

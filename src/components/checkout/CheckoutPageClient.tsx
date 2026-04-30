@@ -127,7 +127,7 @@ export function CheckoutPageClient() {
   return (
     <main className="bg-brand-bgLight py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Secure checkout mock</p>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Secure checkout</p>
         <h1 className="mt-2 font-serif text-5xl font-semibold text-brand-textPrimary">Checkout</h1>
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {checkoutSteps.map((step, index) => (
@@ -145,7 +145,7 @@ export function CheckoutPageClient() {
                 <ShieldCheck className="mt-1 text-brand-primary" />
                 <div>
                   <h2 className="font-serif text-3xl font-semibold">Customer details</h2>
-                  <p className="mt-1 text-sm text-brand-textMuted">Mock form validation is active. Connect backend validation, CSRF, inventory lock and payment verification before launch.</p>
+                  <p className="mt-1 text-sm text-brand-textMuted">Enter your delivery details and payment preference to complete your order smoothly.</p>
                 </div>
               </div>
               <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -211,7 +211,7 @@ export function CheckoutPageClient() {
               </div>
               {form.payment !== "Cash on Delivery" ? (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
-                  <AlertCircle className="mb-2" /> Payment gateway is simulated. Add Khalti/eSewa/card credentials and backend verification before production.
+                  <AlertCircle className="mb-2" /> Online payment options will be available soon. For now, choose the option that suits you best and continue with checkout.
                 </div>
               ) : null}
               <label className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
@@ -240,10 +240,10 @@ export function CheckoutPageClient() {
               <div className="flex justify-between border-t border-border pt-4 text-xl"><span className="font-semibold">Total</span><span className="font-bold text-brand-gold">{formatNpr(total)}</span></div>
             </div>
             <button disabled={!canSubmit || status === "pending"} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-4 font-semibold text-white hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:cursor-not-allowed disabled:bg-brand-textMuted">
-              <LockKeyhole size={18} />{status === "pending" ? "Placing order..." : "Place simulated order"}
+              <LockKeyhole size={18} />{status === "pending" ? "Placing order..." : "Place order"}
             </button>
-            {status === "success" ? <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700"><CheckCircle2 size={16} /> Order simulated successfully.</p> : null}
-            <p className="mt-4 text-xs leading-relaxed text-brand-textMuted">This checkout is frontend-only. Real auth, inventory, payment verification and courier rules are required before production.</p>
+            {status === "success" ? <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700"><CheckCircle2 size={16} /> Order placed successfully.</p> : null}
+            <p className="mt-4 text-xs leading-relaxed text-brand-textMuted">Need help before placing your order? Contact GLAMO for quick delivery and payment support.</p>
           </aside>
         </form>
       </div>

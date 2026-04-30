@@ -13,7 +13,7 @@ export function WishlistClient() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Wishlist</p>
           <h1 className="mt-2 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">Saved products</h1>
-          <p className="mt-3 text-sm text-brand-textMuted">Wishlist products are persisted locally until a backend account wishlist is connected.</p>
+          <p className="mt-3 text-sm text-brand-textMuted">Wishlist products are saved on this device so you can return to favorites quickly.</p>
         </div>
         <Link href="/shop" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark">Browse shop</Link>
       </div>

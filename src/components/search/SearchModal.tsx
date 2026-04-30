@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, TrendingUp, Clock, ArrowRight, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useUIStore } from "@/store/useUIStore";
 import { searchProducts, TRENDING_SEARCHES } from "@/lib/mock/products";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -68,23 +67,11 @@ export function SearchModal() {
   };
 
   return (
-    <AnimatePresence>
-      {isSearchModalOpen && (
+    <>
+      {isSearchModalOpen ? (
         <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeSearchModal}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-          />
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed top-0 left-0 right-0 z-50 bg-white shadow-2xl"
-          >
+          <div onClick={closeSearchModal} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+          <div className="fixed left-0 right-0 top-0 z-50 bg-white shadow-2xl">
             <div className="container mx-auto px-4 md:px-6">
               <div className="flex items-center gap-4 py-4 border-b border-border/30">
                 <Search size={20} className="text-brand-textMuted shrink-0" strokeWidth={1.5} />
@@ -194,9 +181,9 @@ export function SearchModal() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </>
-      )}
-    </AnimatePresence>
+      ) : null}
+    </>
   );
 }

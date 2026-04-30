@@ -1,13 +1,13 @@
-import { CheckoutPageClient } from "@/components/checkout/CheckoutPageClient";
+import { CheckoutSuccessClient } from "@/components/checkout/CheckoutSuccessClient";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
-  title: "Checkout",
-  description: "Complete your GLAMO NEPAL order with secure checkout. Pay with Khalti, eSewa, card or cash on delivery.",
-  path: "/checkout",
+  title: "Checkout Success",
+  description: "GLAMO NEPAL simulated order confirmation screen.",
+  path: "/checkout/success",
   noIndex: true,
 });
 
-export default function CheckoutPage() {
-  return <CheckoutPageClient />;
+export default function CheckoutSuccessPage() {
+  return <CheckoutSuccessClient />;
 }

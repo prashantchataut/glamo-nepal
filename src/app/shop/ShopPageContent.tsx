@@ -106,9 +106,9 @@ export default function ShopPageContent() {
     <div className="min-h-screen bg-brand-bgLight">
       <section className="bg-brand-bgDark py-14 text-white md:py-20">
         <div className="container mx-auto px-4 text-center md:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">NPR pricing · Nepal delivery mock</p>
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">NPR pricing · Nepal delivery</p>
           <h1 className="mt-3 font-serif text-5xl font-semibold">{categoryObj?.name || "Shop GLAMO"}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-white/70">{categoryObj?.description || "Filter by category, brand, concern, Made in Nepal, stock and price to explore the mock Nepal-market catalog."}</p>
+          <p className="mx-auto mt-4 max-w-2xl text-white/70">{categoryObj?.description || "Filter by category, brand, concern, Made in Nepal, stock and price to explore GLAMO beauty picks."}</p>
         </div>
       </section>
       <div className="container mx-auto px-4 py-8 md:px-6">

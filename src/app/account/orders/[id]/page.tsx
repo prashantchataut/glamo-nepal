@@ -12,7 +12,7 @@ export function generateMetadata({ params }: { params: { id: string } }) {
   const order = MOCK_ORDERS.find((item) => item.id === params.id);
   return createMetadata({
     title: order ? `Order ${order.orderNumber}` : "Order Not Found",
-    description: "View GLAMO NEPAL mock order details, delivery timeline and item summary.",
+    description: "View GLAMO NEPAL order details, delivery timeline and item summary.",
     path: `/account/orders/${params.id}`,
     noIndex: true,
   });
@@ -89,7 +89,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
             </div>
           </section>
           <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
-            <button className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-primary px-5 py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white"><Download size={16} /> Invoice mock</button>
+            <button className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-primary px-5 py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white"><Download size={16} /> Invoice</button>
             {order.status === "Delivered" ? <button className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold text-brand-textMuted transition hover:border-brand-primary hover:text-brand-primary"><RotateCcw size={16} /> Return request</button> : null}
           </div>
         </aside>

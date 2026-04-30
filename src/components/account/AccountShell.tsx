@@ -28,7 +28,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
     document.cookie = "glamo-auth-token=; path=/; max-age=0; SameSite=Lax";
     document.cookie = "glamo-user-role=; path=/; max-age=0; SameSite=Lax";
     logout();
-    toast.success("Logged out of mock GLAMO account.");
+    toast.success("Logged out of GLAMO account.");
     router.push("/login");
     router.refresh();
   };

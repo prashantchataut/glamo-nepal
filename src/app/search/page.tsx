@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Search",
-  description: "Search GLAMO NEPAL beauty products, brands, categories and Nepal-market mock catalog data.",
+  description: "Search GLAMO NEPAL beauty products, brands, categories and Nepal-market picks.",
   path: "/search",
 });
 
