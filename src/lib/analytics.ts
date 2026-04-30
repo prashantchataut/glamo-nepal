@@ -11,6 +11,7 @@ export type GlamoAnalyticsEvent =
   | "shipping_info_submitted"
   | "payment_method_selected"
   | "order_simulated"
+  | "order_placed"
   | "beauty_quiz_completed"
   | "whatsapp_click"
   | "instagram_click"

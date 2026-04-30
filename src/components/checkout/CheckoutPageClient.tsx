@@ -99,7 +99,7 @@ export function CheckoutPageClient() {
       return;
     }
     const orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    trackEvent("order_placed", {
+    trackEvent("order_simulated", {
       value: total,
       method: form.payment,
       district: form.district,
