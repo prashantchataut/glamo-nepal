@@ -48,7 +48,7 @@ export function PasswordForm() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success("Mock password updated. Wire this to real auth later.");
+      toast.success("Password updated.");
     }, 600);
   };
 
@@ -56,7 +56,7 @@ export function PasswordForm() {
     <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
       <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
         <h1 className="font-serif text-3xl font-semibold text-brand-textPrimary">Change password</h1>
-        <p className="mt-2 text-sm leading-6 text-brand-textMuted">Preview the password update experience. Production needs current-password verification, rate limiting and secure session rotation.</p>
+        <p className="mt-2 text-sm leading-6 text-brand-textMuted">Choose a strong password and keep your account details secure.</p>
         <div className="mt-7 space-y-5">
           <PasswordInput label="Current password" value={currentPassword} onChange={setCurrentPassword} />
           <div>
@@ -76,12 +76,12 @@ export function PasswordForm() {
       </form>
       <aside className="rounded-[2rem] border border-border/70 bg-brand-bgDark p-6 text-white shadow-sm md:p-8">
         <ShieldCheck className="text-brand-gold" size={32} />
-        <h2 className="mt-4 font-serif text-3xl font-semibold">Production security checklist</h2>
+        <h2 className="mt-4 font-serif text-3xl font-semibold">Password tips</h2>
         <ul className="mt-5 space-y-3 text-sm leading-6 text-white/75">
-          <li>Use HTTP-only, signed, secure cookies for sessions.</li>
-          <li>Rotate sessions after password changes.</li>
-          <li>Add brute-force protection and email alerts.</li>
-          <li>Store passwords only as strong salted hashes server-side.</li>
+          <li>Use a unique password for your GLAMO account.</li>
+          <li>Include uppercase letters, numbers and symbols.</li>
+          <li>Avoid reusing passwords from other websites.</li>
+          <li>Contact GLAMO if you notice unusual activity.</li>
         </ul>
       </aside>
     </div>

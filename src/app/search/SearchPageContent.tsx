@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { searchProducts, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/mock/products";
+import { searchProducts, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/data/products";
 import { ProductCard } from "@/components/product/ProductCard";
 import { getNoResultRecommendations, getSearchSuggestions } from "@/lib/search";
 import Link from "next/link";

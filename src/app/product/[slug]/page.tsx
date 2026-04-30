@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { PRODUCTS, getProductBySlug, getRelatedProducts } from "@/lib/mock/products";
+import { PRODUCTS, getProductBySlug, getRelatedProducts } from "@/lib/data/products";
 import { breadcrumbJsonLd, createMetadata, productJsonLd } from "@/lib/seo";
 import ProductDetailClient from "./ProductDetailClient";
 

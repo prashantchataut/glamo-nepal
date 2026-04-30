@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Terms & Conditions",
-  description: "Review draft GLAMO NEPAL ecommerce terms for orders, payments, product information and customer support.",
+  description: "Review GLAMO NEPAL ecommerce terms for orders, payments, product information and customer support.",
   path: "/terms",
 });
 

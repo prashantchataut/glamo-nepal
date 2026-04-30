@@ -2,31 +2,31 @@ import type { LegalSection } from "@/components/legal/LegalLayout";
 import { SITE_CONFIG } from "@/lib/constants";
 
 export const privacySections: LegalSection[] = [
-  { id: "collection", title: "Information we collect", body: ["GLAMO NEPAL may collect customer details such as name, phone, email, delivery address, order preferences and support messages when customers shop or create an account.", "Analytics and device information may be collected after production analytics tools are configured by the owner."] },
-  { id: "use", title: "How information is used", body: ["Customer data is used to process orders, provide delivery support, improve the shopping experience, manage loyalty features and communicate order updates.", "Marketing communications should only be sent with the proper consent and unsubscribe controls."] },
-  { id: "sharing", title: "Service providers", body: ["Production integrations may share necessary information with payment providers, delivery partners, analytics tools and support systems.", "GLAMO NEPAL should not sell customer data and should document all third-party processors before launch."] },
-  { id: "security", title: "Security", body: ["This frontend is a mock implementation. Production must use secure backend sessions, server-side payment verification, encrypted transport and access-controlled admin APIs."] },
+  { id: "collection", title: "Information we collect", body: ["GLAMO NEPAL may collect customer details such as name, phone number, email address, delivery address, order preferences and support messages when customers shop, create an account or contact the store.", "Basic device and shopping activity information may be used to improve site performance, product discovery and customer support."] },
+  { id: "use", title: "How information is used", body: ["Customer data is used to process orders, coordinate delivery, verify payments, manage returns, answer support requests and improve the shopping experience.", "Marketing messages should only be sent with appropriate consent and a clear way to opt out."] },
+  { id: "sharing", title: "Service providers", body: ["Necessary order details may be shared with payment providers, delivery partners and support tools so GLAMO NEPAL can complete purchases and provide customer care.", "GLAMO NEPAL should not sell customer data."] },
+  { id: "security", title: "Security", body: ["Customer information should be handled through secure connections, restricted staff access and careful operational procedures.", "Payment confirmations should be verified with the selected payment provider before an order is fulfilled."] },
   { id: "contact", title: "Contact", body: [`For privacy questions, contact ${SITE_CONFIG.phone} or visit ${SITE_CONFIG.address}.`] },
 ];
 
 export const termsSections: LegalSection[] = [
-  { id: "scope", title: "Scope of service", body: ["These draft terms describe the intended GLAMO NEPAL ecommerce experience for beauty, cosmetics and personal care products in Nepal.", "Final terms must be reviewed by the owner and legal advisor before publication."] },
-  { id: "orders", title: "Orders and pricing", body: ["Prices are shown in NPR. Mock products and pricing in this frontend must be replaced with supplier-approved, current production data before accepting orders.", "GLAMO NEPAL may confirm, cancel or adjust orders according to stock availability and payment verification rules."] },
-  { id: "payments", title: "Payments", body: ["Payment methods shown include Khalti, eSewa, Cash on Delivery and Cards. Real merchant credentials and server-side verification are required before launch."] },
-  { id: "content", title: "Product information", body: ["Product claims, ingredients, usage instructions, shade details and images must be supplier-approved and reviewed for accuracy before production."] },
+  { id: "scope", title: "Scope of service", body: ["These terms describe the GLAMO NEPAL ecommerce shopping experience for beauty, cosmetics and personal care products in Nepal.", "By placing an order, customers agree to provide accurate contact, delivery and payment information."] },
+  { id: "orders", title: "Orders and pricing", body: ["Prices are shown in NPR. GLAMO NEPAL may confirm, cancel or adjust orders according to stock availability, payment verification, courier coverage and any clear pricing error.", "Product availability and offers may change without prior notice."] },
+  { id: "payments", title: "Payments", body: ["Payment methods may include Khalti, eSewa, Cash on Delivery and Cards where available.", "Orders paid online are processed after payment confirmation. COD orders may be confirmed by phone or message before dispatch."] },
+  { id: "product-info", title: "Product information", body: ["GLAMO NEPAL aims to present product names, prices, descriptions, ingredients and usage guidance accurately.", "Customers should read labels and patch test new beauty products, especially if they have allergies or sensitive skin."] },
   { id: "contact", title: "Contact", body: [`Questions can be sent to ${SITE_CONFIG.phone} or handled at ${SITE_CONFIG.address}.`] },
 ];
 
 export const shippingSections: LegalSection[] = [
-  { id: "coverage", title: "Delivery coverage", body: ["The frontend includes Nepal province, district and COD availability mock logic. Real courier coverage, delivery windows and serviceable locations must be configured by the owner."] },
-  { id: "timelines", title: "Estimated timelines", body: ["Kathmandu Valley deliveries can be displayed as faster than out-of-valley deliveries, but final timelines must come from the selected courier and warehouse operations."] },
-  { id: "fees", title: "Delivery fees", body: ["Delivery fee calculations are simulated. Production checkout should calculate fees from cart weight/value, address, courier rules, promotions and COD availability."] },
-  { id: "pickup", title: "Store pickup", body: [`Store pickup messaging may reference ${SITE_CONFIG.address} once the owner confirms operating hours and pickup workflow.`] },
+  { id: "coverage", title: "Delivery coverage", body: ["GLAMO NEPAL delivers inside Kathmandu Valley and to many locations across Nepal through available courier partners.", "Some addresses may require phone confirmation before dispatch."] },
+  { id: "timelines", title: "Estimated timelines", body: ["Kathmandu Valley orders are usually delivered within 1 to 2 business days after confirmation.", "Outside-Valley orders usually arrive within 3 to 5 business days after dispatch, with additional time possible for remote areas or weather disruptions."] },
+  { id: "fees", title: "Delivery fees", body: ["Free delivery is available on eligible orders over NPR 2,500.", "Delivery fees below that threshold depend on address, courier coverage, order size and payment method."] },
+  { id: "pickup", title: "Store pickup", body: [`Store pickup may be arranged from ${SITE_CONFIG.address} after order confirmation.`] },
 ];
 
 export const returnsSections: LegalSection[] = [
-  { id: "eligibility", title: "Eligibility", body: ["Beauty and cosmetics returns require strict hygiene rules. Final eligibility must be approved by the owner and legal advisor.", "Unopened, unused and sealed products may be considered according to the production return policy."] },
-  { id: "damaged", title: "Damaged or incorrect items", body: ["Customers should be able to report damaged, missing or incorrect items with order number, photos and delivery details. Photo upload is currently a frontend placeholder."] },
-  { id: "refunds", title: "Refunds and exchanges", body: ["Refunds for Khalti, eSewa and card payments require payment-provider reconciliation. COD returns require manual verification and clear owner policy."] },
+  { id: "eligibility", title: "Eligibility", body: ["Eligible products may be returned within 7 days if they are unused, unopened, sealed and in their original condition.", "Opened beauty, skincare, fragrance and hygiene-sensitive items may not be returnable unless they arrive damaged or incorrect."] },
+  { id: "damaged", title: "Damaged or incorrect items", body: ["Customers should report damaged, missing or incorrect items as soon as possible with the order number, photos and delivery details.", "GLAMO NEPAL will review the issue and guide the customer on replacement, exchange or refund options."] },
+  { id: "refunds", title: "Refunds and exchanges", body: ["Refunds for Khalti, eSewa and card payments follow the payment provider's processing timeline.", "COD returns may require manual verification before a refund or exchange is completed."] },
   { id: "support", title: "Support", body: [`For support, contact ${SITE_CONFIG.phone} or ${SITE_CONFIG.instagramHandle} at ${SITE_CONFIG.social.instagram}.`] },
 ];

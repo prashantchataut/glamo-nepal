@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, LayoutDashboard, LockKeyhole, LogOut, MapPin, Package, UserRound } from "lucide-react";
 import { toast } from "sonner";
-import { MOCK_USER } from "@/lib/mock/users";
+import { SAMPLE_USER as SAMPLE_USER } from "@/lib/data/users";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -22,7 +22,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const sessionUser = useAuthStore((state) => state.user);
-  const user = sessionUser ?? MOCK_USER;
+  const user = sessionUser ?? SAMPLE_USER;
 
   const handleLogout = () => {
     document.cookie = "glamo-auth-token=; path=/; max-age=0; SameSite=Lax";

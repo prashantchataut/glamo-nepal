@@ -12,7 +12,7 @@ export const metadata = createMetadata({
 
 const pillars = [
   { icon: Sparkles, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first shopping." },
-  { icon: ShieldCheck, title: "Authenticity-first curation", body: "Product pages are designed to highlight supplier-approved claims, ingredients, sourcing and clear beauty guidance." },
+  { icon: ShieldCheck, title: "Authenticity-first curation", body: "Product pages are designed to highlight authenticity notes, ingredient highlights, sourcing context and clear beauty guidance." },
   { icon: Store, title: "Kathmandu-ready", body: `Store, WhatsApp and pickup messaging centers on ${SITE_CONFIG.address}.` },
 ];
 

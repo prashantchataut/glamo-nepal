@@ -18,7 +18,7 @@ export function CartDrawer() {
 
   if (!mounted) return null;
 
-  const FREE_SHIPPING_THRESHOLD = 5000;
+  const FREE_SHIPPING_THRESHOLD = 2500;
   const totalPrice = getTotalPrice();
   const progress = Math.min((totalPrice / FREE_SHIPPING_THRESHOLD) * 100, 100);
   const amountToFreeShipping = Math.max(FREE_SHIPPING_THRESHOLD - totalPrice, 0);

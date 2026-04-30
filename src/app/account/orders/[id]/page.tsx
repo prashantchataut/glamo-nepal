@@ -2,14 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Download, RotateCcw } from "lucide-react";
-import { MOCK_ORDERS } from "@/lib/mock/orders";
+import { SAMPLE_ORDERS as SAMPLE_ORDERS } from "@/lib/data/orders";
 import { createMetadata } from "@/lib/seo";
 import { cn, formatNpr } from "@/lib/utils";
 
 const steps = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered"];
 
 export function generateMetadata({ params }: { params: { id: string } }) {
-  const order = MOCK_ORDERS.find((item) => item.id === params.id);
+  const order = SAMPLE_ORDERS.find((item) => item.id === params.id);
   return createMetadata({
     title: order ? `Order ${order.orderNumber}` : "Order Not Found",
     description: "View GLAMO NEPAL order details, delivery timeline and item summary.",
@@ -19,7 +19,7 @@ export function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default function OrderDetailPage({ params }: { params: { id: string } }) {
-  const order = MOCK_ORDERS.find((item) => item.id === params.id);
+  const order = SAMPLE_ORDERS.find((item) => item.id === params.id);
   if (!order) notFound();
 
   const activeIndex = Math.max(0, steps.indexOf(order.status));

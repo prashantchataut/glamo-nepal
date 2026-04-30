@@ -92,7 +92,7 @@ export const TRUST_BADGES = [
 
 export const FEATURED_PRODUCTS: Product[] = PRODUCTS.filter((p) => p.isFeatured).slice(0, 8);
 export const PROMO_BANNERS = [
-  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/promo-dashain.svg", gradient: "from-black/80 via-black/30 to-transparent" },
+  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/promo-new-year.svg", gradient: "from-black/80 via-black/30 to-transparent" },
   { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/promo-store.svg", gradient: "from-[#8B3A8F]/90 via-[#8B3A8F]/40 to-transparent" },
 ];
 export const SHOP_CATEGORIES = CATEGORIES.map((c) => ({ id: c.slug, name: c.name, image: c.image, slug: c.slug }));
@@ -107,6 +107,6 @@ export const INSTAGRAM_POSTS = PRODUCTS.slice(0, 6).map((p) => ({ id: p.id, imag
 export const BLOG_POSTS = [
   { id: 1, title: "How to Build a Kathmandu Skincare Routine", category: "Skincare", excerpt: "A simple routine framework for sun, dust, humidity and seasonal dryness.", image: "/images/blog-skincare.svg", slug: "kathmandu-skincare-routine" },
   { id: 2, title: "Festival Makeup That Lasts", category: "Makeup", excerpt: "Primer, tint, lip and setting tips for New Year, wedding events and long celebrations.", image: "/images/blog-makeup.svg", slug: "festival-makeup-that-lasts" },
-  { id: 3, title: "Giftable Beauty Picks for New Year", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "/images/blog-handoff.svg", slug: "new-year-2083-beauty-gift-guide" },
+  { id: 3, title: "Giftable Beauty Picks for New Year", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "/images/blog-gift-guide.svg", slug: "new-year-2083-beauty-gift-guide" },
 ];
 export const BRAND_LOGOS = BRANDS.slice(0, 8).map((name, index) => ({ id: index + 1, name, image: `/brands/brand-${index + 1}.svg` }));

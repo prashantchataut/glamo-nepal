@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Privacy Policy",
-  description: "Read the GLAMO NEPAL draft privacy policy for customer data, orders, analytics and service providers.",
+  description: "Read the GLAMO NEPAL privacy policy for customer data, orders, analytics and service providers.",
   path: "/privacy",
 });
 

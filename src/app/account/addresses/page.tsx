@@ -1,5 +1,5 @@
 import { Home, MapPinned, Plus, Star } from "lucide-react";
-import { MOCK_ADDRESSES } from "@/lib/mock/users";
+import { SAMPLE_ADDRESSES as SAMPLE_ADDRESSES } from "@/lib/data/users";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -16,13 +16,13 @@ export default function AddressesPage() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Addresses</p>
           <h1 className="mt-2 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">Saved delivery addresses</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-textMuted">A polished address book preview for Nepal province, district, municipality and ward-ready checkout data.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-textMuted">Save Nepal delivery details for faster checkout.</p>
         </div>
         <button className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark"><Plus size={16} /> Add address</button>
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2">
-        {MOCK_ADDRESSES.map((address) => (
+        {SAMPLE_ADDRESSES.map((address) => (
           <article key={address.id} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">

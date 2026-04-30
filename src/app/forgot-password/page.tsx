@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Forgot Password",
-  description: "Preview the GLAMO NEPAL password recovery UI before connecting a backend email token service.",
+  description: "Recover access to your GLAMO NEPAL customer account.",
   path: "/forgot-password",
   noIndex: true,
 });

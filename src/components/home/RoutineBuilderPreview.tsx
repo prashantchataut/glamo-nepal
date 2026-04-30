@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductBundleCard } from "@/components/product/ProductBundleCard";
-import { getBundles } from "@/lib/mock/bundles";
+import { getBundles } from "@/lib/data/bundles";
 
 export function RoutineBuilderPreview() {
   const bundles = getBundles().slice(0, 2);

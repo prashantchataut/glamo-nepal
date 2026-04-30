@@ -35,7 +35,7 @@ export function LegalLayout({ title, description, sections }: { title: string; d
           </div>
         </aside>
         <article className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
-          <p className="text-sm font-semibold text-brand-textMuted">Last updated: April 2026 · Draft for owner/legal approval</p>
+          <p className="text-sm font-semibold text-brand-textMuted">Last updated: April 2026</p>
           <div className="mt-8 space-y-10">
             {sections.map((section) => (
               <section key={section.id} id={section.id} className="scroll-mt-28">

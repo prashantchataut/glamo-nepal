@@ -5,7 +5,7 @@ import { ArrowLeft, CheckCircle2, PackageCheck, ShieldAlert } from "lucide-react
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductBundleCard } from "@/components/product/ProductBundleCard";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { PRODUCT_BUNDLES, getBundle, getBundles } from "@/lib/mock/bundles";
+import { PRODUCT_BUNDLES, getBundle, getBundles } from "@/lib/data/bundles";
 import { breadcrumbJsonLd, createMetadata } from "@/lib/seo";
 import { formatNpr } from "@/lib/utils";
 
@@ -77,7 +77,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Included products</p>
                 <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{bundle.products.length} routine items</h2>
               </div>
-              <p className="text-sm font-semibold text-brand-gold">Mock bundle price {formatNpr(bundle.bundlePrice)}</p>
+              <p className="text-sm font-semibold text-brand-gold">Bundle price {formatNpr(bundle.bundlePrice)}</p>
             </div>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
               {bundle.products.map((product) => <ProductCard key={product.id} product={product} />)}
@@ -91,8 +91,8 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
             <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Routine summary</h2>
             <div className="mt-4 space-y-3 text-sm text-brand-textMuted">
               <div className="flex justify-between"><span>Subtotal</span><strong className="text-brand-textPrimary">{formatNpr(bundle.subtotal)}</strong></div>
-              <div className="flex justify-between"><span>Mock bundle price</span><strong className="text-brand-gold">{formatNpr(bundle.bundlePrice)}</strong></div>
-              <div className="flex justify-between"><span>Mock savings</span><strong className="text-brand-primary">{formatNpr(bundle.savings)}</strong></div>
+              <div className="flex justify-between"><span>Bundle price</span><strong className="text-brand-gold">{formatNpr(bundle.bundlePrice)}</strong></div>
+              <div className="flex justify-between"><span>Bundle saving</span><strong className="text-brand-primary">{formatNpr(bundle.savings)}</strong></div>
             </div>
           </div>
           <div className="rounded-[2rem] border border-amber-300/60 bg-amber-50 p-5 text-sm text-amber-900">

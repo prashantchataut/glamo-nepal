@@ -1,6 +1,6 @@
 import { ProductBundleCard } from "@/components/product/ProductBundleCard";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getBundles } from "@/lib/mock/bundles";
+import { getBundles } from "@/lib/data/bundles";
 import { breadcrumbJsonLd, createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({

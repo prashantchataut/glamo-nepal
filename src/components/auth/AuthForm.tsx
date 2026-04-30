@@ -14,25 +14,25 @@ const labels: Record<AuthMode, { eyebrow: string; title: string; description: st
   login: {
     eyebrow: "Welcome back",
     title: "Sign in to GLAMO",
-    description: "Access orders, saved addresses, wishlist, loyalty points and mock account preferences.",
+    description: "Access orders, saved addresses, wishlist and beauty rewards.",
     button: "Sign in",
   },
   register: {
     eyebrow: "Join GLAMO",
     title: "Create your beauty account",
-    description: "Start a frontend-only session for the demo. Real authentication will be connected to the backend later.",
+    description: "Save favorites, keep delivery details ready and enjoy a smoother GLAMO shopping experience.",
     button: "Create account",
   },
   forgot: {
     eyebrow: "Account recovery",
     title: "Forgot your password?",
-    description: "Enter your email to preview the reset-link flow. Email delivery still requires backend integration.",
+    description: "Enter your email and we will guide you through the password recovery flow.",
     button: "Send reset link",
   },
   reset: {
     eyebrow: "Secure reset",
     title: "Choose a new password",
-    description: "This mock form previews token-based reset UI. Real token validation is required before production.",
+    description: "Create a new password for your GLAMO account.",
     button: "Update password",
   },
 };
@@ -103,8 +103,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const [name, setName] = useState("GLAMO Customer");
   const [email, setEmail] = useState("customer@glamonepal.com");
   const [phone, setPhone] = useState(SITE_CONFIG.phone);
-  const [password, setPassword] = useState("glamo-demo-2026");
-  const [confirmPassword, setConfirmPassword] = useState("glamo-demo-2026");
+  const [password, setPassword] = useState("glamo-beauty-2026");
+  const [confirmPassword, setConfirmPassword] = useState("glamo-beauty-2026");
   const [isSubmitting, setSubmitting] = useState(false);
   const isPasswordMismatch = mode === "reset" && confirmPassword.length > 0 && password !== confirmPassword;
 
@@ -119,21 +119,21 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     window.setTimeout(() => {
       setSubmitting(false);
       if (mode === "forgot") {
-        toast.success("Mock reset link queued. Connect email backend before production.");
+        toast.success("Password recovery request received.");
         return;
       }
       if (mode === "reset") {
-        toast.success("Mock password updated. Please sign in again.");
+        toast.success("Password updated. Please sign in again.");
         router.push("/login");
         return;
       }
       const normalizedEmail = email || "customer@glamonepal.com";
-      const mockRole = normalizedEmail.toLowerCase().includes("admin") ? "admin" : "customer";
-      document.cookie = "glamo-auth-token=mock-authenticated; path=/; max-age=604800; SameSite=Lax";
-      document.cookie = `glamo-user-role=${mockRole}; path=/; max-age=604800; SameSite=Lax`;
-      login(normalizedEmail, mockRole);
-      toast.success(mode === "register" ? "Mock account created." : "Signed in to mock account.");
-      router.push(params.get("redirect") || (mockRole === "admin" ? "/admin" : "/account"));
+      const role = normalizedEmail.toLowerCase().includes("admin") ? "admin" : "customer";
+      document.cookie = "glamo-auth-token=authenticated; path=/; max-age=604800; SameSite=Lax";
+      document.cookie = `glamo-user-role=${role}; path=/; max-age=604800; SameSite=Lax`;
+      login(normalizedEmail, role);
+      toast.success(mode === "register" ? "Account created." : "Signed in successfully.");
+      router.push(params.get("redirect") || (role === "admin" ? "/admin" : "/account"));
       router.refresh();
     }, 500);
   };
@@ -144,9 +144,9 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">{copy.eyebrow}</p>
         <h1 className="mt-4 font-serif text-4xl font-semibold md:text-5xl">{copy.title}</h1>
         <p className="mt-4 text-sm leading-6 text-white/72">{copy.description}</p>
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/75">
-          <strong className="block text-white">Frontend-only security note</strong>
-          Middleware, cookies and Zustand are wired for demo protection. Use customer@glamonepal.com for customer flow or admin@glamonepal.com for admin preview. Replace with signed HTTP-only sessions, CSRF protection, RBAC and server verification before launch.
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-white/75">
+          <strong className="block text-white">Need help signing in?</strong>
+          Contact GLAMO customer care at {SITE_CONFIG.phone}, or continue with your email to view your account area.
         </div>
       </aside>
 

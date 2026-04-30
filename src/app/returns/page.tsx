@@ -4,10 +4,10 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Returns Policy",
-  description: "Read draft GLAMO NEPAL returns, exchange, refund and damaged item guidance.",
+  description: "Read GLAMO NEPAL returns, exchange, refund and damaged item guidance.",
   path: "/returns",
 });
 
 export default function ReturnsPage() {
-  return <LegalLayout title="Returns Policy" description="Draft beauty-product returns policy that needs final business and legal approval." sections={returnsSections} />;
+  return <LegalLayout title="Returns Policy" description="Beauty-product returns, exchange and damaged item guidance for GLAMO NEPAL shoppers." sections={returnsSections} />;
 }

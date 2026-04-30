@@ -14,7 +14,7 @@ import { RecentlyViewedStrip } from "@/components/product/RecentlyViewedStrip";
 import { useCartStore, type Product } from "@/store/useCartStore";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import { trackEvent } from "@/lib/analytics";
-import { getRecommendedBundles } from "@/lib/mock/bundles";
+import { getRecommendedBundles } from "@/lib/data/bundles";
 import { getAuthenticityNote, getBatchExpiryNote, getPatchTestNote, getReturnEligibility } from "@/lib/product-safety";
 import { cn, formatNpr } from "@/lib/utils";
 
@@ -25,7 +25,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const addItem = useCartStore((s) => s.addItem);
   const addRecent = useRecentlyViewedStore((s) => s.addItem);
   const recommendedBundles = getRecommendedBundles(product, 2);
-  const customerDescription = cleanCustomerText(product.description);
+  const customerDescription = product.description.trim();
 
   useEffect(() => {
     addRecent(product);
@@ -68,10 +68,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             <div className="mt-6 flex items-end gap-3"><span className="font-serif text-4xl font-semibold text-brand-gold">{formatNpr(product.price)}</span>{product.originalPrice && <span className="pb-1 text-brand-textMuted line-through">{formatNpr(product.originalPrice)}</span>}</div>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-brand-textMuted"><p><strong className="text-brand-textPrimary">Size:</strong> {product.size}</p><p><strong className="text-brand-textPrimary">Origin:</strong> {product.origin}</p><p><strong className="text-brand-textPrimary">Stock:</strong> {product.stockCount} units</p><button onClick={copySku} className="flex items-center gap-1 text-left font-semibold text-brand-primary"><Copy size={14} /> {product.sku}</button></div>
             {product.shadeOptions?.length ? <div className="mt-6"><p className="mb-3 text-sm font-semibold text-brand-textPrimary">Shade: {shade}</p><div className="flex flex-wrap gap-2">{product.shadeOptions.map((option) => <button key={option.name} onClick={() => setShade(option.name)} className={cn("rounded-full border px-4 py-2 text-sm font-semibold", shade === option.name ? "border-brand-primary bg-brand-primary text-white" : "border-border bg-white text-brand-textMuted")}>{option.hex && <span className="mr-2 inline-block h-3 w-3 rounded-full align-middle" style={{ backgroundColor: option.hex }} />} {option.name}</button>)}</div></div> : null}
-            {!product.inStock ? <div className="mt-7"><NotifyMeForm product={product} /></div> : null}
+            {!product.inStock ? <div className="mt-7"><NotifyMeForm productName={product.name} /></div> : null}
             <div ref={ctaRef} className="mt-7 flex flex-col gap-3 sm:flex-row"><button onClick={addToCart} disabled={!product.inStock} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-primary px-7 py-4 font-semibold text-white shadow-lg shadow-brand-primary/20 transition hover:bg-brand-bgDark disabled:cursor-not-allowed disabled:bg-brand-textMuted"><ShoppingBag size={18} /> Add to cart</button><button onClick={share} className="flex items-center justify-center gap-2 rounded-full border border-brand-primary px-7 py-4 font-semibold text-brand-primary hover:bg-white"><Share2 size={18} /> Share</button></div>
             <Dialog><DialogTrigger asChild><button className="mt-3 text-sm font-semibold text-brand-primary underline underline-offset-4">Open size guide</button></DialogTrigger><DialogContent><DialogHeader><DialogTitle className="font-serif text-2xl">GLAMO size guide</DialogTitle></DialogHeader><div className="space-y-3 text-sm text-brand-textMuted"><p>Use this guide for product-specific size, shade and usage guidance.</p><p>Skincare sizes are listed in ml/g. Makeup shade availability is shown per variant when data is connected.</p></div></DialogContent></Dialog>
-            <div className="mt-7 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-white p-4"><Truck className="mb-2 text-brand-primary" /><p className="font-semibold">Delivery</p><p className="text-xs text-brand-textMuted">Valley estimate 1-2 days</p></div><div className="rounded-2xl bg-white p-4"><RotateCcw className="mb-2 text-brand-primary" /><p className="font-semibold">Returns</p><p className="text-xs text-brand-textMuted">{getReturnEligibility(product)}</p></div><div className="rounded-2xl bg-white p-4"><ShieldCheck className="mb-2 text-brand-primary" /><p className="font-semibold">Audit note</p><p className="text-xs text-brand-textMuted">{getAuthenticityNote(product)}</p></div></div>
+            <div className="mt-7 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-white p-4"><Truck className="mb-2 text-brand-primary" /><p className="font-semibold">Delivery</p><p className="text-xs text-brand-textMuted">Valley estimate 1-2 days</p></div><div className="rounded-2xl bg-white p-4"><RotateCcw className="mb-2 text-brand-primary" /><p className="font-semibold">Returns</p><p className="text-xs text-brand-textMuted">{getReturnEligibility(product)}</p></div><div className="rounded-2xl bg-white p-4"><ShieldCheck className="mb-2 text-brand-primary" /><p className="font-semibold">Authenticity</p><p className="text-xs text-brand-textMuted">{getAuthenticityNote(product)}</p></div></div>
           </div>
         </div>
         <section className="mt-14 grid gap-6 lg:grid-cols-3"><Info title="Benefits" items={product.benefits} /><Info title="How to use" items={product.howToUse} /><Info title="Ingredients" items={product.ingredients} /></section>
@@ -88,12 +88,3 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
 function Info({ title, items }: { title: string; items: string[] }) { return <div className="rounded-[2rem] bg-white p-6"><h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">{title}</h2><ul className="mt-4 space-y-3 text-sm text-brand-textMuted">{items.map((item) => <li key={item} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-gold" />{item}</li>)}</ul></div>; }
 
-function cleanCustomerText(value: string) {
-  return value
-    .replace(/\bmock SKU\b/gi, "product")
-    .replace(/\bmock item\b/gi, "product")
-    .replace(/\bmock product\b/gi, "product")
-    .replace(/\bmock\b/gi, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}

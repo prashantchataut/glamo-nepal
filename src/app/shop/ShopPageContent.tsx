@@ -6,7 +6,7 @@ import { Grid3X3, LayoutGrid, SlidersHorizontal, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
-import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/mock/products";
+import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
 import { cn } from "@/lib/utils";
 
 const PRICE_RANGE = getPriceRange();

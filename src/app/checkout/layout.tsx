@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Checkout",
-  description: "Frontend-only GLAMO NEPAL checkout with Nepal phone validation, COD availability, delivery estimates and payment method simulation.",
-  robots: { index: false, follow: false },
-};
+  description: "Complete your GLAMO NEPAL order with Nepal phone validation, COD availability, delivery estimates and payment selection.",
+  path: "/checkout",
+  noIndex: true,
+});
 
-export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
-  return children;
+export default function CheckoutLayout({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }

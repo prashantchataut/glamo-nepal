@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Reset Password",
-  description: "Preview the GLAMO NEPAL reset password screen for a future token-based auth flow.",
+  description: "Create a new password for your GLAMO NEPAL customer account.",
   path: "/reset-password",
   noIndex: true,
 });

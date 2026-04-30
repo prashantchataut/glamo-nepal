@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, UserRound } from "lucide-react";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { BLOG_POSTS, getBlogBySlug, getRelatedPosts } from "@/lib/mock/blog";
+import { BLOG_POSTS, getBlogBySlug, getRelatedPosts } from "@/lib/data/blog";
 import { absoluteUrl } from "@/lib/utils";
 import { breadcrumbJsonLd, createMetadata } from "@/lib/seo";
 

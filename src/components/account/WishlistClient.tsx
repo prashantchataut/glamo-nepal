@@ -24,7 +24,7 @@ export function WishlistClient() {
       ) : (
         <div className="mt-8 rounded-[2rem] border border-dashed border-brand-secondary/50 bg-white p-10 text-center shadow-sm">
           <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Your wishlist is empty</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-brand-textMuted">Tap the heart icon on products to save them here. Backend account sync can be added later.</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-brand-textMuted">Tap the heart icon on products to save them here. Your saved favorites will appear here.</p>
           <Link href="/shop" className="mt-6 inline-flex rounded-full bg-brand-primary px-7 py-3 font-semibold text-white transition hover:bg-brand-bgDark">Find beauty picks</Link>
         </div>
       )}

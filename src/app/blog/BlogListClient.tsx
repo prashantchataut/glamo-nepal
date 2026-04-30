@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/mock/blog";
+import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/data/blog";
 import { cn } from "@/lib/utils";
 
 export default function BlogPage() {

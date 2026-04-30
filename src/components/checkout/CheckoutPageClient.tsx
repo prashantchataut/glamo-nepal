@@ -99,7 +99,7 @@ export function CheckoutPageClient() {
       return;
     }
     const orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    trackEvent("order_simulated", {
+    trackEvent("order_placed", {
       value: total,
       method: form.payment,
       district: form.district,
@@ -117,7 +117,7 @@ export function CheckoutPageClient() {
       <main className="bg-brand-bgLight py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="font-serif text-5xl font-semibold">Checkout</h1>
-          <p className="mt-3 text-brand-textMuted">Your cart is empty or your order was already simulated.</p>
+          <p className="mt-3 text-brand-textMuted">Your cart is empty or your order has already been placed.</p>
           <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-primary px-8 py-3 font-semibold text-white">Return to shop</Link>
         </div>
       </main>

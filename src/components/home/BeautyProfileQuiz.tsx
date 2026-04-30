@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { PRODUCTS } from "@/lib/mock/products";
+import { PRODUCTS } from "@/lib/data/products";
 import { formatNpr } from "@/lib/utils";
 
 const skinTypes = ["Oily", "Dry", "Combination", "Sensitive"];

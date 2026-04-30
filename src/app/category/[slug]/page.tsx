@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import CategoryPageContent from "./CategoryPageContent";
-import { CATEGORIES } from "@/lib/mock/products";
+import { CATEGORIES } from "@/lib/data/products";
 import { createMetadata } from "@/lib/seo";
 
 export function generateStaticParams() {

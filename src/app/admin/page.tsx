@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { AlertTriangle, BarChart3, Boxes, ClipboardCheck, Megaphone, PackageCheck, ShieldAlert, Sparkles } from "lucide-react";
 import { StatusCard } from "@/components/common/StatusCard";
-import { PRODUCTS, NEPAL_MARKET_REFERENCE_NOTES } from "@/lib/mock/products";
-import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type InventoryRisk } from "@/lib/mock/inventory";
+import { PRODUCTS, NEPAL_MARKET_REFERENCE_NOTES } from "@/lib/data/products";
+import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type InventoryRisk } from "@/lib/data/inventory";
 import { getPublicEnvChecks } from "@/lib/env";
-import { MOCK_ORDERS } from "@/lib/mock/orders";
+import { MOCK_ORDERS } from "@/lib/data/orders";
 import { cn, formatNpr } from "@/lib/utils";
 
 const riskStyles: Record<InventoryRisk, string> = {

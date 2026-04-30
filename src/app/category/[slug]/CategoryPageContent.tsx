@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { PRODUCTS, CATEGORIES, SORT_OPTIONS } from "@/lib/mock/products";
+import { PRODUCTS, CATEGORIES, SORT_OPTIONS } from "@/lib/data/products";
 import { ProductCard } from "@/components/product/ProductCard";
 
 export default function CategoryPageContent() {

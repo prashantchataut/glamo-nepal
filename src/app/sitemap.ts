@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
-import { PRODUCTS, CATEGORIES } from "@/lib/mock/products";
-import { BLOG_POSTS } from "@/lib/mock/blog";
+import { PRODUCTS, CATEGORIES } from "@/lib/data/products";
+import { BLOG_POSTS } from "@/lib/data/blog";
 import { SITE_CONFIG } from "@/lib/constants";
 import { PRODUCT_COLLECTIONS } from "@/lib/collections";
 import { getBrandProfiles } from "@/lib/brands";
-import { PRODUCT_BUNDLES } from "@/lib/mock/bundles";
+import { PRODUCT_BUNDLES } from "@/lib/data/bundles";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.website).replace(/\/$/, "");

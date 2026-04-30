@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, PackageSearch } from "lucide-react";
-import { MOCK_ORDERS } from "@/lib/mock/orders";
+import { SAMPLE_ORDERS as SAMPLE_ORDERS } from "@/lib/data/orders";
 import { createMetadata } from "@/lib/seo";
 import { cn, formatNpr } from "@/lib/utils";
 
@@ -27,12 +27,12 @@ export default function OrdersPage() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Orders</p>
           <h1 className="mt-2 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">My orders</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-textMuted">Mock order data with production-ready layout for courier updates, invoices and returns.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-textMuted">Track your GLAMO orders, delivery updates, invoices and returns.</p>
         </div>
         <Link href="/contact" className="inline-flex items-center gap-2 rounded-full border border-brand-primary px-5 py-2.5 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">Need help? <ArrowRight size={16} /></Link>
       </div>
       <div className="mt-8 space-y-4">
-        {MOCK_ORDERS.map((order) => (
+        {SAMPLE_ORDERS.map((order) => (
           <article key={order.id} className="rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-start gap-4">

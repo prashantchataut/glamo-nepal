@@ -2,12 +2,12 @@ import { CheckoutSuccessClient } from "@/components/checkout/CheckoutSuccessClie
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
-  title: "Checkout Success",
+  title: "Order Confirmed",
   description: "GLAMO NEPAL order confirmation screen.",
-  path: "/checkout/success",
+  path: "/order/success",
   noIndex: true,
 });
 
-export default function CheckoutSuccessPage() {
+export default function OrderSuccessPage() {
   return <CheckoutSuccessClient />;
 }

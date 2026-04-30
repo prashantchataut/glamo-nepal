@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS } from "@/lib/mock/products";
+import { CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS } from "@/lib/data/products";
 import { cn } from "@/lib/utils";
 
 export interface FilterState {

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, TrendingUp, Clock, ArrowRight, Sparkles } from "lucide-react";
 import { useUIStore } from "@/store/useUIStore";
-import { searchProducts, TRENDING_SEARCHES } from "@/lib/mock/products";
+import { searchProducts, TRENDING_SEARCHES } from "@/lib/data/products";
 import { ProductCard } from "@/components/product/ProductCard";
 import { getNoResultRecommendations, getSearchSuggestions } from "@/lib/search";
 import { trackEvent } from "@/lib/analytics";
@@ -43,6 +43,15 @@ export function SearchModal() {
       setResults([]);
     }
   }, [query]);
+
+  useEffect(() => {
+    if (!isSearchModalOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeSearchModal();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isSearchModalOpen, closeSearchModal]);
 
   const handleSearch = useCallback((searchQuery: string) => {
     if (!searchQuery.trim()) return;

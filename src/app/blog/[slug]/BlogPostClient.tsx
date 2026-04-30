@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getBlogBySlug, getRelatedPosts } from "@/lib/mock/blog";
+import { getBlogBySlug, getRelatedPosts } from "@/lib/data/blog";
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const [readingProgress, setReadingProgress] = useState(0);
