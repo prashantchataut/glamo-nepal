@@ -5,24 +5,24 @@ export function getReturnEligibility(product: Product) {
     return "Return eligible only if sealed, unused and reported within the approved policy window.";
   }
   if (product.category === "skincare" || product.category === "bodycare") {
-    return "Unopened skincare/bodycare items only. Final policy requires owner/legal approval.";
+    return "Unopened skincare/bodycare items may be eligible according to GLAMO return policy.";
   }
-  return "Return eligibility depends on final GLAMO policy and supplier condition checks.";
+  return "Return eligibility depends on product condition and GLAMO return policy.";
 }
 
 export function getAuthenticityNote(product: Product) {
   return product.madeInNepal
-    ? "Verify manufacturer, batch and MRP before publishing this Made in Nepal item."
-    : "Confirm importer/distributor documentation before publishing this product.";
+    ? "Made in Nepal item selected for local beauty discovery. Check packaging and batch details on arrival."
+    : "Curated product selection with authenticity-first sourcing standards.";
 }
 
 export function getBatchExpiryNote(product: Product) {
-  return `${product.sku}: batch number, manufacture date and expiry date are required from supplier before launch.`;
+  return `${product.sku}: check batch number, manufacturing date and expiry date on the product package before use.`;
 }
 
 export function getPatchTestNote(product: Product) {
   if (["skincare", "bodycare", "haircare"].includes(product.category)) {
     return "Patch test before first use. Stop use if irritation occurs and consult a professional for persistent concerns.";
   }
-  return "Check shade/finish on a small area where appropriate. Product performance claims need supplier approval.";
+  return "Check shade and finish on a small area where appropriate before full application.";
 }
