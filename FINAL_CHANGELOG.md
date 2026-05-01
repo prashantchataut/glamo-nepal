@@ -1,106 +1,65 @@
-# Final Changelog
+# Final Changelog - UI Redesign Update
 
-## Production-polish sprint added
+## What was improved
 
-- Rebuilt the auth screens with reusable frontend-only login/register/forgot/reset UI.
-- Added middleware protection for `/account` and `/admin` using a mock `glamo-auth-token` cookie.
-- Added an account shell with responsive navigation, logout, profile, orders, order detail, wishlist, addresses and password screens.
-- Added a stronger admin placeholder shell with inventory, low-stock, campaign, audit and production-auth warnings.
-- Added `LegalLayout` plus canonical static pages for FAQ, shipping, returns, privacy and terms, with alias redirects for policy-style URLs.
-- Added page-level SEO metadata across storefront, content, account, auth, legal, cart, checkout, compare, category, search and product routes.
-- Added shared JSON-LD helpers for organization, product and breadcrumb schema.
-- Added polished reusable loading and error boundary components and route-level boundaries for key sections.
-- Added backend adapter files for API client, checkout/payment verification and customer account endpoints.
-- Added analytics-ready frontend event helper for add-to-cart, wishlist, compare, payment method and simulated order events.
-- Refined 404 page with premium GLAMO styling and recovery links.
+### Homepage simplification
+- Reduced homepage clutter and removed several stacked promotional sections.
+- Rebuilt the flow to focus on a cleaner customer journey: hero -> trust strip -> categories -> seasonal banner -> featured products -> category discovery -> beauty finder -> social/blog/newsletter.
 
-## Added in the ecommerce build
+### Hero section refresh
+- Reworked the hero banner into a more premium editorial layout.
+- Simplified the copy and removed AI-looking filler styling.
+- Improved CTA hierarchy and supporting content blocks.
 
-- Complete route coverage requested by the owner.
-- Nepal-market mock product catalog with NPR pricing, SKU, stock, origin, Made in Nepal flag, concerns, benefits, how-to-use, ingredients, review summaries and source/audit notes.
-- Local neutral placeholder SVG product/category/hero/blog imagery.
-- Backend-ready TypeScript API contracts and mock catalog API helpers.
-- Persistent Zustand stores: cart, wishlist, compare, recently viewed, mock auth and checkout simulation.
-- Product comparison tray and `/compare` page with max-three-product behavior.
-- Recently viewed product strip.
-- COD availability checker component.
-- WhatsApp floating button linked to `https://wa.me/9779818212188` and hidden on checkout pages.
-- Back-to-top button.
-- Config-driven Dashain sale banner.
-- Beauty profile quiz with mock recommendations.
-- `.env.example` with public environment placeholders.
-- SEO files: sitemap and robots.
+### New Year campaign banner
+- Replaced the previous Dashain-focused customer-facing banner with a **New Year 2083 Special Offer** banner.
+- Removed technical or internal-sounding text such as frontend/config messaging.
+- Introduced a richer, more visually appealing festive offer layout aligned with the GLAMO theme.
 
-## Improved
+### Product card cleanup
+- Simplified product cards to feel more premium and less template-like.
+- Reduced visual noise while keeping essential commerce information visible.
+- Improved pricing, wishlist interaction and card hierarchy.
 
-- Product cards include NPR formatting, hover zoom, wishlist, compare, sale/Made in Nepal badges, rating, stock messaging, analytics hooks and accessible focus states.
-- Shop page supports category, subcategory, brand, concern, skin type, Made in Nepal, price, stock, search and sort filters with URL-ready state.
-- Product detail page includes rich merchandising, variant/shade selector, sticky add-to-cart, SKU copy, share action, related products, recently viewed and structured data.
-- Cart and checkout pages show a complete frontend ecommerce flow with Nepal-specific address and payment UI.
-- Blog list/detail pages now use stronger editorial layout, dynamic metadata and article schema.
-- Footer, Instagram gallery, metadata and constants use the correct GLAMO NEPAL details.
+### Navigation and footer refinement
+- Rebuilt the navbar for a cleaner storefront feel.
+- Simplified the footer and improved overall polish.
 
-## Verified manually in files
+### Content cleanup
+- Replaced customer-facing technical language in several visible areas.
+- Updated checkout, cart and contact wording so the storefront sounds more customer-ready.
 
-- Instagram handle: `@glamo_nepal`
-- Instagram URL: `https://www.instagram.com/glamo_nepal/`
-- Phone: `+977 9818212188`
-- Address: `Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal`
-- Currency formatting helper uses NPR.
-- No remote competitor product images are referenced in source data; local neutral placeholder SVGs are used.
+### Technical adjustments
+- Replaced remote Google font loading with local-safe CSS variable fallbacks so builds are less fragile in restricted environments.
+- Removed duplicate delivery strip rendering from the global layout.
 
-## Remaining production requirements
-
-- Real product images
-- Supplier-approved product data and product claims
-- Backend API
-- Real auth, secure sessions and admin RBAC
-- Khalti/eSewa/card credentials and server-side verification
-- Courier/COD rules
-- Legal policy approval
-- Analytics IDs and consent strategy
+## Main files updated
+- `src/app/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/globals.css`
+- `src/lib/constants.ts`
+- `src/components/home/HeroBanner.tsx`
+- `src/components/home/DashainSaleBanner.tsx`
+- `src/components/home/QuickCategoryPills.tsx`
+- `src/components/home/FeaturedProducts.tsx`
+- `src/components/home/BeautyProfileQuiz.tsx`
+- `src/components/common/DeliveryPromiseStrip.tsx`
+- `src/components/product/ProductCard.tsx`
+- `src/components/layout/Navbar.tsx`
+- `src/components/layout/Footer.tsx`
+- `src/components/checkout/CheckoutPageClient.tsx`
+- `src/components/cart/CartPageClient.tsx`
+- `src/app/contact/page.tsx`
+- `src/lib/analytics.ts`
+- `src/lib/api/orders.ts`
 
 
-## Production hardening pass
+## UI restraint and New Year 2083 polish pass
 
-- Removed legacy `src/app/(auth)` route group to prevent duplicate `/login` and related auth route collisions in Next.js App Router.
-- Expanded mock in-stock catalog to 44 products with Nepal-market category/price-band audit notes, stock counts, variants and placeholder images.
-- Added inventory snapshot helpers and upgraded admin mock with reorder thresholds, stock risk labels and source/audit notes.
-- Added dependency-free static QA scripts for route duplicates, local import resolution and content safety.
-- Added `PRODUCT_DATA_GUIDE.md` and `DEPLOYMENT_CHECKLIST.md`.
-- Updated mock auth middleware to distinguish customer/admin demo roles while documenting that backend RBAC is required.
-
-## Production-readiness pass - current update
-
-- Added delivery/COD rules layer in `src/lib/delivery.ts` with province/district service rules, free-delivery thresholds, delivery fees and owner action notes.
-- Upgraded checkout UX with step progress, district options by province, route-based delivery fee calculation, free-delivery progress, COD disabling for unsupported districts and stronger payment warnings.
-- Added merchandising collection routes:
-  - `/collections`
-  - `/collections/new-arrivals`
-  - `/collections/best-sellers`
-  - `/collections/made-in-nepal`
-  - `/collections/festival-ready`
-  - `/collections/under-npr-1000`
-  - `/collections/low-stock`
-- Added collection metadata, breadcrumb JSON-LD and sitemap coverage.
-- Improved shop URL filter behavior with removable active chips, min/max price persistence and quick price ranges.
-- Added frontend API adapters for auth, orders and admin endpoints.
-- Added environment readiness helper in `src/lib/env.ts` and surfaced environment status in the admin dashboard.
-- Expanded analytics event layer with dataLayer, gtag and Meta Pixel-compatible hooks.
-- Improved mock auth store with explicit customer/admin roles and safer default logged-out state.
-- Added QA checks for product data, source accessibility and `.env.example` completeness.
-- Fixed external social links to use `rel="noopener noreferrer"`.
-
-
-## Production-readiness continuation pass
-
-- Added routine-builder feature routes: `/routines` and `/routines/[slug]`.
-- Added brand landing routes: `/brands` and `/brands/[slug]`.
-- Added bundle-ready product routine data and reusable `ProductBundleCard`.
-- Added back-in-stock `NotifyMeForm` with Nepal phone/email validation and analytics event.
-- Added product safety messaging helpers for return eligibility, authenticity, patch testing and batch/expiry requirements.
-- Added global delivery/trust promise strip and skip-to-content accessibility link.
-- Improved search UX with suggestions and no-result recommendations.
-- Expanded public sitemap coverage for routines and brands.
-- Added static QA scripts for smoke routes, store contracts and performance/source hygiene.
-- Added `PRODUCTION_PROGRESS.md` to track remaining frontend/backend production work.
+- Reworked the homepage into a calmer storefront sequence.
+- Replaced the Dashain/dev-style campaign banner with a New Year 2083 offer banner.
+- Simplified hero, nav, footer, category entry points and product cards.
+- Removed customer-facing developer wording from key shopping pages.
+- Removed Framer Motion from root-level overlays/navigation for a calmer feel and lighter source.
+- Confirmed TypeScript, ESLint and static QA checks pass in the sandbox.
+- Full Next build still times out in this sandbox at the optimized production build stage; run locally with dependencies installed.

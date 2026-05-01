@@ -18,7 +18,7 @@ export default function BrandsPage() {
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Brands", path: "/brands" }])} />
       <section className="bg-brand-bgDark py-16 text-white md:py-24">
         <div className="container mx-auto px-4 text-center md:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">Supplier-ready catalog</p>
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">Curated beauty brands</p>
           <h1 className="mt-3 font-serif text-5xl font-semibold md:text-6xl">Shop by Brand</h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/72 md:text-base">Explore beauty brands, category edits and Nepal-ready product selections curated by GLAMO NEPAL.</p>
         </div>

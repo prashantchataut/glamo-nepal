@@ -1,0 +1,28 @@
+import { Request, Response, NextFunction } from "express";
+import { ZodSchema, ZodError } from "zod";
+import { AppError } from "@/utils/AppError";
+
+export function validate(schema: ZodSchema) {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    try {
+      const result = schema.parse({
+        body: req.body,
+        query: req.query,
+        params: req.params,
+      });
+      req.body = result.body ?? req.body;
+      req.query = result.query ?? req.query;
+      req.params = result.params ?? req.params;
+      next();
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const messages = error.errors.map(
+          (err) => `${err.path.join(".")}: ${err.message}`
+        );
+        next(AppError.badRequest("Validation failed", messages));
+      } else {
+        next(error);
+      }
+    }
+  };
+}

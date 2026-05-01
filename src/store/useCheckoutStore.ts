@@ -31,6 +31,6 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
       reset: () => set({ status: "idle" }),
     }),
-    { name: "glamo-checkout-storage" },
+    { name: "glamo-checkout-storage", skipHydration: true },
   ),
 );

@@ -6,7 +6,7 @@ import { cn, formatNpr } from "@/lib/utils";
 
 export function getCodRule(district: string, province?: string) {
   const rule = getDeliveryRule(district, province);
-  return { available: rule.codAvailable, estimate: rule.estimate, fee: rule.fee, ownerNote: rule.ownerNote };
+  return { available: rule.codAvailable, estimate: rule.estimate, fee: rule.fee };
 }
 
 export function CodAvailabilityChecker({ district, province }: { district: string; province?: string }) {
@@ -22,7 +22,6 @@ export function CodAvailabilityChecker({ district, province }: { district: strin
           <p className="font-semibold">{rule.codAvailable ? "COD available" : "Prepaid checkout recommended"} in {district}</p>
           <p className="mt-1 flex items-center gap-1 text-sm opacity-80"><Clock size={14} /> Estimated delivery: {rule.estimate}</p>
           <p className="mt-1 flex items-center gap-1 text-sm opacity-80"><MapPin size={14} /> Delivery fee before threshold: {formatNpr(rule.fee)}</p>
-          <p className="mt-2 text-xs opacity-75">{rule.ownerNote}</p>
         </div>
       </div>
     </div>

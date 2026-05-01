@@ -58,7 +58,7 @@ export const defaultMetadata = createMetadata({
 export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "BeautySalon",
+    "@type": "OnlineStore",
     name: SITE_CONFIG.fullTitle,
     url: SITE_CONFIG.website,
     telephone: SITE_CONFIG.phone,

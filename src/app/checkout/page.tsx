@@ -1,7 +1,5 @@
-import { CheckoutPageClient } from "@/components/checkout/CheckoutPageClient";
+import dynamic from "next/dynamic";
 import { createMetadata } from "@/lib/seo";
-
-export const dynamic = "force-dynamic";
 
 export const metadata = createMetadata({
   title: "Checkout",
@@ -9,6 +7,11 @@ export const metadata = createMetadata({
   path: "/checkout",
   noIndex: true,
 });
+
+const CheckoutPageClient = dynamic(
+  () => import("@/components/checkout/CheckoutPageClient").then((mod) => mod.CheckoutPageClient),
+  { ssr: false }
+);
 
 export default function CheckoutPage() {
   return <CheckoutPageClient />;

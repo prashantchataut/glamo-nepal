@@ -28,7 +28,7 @@ export default function ContactPage() {
             <MapPin className="text-brand-primary" />
             <h2 className="mt-4 font-serif text-3xl font-semibold text-brand-textPrimary">Store location</h2>
             <p className="mt-3 leading-7 text-brand-textMuted">{SITE_CONFIG.address}</p>
-            <p className="mt-3 text-sm text-brand-textMuted">Add official store hours and Google Maps embed once confirmed by the owner.</p>
+            <p className="mt-3 text-sm text-brand-textMuted">Store hours and map coming soon.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {contactCards.map(({ icon: Icon, label, value, href }) => (

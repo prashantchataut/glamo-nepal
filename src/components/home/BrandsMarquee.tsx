@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { BRAND_LOGOS } from "@/lib/constants";
 
 export function BrandsMarquee() {
@@ -16,9 +17,13 @@ export function BrandsMarquee() {
         <div className="animate-marquee-scroll flex items-center gap-16 md:gap-24 px-8">
           {doubled.map((brand, i) => (
             <div key={`brand-${i}`} className="flex-shrink-0 flex items-center justify-center opacity-40 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-500">
-              <span className="font-serif text-xl md:text-2xl font-semibold text-brand-textPrimary tracking-[0.1em]">
-                {brand.name}
-              </span>
+              <Image
+                src={brand.image}
+                alt={brand.name}
+                width={120}
+                height={40}
+                className="h-8 md:h-10 w-auto object-contain"
+              />
             </div>
           ))}
         </div>
