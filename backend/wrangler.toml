@@ -1,0 +1,23 @@
+name = "glamo-nepal-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "glamo-nepal-db"
+database_id = "placeholder-replace-after-creating-database"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "placeholder-replace-after-creating-namespace"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "glamo-nepal-assets"
+
+[vars]
+FRONTEND_URL = "http://localhost:3000"
+FREE_SHIPPING_THRESHOLD = "2500"
+COD_FEE = "50"
+ADMIN_EMAIL = "admin@glamonepal.com"

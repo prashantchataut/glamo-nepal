@@ -1,10 +1,8 @@
 node_modules/
 dist/
 .env
-.env.local
-.env*.local
-coverage/
+.dev.vars
 *.log
-logs/
+.wrangler/
 .DS_Store
 *.pem
