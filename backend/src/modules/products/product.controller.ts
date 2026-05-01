@@ -6,7 +6,8 @@ import * as ProductService from './product.service'
 export async function getProducts(c: Context<AppEnv>) {
   try {
     const query = c.req.query()
-    const isAdmin = query.isAdmin === 'true'
+    const user = c.get('user')
+    const isAdmin = user ? ['ADMIN', 'SUPER_ADMIN'].includes(user.role) : false
     const filters = {
       category: query.category,
       brand: query.brand,

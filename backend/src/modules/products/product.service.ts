@@ -214,8 +214,11 @@ export async function getProducts(
     }
   }
 
+const ALLOWED_SORT_COLUMNS = new Set(['newest', 'price-asc', 'price-desc', 'best-seller', 'most-reviewed', 'rating'])
+
   let orderBy = 'p.created_at DESC'
-  switch (filters.sort) {
+  const sortKey = ALLOWED_SORT_COLUMNS.has(filters.sort || '') ? (filters.sort || 'newest') : 'newest'
+  switch (sortKey) {
     case 'price-asc':
       orderBy = 'p.base_price ASC'
       break
@@ -280,7 +283,8 @@ export async function getProductsCached(
   db: D1Database,
   kv: KVNamespace
 ) {
-  const filterKey = JSON.stringify(filters)
+  const sortedEntries = Object.entries(filters).sort(([a], [b]) => a.localeCompare(b))
+  const filterKey = sortedEntries.map(([k, v]) => `${k}=${v}`).join('&')
   const cacheKey = `products:list:${filterKey}`
 
   const cached = await getFromCache<{ products: ReturnType<typeof formatProduct>[]; pagination: ReturnType<typeof buildPaginationResult> }>(kv, cacheKey)

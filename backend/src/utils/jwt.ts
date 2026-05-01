@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose'
+import { SignJWT, jwtVerify, importPKCS8, importSPKI } from 'jose'
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
 import { deleteCookie, setCookie } from 'hono/cookie'
@@ -12,43 +12,63 @@ interface TokenPayload {
 const ACCESS_TOKEN_EXPIRY = '15m'
 const REFRESH_TOKEN_EXPIRY = '7d'
 
-function getPrivateKey(key: string): Uint8Array {
-  return new TextEncoder().encode(key)
+let cachedPrivateKey: CryptoKey | null = null
+let cachedPrivateKeyPem: string | null = null
+let cachedPublicKey: CryptoKey | null = null
+let cachedPublicKeyPem: string | null = null
+
+async function getPrivateKey(pem: string): Promise<CryptoKey> {
+  if (cachedPrivateKeyPem === pem && cachedPrivateKey) {
+    return cachedPrivateKey
+  }
+  const key = await importPKCS8(pem, 'RS256')
+  cachedPrivateKey = key
+  cachedPrivateKeyPem = pem
+  return key
 }
 
-function getPublicKey(key: string): Uint8Array {
-  return new TextEncoder().encode(key)
+async function getPublicKey(pem: string): Promise<CryptoKey> {
+  if (cachedPublicKeyPem === pem && cachedPublicKey) {
+    return cachedPublicKey
+  }
+  const key = await importSPKI(pem, 'RS256')
+  cachedPublicKey = key
+  cachedPublicKeyPem = pem
+  return key
 }
 
 export async function generateAccessToken(
   payload: TokenPayload,
-  privateKey: string
+  privateKeyPem: string
 ): Promise<string> {
+  const key = await getPrivateKey(privateKeyPem)
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'RS256' })
     .setIssuedAt()
     .setExpirationTime(ACCESS_TOKEN_EXPIRY)
-    .sign(getPrivateKey(privateKey))
+    .sign(key)
   return token
 }
 
 export async function generateRefreshToken(
   payload: TokenPayload,
-  privateKey: string
+  privateKeyPem: string
 ): Promise<string> {
+  const key = await getPrivateKey(privateKeyPem)
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'RS256' })
     .setIssuedAt()
     .setExpirationTime(REFRESH_TOKEN_EXPIRY)
-    .sign(getPrivateKey(privateKey))
+    .sign(key)
   return token
 }
 
 export async function verifyToken(
   token: string,
-  publicKey: string
+  publicKeyPem: string
 ): Promise<TokenPayload> {
-  const { payload } = await jwtVerify(token, getPublicKey(publicKey), {
+  const key = await getPublicKey(publicKeyPem)
+  const { payload } = await jwtVerify(token, key, {
     algorithms: ['RS256'],
   })
   return payload as unknown as TokenPayload

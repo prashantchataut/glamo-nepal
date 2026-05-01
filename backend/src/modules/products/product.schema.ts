@@ -18,10 +18,6 @@ export const productFilterSchema = z.object({
   sort: z.enum(['newest', 'price-asc', 'price-desc', 'best-seller', 'most-reviewed', 'rating']).default('newest'),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(24),
-  isAdmin: z
-    .string()
-    .optional()
-    .transform((v) => v === 'true' || v === '1'),
 })
 
 const tagsTransform = z.union([

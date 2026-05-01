@@ -13,7 +13,7 @@ import { inventoryRoutes } from './modules/inventory/inventory.routes'
 const app = new Hono<AppEnv>()
 
 app.use('*', cors({
-  origin: (origin) => origin || '*',
+  origin: 'http://localhost:3000',
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposeHeaders: ['X-Total-Count'],

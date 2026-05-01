@@ -87,18 +87,18 @@ INSERT INTO products (id, name, slug, description, short_description, sku, categ
 
 -- Site Settings
 INSERT INTO site_settings (id, key, value, "group") VALUES
-('ss_001', 'site_name', 'GLAMO Nepal', 'general', datetime('now')),
-('ss_002', 'site_tagline', 'Your Beauty, Our Passion', 'general', datetime('now')),
-('ss_003', 'site_description', 'Nepal''s premier online beauty destination — authentic skincare, makeup, hair care, and fragrance products delivered to your doorstep.', 'general', datetime('now')),
-('ss_004', 'contact_email', 'hello@glamonepal.com', 'contact', datetime('now')),
-('ss_005', 'contact_phone', '+977-01-4567890', 'contact', datetime('now')),
-('ss_006', 'contact_address', 'Jhamsikhel, Lalitpur, Nepal', 'contact', datetime('now')),
-('ss_007', 'instagram_handle', '@glamonepal', 'social', datetime('now')),
-('ss_008', 'instagram_url', 'https://instagram.com/glamonepal', 'social', datetime('now')),
-('ss_009', 'currency', 'NPR', 'shop', datetime('now')),
-('ss_010', 'free_shipping_threshold', '200000', 'shop', datetime('now')),
-('ss_011', 'flat_shipping_fee', '15000', 'shop', datetime('now')),
-('ss_012', 'tax_rate', '0', 'shop', datetime('now'));
+('ss_001', 'site_name', 'GLAMO Nepal', 'general'),
+('ss_002', 'site_tagline', 'Your Beauty, Our Passion', 'general'),
+('ss_003', 'site_description', 'Nepal''s premier online beauty destination — authentic skincare, makeup, hair care, and fragrance products delivered to your doorstep.', 'general'),
+('ss_004', 'contact_email', 'hello@glamonepal.com', 'contact'),
+('ss_005', 'contact_phone', '+977-01-4567890', 'contact'),
+('ss_006', 'contact_address', 'Jhamsikhel, Lalitpur, Nepal', 'contact'),
+('ss_007', 'instagram_handle', '@glamonepal', 'social'),
+('ss_008', 'instagram_url', 'https://instagram.com/glamonepal', 'social'),
+('ss_009', 'currency', 'NPR', 'shop'),
+('ss_010', 'free_shipping_threshold', '250000', 'shop'),
+('ss_011', 'flat_shipping_fee', '5000', 'shop'),
+('ss_012', 'tax_rate', '0', 'shop');
 
 -- Hero Banners (2)
 INSERT INTO banners (id, title, subtitle, image_url, link_url, position, sort_order, is_active, created_at, updated_at) VALUES

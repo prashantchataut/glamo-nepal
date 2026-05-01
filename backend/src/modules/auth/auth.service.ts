@@ -126,12 +126,13 @@ export async function login(
   const accessToken = await generateAccessToken(tokenPayload, env.JWT_PRIVATE_KEY)
   const refreshToken = await generateRefreshToken(tokenPayload, env.JWT_PRIVATE_KEY)
 
+  const refreshTokenHash = await sha256(refreshToken)
   const refreshTokenId = crypto.randomUUID()
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
   await db
     .prepare('INSERT INTO refresh_tokens (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)')
-    .bind(refreshTokenId, user.id, refreshToken, expiresAt)
+    .bind(refreshTokenId, user.id, refreshTokenHash, expiresAt)
     .run()
 
   setAuthCookies(c, accessToken, refreshToken)
@@ -140,19 +141,10 @@ export async function login(
 }
 
 export async function logout(userId: string, db: D1Database, c: Context) {
-  const cookieHeader = c.req.header('Cookie')
-  let token: string | undefined
-  if (cookieHeader) {
-    const match = cookieHeader.match(/(?:^|;\s*)__Host-refresh_token=([^;]+)/)
-    token = match?.[1]
-  }
-
-  if (token) {
-    await db
-      .prepare('UPDATE refresh_tokens SET revoked_at = datetime(\'now\') WHERE token = ? AND user_id = ?')
-      .bind(token, userId)
-      .run()
-  }
+  await db
+    .prepare('UPDATE refresh_tokens SET revoked_at = datetime(\'now\') WHERE user_id = ? AND revoked_at IS NULL')
+    .bind(userId)
+    .run()
 
   clearAuthCookies(c)
 }
@@ -162,12 +154,18 @@ export async function refreshToken(token: string, db: D1Database, env: Cloudflar
     throw new Error('NO_TOKEN')
   }
 
+  const tokenHash = await sha256(token)
+
   const stored = await db
     .prepare('SELECT * FROM refresh_tokens WHERE token = ? AND revoked_at IS NULL')
-    .bind(token)
+    .bind(tokenHash)
     .first<{ id: string; user_id: string; token: string; expires_at: string }>()
 
   if (!stored) {
+    await db
+      .prepare('UPDATE refresh_tokens SET revoked_at = datetime(\'now\') WHERE user_id = (SELECT user_id FROM refresh_tokens WHERE token = ?) AND revoked_at IS NULL')
+      .bind(tokenHash)
+      .run()
     throw new Error('INVALID_TOKEN')
   }
 
@@ -197,12 +195,13 @@ export async function refreshToken(token: string, db: D1Database, env: Cloudflar
   const newAccessToken = await generateAccessToken(tokenPayload, env.JWT_PRIVATE_KEY)
   const newRefreshToken = await generateRefreshToken(tokenPayload, env.JWT_PRIVATE_KEY)
 
+  const newRefreshTokenHash = await sha256(newRefreshToken)
   const newRefreshTokenId = crypto.randomUUID()
   const newExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
   await db
     .prepare('INSERT INTO refresh_tokens (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)')
-    .bind(newRefreshTokenId, user.id, newRefreshToken, newExpiresAt)
+    .bind(newRefreshTokenId, user.id, newRefreshTokenHash, newExpiresAt)
     .run()
 
   setAuthCookies(c, newAccessToken, newRefreshToken)
@@ -421,12 +420,13 @@ export async function googleOAuthCallback(code: string, db: D1Database, env: Clo
   const accessToken = await generateAccessToken(tokenPayload, env.JWT_PRIVATE_KEY)
   const refreshToken = await generateRefreshToken(tokenPayload, env.JWT_PRIVATE_KEY)
 
+  const refreshTokenHash = await sha256(refreshToken)
   const refreshTokenId = crypto.randomUUID()
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
   await db
     .prepare('INSERT INTO refresh_tokens (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)')
-    .bind(refreshTokenId, user!.id, refreshToken, expiresAt)
+    .bind(refreshTokenId, user!.id, refreshTokenHash, expiresAt)
     .run()
 
   setAuthCookies(c, accessToken, refreshToken)

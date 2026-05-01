@@ -1,34 +1,32 @@
 import { createMiddleware } from 'hono/factory'
 import type { AppEnv } from '../types/bindings'
-import { importSPKI, jwtVerify } from 'jose'
+import { verifyToken } from '../utils/jwt'
 
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
-  const token = c.req.header('Authorization')?.replace('Bearer ', '') 
+  const token = c.req.header('Authorization')?.replace('Bearer ', '')
     ?? getCookieToken(c)
 
   if (!token) {
     return c.json({ success: false, message: 'Unauthorized: no token provided', errors: [] }, 401)
   }
 
-  let payload: Record<string, unknown>
+  let payload: { id: string; email: string; role: string }
   try {
-    const publicKey = await importSPKI(c.env.JWT_PUBLIC_KEY, 'RS256')
-    const { payload: decoded } = await jwtVerify(token, publicKey)
-    payload = decoded as Record<string, unknown>
+    payload = await verifyToken(token, c.env.JWT_PUBLIC_KEY)
   } catch {
     return c.json({ success: false, message: 'Unauthorized: invalid token', errors: [] }, 401)
   }
 
-  const userId = payload.sub
+  const userId = payload.id
   if (!userId) {
     return c.json({ success: false, message: 'Unauthorized: invalid token payload', errors: [] }, 401)
   }
 
   const user = await c.env.DB.prepare(
-    'SELECT id, email, role, isActive FROM User WHERE id = ?'
-  ).bind(userId).first<{ id: string; email: string; role: string; isActive: number }>()
+    'SELECT id, email, role, is_active FROM users WHERE id = ? AND deleted_at IS NULL'
+  ).bind(userId).first<{ id: string; email: string; role: string; is_active: number }>()
 
-  if (!user || !user.isActive) {
+  if (!user || !user.is_active) {
     return c.json({ success: false, message: 'Unauthorized: user not found or inactive', errors: [] }, 401)
   }
 
@@ -36,7 +34,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     id: user.id,
     email: user.email,
     role: user.role,
-    isActive: !!user.isActive,
+    isActive: !!user.is_active,
   })
 
   await next()
