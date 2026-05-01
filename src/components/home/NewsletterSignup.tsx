@@ -10,16 +10,15 @@ export function NewsletterSignup() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
-    // TODO: Wire to real newsletter API (e.g., Mailchimp, ConvertKit)
     setSubmitted(true);
   }
 
   return (
-    <section className="py-24 md:py-32 bg-brand-bgDark text-white relative overflow-hidden">
+    <section className="py-16 md:py-20 lg:py-24 bg-brand-bgDark text-white relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl aspect-square bg-brand-primary/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-brand-secondary/10 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl mx-auto text-center">
           <span className="inline-block px-4 py-1.5 bg-white/10 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full mb-8 border border-white/10">
             Join the Inner Circle

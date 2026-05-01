@@ -47,17 +47,17 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-black/6 bg-white shadow-[0_24px_60px_-48px_rgba(53,29,44,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_32px_80px_-48px_rgba(53,29,44,0.5)] focus-within:ring-2 focus-within:ring-brand-primary/20">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-black/6 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(139,58,143,0.12)] focus-within:ring-2 focus-within:ring-brand-primary/20">
       <div className="relative">
-        <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2">
-          {discount > 0 ? <span className="rounded-full bg-brand-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white">Save {discount}%</span> : null}
-          {!product.inStock ? <span className="rounded-full bg-brand-textMuted px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white">Sold out</span> : null}
+        <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
+          {discount > 0 ? <span className="rounded-full bg-brand-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white">Save {discount}%</span> : null}
+          {!product.inStock ? <span className="rounded-full bg-brand-textMuted px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white">Sold out</span> : null}
         </div>
         <button
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-sm backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
+            "absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
             isWishlisted
               ? "border-brand-primary bg-brand-primary text-white"
               : "border-black/8 bg-white/85 text-brand-textMuted hover:text-brand-primary"
@@ -116,7 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-white">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white">
       <div className="aspect-[4/5] skeleton-shimmer" />
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="h-3 w-20 rounded skeleton-shimmer" />

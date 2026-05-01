@@ -81,7 +81,7 @@ export default function ContactPage() {
                 <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0"><Phone size={18} className="text-brand-primary" strokeWidth={1.5} /></div>
                 <div>
                   <p className="font-semibold text-brand-textPrimary text-sm">Phone</p>
-                  <a href={`tel:${SITE_CONFIG.phone}`} className="text-sm text-brand-textMuted hover:text-brand-primary transition-colors">{SITE_CONFIG.phone}</a>
+                  <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-textMuted hover:text-brand-primary transition-colors">{SITE_CONFIG.phone}</a>
                 </div>
               </div>
               <div className="flex items-start gap-4">

@@ -7,9 +7,9 @@ import { SITE_CONFIG } from "@/lib/constants";
 
 export function Footer() {
   return (
-    <footer className="border-t border-black/5 bg-[#2C1626] pb-10 pt-16 text-white/75">
+    <footer className="border-t border-black/5 bg-[#2C1626] pb-24 pt-16 text-white/75 md:pb-10">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid gap-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[1.15fr_0.85fr_1fr]">
           <div>
             <Link href="/" className="flex items-center gap-2">
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
@@ -24,9 +24,9 @@ export function Footer() {
               Curated beauty, skincare and makeup essentials for shoppers in Kathmandu and across Nepal.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-brand-primary"><FaInstagram size={16} /></a>
-              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-brand-primary"><FaFacebook size={16} /></a>
-              <a href={SITE_CONFIG.whatsapp} aria-label="WhatsApp" className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-[#25D366]"><FaWhatsapp size={16} /></a>
+              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-brand-primary"><FaInstagram size={16} /></a>
+              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-brand-primary"><FaFacebook size={16} /></a>
+              <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition hover:bg-[#25D366]"><FaWhatsapp size={16} /></a>
             </div>
           </div>
 
@@ -59,7 +59,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <Phone size={18} className="shrink-0 text-brand-secondary" />
-                <a href={`tel:${SITE_CONFIG.phone}`} className="transition hover:text-white">{SITE_CONFIG.phone}</a>
+                <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp" className="transition hover:text-white">{SITE_CONFIG.phone}</a>
               </div>
               <div className="flex items-center gap-3">
                 <Mail size={18} className="shrink-0 text-brand-secondary" />
@@ -79,7 +79,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/40 md:flex-row md:items-center md:justify-between">
-          <p>&copy; {new Date().getFullYear()} {SITE_CONFIG.fullTitle}. All rights reserved.</p>
+          <p className="break-words">&copy; {new Date().getFullYear()} {SITE_CONFIG.fullTitle}. All rights reserved.</p>
           <div className="flex flex-wrap gap-4">
             <Link href="/faq" className="transition hover:text-white">FAQ</Link>
             <Link href="/shipping" className="transition hover:text-white">Shipping</Link>

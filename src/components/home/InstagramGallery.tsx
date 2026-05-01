@@ -6,8 +6,8 @@ import { INSTAGRAM_POSTS, SITE_CONFIG } from "@/lib/constants";
 
 export function InstagramGallery() {
   return (
-    <section className="overflow-hidden bg-white py-16 md:py-24">
-      <div className="container mx-auto mb-10 px-4 text-center md:px-6">
+    <section className="overflow-hidden bg-white py-16 md:py-20 lg:py-24">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
         <h2 className="mb-3 font-serif text-3xl font-semibold text-brand-textPrimary md:text-4xl">Follow Our <span className="italic text-brand-primary">Glow Journey</span></h2>
         <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-medium text-brand-textMuted transition-colors hover:text-brand-primary"><FaInstagram size={18} /> {SITE_CONFIG.instagramHandle}</a>
       </div>

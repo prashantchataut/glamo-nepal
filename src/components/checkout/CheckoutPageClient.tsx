@@ -115,7 +115,7 @@ export function CheckoutPageClient() {
   if (!items.length) {
     return (
       <main className="bg-brand-bgLight py-20">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="font-serif text-5xl font-semibold">Checkout</h1>
           <p className="mt-3 text-brand-textMuted">Your cart is empty or your order has already been placed.</p>
           <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-primary px-8 py-3 font-semibold text-white">Return to shop</Link>
@@ -126,12 +126,12 @@ export function CheckoutPageClient() {
 
   return (
     <main className="bg-brand-bgLight py-12">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Secure checkout</p>
         <h1 className="mt-2 font-serif text-5xl font-semibold text-brand-textPrimary">Checkout</h1>
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {checkoutSteps.map((step, index) => (
-            <div key={step} className="rounded-2xl bg-white p-4 shadow-sm">
+            <div key={step} className="rounded-xl bg-white p-4 shadow-sm">
               <div className={completedSteps[index] ? "h-2 rounded-full bg-brand-primary" : "h-2 rounded-full bg-brand-secondary/25"} />
               <p className="mt-3 text-sm font-semibold text-brand-textPrimary">{index + 1}. {step}</p>
             </div>
@@ -154,13 +154,13 @@ export function CheckoutPageClient() {
                 <Field label="Nepal phone" value={form.phone} onChange={(value) => updateForm({ phone: value })} placeholder="+977 9818212188" error={form.phone && !phoneValid ? "Use a valid Nepal mobile number" : ""} autoComplete="tel" />
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   Province
-                  <select value={form.province} onChange={(event) => updateProvince(event.target.value)} className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select value={form.province} onChange={(event) => updateProvince(event.target.value)} className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {PROVINCES.map((province) => <option key={province}>{province}</option>)}
                   </select>
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   District
-                  <select value={form.district} onChange={(event) => updateForm({ district: event.target.value })} className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select value={form.district} onChange={(event) => updateForm({ district: event.target.value })} className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {districtOptions.map((district) => <option key={district}>{district}</option>)}
                   </select>
                 </label>
@@ -169,7 +169,7 @@ export function CheckoutPageClient() {
                 <Field label="Address" value={form.address} onChange={(value) => updateForm({ address: value })} autoComplete="street-address" />
               </div>
               <div className="mt-5"><CodAvailabilityChecker district={form.district} province={form.province} /></div>
-              <div className="mt-5 rounded-2xl border border-brand-secondary/25 bg-brand-bgLight p-4">
+              <div className="mt-5 rounded-xl border border-brand-secondary/25 bg-brand-bgLight p-4">
                 <div className="flex items-start gap-3">
                   <Truck className="mt-0.5 text-brand-primary" size={18} />
                   <div className="flex-1">
@@ -190,7 +190,7 @@ export function CheckoutPageClient() {
                 {paymentMethods.map((method) => {
                   const disabled = method === "Cash on Delivery" && !deliveryRule.codAvailable;
                   return (
-                    <label key={method} className={`rounded-2xl border p-4 text-sm font-semibold transition ${form.payment === method ? "border-brand-primary bg-brand-primary text-white" : "border-border bg-brand-bgLight text-brand-textPrimary"} ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}>
+                    <label key={method} className={`rounded-xl border p-4 text-sm font-semibold transition ${form.payment === method ? "border-brand-primary bg-brand-primary text-white" : "border-border bg-brand-bgLight text-brand-textPrimary"} ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}>
                       <input
                         type="radio"
                         name="payment"
@@ -210,22 +210,22 @@ export function CheckoutPageClient() {
                 })}
               </div>
               {form.payment !== "Cash on Delivery" ? (
-                <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+                <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
                   <AlertCircle className="mb-2" /> Online payment options will be available soon. For now, choose the option that suits you best and continue with checkout.
                 </div>
               ) : null}
-              <label className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
-                <input type="checkbox" checked={form.giftWrap} onChange={(event) => updateForm({ giftWrap: event.target.checked })} />
+              <label className="mt-5 flex items-center gap-3 rounded-xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
+                <input type="checkbox" checked={form.giftWrap} onChange={(event) => updateForm({ giftWrap: event.target.checked })} className="h-4 w-4 rounded border-border text-brand-primary accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
                 <Gift size={18} /> Add gift wrapping for NPR 100
               </label>
               <label className="mt-5 block space-y-2 text-sm font-semibold text-brand-textPrimary">
                 Order notes
-                <textarea value={form.notes} onChange={(event) => updateForm({ notes: event.target.value })} rows={4} className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
+                <textarea value={form.notes} onChange={(event) => updateForm({ notes: event.target.value })} rows={4} className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
               </label>
             </div>
           </section>
 
-          <aside className="h-fit rounded-[2rem] bg-white p-6 shadow-sm lg:sticky lg:top-28">
+          <aside className="h-fit rounded-[2rem] bg-white p-6 shadow-sm lg:sticky lg:top-[calc(var(--total-header-height)+24px)]">
             <h2 className="font-serif text-3xl font-semibold">Summary</h2>
             <div className="mt-5 space-y-3 text-sm">
               {items.map((item) => (
@@ -280,7 +280,7 @@ function Field({
         placeholder={placeholder}
         autoComplete={autoComplete}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+        className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
       />
       {error ? <span className="text-xs text-red-600">{error}</span> : null}
     </label>

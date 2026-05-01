@@ -7,8 +7,8 @@ import { FEATURED_PRODUCTS } from "@/lib/constants";
 
 export function FeaturedProducts() {
   return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="container mx-auto px-4 md:px-6">
+    <section className="bg-white py-16 md:py-20 lg:py-24">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Featured selection</p>
@@ -22,7 +22,7 @@ export function FeaturedProducts() {
           </Link>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {FEATURED_PRODUCTS.slice(0, 4).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

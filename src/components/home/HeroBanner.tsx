@@ -37,11 +37,11 @@ export function HeroBanner() {
               {HERO_SLIDES.map((slide, index) => (
                 <div key={slide.id} className="min-w-0 flex-[0_0_100%]">
                   <div className={cn("grid min-h-[560px] items-center gap-10 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-12 md:py-12 lg:min-h-[620px] lg:px-16", slide.bgColor)}>
-                    <div className="relative z-10 max-w-xl">
+                    <div className="relative z-10 order-2 md:order-1 max-w-xl">
                       <span className="inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10 backdrop-blur">
                         {slide.annotation}
                       </span>
-                      <h1 className="mt-6 font-serif text-5xl font-semibold leading-[0.95] text-brand-textPrimary md:text-6xl lg:text-7xl">
+                      <h1 className="mt-6 font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-semibold leading-[0.95] text-brand-textPrimary">
                         <span className="block">{slide.title1}</span>
                         <span className="mt-2 block italic text-brand-primary">{slide.title2}</span>
                       </h1>
@@ -68,8 +68,8 @@ export function HeroBanner() {
                       </div>
                     </div>
 
-                    <div className="relative flex items-center justify-center">
-                      <div className="absolute inset-x-10 top-8 h-20 rounded-full bg-white/50 blur-2xl" />
+                    <div className="relative z-10 order-1 md:order-2 flex items-center justify-center">
+                      <div className="pointer-events-none absolute inset-x-10 top-8 h-20 rounded-full bg-white/50 blur-2xl" />
                       <div className="relative aspect-[4/4.8] w-full max-w-[460px] overflow-hidden rounded-[2rem] bg-white/60 p-3 ring-1 ring-black/5">
                         <div className="absolute left-6 top-6 z-10 rounded-full bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-bgDark shadow-sm">
                           Up to 30% OFF
@@ -106,10 +106,17 @@ export function HeroBanner() {
                   onClick={() => emblaApi?.scrollTo(index)}
                   aria-label={`Go to ${slide.annotation}`}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300",
-                    index === selectedIndex ? "w-10 bg-brand-primary" : "w-2 bg-brand-primary/25 hover:bg-brand-primary/45"
+                    "flex items-center justify-center min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0",
+                    index === selectedIndex
+                      ? "w-10 bg-brand-primary h-2 rounded-full transition-all duration-300 md:h-2 md:w-10"
+                      : "w-2 h-2 rounded-full bg-brand-primary/25 transition-all duration-300 hover:bg-brand-primary/45 md:h-2 md:w-2"
                   )}
-                />
+                >
+                  <span className={cn(
+                    "rounded-full transition-all duration-300",
+                    index === selectedIndex ? "h-2 w-10 bg-brand-primary" : "h-2 w-2 bg-brand-primary/25"
+                  )} />
+                </button>
               ))}
             </div>
             <div className="flex items-center gap-2">

@@ -12,8 +12,8 @@ export function TheGlowEdit() {
   const products = GLOW_EDIT_PRODUCTS[activeTab] || GLOW_EDIT_PRODUCTS["Best Sellers"];
 
   return (
-    <section className="py-20 md:py-28 bg-brand-bgLight">
-      <div className="container mx-auto px-4 md:px-6">
+    <section className="py-16 md:py-20 lg:py-24 bg-brand-bgLight">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-8 text-brand-textPrimary">
             The <span className="text-brand-primary italic">Glow Edit</span>
@@ -37,7 +37,7 @@ export function TheGlowEdit() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
           {products.map((product, i) => (
             <div key={`${activeTab}-${product.id}`} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${i * 80}ms` }}>
               <ProductCard product={product} />

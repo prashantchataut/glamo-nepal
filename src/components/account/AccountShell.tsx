@@ -35,9 +35,20 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <nav className="lg:hidden flex overflow-x-auto gap-1 pb-4 no-scrollbar" aria-label="Account navigation">
+          {navLinks.map(({ name, href, icon: Icon }) => {
+            const active = pathname === href || (href !== "/account" && pathname.startsWith(href));
+            return (
+              <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition", active ? "bg-brand-primary text-white" : "bg-white text-brand-textMuted hover:text-brand-primary")}>
+                <Icon size={16} strokeWidth={1.7} />
+                {name}
+              </Link>
+            );
+          })}
+        </nav>
         <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
-          <aside className="lg:sticky lg:top-28 lg:self-start">
+          <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
             <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-white shadow-sm">
               <div className="bg-brand-bgDark p-6 text-white">
                 <div className="flex items-center gap-4">
@@ -61,7 +72,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                       key={href}
                       href={href}
                       className={cn(
-                        "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-brand-primary/25",
+                        "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
                         active ? "bg-brand-primary text-white shadow-sm" : "text-brand-textMuted hover:bg-brand-bgLight hover:text-brand-primary",
                       )}
                     >

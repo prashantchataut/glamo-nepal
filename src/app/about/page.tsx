@@ -27,7 +27,7 @@ export default function AboutPage() {
             <h2 className="mt-4 font-serif text-4xl font-semibold text-brand-textPrimary">Built for the Nepal beauty customer</h2>
             <p className="mt-4 leading-7 text-brand-textMuted">GLAMO NEPAL is designed for customers who want polished product discovery, Nepal-relevant delivery information, local payment options and a premium beauty experience that feels trustworthy from the first visit.</p>
             <div className="mt-6 space-y-2 text-sm text-brand-textMuted">
-              <p><strong className="text-brand-textPrimary">Phone:</strong> {SITE_CONFIG.phone}</p>
+              <p><strong className="text-brand-textPrimary">Phone:</strong> <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="text-brand-textMuted hover:text-brand-primary transition-colors">{SITE_CONFIG.phone}</a></p>
               <p><strong className="text-brand-textPrimary">Instagram:</strong> {SITE_CONFIG.instagramHandle}</p>
               <p><strong className="text-brand-textPrimary">Payments:</strong> {SITE_CONFIG.paymentMethods.join(", ")}</p>
             </div>

@@ -7,8 +7,8 @@ export function BrandsMarquee() {
   const doubled = [...BRAND_LOGOS, ...BRAND_LOGOS, ...BRAND_LOGOS, ...BRAND_LOGOS];
 
   return (
-    <section className="py-14 md:py-20 bg-white border-y border-border/30 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6 mb-10 text-center">
+    <section className="py-12 md:py-16 bg-white border-y border-border/30 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
         <p className="text-brand-textMuted text-xs md:text-sm uppercase tracking-[0.25em] font-bold">
           Trusted by the finest brands
         </p>
