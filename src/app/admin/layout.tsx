@@ -1,12 +1,5 @@
-import { createMetadata } from "@/lib/seo";
+import type { ReactNode } from "react";
 
-export const metadata = createMetadata({
-  title: "Admin Dashboard Mock",
-  description: "Frontend-only GLAMO NEPAL admin shell for inventory, orders, campaign and audit status previews.",
-  path: "/admin",
-  noIndex: true,
-});
-
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }

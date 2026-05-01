@@ -9,7 +9,7 @@ This file tracks the practical frontend progress against the production-readines
 | 1. Build-perfect foundation | In progress | Static route/import/content checks exist. Full `npm run build` still needs a local environment with installed dependencies. Duplicate App Router path checks are included. |
 | 2. Visual QA across devices | In progress | Global trust/delivery strip, skip link, routine preview, branded pages and responsive route shells have been added. Manual device review is still required. |
 | 3. Backend-ready flows | In progress | Catalog, checkout, customer, auth, order and admin adapters exist. Bundle/routine data is now isolated for future APIs. |
-| 4. Real authentication flow | Mock only | Middleware and mock roles are included. Real cookie/session verification and backend RBAC remain required. |
+| 4. Real authentication flow | Mock only | Middleware and signed session roles are included. Real cookie/session verification and backend RBAC remain required. |
 | 5. Checkout/payment plan | In progress | COD/delivery rules, payment selection and success states are mocked. Real Khalti/eSewa/card verification must be backend-driven. |
 | 6. Product data system | In progress | Product guide, stock data, audit notes, batch/expiry reminders, patch-test messaging and supplier approval warnings are included. |
 | 7. Search/filtering | Improved | URL-ready shop filters, search suggestions, no-result recommendations, brand pages and expanded collections are included. |

@@ -15,7 +15,7 @@ interface SeoInput {
   type?: "website" | "article";
 }
 
-export function createMetadata({ title, description, path = "/", image = "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1200&q=80", noIndex = false, keywords = [], type = "website" }: SeoInput): Metadata {
+export function createMetadata({ title, description, path = "/", image = "/images/product-placeholder-blush.svg", noIndex = false, keywords = [], type = "website" }: SeoInput): Metadata {
   const url = absoluteUrl(path);
   const imageUrl = absoluteUrl(image);
 

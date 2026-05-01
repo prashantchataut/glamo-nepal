@@ -236,7 +236,7 @@ export async function getProducts(
   }
 
   const whereClause = conditions.join(' AND ')
-  const { page, limit, skip } = parsePagination(String(filters.page), String(filters.limit))
+  const { page, limit, skip } = parsePagination({ page: String(filters.page), limit: String(filters.limit) })
 
   const countSql = `SELECT COUNT(*) as total FROM products p WHERE ${whereClause}`
   const countResult = await db.prepare(countSql).bind(...params).first<{ total: number }>()
@@ -817,7 +817,7 @@ export async function searchProducts(query: string, page: number, limit: number,
   }
 
   const whereClause = conditions.join(' AND ')
-  const { skip } = parsePagination(String(page), String(limit))
+  const { skip } = parsePagination({ page: String(page), limit: String(limit) })
 
   const countResult = await db.prepare(`SELECT COUNT(*) as total FROM products p WHERE ${whereClause}`).bind(...params).first<{ total: number }>()
   const total = countResult?.total ?? 0

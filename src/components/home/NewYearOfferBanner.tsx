@@ -52,7 +52,7 @@ export function NewYearOfferBanner() {
               </div>
               <div className="relative h-[340px] w-[260px] overflow-hidden rounded-[2rem] border border-white/20 bg-white/12 p-3 shadow-2xl backdrop-blur">
                 <div className="relative h-full w-full overflow-hidden rounded-[1.5rem] bg-[#FDF6F9]">
-                  <Image src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80" alt="GLAMO New Year 2083 beauty offer" fill className="object-cover" sizes="(max-width: 1024px) 80vw, 30vw" />
+                  <Image src="/images/product-placeholder-sunscreen.svg" alt="GLAMO New Year 2083 beauty offer" fill className="object-cover" sizes="(max-width: 1024px) 80vw, 30vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1A0A1E]/20 via-transparent to-white/10" />
                 </div>
               </div>

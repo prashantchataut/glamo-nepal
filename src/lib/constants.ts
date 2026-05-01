@@ -47,7 +47,7 @@ export const HERO_SLIDES = [
     subtitle: "Fresh skincare, soft glam makeup and gifting edits curated for celebrations across Nepal.",
     cta: "Shop New Year Edit",
     ctaLink: "/collections/festival-ready",
-    image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1200&q=80",
+    image: "/images/hero-festival.svg",
     bgColor: "bg-[#F8EEF5]",
     annotation: "New Year 2083",
   },
@@ -58,7 +58,7 @@ export const HERO_SLIDES = [
     subtitle: "Discover bestsellers for bright mornings, polished workdays and effortless evening touch-ups.",
     cta: "Shop Best Sellers",
     ctaLink: "/collections/best-sellers",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&q=80",
+    image: "/images/hero-nepal.svg",
     bgColor: "bg-[#F6ECE6]",
     annotation: "Best Sellers",
   },
@@ -69,7 +69,7 @@ export const HERO_SLIDES = [
     subtitle: "Celebrate local beauty with curated picks, thoughtful gifting ideas and easy NPR shopping.",
     cta: "Shop Local Picks",
     ctaLink: "/collections/made-in-nepal",
-    image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1200&q=80",
+    image: "/images/product-placeholder-cream-2.svg",
     bgColor: "bg-[#EEF4F0]",
     annotation: "Local Love",
   },
@@ -92,8 +92,8 @@ export const TRUST_BADGES = [
 
 export const FEATURED_PRODUCTS: Product[] = PRODUCTS.filter((p) => p.isFeatured).slice(0, 8);
 export const PROMO_BANNERS = [
-  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80", gradient: "from-black/80 via-black/30 to-transparent" },
-  { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80", gradient: "from-[#8B3A8F]/90 via-[#8B3A8F]/40 to-transparent" },
+  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/product-placeholder-sunscreen.svg", gradient: "from-black/80 via-black/30 to-transparent" },
+  { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/product-placeholder-skincare.svg", gradient: "from-[#8B3A8F]/90 via-[#8B3A8F]/40 to-transparent" },
 ];
 export const SHOP_CATEGORIES = CATEGORIES.map((c) => ({ id: c.slug, name: c.name, image: c.image, slug: c.slug }));
 export const GLOW_EDIT_TABS = ["Best Sellers", "New Arrivals", "On Sale", "Made in Nepal"];
@@ -104,16 +104,16 @@ export const GLOW_EDIT_PRODUCTS: Record<string, Product[]> = {
   "Made in Nepal": PRODUCTS.filter((p) => p.madeInNepal).slice(0, 4),
 };
 export const INSTAGRAM_POSTS = [
-  { id: "ig1", image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80", caption: "@glamo_nepal Festival glow essentials" },
-  { id: "ig2", image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80", caption: "@glamo_nepal Daily skincare rituals" },
-  { id: "ig3", image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&q=80", caption: "@glamo_nepal Beauty tools and more" },
-  { id: "ig4", image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=600&q=80", caption: "@glamo_nepal Serum season" },
-  { id: "ig5", image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600&q=80", caption: "@glamo_nepal Made for you" },
-  { id: "ig6", image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&q=80", caption: "@glamo_nepal Body care love" },
+  { id: "ig1", image: "/images/product-placeholder-haircare.svg", caption: "@glamo_nepal Festival glow essentials" },
+  { id: "ig2", image: "/images/product-placeholder-bodycare.svg", caption: "@glamo_nepal Daily skincare rituals" },
+  { id: "ig3", image: "/images/promo-store.svg", caption: "@glamo_nepal Beauty tools and more" },
+  { id: "ig4", image: "/images/product-placeholder-cream.svg", caption: "@glamo_nepal Serum season" },
+  { id: "ig5", image: "/images/promo-new-year.svg", caption: "@glamo_nepal Made for you" },
+  { id: "ig6", image: "/images/product-placeholder-serum-2.svg", caption: "@glamo_nepal Body care love" },
 ];
 export const BLOG_POSTS = [
-  { id: 1, title: "How to Build a Kathmandu Skincare Routine", category: "Skincare", excerpt: "A simple routine framework for sun, dust, humidity and seasonal dryness.", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80", slug: "kathmandu-skincare-routine" },
-  { id: 2, title: "Festival Makeup That Lasts", category: "Makeup", excerpt: "Primer, tint, lip and setting tips for New Year, wedding events and long celebrations.", image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=800&q=80", slug: "festival-makeup-that-lasts" },
-  { id: 3, title: "Giftable Beauty Picks for New Year", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=800&q=80", slug: "new-year-2083-beauty-gift-guide" },
+  { id: 1, title: "How to Build a Kathmandu Skincare Routine", category: "Skincare", excerpt: "A simple routine framework for sun, dust, humidity and seasonal dryness.", image: "/images/promo-store.svg", slug: "kathmandu-skincare-routine" },
+  { id: 2, title: "Festival Makeup That Lasts", category: "Makeup", excerpt: "Primer, tint, lip and setting tips for New Year, wedding events and long celebrations.", image: "/images/product-placeholder-blush.svg", slug: "festival-makeup-that-lasts" },
+  { id: 3, title: "Giftable Beauty Picks for New Year", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "/images/product-placeholder-foundation.svg", slug: "new-year-2083-beauty-gift-guide" },
 ];
 export const BRAND_LOGOS = BRANDS.slice(0, 8).map((name, index) => ({ id: index + 1, name, image: `/brands/brand-${index + 1}.svg` }));

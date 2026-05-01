@@ -37,7 +37,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["All Skin Types", "Combination"],
     concerns: ["Brightening", "Hydration", "Sun Protection"],
     occasion: "Daily skincare",
-    image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80",
+    image: "/images/product-placeholder-sunscreen.svg",
     productSlugs: ["rose-water-calm-toner", "himalayan-vitamin-c-glow-serum", "invisible-city-spf-50-pa"],
     steps: [
       { label: "Refresh", productSlug: "rose-water-calm-toner", note: "Pat on after cleansing for a soft hydrating layer." },
@@ -54,7 +54,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["Sensitive", "Dry"],
     concerns: ["Barrier Repair", "Hydration", "Sensitive Skin"],
     occasion: "Night care",
-    image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&q=80",
+    image: "/images/product-placeholder-sponge.svg",
     productSlugs: ["rose-water-calm-toner", "barrier-repair-ceramide-cream", "daily-dew-gel-moisturizer"],
     steps: [
       { label: "Soothe", productSlug: "rose-water-calm-toner", note: "Apply gently without rubbing." },
@@ -66,12 +66,12 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
   {
     slug: "festival-longwear-glam-kit",
     title: "Festival Long-Wear Glam Kit",
-    eyebrow: "Dashain · Tihar · weddings",
+    eyebrow: "New Year · gifting · weddings",
     description: "Color, definition and glow essentials for festive days and evening gatherings.",
     skinTypes: ["All Skin Types"],
     concerns: ["Long Wear", "Festival", "Dewy Finish"],
     occasion: "Festival makeup",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80",
+    image: "/images/product-placeholder-skincare.svg",
     productSlugs: ["velvet-matte-lip-cream", "monsoon-proof-mascara", "cream-blush-stick-peach-bloom"],
     steps: [
       { label: "Cheeks", productSlug: "cream-blush-stick-peach-bloom", note: "Blend in thin layers for a fresh finish." },
@@ -88,7 +88,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["All Skin Types"],
     concerns: ["Natural", "Hydration", "Made in Nepal"],
     occasion: "Gifting",
-    image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&q=80",
+    image: "/images/promo-new-year.svg",
     productSlugs: ["rose-water-calm-toner", "daily-dew-gel-moisturizer", "tea-tree-blemish-gel"],
     steps: [
       { label: "Refresh", productSlug: "rose-water-calm-toner", note: "Giftable everyday refresh step." },

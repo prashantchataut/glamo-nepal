@@ -1,45 +1,58 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { PRODUCT_COLLECTIONS, getCollectionProducts } from "@/lib/collections";
-import { createMetadata } from "@/lib/seo";
+import { notFound } from "next/navigation";
+import { ProductCard } from "@/components/product/ProductCard";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { getCollection, getCollectionProducts, PRODUCT_COLLECTIONS } from "@/lib/collections";
+import { createMetadata, breadcrumbJsonLd } from "@/lib/seo";
 
-export const metadata = createMetadata({
-  title: "Beauty Collections",
-  description: "Shop GLAMO NEPAL beauty edits including new arrivals, best sellers, Made in Nepal, festival-ready and under NPR 1,000 collections.",
-  path: "/collections",
-});
+export function generateStaticParams() {
+  return PRODUCT_COLLECTIONS.map((collection) => ({ slug: collection.slug }));
+}
 
-export default function CollectionsPage() {
+export function generateMetadata({ params }: { params: { slug: string } }) {
+  const collection = getCollection(params.slug);
+  if (!collection) return createMetadata({ title: "Collection", description: "GLAMO NEPAL beauty collection.", path: `/collections/${params.slug}` });
+  return createMetadata({
+    title: collection.title,
+    description: collection.seoDescription,
+    path: `/collections/${collection.slug}`,
+    image: collection.image,
+    keywords: [collection.title, "GLAMO NEPAL collection", "beauty Nepal"],
+  });
+}
+
+export default function CollectionPage({ params }: { params: { slug: string } }) {
+  const collection = getCollection(params.slug);
+  if (!collection) notFound();
+  const products = getCollectionProducts(collection.slug);
+
   return (
     <main className="min-h-screen bg-brand-bgLight">
-      <section className="bg-brand-bgDark py-16 text-center text-white md:py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">GLAMO edits</p>
-          <h1 className="mt-3 font-serif text-5xl font-semibold md:text-6xl">Beauty Collections</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/72 md:text-base">Merchandising-ready collections for campaigns, price points, local beauty and seasonal shopping moments.</p>
+      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Collections", path: "/shop" }, { name: collection.title, path: `/collections/${collection.slug}` }])} />
+      <section className="bg-brand-bgDark py-16 text-white md:py-24">
+        <div className="container mx-auto px-4 text-center md:px-6">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">{collection.eyebrow}</p>
+          <h1 className="mt-3 font-serif text-5xl font-semibold md:text-6xl">{collection.title}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/72 md:text-base">{collection.description}</p>
         </div>
       </section>
-      <section className="container mx-auto grid gap-6 px-4 py-10 md:grid-cols-2 md:px-6 md:py-14 xl:grid-cols-3">
-        {PRODUCT_COLLECTIONS.map((collection) => {
-          const count = getCollectionProducts(collection.slug).length;
-          return (
-            <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group overflow-hidden rounded-[2rem] border border-brand-secondary/20 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/30">
-              <div className="relative aspect-[16/10] bg-brand-bgLight">
-                <Image src={collection.image} alt={collection.title} fill className="object-cover transition duration-700 group-hover:scale-105" />
-              </div>
-              <div className="p-6">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-gold">{collection.eyebrow}</p>
-                <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{collection.title}</h2>
-                <p className="mt-3 line-clamp-3 text-sm leading-6 text-brand-textMuted">{collection.description}</p>
-                <div className="mt-5 flex items-center justify-between text-sm font-semibold text-brand-primary">
-                  <span>{count} product{count === 1 ? "" : "s"}</span>
-                  <span className="inline-flex items-center gap-1">Open edit <ArrowRight size={16} /></span>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+      <section className="container mx-auto px-4 py-10 md:px-6 md:py-14">
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Curated edit</p>
+            <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{products.length} products</h2>
+          </div>
+          <p className="max-w-lg text-sm text-brand-textMuted">Explore curated GLAMO selections built around beauty routines, occasions and easy Nepal shopping.</p>
+        </div>
+        {products.length ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4">
+            {products.map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
+        ) : (
+          <div className="rounded-[2rem] border border-dashed border-brand-secondary/40 bg-white p-12 text-center">
+            <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">No products yet</h2>
+            <p className="mt-2 text-brand-textMuted">Add products to this collection once real supplier data is ready.</p>
+          </div>
+        )}
       </section>
     </main>
   );

@@ -19,6 +19,6 @@ export const MOCK_USER = {
   name: "GLAMO Customer",
   email: "customer@glamonepal.com",
   phone: "+977 9818212188",
-  avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+  avatar: "/images/hero-glow.svg",
   loyaltyPoints: 1280,
 };

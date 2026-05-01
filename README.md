@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GLAMO NEPAL
 
-## Getting Started
+Premium Nepali beauty, skincare, cosmetics and lifestyle ecommerce storefront for **GLAMO NEPAL**.
 
-First, run the development server:
+## Business constants
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Store: GLAMO NEPAL
+- Address: Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal
+- Phone: +977 9818212188
+- Instagram: @glamo_nepal
+- Instagram URL: https://www.instagram.com/glamo_nepal/
+- Currency: NPR
+- Free shipping threshold: NPR 2,500
+- Payments: Khalti, eSewa, Cash on Delivery, Cards
+
+## Project structure
+
+```txt
+glamo/
+  src/          Next.js 14 App Router frontend
+  public/       Local storefront and admin imagery
+  scripts/      Static QA and source checks
+  backend/      Express + Prisma backend scaffold
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Frontend commands
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run qa:static
+npm run typecheck
+npm run lint
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Admin access
 
-## Learn More
+Admin panel routes:
 
-To learn more about Next.js, take a look at the following resources:
+- `/admin/login` — protected admin sign-in
+- `/admin` — dashboard, products, orders, stock, banners, customers, analytics and settings
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Set these in `.env.local` before using the admin panel:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+ADMIN_EMAIL=admin@glamonepal.com
+ADMIN_PASSWORD=ChangeMe@123
+ADMIN_SESSION_SECRET=replace_with_a_long_random_secret_at_least_32_chars
+AUTH_SECRET=replace_with_a_long_random_secret_at_least_32_chars
+```
 
-## Deploy on Vercel
+The default credentials are only for local setup. Change them before deployment.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Backend commands
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+cd backend
+npm install
+npm run typecheck
+npm run build
+npm run dev
+```
+
+The backend folder is included for production API work. Current admin UI is protected by a signed HTTP-only Next.js admin session and is ready to be connected to backend admin APIs.

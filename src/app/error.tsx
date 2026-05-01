@@ -2,6 +2,6 @@
 
 import { RouteError } from "@/components/common/RouteError";
 
-export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  return <RouteError title="GLAMO needs a refresh" description="A storefront-level error happened. Please try again." reset={reset} />;
+export default function ErrorBoundary({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  return <RouteError title="Unable to load GLAMO shop" description="This section could not load correctly." reset={reset} />;
 }

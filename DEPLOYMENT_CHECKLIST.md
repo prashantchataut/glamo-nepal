@@ -22,7 +22,7 @@
 
 ## Backend/payment readiness
 
-- Replace mock auth cookies with signed HTTP-only sessions.
+- Replace signed admin session and future database auth cookies with signed HTTP-only sessions.
 - Add backend RBAC for `/admin`; middleware is only frontend UX protection.
 - Add server-side inventory checks before order creation.
 - Add Khalti/eSewa/card credential handling on server.
@@ -30,12 +30,12 @@
 - Add courier/COD district rules and delivery fee API.
 - Add analytics IDs and consent strategy.
 
-## Demo credentials
+## Admin access
 
-- Customer preview: `customer@glamonepal.com` with any 8+ character password.
-- Admin preview: `admin@glamonepal.com` with any 8+ character password.
-
-These are frontend-only demo behaviors and must not be treated as real authentication.
+- Admin login route: `/admin/login`.
+- Admin panel route: `/admin`.
+- Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` and `AUTH_SECRET` in `.env.local`.
+- Do not deploy with the default local password.
 
 ## Additional pre-launch checks from latest pass
 
