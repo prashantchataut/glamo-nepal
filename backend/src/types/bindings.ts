@@ -29,5 +29,8 @@ export type AppEnv = {
       role: string
       isActive: boolean
     }
+    validatedBody: any
+    validatedQuery: any
+    validatedParams: any
   }
 }
