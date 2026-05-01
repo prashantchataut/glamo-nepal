@@ -18,7 +18,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Fresh on GLAMO",
     description: "Recently added skincare, makeup and beauty essentials curated for Nepal-market shoppers.",
     seoDescription: "Shop new beauty arrivals at GLAMO NEPAL with NPR pricing and delivery across Nepal.",
-    image: "/images/hero-glow.svg",
+    image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80",
     filter: (product) => Boolean(product.isNewArrival || product.badge === "New"),
   },
   {
@@ -27,7 +27,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Most loved picks",
     description: "Customer-loved skincare, makeup and beauty favorites with strong bestseller appeal.",
     seoDescription: "Explore GLAMO NEPAL best-selling beauty, skincare and makeup picks with original product copy.",
-    image: "/images/promo-store.svg",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80",
     filter: (product) => Boolean(product.isBestSeller || product.badge === "Best Seller"),
   },
   {
@@ -36,7 +36,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Local glow edit",
     description: "A dedicated collection for Nepal-made beauty, wellness and personal care favorites.",
     seoDescription: "Discover Made in Nepal beauty products curated for GLAMO NEPAL customers.",
-    image: "/images/hero-nepal.svg",
+    image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&q=80",
     filter: (product) => product.madeInNepal,
   },
   {
@@ -45,7 +45,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Dashain, Tihar and weddings",
     description: "Long-wear makeup, glow skincare, fragrance and gifting picks for Nepal's festive and wedding seasons.",
     seoDescription: "Shop festival-ready beauty picks for Dashain, Tihar and wedding season at GLAMO NEPAL.",
-    image: "/images/hero-festival.svg",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80",
     filter: (product) => product.concernTags.includes("Festival") || product.concernTags.includes("Long Wear") || product.badge === "Limited",
   },
   {
@@ -54,7 +54,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Affordable beauty edits",
     description: "Budget-friendly beauty products for everyday shopping, gifts and easy cart add-ons.",
     seoDescription: "Find GLAMO NEPAL beauty products under NPR 1,000 across skincare, makeup and personal care.",
-    image: "/images/promo-dashain.svg",
+    image: "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800&q=80",
     filter: (product) => product.price <= 1000,
   },
 
@@ -64,7 +64,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Calm routine picks",
     description: "Gentle-positioned skincare and bodycare items for customers who prefer simpler, comfort-focused routines.",
     seoDescription: "Explore GLAMO NEPAL sensitive-skin beauty picks with comfort-focused routines and patch-test reminders.",
-    image: "/images/product-placeholder-cream.svg",
+    image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&q=80",
     filter: (product) => product.skinType.includes("Sensitive") || product.concernTags.includes("Sensitive Skin") || product.concernTags.includes("Barrier Repair"),
   },
   {
@@ -73,7 +73,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Wedding season ready",
     description: "A wedding-season collection for Nepali events, long-wear makeup, glow skincare and fragrance gifting.",
     seoDescription: "Shop bridal beauty and wedding-season makeup picks at GLAMO NEPAL with NPR pricing.",
-    image: "/images/hero-festival.svg",
+    image: "https://images.unsplash.com/photo-1586495777744-4e6232bf2f71?w=800&q=80",
     filter: (product) => product.concernTags.includes("Long Wear") || product.concernTags.includes("Festival") || product.category === "fragrance" || product.subCategory === "Lipstick",
   },
   {
@@ -82,7 +82,7 @@ export const PRODUCT_COLLECTIONS: ProductCollection[] = [
     eyebrow: "Inventory signal",
     description: "Limited-availability products for quick review by the GLAMO team.",
     seoDescription: "Low-stock GLAMO NEPAL inventory preview.",
-    image: "/images/product-placeholder-skincare.svg",
+    image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=80",
     filter: (product) => product.stockCount > 0 && product.stockCount <= 10,
   },
 ];

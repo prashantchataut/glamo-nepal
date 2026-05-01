@@ -1,4 +1,4 @@
-import { Request, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
 const HTML_ENTITIES: Record<string, string> = {
   "&": "&amp;",
