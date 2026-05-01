@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "canvas-design": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "15cce4711e34491d0f2ce1f4e4e47e7786ed7d5b94b1485c9206a8632d9f41cf"
+    },
+    "design-expert": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "203e63ce0998c72def5dfbf33f58c860f1fa0a53c538c3b70365c2c871f9a78b"
+    },
+    "frontend-design": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "e8118284a6365753790d44bb2758a6032b3af27fa84696428d9233f2be0f4e78"
+    },
+    "security-threat-model": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "b3ad2dc0b2eee1f189680fdb8cf3b17853f12ab3403d389393f4237ebc6f9821"
+    },
+    "skill-creator": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "12d0da39c495673a2acce3d54b9e5d3e81db59f8314e28c4935c4602333ff430"
+    },
+    "web-design-reviewer": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "10c6fad8b4f01dbeae969009d81d6c306c8a96d56077cad9bfe2a73a38f5dcbe"
+    }
+  }
+}

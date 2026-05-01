@@ -1,0 +1,26 @@
+import { z } from 'zod'
+
+const envSchema = z.object({
+  JWT_PRIVATE_KEY: z.string().min(1),
+  JWT_PUBLIC_KEY: z.string().min(1),
+  GOOGLE_CLIENT_ID: z.string().optional().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  RESEND_API_KEY: z.string().optional().default(''),
+  R2_PUBLIC_URL: z.string().optional().default(''),
+  CLOUDINARY_CLOUD_NAME: z.string().optional().default(''),
+  CLOUDINARY_API_KEY: z.string().optional().default(''),
+  CLOUDINARY_API_SECRET: z.string().optional().default(''),
+  KHALTI_SECRET_KEY: z.string().optional().default(''),
+  ESEWA_SECRET_KEY: z.string().optional().default(''),
+  ESEWA_MERCHANT_CODE: z.string().optional().default(''),
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
+  FREE_SHIPPING_THRESHOLD: z.string().default('2500'),
+  COD_FEE: z.string().default('50'),
+  ADMIN_EMAIL: z.string().default('admin@glamonepal.com'),
+})
+
+export type Env = z.infer<typeof envSchema>
+
+export function validateEnv(env: Record<string, unknown>): Env {
+  return envSchema.parse(env)
+}
