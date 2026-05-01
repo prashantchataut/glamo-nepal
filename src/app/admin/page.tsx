@@ -50,10 +50,10 @@ export default function AdminPage() {
         </div>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <StatusCard icon={Boxes} label="Products" value={PRODUCTS.length} note={`${madeInNepalCount} Made in Nepal mock SKUs`} />
-          <StatusCard icon={AlertTriangle} label="Stock watch" value={INVENTORY_SUMMARY.lowStockCount} note={`${INVENTORY_SUMMARY.totalUnits} total mock units`} />
-          <StatusCard icon={BarChart3} label="Inventory value" value={formatNpr(inventoryValue)} note="Mock retail value" />
-          <StatusCard icon={PackageCheck} label="Orders" value={MOCK_ORDERS.length} note={`${saleCount} sale-price SKUs`} />
+          <StatusCard icon={<Boxes size={20} strokeWidth={1.6} />} label="Products" value={PRODUCTS.length} note={`${madeInNepalCount} Made in Nepal mock SKUs`} />
+          <StatusCard icon={<AlertTriangle size={20} strokeWidth={1.6} />} label="Stock watch" value={INVENTORY_SUMMARY.lowStockCount} note={`${INVENTORY_SUMMARY.totalUnits} total mock units`} />
+          <StatusCard icon={<BarChart3 size={20} strokeWidth={1.6} />} label="Inventory value" value={formatNpr(inventoryValue)} note="Mock retail value" />
+          <StatusCard icon={<PackageCheck size={20} strokeWidth={1.6} />} label="Orders" value={MOCK_ORDERS.length} note={`${saleCount} sale-price SKUs`} />
         </div>
 
         <section className="mt-8 rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">

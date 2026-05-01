@@ -11,9 +11,9 @@ export const metadata = createMetadata({
 });
 
 const pillars = [
-  { icon: Sparkles, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first shopping." },
-  { icon: ShieldCheck, title: "Authenticity-first curation", body: "Product pages highlight authentic ingredients, clear sourcing and honest beauty guidance." },
-  { icon: Store, title: "Kathmandu-ready", body: `Store, WhatsApp and pickup messaging centers on ${SITE_CONFIG.address}.` },
+  { icon: <Sparkles className="text-brand-primary" size={26} />, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first shopping." },
+  { icon: <ShieldCheck className="text-brand-primary" size={26} />, title: "Authenticity-first curation", body: "Product pages highlight authentic ingredients, clear sourcing and honest beauty guidance." },
+  { icon: <Store className="text-brand-primary" size={26} />, title: "Kathmandu-ready", body: `Store, WhatsApp and pickup messaging centers on ${SITE_CONFIG.address}.` },
 ];
 
 export default function AboutPage() {
@@ -34,9 +34,9 @@ export default function AboutPage() {
             <Link href="/shop" className="mt-7 inline-flex items-center gap-2 rounded-full bg-brand-primary px-7 py-3 font-semibold text-white transition hover:bg-brand-bgDark">Explore shop <ArrowRight size={17} /></Link>
           </div>
           <div className="grid gap-5 md:grid-cols-3 lg:grid-cols-1">
-            {pillars.map(({ icon: Icon, title, body }) => (
+            {pillars.map(({ icon, title, body }) => (
               <article key={title} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                <Icon className="text-brand-primary" size={26} />
+                {icon}
                 <h3 className="mt-4 font-serif text-2xl font-semibold text-brand-textPrimary">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-brand-textMuted">{body}</p>
               </article>

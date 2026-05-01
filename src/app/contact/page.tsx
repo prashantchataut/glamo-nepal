@@ -12,10 +12,10 @@ export const metadata = createMetadata({
 });
 
 const contactCards = [
-  { icon: Phone, label: "Phone", value: SITE_CONFIG.phone, href: `tel:${SITE_CONFIG.phone.replace(/\s/g, "")}` },
-  { icon: MessageCircle, label: "WhatsApp", value: "Chat with us", href: SITE_CONFIG.whatsapp },
-  { icon: FaInstagram, label: "Instagram", value: SITE_CONFIG.instagramHandle, href: SITE_CONFIG.social.instagram },
-  { icon: Mail, label: "Email", value: SITE_CONFIG.email, href: `mailto:${SITE_CONFIG.email}` },
+  { icon: <Phone className="text-brand-primary" />, label: "Phone", value: SITE_CONFIG.phone, href: `tel:${SITE_CONFIG.phone.replace(/\s/g, "")}` },
+  { icon: <MessageCircle className="text-brand-primary" />, label: "WhatsApp", value: "Chat with us", href: SITE_CONFIG.whatsapp },
+  { icon: <FaInstagram className="text-brand-primary" />, label: "Instagram", value: SITE_CONFIG.instagramHandle, href: SITE_CONFIG.social.instagram },
+  { icon: <Mail className="text-brand-primary" />, label: "Email", value: SITE_CONFIG.email, href: `mailto:${SITE_CONFIG.email}` },
 ];
 
 export default function ContactPage() {
@@ -31,9 +31,9 @@ export default function ContactPage() {
             <p className="mt-3 text-sm text-brand-textMuted">Store hours and map coming soon.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {contactCards.map(({ icon: Icon, label, value, href }) => (
+            {contactCards.map(({ icon, label, value, href }) => (
               <Link key={label} href={href} className="rounded-[1.5rem] border border-border/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                <Icon className="text-brand-primary" />
+                {icon}
                 <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">{label}</p>
                 <p className="mt-1 font-semibold text-brand-textPrimary">{value}</p>
               </Link>

@@ -10,10 +10,10 @@ export const metadata = createMetadata({
 });
 
 const cards = [
-  { title: "Orders", description: "Track purchases, delivery updates and invoices.", href: "/account/orders", icon: Package },
-  { title: "Profile", description: "Update your contact details and beauty profile.", href: "/account/profile", icon: UserRound },
-  { title: "Wishlist", description: "Return to saved skincare, makeup and gifting picks.", href: "/account/wishlist", icon: Heart },
-  { title: "Addresses", description: "Manage Nepal delivery addresses for faster checkout.", href: "/account/addresses", icon: MapPin },
+  { title: "Orders", description: "Track purchases, delivery updates and invoices.", href: "/account/orders", icon: <Package className="text-brand-primary" size={24} /> },
+  { title: "Profile", description: "Update your contact details and beauty profile.", href: "/account/profile", icon: <UserRound className="text-brand-primary" size={24} /> },
+  { title: "Wishlist", description: "Return to saved skincare, makeup and gifting picks.", href: "/account/wishlist", icon: <Heart className="text-brand-primary" size={24} /> },
+  { title: "Addresses", description: "Manage Nepal delivery addresses for faster checkout.", href: "/account/addresses", icon: <MapPin className="text-brand-primary" size={24} /> },
 ];
 
 export default function AccountDashboardPage() {
@@ -36,9 +36,9 @@ export default function AccountDashboardPage() {
       </section>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
-        {cards.map(({ title, description, href, icon: Icon }) => (
+        {cards.map(({ title, description, href, icon }) => (
           <Link key={href} href={href} className="group rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-brand-primary/25 hover:shadow-md">
-            <Icon className="text-brand-primary" size={24} />
+            {icon}
             <h2 className="mt-4 font-serif text-2xl font-semibold text-brand-textPrimary group-hover:text-brand-primary">{title}</h2>
             <p className="mt-2 text-sm leading-6 text-brand-textMuted">{description}</p>
           </Link>
