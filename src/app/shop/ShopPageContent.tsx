@@ -1,13 +1,15 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Grid3X3, LayoutGrid, SlidersHorizontal, X } from "lucide-react";
+import { Grid3X3, LayoutGrid, Search, ShieldCheck, SlidersHorizontal, Sparkles, Truck, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
 import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
-import { cn } from "@/lib/utils";
+import { cn, formatNpr } from "@/lib/utils";
 
 const PRICE_RANGE = getPriceRange();
 const DEFAULT_FILTERS: FilterState = { category: "", subCategory: "", brands: [], skinType: [], concerns: [], madeInNepal: false, search: "", minPrice: PRICE_RANGE.min, maxPrice: PRICE_RANGE.max, rating: 0, inStock: false, sort: "featured" };
@@ -101,55 +103,118 @@ export default function ShopPageContent() {
   }, [filters]);
 
   const categoryObj = CATEGORIES.find((category) => category.slug === filters.category);
+  const spotlightProducts = PRODUCTS.filter((product) => product.isBestSeller || product.isNewArrival).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <section className="bg-brand-bgDark py-14 text-white md:py-20">
-        <div className="container mx-auto px-4 text-center md:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">NPR pricing · Nepal delivery</p>
-          <h1 className="mt-3 font-serif text-5xl font-semibold">{categoryObj?.name || "Shop GLAMO"}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-white/70">{categoryObj?.description || "Filter by category, brand, concern, Made in Nepal, stock and price to explore GLAMO beauty picks."}</p>
+      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_44%,#F7F1EA_100%)] py-10 md:py-14">
+        <div className="pointer-events-none absolute -right-20 top-0 h-80 w-80 rounded-full bg-brand-secondary/35 blur-3xl" />
+        <div className="container relative mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div className="max-w-2xl">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">NPR pricing · Nepal delivery</p>
+            <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">
+              {categoryObj?.name || "Shop the GLAMO glow edit"}
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-8 text-brand-textMuted">
+              {categoryObj?.description || "Browse skincare, soft-glam makeup and daily beauty essentials with clean filters, authentic cues and product visuals that feel like a real beauty shelf."}
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/collections/best-sellers" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary/15 transition hover:bg-brand-primary-hover">Best sellers</Link>
+              <Link href="/collections/made-in-nepal" className="rounded-full border border-brand-primary/20 bg-white/70 px-6 py-3 text-sm font-bold text-brand-primary transition hover:bg-white">Made in Nepal</Link>
+            </div>
+            <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
+              {[{ icon: Truck, title: "Valley delivery", body: "Clear NPR checkout" }, { icon: ShieldCheck, title: "Curated catalog", body: "Authenticity-first" }, { icon: Sparkles, title: "Routine ready", body: "Shop by concern" }].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="rounded-3xl border border-brand-border bg-white/75 p-4 shadow-sm backdrop-blur">
+                    <Icon className="h-5 w-5 text-brand-primary" />
+                    <p className="mt-3 text-sm font-bold text-brand-textPrimary">{item.title}</p>
+                    <p className="mt-1 text-xs text-brand-textMuted">{item.body}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-[1fr_0.72fr]">
+            <div className="relative min-h-[360px] overflow-hidden rounded-[2.25rem] bg-white p-4 shadow-[0_28px_90px_-55px_rgba(36,31,34,0.35)] ring-1 ring-brand-border">
+              <Image src="/images/editorial/shop-collage.svg" alt="GLAMO product shelf collage" fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+            </div>
+            <div className="grid gap-4">
+              {spotlightProducts.map((product) => (
+                <Link key={product.id} href={`/product/${product.slug}`} className="group flex items-center gap-3 rounded-[1.5rem] border border-brand-border bg-white/85 p-3 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md">
+                  <span className="relative h-20 w-16 shrink-0 overflow-hidden rounded-2xl bg-brand-bgLight">
+                    <Image src={product.image} alt={product.name} fill className="object-cover transition group-hover:scale-105" sizes="80px" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary">{product.badge || "Glow pick"}</span>
+                    <span className="mt-1 line-clamp-2 block font-serif text-lg font-semibold leading-tight text-brand-textPrimary">{product.name}</span>
+                    <span className="mt-1 block text-sm font-bold text-brand-gold">{formatNpr(product.price)}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
-      <div className="container mx-auto px-4 py-8 md:px-6">
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <div className="hidden w-72 shrink-0 lg:block"><ShopFilterSidebar filters={filters} onFilterChange={handleFilterChange} priceRange={PRICE_RANGE} /></div>
+
+      <section className="border-b border-brand-border bg-white/55 py-5">
+        <div className="container mx-auto flex gap-3 overflow-x-auto px-4 md:px-6">
+          {CATEGORIES.map((category) => (
+            <button key={category.slug} type="button" onClick={() => handleFilterChange({ ...filters, category: category.slug, subCategory: "" })} className={cn("flex shrink-0 items-center gap-3 rounded-full border px-3 py-2 pr-5 text-sm font-bold transition", filters.category === category.slug ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-white text-brand-textPrimary hover:border-brand-primary/30 hover:text-brand-primary")}>
+              <span className="relative h-10 w-10 overflow-hidden rounded-full bg-brand-bgLight"><Image src={category.image} alt="" fill className="object-cover" sizes="40px" /></span>
+              {category.name}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8 md:px-6 md:py-10">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          <div className="hidden w-80 shrink-0 lg:block"><ShopFilterSidebar filters={filters} onFilterChange={handleFilterChange} priceRange={PRICE_RANGE} /></div>
           <div className="min-w-0 flex-1">
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setMobileFiltersOpen(true)} className="flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold lg:hidden">
-                  <SlidersHorizontal size={16} /> Filters {chips.length > 0 ? <span className="rounded-full bg-brand-primary px-2 py-0.5 text-xs text-white">{chips.length}</span> : null}
-                </button>
-                <p className="text-sm text-brand-textMuted">{products.length} product{products.length === 1 ? "" : "s"}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <select value={filters.sort} onChange={(event) => handleFilterChange({ ...filters, sort: event.target.value })} className="rounded-full border border-border bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-brand-primary/30" aria-label="Sort products">
-                  {SORT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-                <div className="hidden overflow-hidden rounded-full border border-border bg-white sm:flex">
-                  <button type="button" onClick={() => setGridCols(3)} className={cn("p-2.5", gridCols === 3 ? "bg-brand-primary text-white" : "text-brand-textMuted")} aria-label="Show 3 column grid"><Grid3X3 size={16} /></button>
-                  <button type="button" onClick={() => setGridCols(4)} className={cn("p-2.5", gridCols === 4 ? "bg-brand-primary text-white" : "text-brand-textMuted")} aria-label="Show 4 column grid"><LayoutGrid size={16} /></button>
+            <div className="mb-6 rounded-[2rem] border border-brand-border bg-white p-4 shadow-sm md:p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => setMobileFiltersOpen(true)} className="flex items-center gap-2 rounded-full border border-brand-border bg-brand-bgLight px-4 py-2.5 text-sm font-bold lg:hidden">
+                    <SlidersHorizontal size={16} /> Filters {chips.length > 0 ? <span className="rounded-full bg-brand-primary px-2 py-0.5 text-xs text-white">{chips.length}</span> : null}
+                  </button>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Catalog results</p>
+                    <p className="mt-1 text-sm text-brand-textMuted">{products.length} product{products.length === 1 ? "" : "s"} available</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <select value={filters.sort} onChange={(event) => handleFilterChange({ ...filters, sort: event.target.value })} className="rounded-full border border-brand-border bg-white px-4 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-primary/30" aria-label="Sort products">
+                    {SORT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                  </select>
+                  <div className="hidden overflow-hidden rounded-full border border-brand-border bg-white sm:flex">
+                    <button type="button" onClick={() => setGridCols(3)} className={cn("p-2.5", gridCols === 3 ? "bg-brand-primary text-white" : "text-brand-textMuted")} aria-label="Show 3 column grid"><Grid3X3 size={16} /></button>
+                    <button type="button" onClick={() => setGridCols(4)} className={cn("p-2.5", gridCols === 4 ? "bg-brand-primary text-white" : "text-brand-textMuted")} aria-label="Show 4 column grid"><LayoutGrid size={16} /></button>
+                  </div>
                 </div>
               </div>
+              {chips.length > 0 ? (
+                <div className="mt-4 flex flex-wrap gap-2 border-t border-brand-border pt-4">
+                  <button type="button" onClick={() => handleFilterChange(DEFAULT_FILTERS)} className="rounded-full bg-brand-primary px-3 py-1.5 text-xs font-bold text-white">Clear all</button>
+                  {chips.map((chip) => (
+                    <button key={chip.key} type="button" onClick={() => handleFilterChange(chip.remove())} className="inline-flex items-center gap-1 rounded-full bg-brand-primary-light px-3 py-1.5 text-xs font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+                      {chip.label}<X size={12} />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
-            {chips.length > 0 ? (
-              <div className="mb-6 flex flex-wrap gap-2">
-                <button type="button" onClick={() => handleFilterChange(DEFAULT_FILTERS)} className="rounded-full bg-brand-primary px-3 py-1.5 text-xs font-semibold text-white">Clear all</button>
-                {chips.map((chip) => (
-                  <button key={chip.key} type="button" onClick={() => handleFilterChange(chip.remove())} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
-                    {chip.label}<X size={12} />
-                  </button>
-                ))}
-              </div>
-            ) : null}
+
             {products.length === 0 ? (
-              <div className="rounded-[2rem] border border-dashed border-brand-secondary/40 bg-white p-12 text-center">
+              <div className="rounded-[2rem] border border-dashed border-brand-secondary/50 bg-white p-12 text-center shadow-sm">
+                <Search className="mx-auto mb-3 h-10 w-10 text-brand-primary/45" />
                 <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">No GLAMO picks found</h2>
                 <p className="mt-2 text-brand-textMuted">Try clearing filters or searching for serum, SPF, lipstick or Made in Nepal.</p>
-                <button type="button" onClick={() => handleFilterChange(DEFAULT_FILTERS)} className="mt-6 rounded-full bg-brand-primary px-6 py-3 font-semibold text-white">Reset filters</button>
+                <button type="button" onClick={() => handleFilterChange(DEFAULT_FILTERS)} className="mt-6 rounded-full bg-brand-primary px-6 py-3 font-bold text-white">Reset filters</button>
               </div>
             ) : (
-              <div className={cn("grid grid-cols-2 gap-4 md:gap-6", gridCols === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4")}>
+              <div className={cn("grid grid-cols-2 gap-4 md:gap-6", gridCols === 3 ? "xl:grid-cols-3" : "lg:grid-cols-3 2xl:grid-cols-4")}>
                 {products.map((product) => <ProductCard key={product.id} product={product} />)}
               </div>
             )}

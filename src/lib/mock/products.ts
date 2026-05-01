@@ -1,12 +1,12 @@
 import { Product } from "@/store/useCartStore";
 
 export const CATEGORIES = [
-  { name: "Skincare", slug: "skincare", description: "Cleansers, serums, moisturizers and SPF chosen for Nepal's climate.", image: "/images/product-placeholder-cream-2.svg", subCategories: ["Cleansers", "Serums", "Moisturizers", "Masks", "Sunscreens", "Toners"] },
-  { name: "Makeup", slug: "makeup", description: "Everyday base, lip, eye and cheek essentials for polished looks.", image: "/images/product-placeholder-foundation.svg", subCategories: ["Foundation", "Lipstick", "Mascara", "Blush", "Concealer", "Tint"] },
-  { name: "Haircare", slug: "haircare", description: "Shampoo, oils and treatments for humidity, frizz and scalp care.", image: "/images/product-placeholder-mascara.svg", subCategories: ["Shampoo", "Conditioner", "Hair Oil", "Treatment", "Serum"] },
-  { name: "Bodycare", slug: "bodycare", description: "Creams, lotions and body rituals for soft, healthy skin.", image: "/images/product-placeholder-makeup.svg", subCategories: ["Body Lotion", "Body Scrub", "Body Oil", "Hand Care"] },
-  { name: "Fragrance", slug: "fragrance", description: "Soft perfumes, mists and roll-ons for everyday wear.", image: "/images/product-placeholder-cream.svg", subCategories: ["Perfume", "Body Mist", "Roll On"] },
-  { name: "Tools", slug: "tools", description: "Brushes, sponges and beauty tools for a cleaner routine.", image: "/images/blog-skincare.svg", subCategories: ["Brushes", "Sponges", "Accessories"] },
+  { name: "Skincare", slug: "skincare", description: "Cleansers, serums, moisturizers and SPF chosen for Nepal's climate.", image: "/images/categories/skincare.svg", subCategories: ["Cleansers", "Serums", "Moisturizers", "Masks", "Sunscreens", "Toners"] },
+  { name: "Makeup", slug: "makeup", description: "Everyday base, lip, eye and cheek essentials for polished looks.", image: "/images/categories/makeup.svg", subCategories: ["Foundation", "Lipstick", "Mascara", "Blush", "Concealer", "Tint"] },
+  { name: "Haircare", slug: "haircare", description: "Shampoo, oils and treatments for humidity, frizz and scalp care.", image: "/images/categories/haircare.svg", subCategories: ["Shampoo", "Conditioner", "Hair Oil", "Treatment", "Serum"] },
+  { name: "Bodycare", slug: "bodycare", description: "Creams, lotions and body rituals for soft, healthy skin.", image: "/images/categories/bodycare.svg", subCategories: ["Body Lotion", "Body Scrub", "Body Oil", "Hand Care"] },
+  { name: "Fragrance", slug: "fragrance", description: "Soft perfumes, mists and roll-ons for everyday wear.", image: "/images/categories/fragrance.svg", subCategories: ["Perfume", "Body Mist", "Roll On"] },
+  { name: "Tools", slug: "tools", description: "Brushes, sponges and beauty tools for a cleaner routine.", image: "/images/categories/tools.svg", subCategories: ["Brushes", "Sponges", "Accessories"] },
 ];
 
 export const BRANDS = ["GLAMO Edit", "Himalayan Botanics", "Kathmandu Glow", "Derma Lab", "Solar Care", "Luxe Aura", "Natura Nepal", "Beauty Tools", "Plum", "COSRX", "Cetaphil", "Bioderma", "Anua", "Beauty of Joseon", "Maybelline", "Lakme", "SUGAR Cosmetics", "Mamaearth", "Aroma Magic", "Fresh & More", "Wild Earth Nepal", "Himalaya", "Swiss Beauty"];
@@ -23,9 +23,15 @@ export const SORT_OPTIONS = [
 export const TRENDING_SEARCHES = ["Sunscreen SPF 50", "Vitamin C Serum", "Lip Tint", "Niacinamide", "COSRX", "Korean skincare", "Hair Oil", "Made in Nepal", "Cetaphil", "Maybelline"];
 
 function product(input: Omit<Product, "images" | "inStock" | "reviewSummary"> & { images?: string[]; reviewSummary?: Product["reviewSummary"] }): Product {
+  const productImage = `/images/products/${input.id}.svg`;
+  const gallery = [productImage, ...(input.images || []), input.image]
+    .filter((src, index, arr) => Boolean(src) && arr.indexOf(src) === index)
+    .slice(0, 4);
+
   return {
     ...input,
-    images: input.images || [input.image, input.image, input.image],
+    image: productImage,
+    images: gallery.length >= 3 ? gallery : [productImage, productImage, productImage],
     inStock: input.stockCount > 0,
     reviewSummary: input.reviewSummary || { average: input.rating, count: input.reviewsCount, highlights: ["Feels lightweight", "Good value", "Suitable for Kathmandu weather"] },
   };

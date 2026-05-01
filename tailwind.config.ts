@@ -32,18 +32,18 @@ const config = {
       },
       colors: {
         brand: {
-          primary: '#8B3A8F',
-          'primary-hover': '#7A3380',
-          'primary-light': '#F7EDF8',
-          'primary-border': 'rgba(139, 58, 143, 0.15)',
-          secondary: '#D4A0D7',
-          gold: '#C9A84C',
-          'gold-light': '#FBF5E6',
-          bgLight: '#FDF6F9',
-          bgDark: '#1A0A1E',
-          textPrimary: '#1C1C1C',
-          textMuted: '#6B6B6B',
-          border: '#F0E8F0',
+          primary: '#9A6B82',
+          'primary-hover': '#85576E',
+          'primary-light': '#F8EEF2',
+          'primary-border': 'rgba(154, 107, 130, 0.16)',
+          secondary: '#E5C6D4',
+          gold: '#C3A067',
+          'gold-light': '#F8F0DD',
+          bgLight: '#FCF7F5',
+          bgDark: '#241F22',
+          textPrimary: '#241F22',
+          textMuted: '#70656B',
+          border: '#EEE3E6',
           error: '#E05252',
           success: '#4CAF82',
         },
@@ -53,11 +53,11 @@ const config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#8B3A8F',
+          DEFAULT: '#9A6B82',
           foreground: 'hsl(var(--primary-foreground))'
         },
         secondary: {
-          DEFAULT: '#D4A0D7',
+          DEFAULT: '#E5C6D4',
           foreground: 'hsl(var(--secondary-foreground))'
         },
         destructive: {

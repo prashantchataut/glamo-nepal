@@ -12,12 +12,11 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <div className="bg-brand-bgDark text-white py-16 md:py-24 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
-          <span className="inline-block px-4 py-1.5 bg-white/10 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full mb-6 border border-white/10">Beauty Journal</span>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-medium mb-4">Glow Tips & <span className="text-brand-secondary italic">Beauty Secrets</span></h1>
-          <p className="text-white/70 text-lg max-w-xl mx-auto">Expert advice, tutorials, and deep-dives into the ingredients that transform your skin.</p>
+      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-14 md:py-20">
+        <div className="container mx-auto px-4 text-center md:px-6">
+          <span className="mb-6 inline-block rounded-full bg-white/80 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-primary ring-1 ring-brand-primary/10">Beauty Journal</span>
+          <h1 className="font-serif text-4xl font-semibold text-brand-textPrimary md:text-6xl">Glow Tips & <span className="italic text-brand-primary">Beauty Secrets</span></h1>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-brand-textMuted">Expert advice, tutorials and ingredient guides for building better routines.</p>
         </div>
       </div>
 

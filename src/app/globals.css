@@ -9,49 +9,49 @@
     --total-header-height: 116px;
     --mobile-nav-height: 64px;
 
-    --background: 330 60% 98%;
-    --foreground: 0 0% 11%;
+    --background: 18 54% 97%;
+    --foreground: 320 8% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 11%;
+    --card-foreground: 320 8% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 11%;
+    --popover-foreground: 320 8% 13%;
 
-    --primary: 297 42% 39%;
-    --primary-foreground: 330 60% 98%;
+    --primary: 330 19% 51%;
+    --primary-foreground: 18 54% 97%;
 
-    --secondary: 297 42% 73%;
-    --secondary-foreground: 297 42% 15%;
+    --secondary: 333 39% 84%;
+    --secondary-foreground: 320 8% 13%;
 
-    --muted: 330 30% 96%;
-    --muted-foreground: 0 0% 42%;
+    --muted: 18 38% 95%;
+    --muted-foreground: 327 6% 42%;
 
-    --accent: 45 55% 54%;
-    --accent-foreground: 0 0% 11%;
+    --accent: 39 42% 58%;
+    --accent-foreground: 320 8% 13%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 330 60% 98%;
 
-    --border: 330 20% 90%;
-    --input: 330 20% 90%;
-    --ring: 297 42% 39%;
+    --border: 340 22% 91%;
+    --input: 340 22% 91%;
+    --ring: 330 19% 51%;
 
     --radius: 0.75rem;
     --font-cormorant: Georgia, "Times New Roman", serif;
     --font-dm-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-    --color-primary: #8B3A8F;
-    --color-primary-hover: #7A3380;
-    --color-primary-light: #F7EDF8;
-    --color-secondary: #D4A0D7;
-    --color-gold: #C9A84C;
-    --color-gold-light: #FBF5E6;
-    --color-dark: #1A0A1E;
-    --color-text: #1C1C1C;
-    --color-muted: #6B6B6B;
-    --color-background: #FDF6F9;
-    --color-border: #F0E8F0;
+    --color-primary: #9A6B82;
+    --color-primary-hover: #85576E;
+    --color-primary-light: #F8EEF2;
+    --color-secondary: #E5C6D4;
+    --color-gold: #C3A067;
+    --color-gold-light: #F8F0DD;
+    --color-dark: #241F22;
+    --color-text: #241F22;
+    --color-muted: #70656B;
+    --color-background: #FCF7F5;
+    --color-border: #EEE3E6;
     --color-error: #E05252;
     --color-success: #4CAF82;
   }
@@ -97,6 +97,10 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background-color: var(--color-background);
+    overflow-x: clip;
+  }
+  html {
+    overflow-x: clip;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
@@ -144,7 +148,7 @@ body.scroll-locked {
   left: -100px;
   width: 300px;
   height: 300px;
-  background-color: rgba(139, 58, 143, 0.25);
+  background-color: rgba(154, 107, 130, 0.20);
   border-radius: 50%;
   filter: blur(80px);
   z-index: 0;
@@ -157,7 +161,7 @@ body.scroll-locked {
   right: -100px;
   width: 400px;
   height: 400px;
-  background-color: rgba(212, 160, 215, 0.25);
+  background-color: rgba(229, 198, 212, 0.28);
   border-radius: 50%;
   filter: blur(100px);
   z-index: 0;

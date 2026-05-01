@@ -10,11 +10,11 @@ export interface LegalSection {
 export function LegalLayout({ title, description, sections }: { title: string; description: string; sections: LegalSection[] }) {
   return (
     <main className="bg-brand-bgLight">
-      <section className="bg-brand-bgDark py-14 text-white md:py-20">
+      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-12 md:py-16">
         <div className="container mx-auto px-4 text-center md:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">GLAMO NEPAL policy</p>
-          <h1 className="mt-3 font-serif text-4xl font-semibold md:text-6xl">{title}</h1>
-          <p className="mx-auto mt-4 max-w-3xl text-sm leading-6 text-white/72 md:text-base">{description}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">GLAMO NEPAL policy</p>
+          <h1 className="mt-3 font-serif text-4xl font-semibold text-brand-textPrimary md:text-6xl">{title}</h1>
+          <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-brand-textMuted md:text-base">{description}</p>
         </div>
       </section>
       <div className="container mx-auto grid gap-8 px-4 py-10 md:px-6 lg:grid-cols-[18rem_1fr]">

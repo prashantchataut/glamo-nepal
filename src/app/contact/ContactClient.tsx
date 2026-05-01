@@ -18,10 +18,11 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <div className="bg-brand-bgDark text-white py-16 md:py-20">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-3">Get in <span className="text-brand-secondary italic">Touch</span></h1>
-          <p className="text-white/70 max-w-xl mx-auto">We&apos;d love to hear from you. Reach out with any questions, feedback, or just to say hello.</p>
+      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-14 md:py-20">
+        <div className="container mx-auto px-4 text-center md:px-6">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Customer care</p>
+          <h1 className="mt-3 font-serif text-4xl font-semibold text-brand-textPrimary md:text-6xl">Get in <span className="italic text-brand-primary">Touch</span></h1>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-brand-textMuted">Questions, feedback, WhatsApp support or store visit details — we would love to help.</p>
         </div>
       </div>
 

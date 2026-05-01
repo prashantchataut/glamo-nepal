@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, Leaf, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { CATEGORIES } from "@/lib/data/products";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
@@ -18,197 +19,123 @@ const desktopLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
+function Logo() {
+  return (
+    <Link href="/" className="flex items-center gap-2.5" aria-label="GLAMO Nepal home">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary shadow-sm ring-1 ring-brand-primary/10">
+        <Leaf className="h-5 w-5" strokeWidth={1.6} />
+      </span>
+      <span className="leading-none">
+        <span className="block font-serif text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
+        <span className="block text-[9px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
+      </span>
+    </Link>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-
   const { getTotalItems: getCartTotal } = useCartStore();
   const { getTotalItems: getWishlistTotal } = useWishlistStore();
   const { openCart, openSearchModal } = useUIStore();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 6);
+    handleScroll();
     setMounted(true);
+    window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => setMobileMenuOpen(false), [pathname]);
 
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.classList.toggle("scroll-locked", mobileMenuOpen);
+    return () => document.body.classList.remove("scroll-locked");
   }, [mobileMenuOpen]);
 
   return (
     <header
-      style={{ "--navbar-height": "4.5rem" } as React.CSSProperties}
       className={cn(
-        "sticky top-0 z-50 border-b border-black/5 transition-all duration-300 md:[--navbar-height:5rem]",
-        isScrolled
-          ? "bg-white/95 backdrop-blur-xl shadow-sm shadow-purple-100/50"
-          : "bg-white/85 backdrop-blur-md"
+        "sticky top-0 z-50 border-b border-brand-border/75 transition-all duration-300",
+        isScrolled ? "bg-white/92 shadow-[0_18px_45px_-34px_rgba(36,31,34,0.35)] backdrop-blur-2xl" : "bg-white/86 backdrop-blur-xl",
       )}
     >
-      <div className="container relative mx-auto flex h-[var(--navbar-height)] items-center px-4 md:px-6">
-        {/* Left section */}
-        <div className="flex shrink-0 items-center gap-1 md:gap-2">
+      <div className="container relative mx-auto flex h-[74px] items-center px-4 md:h-[78px] md:px-6">
+        <div className="flex shrink-0 items-center gap-2">
           <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary md:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:hidden"
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open menu"
           >
             <Menu size={21} />
           </button>
-          <nav className="hidden items-center gap-7 md:flex">
-            {desktopLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={cn(
-                  "text-sm font-medium text-brand-textPrimary transition hover:text-brand-primary",
-                  pathname === link.href || pathname.startsWith(`${link.href}/`)
-                    ? "text-brand-primary"
-                    : ""
-                )}
-              >
-                {link.name}
-              </Link>
-            ))}
+          <nav className="hidden items-center gap-7 md:flex" aria-label="Primary navigation">
+            {desktopLinks.map((link) => {
+              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <Link key={link.name} href={link.href} className={cn("relative text-[15px] font-semibold text-brand-textPrimary transition hover:text-brand-primary", active && "text-brand-primary")}>
+                  {link.name}
+                  {active ? <span className="absolute -bottom-2 left-0 h-0.5 w-full rounded-full bg-brand-primary" /> : null}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
-        {/* Center: absolutely centered logo */}
         <div className="absolute inset-x-0 flex justify-center pointer-events-none">
-          <Link
-            href="/"
-            className="pointer-events-auto flex items-center gap-2"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FBF0F5] text-brand-primary">
-              <Leaf className="h-5 w-5" strokeWidth={1.5} />
-            </span>
-            <span>
-              <span className="block font-serif text-2xl font-semibold tracking-[0.08em] text-brand-textPrimary">
-                GLAMO
-              </span>
-              <span className="block text-[9px] uppercase tracking-[0.34em] text-brand-textMuted">
-                Nepal
-              </span>
-            </span>
-          </Link>
+          <div className="pointer-events-auto"><Logo /></div>
         </div>
 
-        {/* Right section */}
         <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
-          <button
-            onClick={openSearchModal}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary"
-            aria-label="Search"
-          >
+          <button onClick={openSearchModal} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" aria-label="Search">
             <Search size={19} />
           </button>
-          <Link
-            href="/account/wishlist"
-            className="relative hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary md:inline-flex"
-            aria-label="Wishlist"
-          >
+          <Link href="/account/wishlist" className="relative hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:inline-flex" aria-label="Wishlist">
             <Heart size={19} />
-            {mounted && getWishlistTotal() > 0 ? (
-              <span className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">
-                {getWishlistTotal()}
-              </span>
-            ) : null}
+            {mounted && getWishlistTotal() > 0 ? <span className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getWishlistTotal()}</span> : null}
           </Link>
-          <Link
-            href="/account"
-            className="hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary md:inline-flex"
-            aria-label="Account"
-          >
+          <Link href="/account" className="hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:inline-flex" aria-label="Account">
             <User size={19} />
           </Link>
-          <button
-            onClick={openCart}
-            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary"
-            aria-label="Cart"
-          >
+          <button onClick={openCart} className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" aria-label="Cart">
             <ShoppingBag size={19} />
-            {mounted && getCartTotal() > 0 ? (
-              <span className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">
-                {getCartTotal()}
-              </span>
-            ) : null}
+            {mounted && getCartTotal() > 0 ? <span className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getCartTotal()}</span> : null}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu backdrop */}
-      <div
-        className={cn(
-          "fixed inset-0 z-[65] bg-black/35 backdrop-blur-sm transition-opacity duration-300 md:hidden",
-          mobileMenuOpen
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
-        )}
-        onClick={() => setMobileMenuOpen(false)}
-      />
-
-      {/* Mobile menu panel */}
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-[70] w-[88%] max-w-sm bg-white p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden",
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
+      <div className={cn("fixed inset-0 z-[65] bg-brand-bgDark/35 backdrop-blur-sm transition-opacity duration-300 md:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
+      <aside className={cn("fixed inset-y-0 left-0 z-[70] w-[90%] max-w-sm overflow-y-auto bg-[#FFFDFC] p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FBF0F5] text-brand-primary">
-              <Leaf className="h-5 w-5" strokeWidth={1.5} />
-            </span>
-            <span>
-              <span className="block font-serif text-2xl font-semibold tracking-[0.08em] text-brand-textPrimary">
-                GLAMO
-              </span>
-              <span className="block text-[9px] uppercase tracking-[0.34em] text-brand-textMuted">
-                Nepal
-              </span>
-            </span>
-          </Link>
-          <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-label="Close menu"
-          >
+          <Logo />
+          <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
             <X size={20} />
           </button>
         </div>
-
-        <nav className="mt-8 space-y-1">
+        <nav className="mt-8 space-y-1" aria-label="Mobile navigation">
           {desktopLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className="block rounded-2xl px-4 py-3 text-base font-medium text-brand-textPrimary transition hover:bg-[#FBF7F8] hover:text-brand-primary"
-            >
+            <Link key={link.name} href={link.href} className="block rounded-2xl px-4 py-3 text-base font-semibold text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary">
               {link.name}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className="mt-4 block rounded-full bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white"
-          >
-            Login / Register
-          </Link>
         </nav>
+        <div className="mt-8 rounded-[1.75rem] border border-brand-border bg-white p-4 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Popular categories</p>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {CATEGORIES.map((category) => (
+              <Link key={category.slug} href={`/shop?category=${category.slug}`} className="rounded-2xl bg-brand-bgLight px-3 py-3 text-sm font-semibold text-brand-textPrimary transition hover:bg-brand-primary hover:text-white">
+                {category.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <Link href="/login" className="mt-6 block rounded-full bg-brand-primary px-5 py-3 text-center text-sm font-bold text-white shadow-lg shadow-brand-primary/15 transition hover:bg-brand-primary-hover">
+          Login / Register
+        </Link>
       </aside>
     </header>
   );

@@ -3,61 +3,21 @@ import Link from "next/link";
 
 export function NewYearOfferBanner() {
   return (
-    <section className="bg-brand-bgLight py-16 md:py-24">
+    <section className="bg-brand-bgLight py-14 md:py-20">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-[#1A0A1E] via-[#8B3A8F] to-[#D4A0D7] px-6 py-8 text-white shadow-[0_30px_90px_-45px_rgba(26,10,30,0.65)] md:px-10 md:py-12 lg:grid lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-8">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.20),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(201,168,76,0.22),transparent_24%)]" />
-          <div className="absolute right-[-10%] top-[-20%] h-56 w-56 rounded-full border border-white/15" />
-          <div className="absolute bottom-[-18%] left-[35%] h-48 w-48 rounded-full border border-white/10" />
-
+        <div className="relative overflow-hidden rounded-[2.25rem] border border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_55%,#F7F1EA_100%)] px-6 py-8 shadow-[0_30px_90px_-65px_rgba(36,31,34,0.45)] md:px-10 md:py-12 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+          <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-brand-secondary/35 blur-3xl" />
           <div className="relative z-10 max-w-2xl">
-            <span className="inline-flex rounded-full bg-white/16 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/90 ring-1 ring-white/20">
-              New Year 2083 Special Offer
-            </span>
-            <h2 className="mt-5 font-serif text-4xl font-semibold leading-[0.95] md:text-5xl lg:text-6xl">
-              Celebrate the <span className="italic text-[#C9A84C]">new year</span>
-              <span className="mt-2 block">with a fresh beauty edit</span>
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/82 md:text-base">
-              Discover polished skincare, soft-glam makeup, fragrance treats and thoughtful beauty gifts curated for celebrations across Nepal.
-            </p>
-
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <div className="rounded-[1.5rem] bg-white px-5 py-4 text-brand-bgDark shadow-lg">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-primary">Save up to</p>
-                <p className="mt-1 font-serif text-3xl font-semibold">30% OFF</p>
-              </div>
-              <div className="rounded-[1.5rem] border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">Offer highlights</p>
-                <p className="mt-1 text-sm text-white/90">Gift-ready sets · Best sellers · New arrivals</p>
-              </div>
+            <span className="inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10">New Year 2083 Beauty Edit</span>
+            <h2 className="mt-5 font-serif text-4xl font-semibold leading-[0.95] text-brand-textPrimary md:text-5xl lg:text-6xl">Celebrate with a <span className="italic text-brand-primary">fresh beauty edit</span></h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-brand-textMuted md:text-base">Gift-ready skincare, soft glam makeup and daily glow essentials curated for celebrations across Nepal.</p>
+            <div className="mt-6 grid max-w-xl gap-3 sm:grid-cols-2">
+              <div className="rounded-[1.5rem] bg-white px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Save up to</p><p className="mt-1 font-serif text-3xl font-semibold text-brand-textPrimary">30% OFF</p></div>
+              <div className="rounded-[1.5rem] bg-white/70 px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Highlights</p><p className="mt-1 text-sm text-brand-textMuted">Gift sets · Best sellers · New arrivals</p></div>
             </div>
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/collections/festival-ready" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-primary transition hover:-translate-y-0.5 hover:bg-[#FDF6F9] hover:shadow-lg">
-                Shop New Year Offers
-              </Link>
-              <Link href="/collections/new-arrivals" className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/18">
-                Explore new arrivals
-              </Link>
-            </div>
+            <div className="mt-7 flex flex-wrap gap-3"><Link href="/collections/festival-ready" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-brand-primary-hover">Shop New Year Offers</Link><Link href="/collections/new-arrivals" className="rounded-full border border-brand-primary/20 bg-white/70 px-6 py-3 text-sm font-bold text-brand-primary transition hover:bg-white">Explore new arrivals</Link></div>
           </div>
-
-          <div className="relative z-10 mt-8 lg:mt-0">
-            <div className="relative mx-auto flex max-w-[430px] items-end justify-center">
-              <div className="absolute left-0 top-10 h-24 w-24 rounded-full bg-[#C9A84C]/30 blur-2xl" />
-              <div className="absolute right-0 top-0 rounded-full bg-[#C9A84C] px-5 py-4 text-center text-brand-bgDark shadow-xl">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em]">Limited time</p>
-                <p className="font-serif text-3xl font-semibold leading-none">2083</p>
-              </div>
-              <div className="relative h-[340px] w-[260px] overflow-hidden rounded-[2rem] border border-white/20 bg-white/12 p-3 shadow-2xl backdrop-blur">
-                <div className="relative h-full w-full overflow-hidden rounded-[1.5rem] bg-[#FDF6F9]">
-                  <Image src="/images/product-placeholder-sunscreen.svg" alt="GLAMO New Year 2083 beauty offer" fill className="object-cover" sizes="(max-width: 1024px) 80vw, 30vw" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A0A1E]/20 via-transparent to-white/10" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="relative z-10 mt-8 lg:mt-0"><div className="relative mx-auto aspect-[4/3] max-w-[560px] overflow-hidden rounded-[2rem] border border-white/70 bg-white p-3 shadow-[0_30px_90px_-55px_rgba(36,31,34,0.45)]"><div className="relative h-full w-full overflow-hidden rounded-[1.5rem]"><Image src="/images/editorial/new-year-editorial.svg" alt="GLAMO New Year 2083 beauty offer" fill className="object-cover" sizes="(max-width: 1024px) 90vw, 40vw" /></div></div></div>
         </div>
       </div>
     </section>

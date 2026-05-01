@@ -49,19 +49,15 @@ export default function CategoryPageContent() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <div className="relative h-[300px] md:h-[400px] bg-brand-bgDark text-white overflow-hidden">
-        <Image src={category.image} alt={category.name} fill className="object-cover opacity-40" priority sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-bgDark via-brand-bgDark/60 to-transparent" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-10">
-          <nav className="text-sm text-white/60 mb-4 flex items-center gap-2">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span>/</span>
-            <Link href="/shop" className="hover:text-white transition-colors">Shop</Link>
-            <span>/</span>
-            <span className="text-white">{category.name}</span>
-          </nav>
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-2">{category.name}</h1>
-          <p className="text-white/70 max-w-xl">{category.description}</p>
+      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-10 md:py-14">
+        <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
+          <div>
+            <nav className="mb-5 flex items-center gap-2 text-sm text-brand-textMuted"><Link href="/" className="hover:text-brand-primary">Home</Link><span>/</span><Link href="/shop" className="hover:text-brand-primary">Shop</Link><span>/</span><span className="text-brand-textPrimary">{category.name}</span></nav>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
+            <h1 className="mt-3 font-serif text-5xl font-semibold text-brand-textPrimary md:text-7xl">{category.name}</h1>
+            <p className="mt-4 max-w-xl text-base leading-8 text-brand-textMuted">{category.description}</p>
+          </div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm"><Image src={category.image} alt={category.name} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 420px" /></div>
         </div>
       </div>
 

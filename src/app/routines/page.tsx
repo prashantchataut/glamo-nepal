@@ -32,18 +32,18 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
   return (
     <main className="min-h-screen bg-brand-bgLight">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Routines", path: "/routines" }, { name: bundle.title, path: `/routines/${bundle.slug}` }])} />
-      <section className="bg-brand-bgDark text-white">
-        <div className="container mx-auto grid gap-10 px-4 py-14 md:px-6 lg:grid-cols-[1fr_0.9fr] lg:py-20">
+      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_48%,#F7F1EA_100%)]">
+        <div className="container mx-auto grid gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_0.9fr] lg:py-14">
           <div className="self-center">
-            <Link href="/routines" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-white/70 transition hover:text-white"><ArrowLeft size={16} /> Back to routines</Link>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">{bundle.eyebrow}</p>
-            <h1 className="mt-3 font-serif text-5xl font-semibold leading-tight md:text-6xl">{bundle.title}</h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-white/72">{bundle.description}</p>
+            <Link href="/routines" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-brand-primary transition hover:text-brand-primary-hover"><ArrowLeft size={16} /> Back to routines</Link>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">{bundle.eyebrow}</p>
+            <h1 className="mt-3 font-serif text-5xl font-semibold leading-tight text-brand-textPrimary md:text-7xl">{bundle.title}</h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{bundle.description}</p>
             <div className="mt-7 flex flex-wrap gap-2">
-              {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">{tag}</span>)}
+              {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-primary shadow-sm ring-1 ring-brand-border">{tag}</span>)}
             </div>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-white/10 shadow-2xl">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
             <Image src={bundle.image} alt={bundle.title} fill priority className="object-cover" />
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
             </div>
           </div>
           <div className="rounded-[2rem] border border-amber-300/60 bg-amber-50 p-5 text-sm text-amber-900">
-            <div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><p>{bundle.ownerNote}</p></div>
+            <div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><p>Patch test new products and follow each product's packaging directions. Contact GLAMO before purchase if you need help choosing a routine for sensitive skin.</p></div>
           </div>
           <div className="rounded-[2rem] bg-white p-5 text-sm text-brand-textMuted shadow-sm">
             <div className="flex gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary" /><p>Bundle savings are shown for easy review. Final pricing is confirmed at checkout.</p></div>

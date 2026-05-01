@@ -47,8 +47,8 @@ export const HERO_SLIDES = [
     subtitle: "Fresh skincare, soft glam makeup and gifting edits curated for celebrations across Nepal.",
     cta: "Shop New Year Edit",
     ctaLink: "/collections/festival-ready",
-    image: "/images/hero-festival.svg",
-    bgColor: "bg-[#F8EEF5]",
+    image: "/images/editorial/hero-editorial.svg",
+    bgColor: "bg-[#FFF7F5]",
     annotation: "New Year 2083",
   },
   {
@@ -58,8 +58,8 @@ export const HERO_SLIDES = [
     subtitle: "Discover bestsellers for bright mornings, polished workdays and effortless evening touch-ups.",
     cta: "Shop Best Sellers",
     ctaLink: "/collections/best-sellers",
-    image: "/images/hero-nepal.svg",
-    bgColor: "bg-[#F6ECE6]",
+    image: "/images/editorial/shop-collage.svg",
+    bgColor: "bg-[#F8EEF2]",
     annotation: "Best Sellers",
   },
   {
@@ -69,8 +69,8 @@ export const HERO_SLIDES = [
     subtitle: "Celebrate local beauty with curated picks, thoughtful gifting ideas and easy NPR shopping.",
     cta: "Shop Local Picks",
     ctaLink: "/collections/made-in-nepal",
-    image: "/images/product-placeholder-cream-2.svg",
-    bgColor: "bg-[#EEF4F0]",
+    image: "/images/editorial/new-year-editorial.svg",
+    bgColor: "bg-[#F7F1EA]",
     annotation: "Local Love",
   },
 ];
@@ -92,8 +92,8 @@ export const TRUST_BADGES = [
 
 export const FEATURED_PRODUCTS: Product[] = PRODUCTS.filter((p) => p.isFeatured).slice(0, 8);
 export const PROMO_BANNERS = [
-  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/product-placeholder-sunscreen.svg", gradient: "from-black/80 via-black/30 to-transparent" },
-  { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/product-placeholder-skincare.svg", gradient: "from-[#8B3A8F]/90 via-[#8B3A8F]/40 to-transparent" },
+  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/editorial/new-year-editorial.svg", gradient: "from-black/80 via-black/30 to-transparent" },
+  { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/editorial/shop-collage.svg", gradient: "from-[#8B3A8F]/90 via-[#8B3A8F]/40 to-transparent" },
 ];
 export const SHOP_CATEGORIES = CATEGORIES.map((c) => ({ id: c.slug, name: c.name, image: c.image, slug: c.slug }));
 export const GLOW_EDIT_TABS = ["Best Sellers", "New Arrivals", "On Sale", "Made in Nepal"];
