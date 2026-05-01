@@ -58,7 +58,7 @@ type ManagedBanner = {
   updatedAt: string;
 };
 
-const sections: Array<{ id: AdminSection; label: string; icon: ComponentType<{ size?: number; className?: string }> }> = [
+const sections: Array<{ id: AdminSection; label: string; icon: ComponentType<{ size?: number | string; className?: string }> }> = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "products", label: "Products", icon: Package },
   { id: "orders", label: "Orders", icon: ShoppingBag },
@@ -113,7 +113,7 @@ const orderStatusStyles: Record<Order["status"], string> = {
 const bannerStorageKey = "glamo-admin-managed-banners";
 const allowedBannerTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
-function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number; className?: string }> }) {
+function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number | string; className?: string }> }) {
   return (
     <div className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
       <div className="flex items-center justify-between gap-3">
@@ -587,7 +587,7 @@ export function AdminDashboard() {
   );
 }
 
-function SettingItem({ icon: Icon, label, value }: { icon: ComponentType<{ size?: number; className?: string }>; label: string; value: string }) {
+function SettingItem({ icon: Icon, label, value }: { icon: ComponentType<{ size?: number | string; className?: string }>; label: string; value: string }) {
   return <div className="rounded-2xl border border-brand-border bg-brand-bgLight p-4"><div className="flex items-start gap-3"><Icon className="mt-0.5 text-brand-primary" size={18} /><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</p><p className="mt-1 text-sm font-semibold text-brand-textPrimary">{value}</p></div></div></div>;
 }
 
