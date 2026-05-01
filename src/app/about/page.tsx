@@ -13,19 +13,19 @@ export const metadata = createMetadata({
 const pillars = [
   { icon: <Sparkles className="text-brand-primary" size={26} />, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first shopping." },
   { icon: <ShieldCheck className="text-brand-primary" size={26} />, title: "Authenticity-first curation", body: "Product pages highlight authentic ingredients, clear sourcing and honest beauty guidance." },
-  { icon: <Store className="text-brand-primary" size={26} />, title: "Kathmandu-ready", body: `Store, WhatsApp and pickup messaging centers on ${SITE_CONFIG.address}.` },
+  { icon: <Store className="text-brand-primary" size={26} />, title: "Kathmandu-ready", body: `Visit us at ${SITE_CONFIG.address}, message us on WhatsApp or pick up in store.` },
 ];
 
 export default function AboutPage() {
   return (
     <main className="bg-brand-bgLight">
-      <PageHeader eyebrow="Our story" title="Premium beauty from the heart of Kathmandu" description={`${SITE_CONFIG.fullTitle} is positioned as a premium Nepali beauty and cosmetics storefront based at ${SITE_CONFIG.address}.`} />
+      <PageHeader eyebrow="Our story" title="Premium beauty from the heart of Kathmandu" description={`${SITE_CONFIG.fullTitle} is a premium Nepali beauty and cosmetics storefront based at ${SITE_CONFIG.address}.`} />
       <section className="container mx-auto px-4 py-12 md:px-6 md:py-16">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="rounded-[2rem] bg-white p-7 shadow-sm">
+          <div className="rounded-2xl bg-white p-7 shadow-sm">
             <MapPin className="text-brand-primary" size={30} />
             <h2 className="mt-4 font-serif text-4xl font-semibold text-brand-textPrimary">Built for the Nepal beauty customer</h2>
-            <p className="mt-4 leading-7 text-brand-textMuted">GLAMO NEPAL is designed for customers who want polished product discovery, Nepal-relevant delivery information, local payment options and a premium beauty experience that feels trustworthy from the first visit.</p>
+            <p className="mt-4 leading-7 text-brand-textMuted">GLAMO NEPAL brings customers polished product discovery, Nepal-relevant delivery information, local payment options and a premium beauty experience that feels trustworthy from the first visit.</p>
             <div className="mt-6 space-y-2 text-sm text-brand-textMuted">
               <p><strong className="text-brand-textPrimary">Phone:</strong> <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="text-brand-textMuted hover:text-brand-primary transition-colors">{SITE_CONFIG.phone}</a></p>
               <p><strong className="text-brand-textPrimary">Instagram:</strong> {SITE_CONFIG.instagramHandle}</p>
@@ -35,7 +35,7 @@ export default function AboutPage() {
           </div>
           <div className="grid gap-5 md:grid-cols-3 lg:grid-cols-1">
             {pillars.map(({ icon, title, body }) => (
-              <article key={title} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <article key={title} className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                 {icon}
                 <h3 className="mt-4 font-serif text-2xl font-semibold text-brand-textPrimary">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-brand-textMuted">{body}</p>

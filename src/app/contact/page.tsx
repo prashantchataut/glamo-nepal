@@ -24,30 +24,30 @@ export default function ContactPage() {
       <PageHeader eyebrow="Contact GLAMO" title="Visit or message us" description="Reach the GLAMO NEPAL team for product questions, store pickup, order support and shopping inquiries." />
       <section className="container mx-auto grid gap-8 px-4 py-12 md:px-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-5">
-          <div className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
             <MapPin className="text-brand-primary" />
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-brand-textPrimary">Store location</h2>
+            <h2 className="mt-4 font-serif text-2xl font-semibold text-brand-textPrimary">Store location</h2>
             <p className="mt-3 leading-7 text-brand-textMuted">{SITE_CONFIG.address}</p>
-            <p className="mt-3 text-sm text-brand-textMuted">Store hours and map coming soon.</p>
+            <p className="mt-3 text-sm text-brand-textMuted">Open Sunday to Friday, 10 AM to 7 PM. Walk-ins welcome.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {contactCards.map(({ icon, label, value, href }) => (
-              <Link key={label} href={href} className="rounded-[1.5rem] border border-border/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <Link key={label} href={href} className="rounded-xl border border-border/70 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                 {icon}
-                <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">{label}</p>
+                <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-gold">{label}</p>
                 <p className="mt-1 font-semibold text-brand-textPrimary">{value}</p>
               </Link>
             ))}
           </div>
         </div>
-        <form className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
-          <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Send a message</h2>
+        <form className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm md:p-8">
+          <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Send a message</h2>
           <p className="mt-2 text-sm text-brand-textMuted">Share your question and we will get back to you as soon as possible.</p>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {['Name','Email','Phone'].map((label) => (
-              <label key={label} className="block text-sm font-semibold text-brand-textPrimary">{label}<input className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25" /></label>
+              <label key={label} className="block text-sm font-medium text-brand-textPrimary">{label}<input className="mt-2 w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
             ))}
-            <label className="block text-sm font-semibold text-brand-textPrimary md:col-span-2">Message<textarea rows={5} className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25" /></label>
+            <label className="block text-sm font-medium text-brand-textPrimary md:col-span-2">Message<textarea rows={5} className="mt-2 w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
           </div>
           <button type="button" className="mt-6 rounded-full bg-brand-primary px-7 py-3 font-semibold text-white transition hover:bg-brand-bgDark">Submit message</button>
         </form>

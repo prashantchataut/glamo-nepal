@@ -98,27 +98,22 @@ export function HeroBanner() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-black/5 bg-white px-6 py-4 md:px-12">
-            <div className="flex items-center gap-2">
-              {HERO_SLIDES.map((slide, index) => (
-                <button
-                  key={slide.id}
-                  onClick={() => emblaApi?.scrollTo(index)}
-                  aria-label={`Go to ${slide.annotation}`}
-                  className={cn(
-                    "flex items-center justify-center min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0",
-                    index === selectedIndex
-                      ? "w-10 bg-brand-primary h-2 rounded-full transition-all duration-300 md:h-2 md:w-10"
-                      : "w-2 h-2 rounded-full bg-brand-primary/25 transition-all duration-300 hover:bg-brand-primary/45 md:h-2 md:w-2"
-                  )}
-                >
-                  <span className={cn(
-                    "rounded-full transition-all duration-300",
-                    index === selectedIndex ? "h-2 w-10 bg-brand-primary" : "h-2 w-2 bg-brand-primary/25"
-                  )} />
-                </button>
-              ))}
-            </div>
+<div className="flex items-center justify-between border-t border-black/5 bg-white px-6 py-4 md:px-12">
+          <div className="flex items-center gap-2">
+            {HERO_SLIDES.map((slide, index) => (
+              <button
+                key={slide.id}
+                onClick={() => emblaApi?.scrollTo(index)}
+                aria-label={`Go to ${slide.annotation}`}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  index === selectedIndex
+                    ? "w-10 bg-brand-primary"
+                    : "w-2 bg-brand-primary/25 hover:bg-brand-primary/45"
+                )}
+              />
+            ))}
+          </div>
             <div className="flex items-center gap-2">
               <button onClick={scrollPrev} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary" aria-label="Previous slide">
                 <ChevronLeft size={18} />

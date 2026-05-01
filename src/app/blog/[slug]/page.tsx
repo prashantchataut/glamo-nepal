@@ -14,8 +14,8 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const post = getBlogBySlug(params.slug);
   return createMetadata({
-    title: post?.title || "Blog Post Not Found",
-    description: post?.excerpt || "GLAMO NEPAL beauty blog post.",
+    title: post?.title ?? "Blog — GLAMO NEPAL",
+    description: post?.excerpt ?? "Beauty tips, skincare routines and Nepal beauty advice from GLAMO NEPAL.",
     path: `/blog/${params.slug}`,
     image: post?.image,
     type: "article",

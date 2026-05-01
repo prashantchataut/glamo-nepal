@@ -115,34 +115,34 @@ const allowedBannerTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+
 
 function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number | string; className?: string }> }) {
   return (
-    <div className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+    <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-center justify-between gap-3">
-        <div className="rounded-2xl bg-brand-primary-light p-3 text-brand-primary">
-          <Icon size={20} />
+        <div className="rounded-xl bg-brand-primary-light p-2.5 text-brand-primary">
+          <Icon size={18} />
         </div>
-        <span className="rounded-full bg-brand-bgLight px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-textMuted">Live view</span>
+        <span className="rounded-full bg-brand-bgLight px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-textMuted">Live</span>
       </div>
-      <p className="mt-5 text-sm font-medium text-brand-textMuted">{label}</p>
-      <p className="mt-1 font-serif text-3xl font-semibold text-brand-textPrimary">{value}</p>
-      <p className="mt-2 text-xs leading-5 text-brand-textMuted">{note}</p>
+      <p className="mt-4 text-xs font-medium text-brand-textMuted">{label}</p>
+      <p className="mt-1 font-serif text-2xl font-semibold text-brand-textPrimary">{value}</p>
+      <p className="mt-1.5 text-[11px] leading-4 text-brand-textMuted">{note}</p>
     </div>
   );
 }
 
 function StatusPill({ children, className }: { children: ReactNode; className: string }) {
-  return <span className={cn("inline-flex rounded-full px-3 py-1 text-xs font-bold ring-1", className)}>{children}</span>;
+  return <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1", className)}>{children}</span>;
 }
 
 function MiniBar({ label, value, max }: { label: string; value: number; max: number }) {
   const width = max > 0 ? Math.max(8, Math.round((value / max) * 100)) : 0;
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between text-xs">
+      <div className="mb-1.5 flex items-center justify-between text-xs">
         <span className="font-medium text-brand-textPrimary">{label}</span>
         <span className="text-brand-textMuted">{value}</span>
       </div>
-      <div className="h-2 rounded-full bg-brand-bgLight">
-        <div className="h-2 rounded-full bg-brand-primary" style={{ width: `${width}%` }} />
+      <div className="h-1.5 rounded-full bg-brand-bgLight">
+        <div className="h-1.5 rounded-full bg-brand-primary" style={{ width: `${width}%` }} />
       </div>
     </div>
   );
@@ -150,18 +150,17 @@ function MiniBar({ label, value, max }: { label: string; value: number; max: num
 
 function BannerPreview({ banner }: { banner: ManagedBanner }) {
   return (
-    <div className="overflow-hidden rounded-[1.6rem] border border-white/20 bg-brand-bgDark text-white shadow-lg">
-      <div className="grid min-h-[220px] md:grid-cols-[1.1fr_0.9fr]">
-        <div className="flex flex-col justify-center p-6 md:p-8">
-          <span className="w-fit rounded-full bg-white/12 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/75">{banner.status}</span>
-          <h3 className="mt-4 font-serif text-3xl font-semibold leading-tight md:text-4xl">{banner.title}</h3>
-          <p className="mt-3 text-sm leading-6 text-white/72">{banner.subtitle}</p>
-          <Link href={banner.href} className="mt-5 w-fit rounded-full bg-white px-5 py-2.5 text-sm font-bold text-brand-primary">
+    <div className="overflow-hidden rounded-2xl border border-white/20 bg-brand-bgDark text-white shadow-lg">
+      <div className="grid min-h-[180px] md:grid-cols-[1.1fr_0.9fr]">
+        <div className="flex flex-col justify-center p-5 md:p-6">
+          <span className="w-fit rounded-full bg-white/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/75">{banner.status}</span>
+          <h3 className="mt-3 font-serif text-2xl font-semibold leading-tight md:text-3xl">{banner.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-white/72">{banner.subtitle}</p>
+          <Link href={banner.href} className="mt-4 w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-brand-primary">
             {banner.cta}
           </Link>
         </div>
-        <div className="relative min-h-[220px] bg-white/10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="relative min-h-[180px] bg-white/10">
           <img src={banner.desktopImage} alt="Banner preview" className="h-full w-full object-cover" />
         </div>
       </div>
@@ -279,25 +278,25 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5eff6] text-brand-textPrimary">
-      <aside className={cn("fixed inset-y-0 left-0 z-50 w-[292px] border-r border-brand-border bg-white/95 shadow-xl backdrop-blur transition-transform lg:translate-x-0", isSidebarOpen ? "translate-x-0" : "-translate-x-full")}>
+    <div className="min-h-screen bg-brand-bgLight text-brand-textPrimary">
+      <aside className={cn("fixed inset-y-0 left-0 z-50 w-[280px] border-r border-brand-border bg-white/95 shadow-xl backdrop-blur transition-transform lg:translate-x-0", isSidebarOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-brand-border px-6 py-6">
+          <div className="flex items-center justify-between border-b border-brand-border px-5 py-5">
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-lg shadow-brand-primary/25">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-primary/20">
                 <SparklesIcon />
               </div>
               <div>
-                <p className="font-serif text-2xl font-semibold leading-none">GLAMO</p>
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-textMuted">Admin panel</p>
+                <p className="font-serif text-xl font-semibold leading-none">GLAMO</p>
+                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-brand-textMuted">Admin panel</p>
               </div>
             </Link>
-            <button onClick={() => setIsSidebarOpen(false)} className="rounded-xl p-2 text-brand-textMuted hover:bg-brand-bgLight lg:hidden" aria-label="Close admin menu">
-              <X size={20} />
+            <button onClick={() => setIsSidebarOpen(false)} className="rounded-lg p-2 text-brand-textMuted hover:bg-brand-bgLight lg:hidden" aria-label="Close admin menu">
+              <X size={18} />
             </button>
           </div>
 
-          <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
+          <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
             {sections.map((section) => {
               const Icon = section.icon;
               return (
@@ -307,115 +306,114 @@ export function AdminDashboard() {
                     setActiveSection(section.id);
                     setIsSidebarOpen(false);
                   }}
-                  className={cn("flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition", activeSection === section.id ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20" : "text-brand-textMuted hover:bg-brand-bgLight hover:text-brand-textPrimary")}
+                  className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition", activeSection === section.id ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20" : "text-brand-textMuted hover:bg-brand-bgLight hover:text-brand-textPrimary")}
                 >
-                  <Icon size={18} />
+                  <Icon size={17} />
                   {section.label}
                 </button>
               );
             })}
           </nav>
 
-          <div className="border-t border-brand-border p-4">
-            <Link href="/" className="mb-3 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-primary">
-              <Eye size={18} /> View storefront
+          <div className="border-t border-brand-border p-3">
+            <Link href="/" className="mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-primary">
+              <Eye size={17} /> View storefront
             </Link>
-            <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">
-              <LogOut size={18} /> {isLoggingOut ? "Signing out..." : "Logout"}
+            <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50">
+              <LogOut size={17} /> {isLoggingOut ? "Signing out..." : "Logout"}
             </button>
           </div>
         </div>
       </aside>
 
-      {isSidebarOpen ? <button aria-label="Close menu overlay" className="fixed inset-0 z-40 bg-black/20 lg:hidden" onClick={() => setIsSidebarOpen(false)} /> : null}
+      {isSidebarOpen && <button aria-label="Close menu overlay" className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
 
-      <div className="lg:pl-[292px]">
-        <header className="sticky top-0 z-30 border-b border-brand-border bg-white/86 px-4 py-4 backdrop-blur md:px-8">
+      <div className="lg:pl-[280px]">
+        <header className="sticky top-0 z-30 border-b border-brand-border bg-white/92 px-4 py-3 backdrop-blur-lg md:px-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <button onClick={() => setIsSidebarOpen(true)} className="rounded-2xl border border-brand-border bg-white p-3 text-brand-textPrimary lg:hidden" aria-label="Open admin menu">
-                <Menu size={20} />
+              <button onClick={() => setIsSidebarOpen(true)} className="rounded-xl border border-brand-border bg-white p-2.5 text-brand-textPrimary shadow-sm lg:hidden" aria-label="Open admin menu">
+                <Menu size={18} />
               </button>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-primary">Store operations</p>
-                <h1 className="font-serif text-2xl font-semibold md:text-3xl">{sections.find((item) => item.id === activeSection)?.label}</h1>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary">Store operations</p>
+                <h1 className="font-serif text-xl font-semibold md:text-2xl">{sections.find((item) => item.id === activeSection)?.label}</h1>
               </div>
             </div>
             <div className="hidden flex-1 items-center justify-center md:flex">
-              <div className="relative w-full max-w-xl">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-textMuted" size={18} />
-                <input className="w-full rounded-full border border-brand-border bg-brand-bgLight py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10" placeholder="Search products, orders or customers" />
+              <div className="relative w-full max-w-lg">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-textMuted" size={16} />
+                <input className="w-full rounded-xl border border-brand-border bg-brand-bgLight py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" placeholder="Search products, orders or customers" />
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="hidden items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 md:inline-flex">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" /> Open for order
+            <div className="flex items-center gap-2">
+              <span className="hidden items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700 md:inline-flex">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Open
               </span>
-              <button className="rounded-2xl border border-brand-border bg-white p-3 text-brand-textMuted transition hover:text-brand-primary" aria-label="Notifications">
-                <Bell size={18} />
+              <button className="rounded-xl border border-brand-border bg-white p-2.5 text-brand-textMuted transition hover:text-brand-primary shadow-sm" aria-label="Notifications">
+                <Bell size={16} />
               </button>
-              <div className="hidden items-center gap-3 rounded-full bg-white py-1.5 pl-2 pr-4 shadow-sm md:flex">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">GA</div>
+              <div className="hidden items-center gap-2 rounded-xl bg-white py-1.5 pl-2 pr-3 shadow-sm md:flex">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">GA</div>
                 <div className="leading-tight">
-                  <p className="text-sm font-bold">GLAMO Admin</p>
-                  <p className="text-xs text-brand-textMuted">admin@glamonepal.com</p>
+                  <p className="text-xs font-semibold">GLAMO Admin</p>
                 </div>
-                <ChevronDown size={16} className="text-brand-textMuted" />
+                <ChevronDown size={14} className="text-brand-textMuted" />
               </div>
             </div>
           </div>
         </header>
 
-        <main className="p-4 md:p-8">
+        <main className="p-4 md:p-6 space-y-5">
           {activeSection === "dashboard" ? (
             <div className="space-y-6">
-              <section className="overflow-hidden rounded-[2rem] bg-brand-bgDark text-white shadow-[0_35px_110px_-60px_rgba(26,10,30,0.9)]">
-                <div className="grid gap-6 p-6 md:p-8 xl:grid-cols-[1fr_0.78fr] xl:items-center">
+              <section className="overflow-hidden rounded-2xl bg-brand-bgDark text-white shadow-lg">
+                <div className="grid gap-6 p-5 md:p-6 xl:grid-cols-[1fr_0.78fr] xl:items-center">
                   <div>
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/75"><ShieldCheck size={15} /> Protected workspace</span>
-                    <h2 className="mt-6 font-serif text-4xl font-semibold leading-tight md:text-6xl">Welcome to GLAMO NEPAL admin.</h2>
-                    <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72 md:text-base">Manage catalog quality, order flow, inventory risks and homepage banners from one polished operating panel.</p>
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <button onClick={() => setActiveSection("products")} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-brand-primary">Manage products</button>
-                      <button onClick={() => setActiveSection("banners")} className="rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-white">Replace banners</button>
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/75"><ShieldCheck size={14} /> Protected workspace</span>
+                    <h2 className="mt-4 font-serif text-2xl font-semibold leading-tight md:text-4xl">Welcome to GLAMO NEPAL admin.</h2>
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-white/72">Manage catalog quality, order flow, inventory risks and homepage banners from one operating panel.</p>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button onClick={() => setActiveSection("products")} className="rounded-full bg-white px-4 py-2.5 text-sm font-bold text-brand-primary">Manage products</button>
+                      <button onClick={() => setActiveSection("banners")} className="rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-bold text-white">Replace banners</button>
                     </div>
                   </div>
                   <BannerPreview banner={selectedBanner} />
                 </div>
               </section>
 
-              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <StatCard icon={Users} label="Customers" value="26" note="Seeded customer view until customer API is connected" />
+              <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
+                <StatCard icon={Users} label="Customers" value="26" note="Seeded customer view until API connected" />
                 <StatCard icon={Package} label="Products" value={PRODUCTS.length} note={`${PRODUCTS.filter((product) => product.madeInNepal).length} Made in Nepal picks`} />
                 <StatCard icon={ShoppingBag} label="Orders" value={MOCK_ORDERS.length} note={`${formatNpr(grossSales)} sample order value`} />
-                <StatCard icon={AlertTriangle} label="Stock watch" value={lowStockCount} note={`${INVENTORY_SUMMARY.totalUnits} total units in catalog`} />
+                <StatCard icon={AlertTriangle} label="Stock watch" value={lowStockCount} note={`${INVENTORY_SUMMARY.totalUnits} total units`} />
               </section>
 
-              <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-                <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6">
-                  <div className="mb-5 flex items-center justify-between gap-3">
+              <section className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
+                <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="font-serif text-3xl font-semibold">Order history</h3>
-                      <p className="text-sm text-brand-textMuted">Track payment method, status and fulfillment priority.</p>
+                      <h3 className="font-serif text-xl font-semibold">Order history</h3>
+                      <p className="mt-0.5 text-sm text-brand-textMuted">Track payment, status and fulfillment.</p>
                     </div>
-                    <button onClick={() => setActiveSection("orders")} className="rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary">View all</button>
+                    <button onClick={() => setActiveSection("orders")} className="rounded-full border border-brand-border px-3 py-1.5 text-sm font-bold text-brand-primary">View all</button>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[740px] text-sm">
+                  <div className="overflow-x-auto -mx-5 px-5">
+                    <table className="w-full min-w-[700px] text-sm">
                       <thead>
-                        <tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
-                          <th className="px-4 py-3">Order</th><th>Customer</th><th>Payment</th><th>Total</th><th>Status</th><th>Action</th>
+                        <tr className="border-y border-brand-border bg-brand-bgLight text-left text-[11px] uppercase tracking-[0.14em] text-brand-textMuted">
+                          <th className="px-3 py-2.5">Order</th><th className="px-3 py-2.5">Customer</th><th className="px-3 py-2.5">Payment</th><th className="px-3 py-2.5">Total</th><th className="px-3 py-2.5">Status</th><th className="px-3 py-2.5">Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {orderRows.map((order) => (
                           <tr key={order.id} className="border-b border-brand-border/70 last:border-0">
-                            <td className="px-4 py-4 font-mono text-xs font-semibold text-brand-textPrimary">{order.orderNumber}</td>
-                            <td>{order.shippingAddress.split(",")[0]}</td>
-                            <td>{order.paymentMethod}</td>
-                            <td className="font-bold">{formatNpr(order.total)}</td>
-                            <td><StatusPill className={orderStatusStyles[order.status]}>{order.status}</StatusPill></td>
-                            <td><button aria-label="Open order actions" className="rounded-full p-2 text-brand-textMuted hover:bg-brand-bgLight"><MoreHorizontal size={18} /></button></td>
+                            <td className="px-3 py-3 font-mono text-xs font-semibold text-brand-textPrimary">{order.orderNumber}</td>
+                            <td className="px-3 py-3">{order.shippingAddress.split(",")[0]}</td>
+                            <td className="px-3 py-3">{order.paymentMethod}</td>
+                            <td className="px-3 py-3 font-bold">{formatNpr(order.total)}</td>
+                            <td className="px-3 py-3"><StatusPill className={orderStatusStyles[order.status]}>{order.status}</StatusPill></td>
+                            <td className="px-3 py-3"><button aria-label="Open order actions" className="rounded-full p-1.5 text-brand-textMuted hover:bg-brand-bgLight"><MoreHorizontal size={16} /></button></td>
                           </tr>
                         ))}
                       </tbody>
@@ -423,21 +421,21 @@ export function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-                    <h3 className="font-serif text-3xl font-semibold">Top categories</h3>
-                    <div className="mt-5 space-y-4">
+                <div className="space-y-5">
+                  <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                    <h3 className="font-serif text-xl font-semibold">Top categories</h3>
+                    <div className="mt-4 space-y-3">
                       {Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}
                     </div>
                   </div>
-                  <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-                    <h3 className="font-serif text-3xl font-semibold">Low-stock alerts</h3>
-                    <div className="mt-4 space-y-3">
+                  <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                    <h3 className="font-serif text-xl font-semibold">Low-stock alerts</h3>
+                    <div className="mt-3 space-y-2">
                       {LOW_STOCK_SNAPSHOT.slice(0, 4).map((item) => (
-                        <div key={item.productId} className="flex items-center justify-between gap-3 rounded-2xl bg-brand-bgLight p-3 text-sm">
+                        <div key={item.productId} className="flex items-center justify-between gap-3 rounded-xl bg-brand-bgLight p-3 text-sm">
                           <div>
-                            <p className="font-bold text-brand-textPrimary">{item.name}</p>
-                            <p className="text-xs text-brand-textMuted">Reorder at {item.reorderPoint}</p>
+                            <p className="font-semibold text-brand-textPrimary">{item.name}</p>
+                            <p className="text-[11px] text-brand-textMuted">Reorder at {item.reorderPoint}</p>
                           </div>
                           <StatusPill className={riskStyles[item.risk]}>{item.stockCount}</StatusPill>
                         </div>
@@ -450,27 +448,27 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "products" ? (
-            <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6">
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h2 className="font-serif text-4xl font-semibold">Product management</h2>
-                  <p className="mt-1 text-sm text-brand-textMuted">Search, review and prepare SKUs for real catalog APIs.</p>
+                  <h2 className="font-serif text-2xl font-semibold">Product management</h2>
+                  <p className="mt-0.5 text-sm text-brand-textMuted">Search, review and prepare SKUs for catalog APIs.</p>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <button className="inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2.5 text-sm font-bold text-brand-textPrimary"><Filter size={16} /> Filter</button>
-                  <button onClick={exportProductsCsv} className="inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2.5 text-sm font-bold text-brand-textPrimary"><Download size={16} /> Export</button>
-                  <button className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-bold text-white"><Plus size={16} /> Add product</button>
+                <div className="flex flex-wrap gap-2">
+                  <button className="inline-flex items-center gap-2 rounded-full border border-brand-border px-3.5 py-2 text-sm font-medium text-brand-textPrimary"><Filter size={15} /> Filter</button>
+                  <button onClick={exportProductsCsv} className="inline-flex items-center gap-2 rounded-full border border-brand-border px-3.5 py-2 text-sm font-medium text-brand-textPrimary"><Download size={15} /> Export</button>
+                  <button className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-3.5 py-2 text-sm font-medium text-white"><Plus size={15} /> Add product</button>
                 </div>
               </div>
-              <div className="relative mt-5 max-w-xl">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-textMuted" size={18} />
-                <input value={productQuery} onChange={(event) => setProductQuery(event.target.value)} className="w-full rounded-full border border-brand-border bg-brand-bgLight py-3 pl-11 pr-4 text-sm outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10" placeholder="Search by SKU, brand or product" />
+              <div className="relative mt-4 max-w-lg">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-textMuted" size={16} />
+                <input value={productQuery} onChange={(event) => setProductQuery(event.target.value)} className="w-full rounded-xl border border-brand-border bg-brand-bgLight py-2.5 pl-10 pr-4 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" placeholder="Search by SKU, brand or product" />
               </div>
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[1050px] text-sm">
+              <div className="mt-4 overflow-x-auto -mx-5 px-5">
+                <table className="w-full min-w-[900px] text-sm">
                   <thead>
-                    <tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
-                      <th className="px-4 py-3">Product</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th>
+                    <tr className="border-y border-brand-border bg-brand-bgLight text-left text-[11px] uppercase tracking-[0.14em] text-brand-textMuted">
+                      <th className="px-3 py-2.5">Product</th><th className="px-3 py-2.5">SKU</th><th className="px-3 py-2.5">Category</th><th className="px-3 py-2.5">Price</th><th className="px-3 py-2.5">Stock</th><th className="px-3 py-2.5">Status</th><th className="px-3 py-2.5">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -479,26 +477,25 @@ export function AdminDashboard() {
                       const status = product.stockCount <= 0 ? "Out" : product.stockCount <= (inventory?.reorderPoint || 10) ? "Low" : "Active";
                       return (
                         <tr key={product.id} className="border-b border-brand-border/70 last:border-0">
-                          <td className="px-4 py-4">
+                          <td className="px-3 py-3">
                             <div className="flex items-center gap-3">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={product.image} alt="" className="h-12 w-12 rounded-2xl bg-brand-bgLight object-cover" />
+                              <img src={product.image} alt="" className="h-10 w-10 rounded-xl bg-brand-bgLight object-cover" />
                               <div>
-                                <p className="font-bold text-brand-textPrimary">{product.name}</p>
-                                <p className="text-xs text-brand-textMuted">{product.brand}</p>
+                                <p className="font-semibold text-brand-textPrimary">{product.name}</p>
+                                <p className="text-[11px] text-brand-textMuted">{product.brand}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="font-mono text-xs">{product.sku}</td>
-                          <td className="capitalize">{product.category}</td>
-                          <td className="font-bold">{formatNpr(product.price)}</td>
-                          <td>{product.stockCount} pcs</td>
-                          <td><StatusPill className={status === "Active" ? "bg-emerald-50 text-emerald-700 ring-emerald-100" : status === "Low" ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-red-50 text-red-700 ring-red-100"}>{status}</StatusPill></td>
-                          <td>
-                            <div className="flex gap-2">
-                              <button aria-label="View product" className="rounded-full p-2 text-brand-textMuted hover:bg-brand-bgLight"><Eye size={17} /></button>
-                              <button aria-label="Edit product" className="rounded-full p-2 text-brand-textMuted hover:bg-brand-bgLight"><Pencil size={17} /></button>
-                              <button aria-label="Delete product" className="rounded-full p-2 text-red-500 hover:bg-red-50"><Trash2 size={17} /></button>
+                          <td className="px-3 py-3 font-mono text-[11px]">{product.sku}</td>
+                          <td className="px-3 py-3 capitalize">{product.category}</td>
+                          <td className="px-3 py-3 font-semibold">{formatNpr(product.price)}</td>
+                          <td className="px-3 py-3">{product.stockCount} pcs</td>
+                          <td className="px-3 py-3"><StatusPill className={status === "Active" ? "bg-emerald-50 text-emerald-700 ring-emerald-100" : status === "Low" ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-red-50 text-red-700 ring-red-100"}>{status}</StatusPill></td>
+                          <td className="px-3 py-3">
+                            <div className="flex gap-1">
+                              <button aria-label="View product" className="rounded-lg p-1.5 text-brand-textMuted hover:bg-brand-bgLight"><Eye size={15} /></button>
+                              <button aria-label="Edit product" className="rounded-lg p-1.5 text-brand-textMuted hover:bg-brand-bgLight"><Pencil size={15} /></button>
+                              <button aria-label="Delete product" className="rounded-lg p-1.5 text-red-500 hover:bg-red-50"><Trash2 size={15} /></button>
                             </div>
                           </td>
                         </tr>
@@ -511,18 +508,18 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "orders" ? (
-            <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6">
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div><h2 className="font-serif text-4xl font-semibold">Orders</h2><p className="mt-1 text-sm text-brand-textMuted">Update statuses for COD, Khalti, eSewa and card orders.</p></div>
-                <div className="flex flex-wrap gap-3"><button className="rounded-full border border-brand-border px-4 py-2.5 text-sm font-bold">Today</button><button className="rounded-full border border-brand-border px-4 py-2.5 text-sm font-bold">This week</button><button className="rounded-full bg-brand-primary px-4 py-2.5 text-sm font-bold text-white">Create manual order</button></div>
+                <div><h2 className="font-serif text-2xl font-semibold">Orders</h2><p className="mt-0.5 text-sm text-brand-textMuted">Update statuses for COD, Khalti, eSewa and card orders.</p></div>
+                <div className="flex flex-wrap gap-2"><button className="rounded-full border border-brand-border px-3.5 py-2 text-sm font-medium">Today</button><button className="rounded-full border border-brand-border px-3.5 py-2 text-sm font-medium">This week</button><button className="rounded-full bg-brand-primary px-3.5 py-2 text-sm font-medium text-white">Create manual order</button></div>
               </div>
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[980px] text-sm">
-                  <thead><tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted"><th className="px-4 py-3">Order</th><th>Date</th><th>Items</th><th>Payment</th><th>Address</th><th>Total</th><th>Status</th></tr></thead>
+              <div className="mt-4 overflow-x-auto -mx-5 px-5">
+                <table className="w-full min-w-[900px] text-sm">
+                  <thead><tr className="border-y border-brand-border bg-brand-bgLight text-left text-[11px] uppercase tracking-[0.14em] text-brand-textMuted"><th className="px-3 py-2.5">Order</th><th className="px-3 py-2.5">Date</th><th className="px-3 py-2.5">Items</th><th className="px-3 py-2.5">Payment</th><th className="px-3 py-2.5">Address</th><th className="px-3 py-2.5">Total</th><th className="px-3 py-2.5">Status</th></tr></thead>
                   <tbody>{orderRows.map((order) => (
                     <tr key={order.id} className="border-b border-brand-border/70 last:border-0">
-                      <td className="px-4 py-4 font-mono text-xs font-bold">{order.orderNumber}</td><td>{order.date}</td><td>{order.items.length}</td><td>{order.paymentMethod}</td><td className="max-w-[260px] truncate">{order.shippingAddress}</td><td className="font-bold">{formatNpr(order.total)}</td>
-                      <td><select value={order.status} onChange={(event) => setOrderStatusById((current) => ({ ...current, [order.id]: event.target.value as Order["status"] }))} className="rounded-full border border-brand-border bg-white px-3 py-2 text-xs font-bold outline-none"><option>Pending</option><option>Confirmed</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select></td>
+                      <td className="px-3 py-3 font-mono text-xs font-semibold">{order.orderNumber}</td><td className="px-3 py-3">{order.date}</td><td className="px-3 py-3">{order.items.length}</td><td className="px-3 py-3">{order.paymentMethod}</td><td className="px-3 py-3 max-w-[200px] truncate">{order.shippingAddress}</td><td className="px-3 py-3 font-semibold">{formatNpr(order.total)}</td>
+                      <td className="px-3 py-3"><select value={order.status} onChange={(event) => setOrderStatusById((current) => ({ ...current, [order.id]: event.target.value as Order["status"] }))} className="rounded-full border border-brand-border bg-white px-2.5 py-1.5 text-xs font-medium outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"><option>Pending</option><option>Confirmed</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select></td>
                     </tr>
                   ))}</tbody>
                 </table>
@@ -531,55 +528,55 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "inventory" ? (
-            <section className="grid gap-6 xl:grid-cols-[1fr_0.75fr]">
-              <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6">
-                <h2 className="font-serif text-4xl font-semibold">Stock control</h2>
-                <p className="mt-1 text-sm text-brand-textMuted">Monitor stock, reorder points and estimated cover.</p>
-                <div className="mt-5 grid gap-4 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNpr(inventoryValue)} note="Current retail value" /></div>
-                <div className="mt-6 space-y-3">
-                  {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="grid gap-3 rounded-2xl border border-brand-border p-4 md:grid-cols-[1fr_auto_auto] md:items-center"><div><p className="font-bold">{item.name}</p><p className="text-xs text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><button className="rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white">Restock</button></div>)}
+            <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">
+              <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                <h2 className="font-serif text-2xl font-semibold">Stock control</h2>
+                <p className="mt-0.5 text-sm text-brand-textMuted">Monitor stock, reorder points and estimated cover.</p>
+                <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNpr(inventoryValue)} note="Current retail value" /></div>
+                <div className="mt-5 space-y-2">
+                  {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-brand-border p-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{item.name}</p><p className="text-[11px] text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><div className="flex items-center gap-2"><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><button className="rounded-full bg-brand-primary px-3 py-1.5 text-xs font-medium text-white">Restock</button></div></div>)}
                 </div>
               </div>
-              <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-serif text-3xl font-semibold">Inventory rules</h3><div className="mt-5 space-y-4 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 text-emerald-600" size={18} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 text-emerald-600" size={18} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 text-amber-600" size={18} /> Connect inventory ledger before accepting real orders.</p></div></div>
+              <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h3 className="font-serif text-xl font-semibold">Inventory rules</h3><div className="mt-4 space-y-3 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-emerald-600" size={16} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-emerald-600" size={16} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-amber-600" size={16} /> Connect inventory ledger before accepting real orders.</p></div></div>
             </section>
           ) : null}
 
           {activeSection === "banners" ? (
-            <section className="grid gap-6 xl:grid-cols-[1fr_0.76fr]">
-              <div className="space-y-6">
-                <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><h2 className="font-serif text-4xl font-semibold">Banner manager</h2><p className="mt-1 text-sm text-brand-textMuted">Replace homepage and campaign banners with adaptive desktop and mobile assets.</p></div><button onClick={() => setBannerMessage("Banner settings saved in this browser. Connect the admin API to publish across devices.")} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white"><Save size={16} /> Save banner</button></div>
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">{banners.map((banner) => <button key={banner.id} onClick={() => setSelectedBannerId(banner.id)} className={cn("rounded-2xl border p-4 text-left transition", selectedBanner.id === banner.id ? "border-brand-primary bg-brand-primary-light" : "border-brand-border bg-white hover:bg-brand-bgLight")}><p className="font-bold">{banner.title}</p><p className="mt-1 text-xs text-brand-textMuted">{banner.status} · Updated {banner.updatedAt}</p></button>)}</div>
+            <section className="grid gap-5 lg:grid-cols-[1fr_0.76fr]">
+              <div className="space-y-5">
+                <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-serif text-2xl font-semibold">Banner manager</h2><p className="mt-0.5 text-sm text-brand-textMuted">Replace homepage and campaign banners with adaptive desktop and mobile assets.</p></div><button onClick={() => setBannerMessage("Banner settings saved in this browser. Connect the admin API to publish across devices.")} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-medium text-white"><Save size={15} /> Save banner</button></div>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">{banners.map((banner) => <button key={banner.id} onClick={() => setSelectedBannerId(banner.id)} className={cn("rounded-xl border p-3 text-left transition", selectedBanner.id === banner.id ? "border-brand-primary bg-brand-primary-light" : "border-brand-border bg-white hover:bg-brand-bgLight")}><p className="font-semibold">{banner.title}</p><p className="mt-0.5 text-[11px] text-brand-textMuted">{banner.status} · Updated {banner.updatedAt}</p></button>)}</div>
                 </div>
                 <BannerPreview banner={selectedBanner} />
-                <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6">
-                  <h3 className="font-serif text-3xl font-semibold">Edit selected banner</h3>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <label className="text-sm font-semibold">Title<input value={selectedBanner.title} onChange={(event) => updateBannerField("title", event.target.value)} className="mt-2 w-full rounded-2xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary" /></label>
-                    <label className="text-sm font-semibold">CTA text<input value={selectedBanner.cta} onChange={(event) => updateBannerField("cta", event.target.value)} className="mt-2 w-full rounded-2xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary" /></label>
-                    <label className="text-sm font-semibold md:col-span-2">Subtitle<textarea value={selectedBanner.subtitle} onChange={(event) => updateBannerField("subtitle", event.target.value)} className="mt-2 min-h-[100px] w-full rounded-2xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary" /></label>
-                    <label className="text-sm font-semibold">Link<input value={selectedBanner.href} onChange={(event) => updateBannerField("href", event.target.value)} className="mt-2 w-full rounded-2xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary" /></label>
-                    <label className="text-sm font-semibold">Status<select value={selectedBanner.status} onChange={(event) => updateBannerField("status", event.target.value as ManagedBanner["status"])} className="mt-2 w-full rounded-2xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"><option>Published</option><option>Scheduled</option><option>Paused</option></select></label>
+                <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                  <h3 className="font-serif text-xl font-semibold">Edit selected banner</h3>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <label className="space-y-1.5 text-sm font-medium">Title<input value={selectedBanner.title} onChange={(event) => updateBannerField("title", event.target.value)} className="w-full rounded-xl border border-brand-border px-3 py-2.5 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
+                    <label className="space-y-1.5 text-sm font-medium">CTA text<input value={selectedBanner.cta} onChange={(event) => updateBannerField("cta", event.target.value)} className="w-full rounded-xl border border-brand-border px-3 py-2.5 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
+                    <label className="space-y-1.5 text-sm font-medium sm:col-span-2">Subtitle<textarea value={selectedBanner.subtitle} onChange={(event) => updateBannerField("subtitle", event.target.value)} className="mt-1 min-h-[80px] w-full rounded-xl border border-brand-border px-3 py-2.5 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
+                    <label className="space-y-1.5 text-sm font-medium">Link<input value={selectedBanner.href} onChange={(event) => updateBannerField("href", event.target.value)} className="w-full rounded-xl border border-brand-border px-3 py-2.5 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
+                    <label className="space-y-1.5 text-sm font-medium">Status<select value={selectedBanner.status} onChange={(event) => updateBannerField("status", event.target.value as ManagedBanner["status"])} className="w-full rounded-xl border border-brand-border px-3 py-2.5 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"><option>Published</option><option>Scheduled</option><option>Paused</option></select></label>
                   </div>
                 </div>
               </div>
-              <aside className="space-y-6">
-                <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><Upload className="text-brand-primary" /><h3 className="mt-3 font-serif text-3xl font-semibold">Upload assets</h3><p className="mt-2 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio, recommended 1920 x 840. Mobile: 4:5 ratio, recommended 1080 x 1350. PNG, JPG, WebP and SVG are accepted. Keep files under 3 MB.</p><div className="mt-5 space-y-3"><label className="block rounded-2xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-bold text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "desktop")} className="hidden" />Upload desktop banner</label><label className="block rounded-2xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-bold text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "mobile")} className="hidden" />Upload mobile banner</label></div>{uploadError ? <p className="mt-4 rounded-2xl bg-red-50 p-3 text-sm font-semibold text-red-700">{uploadError}</p> : null}{bannerMessage ? <p className="mt-4 rounded-2xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700">{bannerMessage}</p> : null}</div>
-                <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><Smartphone className="text-brand-primary" /><h3 className="mt-3 font-serif text-3xl font-semibold">Responsive rules</h3><ul className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted"><li>Keep text inside the center safe area.</li><li>Use separate desktop and mobile crops.</li><li>Avoid tiny text inside image files; use admin title/subtitle fields.</li><li>Test at mobile, tablet and desktop widths before publishing.</li></ul></div>
+              <aside className="space-y-5">
+                <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><Upload className="text-brand-primary" size={20} /><h3 className="mt-2 font-serif text-xl font-semibold">Upload assets</h3><p className="mt-1.5 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio (1920 x 840). Mobile: 4:5 ratio (1080 x 1350). PNG, JPG, WebP, SVG under 3 MB.</p><div className="mt-4 space-y-2"><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-3 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "desktop")} className="hidden" />Upload desktop banner</label><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-3 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "mobile")} className="hidden" />Upload mobile banner</label></div>{uploadError ? <p className="mt-3 rounded-xl bg-red-50 p-2.5 text-sm font-medium text-red-700">{uploadError}</p> : null}{bannerMessage ? <p className="mt-3 rounded-xl bg-emerald-50 p-2.5 text-sm font-medium text-emerald-700">{bannerMessage}</p> : null}</div>
+                <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><Smartphone className="text-brand-primary" size={20} /><h3 className="mt-2 font-serif text-xl font-semibold">Responsive rules</h3><ul className="mt-3 space-y-2 text-sm leading-6 text-brand-textMuted"><li>Keep text inside the center safe area.</li><li>Use separate desktop and mobile crops.</li><li>Avoid tiny text inside image files.</li><li>Test at mobile, tablet and desktop widths before publishing.</li></ul></div>
               </aside>
             </section>
           ) : null}
 
           {activeSection === "customers" ? (
-            <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><h2 className="font-serif text-4xl font-semibold">Customers</h2><p className="mt-1 text-sm text-brand-textMuted">Customer records will connect to the backend user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-6 grid gap-4 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the backend user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
           ) : null}
 
           {activeSection === "analytics" ? (
-            <section className="grid gap-6 xl:grid-cols-[1fr_0.75fr]"><div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><h2 className="font-serif text-4xl font-semibold">Analytics</h2><p className="mt-1 text-sm text-brand-textMuted">Operational view of categories and product attention.</p><div className="mt-6 space-y-5">{Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}</div></div><div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-serif text-3xl font-semibold">Top viewed products</h3><div className="mt-5 space-y-4">{topProducts.map((product) => <MiniBar key={product.id} label={product.name} value={product.reviewsCount} max={topProducts[0]?.reviewsCount || 1} />)}</div></div></section>
+            <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]"><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Analytics</h2><p className="mt-0.5 text-sm text-brand-textMuted">Operational view of categories and product attention.</p><div className="mt-5 space-y-4">{Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}</div></div><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h3 className="font-serif text-xl font-semibold">Top viewed products</h3><div className="mt-4 space-y-3">{topProducts.map((product) => <MiniBar key={product.id} label={product.name} value={product.reviewsCount} max={topProducts[0]?.reviewsCount || 1} />)}</div></div></section>
           ) : null}
 
           {activeSection === "settings" ? (
-            <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><h2 className="font-serif text-4xl font-semibold">Store settings</h2><p className="mt-1 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-6 grid gap-4 md:grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value="NPR 2,500" /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value="NPR 2,500" /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
           ) : null}
         </main>
       </div>
@@ -588,7 +585,7 @@ export function AdminDashboard() {
 }
 
 function SettingItem({ icon: Icon, label, value }: { icon: ComponentType<{ size?: number | string; className?: string }>; label: string; value: string }) {
-  return <div className="rounded-2xl border border-brand-border bg-brand-bgLight p-4"><div className="flex items-start gap-3"><Icon className="mt-0.5 text-brand-primary" size={18} /><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</p><p className="mt-1 text-sm font-semibold text-brand-textPrimary">{value}</p></div></div></div>;
+  return <div className="rounded-xl border border-brand-border bg-brand-bgLight p-3.5"><div className="flex items-start gap-2.5"><Icon className="mt-0.5 text-brand-primary" size={16} /><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</p><p className="mt-0.5 text-sm font-medium text-brand-textPrimary">{value}</p></div></div></div>;
 }
 
 function SparklesIcon() {

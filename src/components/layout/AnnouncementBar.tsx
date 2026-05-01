@@ -58,7 +58,7 @@ export function AnnouncementBar() {
             const Icon2 = iconMap[msg.icon];
             const isPhone = msg.icon === "phone";
             return (
-              <span key={`a2-${i}`} className="flex items-center gap-2 text-white/95 ml-12">
+              <span key={`a2-${i}`} className="flex items-center gap-2 text-white/95 ml-12" aria-hidden="true">
                 {Icon2 && <Icon2 size={14} strokeWidth={1.5} />}
                 {isPhone ? (
                   <a
@@ -67,6 +67,7 @@ export function AnnouncementBar() {
                     rel="noopener noreferrer"
                     aria-label="Chat with us on WhatsApp"
                     className="hover:underline hover:text-white transition-opacity hover:opacity-90"
+                    tabIndex={-1}
                   >
                     {msg.text}
                   </a>
@@ -80,10 +81,10 @@ export function AnnouncementBar() {
       </div>
       <button
         onClick={handleDismiss}
-        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors"
         aria-label="Close announcement"
       >
-        <X size={14} />
+        <X size={13} />
       </button>
     </div>
   );

@@ -36,7 +36,7 @@ export function MobileBottomNav() {
 
           if (item.action === "search") {
             return (
-              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 transition-colors", isActive ? "text-[#8B3A8F]" : "text-[#6B6B6B] hover:text-[#8B3A8F]")} aria-label="Open search">
+              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 transition-colors", isActive ? "text-brand-primary" : "text-brand-textMuted hover:text-brand-primary")} aria-label="Open search">
                 <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
                 <span className="text-[10px] font-medium">{item.label}</span>
               </button>
@@ -44,11 +44,11 @@ export function MobileBottomNav() {
           }
 
           return (
-            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 transition-colors", isActive ? "text-[#8B3A8F]" : "text-[#6B6B6B] hover:text-[#8B3A8F]")} aria-label={item.label}>
+            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 transition-colors", isActive ? "text-brand-primary" : "text-brand-textMuted hover:text-brand-primary")} aria-label={item.label}>
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className={cn("text-[10px] font-medium", isActive && "font-semibold")}>{item.label}</span>
               {count > 0 && (
-                <span className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#8B3A8F] text-[9px] font-bold text-white">
+                <span className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-brand-primary text-[9px] font-bold text-white">
                   {count}
                 </span>
               )}
