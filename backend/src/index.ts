@@ -24,6 +24,7 @@ import { teamRoutes } from './modules/team/team.routes'
 import { newsletterRoutes } from './modules/newsletter/newsletter.routes'
 import { settingsRoutes } from './modules/settings/settings.routes'
 import { adminRoutes } from './modules/admin/admin.routes'
+import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
 
@@ -41,14 +42,22 @@ app.use('*', cors({
 
 app.use('*', logger())
 app.use('*', secureHeaders())
+app.use('*', async (c, next) => {
+  await next()
+  c.header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https:; connect-src 'self' https://api.glamonepal.com https://res.cloudinary.com", { append: false })
+  c.header('X-Content-Type-Options', 'nosniff', { append: false })
+  c.header('X-Frame-Options', 'DENY', { append: false })
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin', { append: false })
+})
 app.use('*', supabaseMiddleware)
 app.use('*', generalRateLimit)
 
 app.onError((err, c) => {
   console.error('Unhandled error:', err)
+  const isDev = !c.env?.SUPABASE_URL || c.env.SUPABASE_URL.includes('localhost')
   return c.json({
     success: false,
-    message: 'Internal server error',
+    message: isDev ? err.message : 'Internal server error',
     errors: [],
   }, 500)
 })
@@ -82,6 +91,24 @@ app.route('/api/v1/team', teamRoutes)
 app.route('/api/v1/newsletter', newsletterRoutes)
 app.route('/api/v1/settings', settingsRoutes)
 app.route('/api/v1/admin', adminRoutes)
+
+app.get('/api/docs.json', (c) => c.json(openApiSpec))
+app.get('/api/docs', (c) => {
+  return c.html(`<!DOCTYPE html>
+<html>
+<head>
+  <title>GLAMO Nepal API Docs</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({ url: '/api/docs.json', dom_id: '#swagger-ui' })
+  </script>
+</body>
+</html>`)
+})
 
 app.notFound((c) => {
   return c.json({
