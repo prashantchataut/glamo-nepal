@@ -1,20 +1,49 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Loader2 } from "lucide-react";
 import { FaInstagram, FaFacebook } from "react-icons/fa";
 import { SITE_CONFIG } from "@/lib/constants";
+import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
 
-export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+export default function ContactClient() {
   const [isSending, setIsSending] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: "", email: "", phone: "", subject: "", message: "" },
+  });
+
+  const onSubmit = async (data: ContactFormData) => {
     setIsSending(true);
-    setTimeout(() => { setIsSending(false); setForm({ name: "", email: "", phone: "", subject: "", message: "" }); toast.success("Message sent! We'll get back to you soon."); }, 1500);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to send message");
+      toast.success("Message sent! We'll get back to you soon.");
+      reset();
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
   };
+
+  const fieldClasses = (hasError: boolean) =>
+    `w-full px-4 py-3 rounded-xl border bg-white text-brand-textPrimary placeholder:text-brand-textMuted/50 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all resize-none ${
+      hasError ? "border-red-500" : "border-border"
+    }`;
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
@@ -30,25 +59,28 @@ export default function ContactPage() {
         <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           <div>
             <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary mb-6">Send Us a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="contact-name" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Name</label>
-                  <input id="contact-name" type="text" value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} required className="w-full px-4 py-3 rounded-xl border border-border bg-white text-brand-textPrimary focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all" />
+                  <input id="contact-name" type="text" {...register("name")} aria-invalid={errors.name ? "true" : undefined} aria-describedby={errors.name ? "contact-name-error" : undefined} className={fieldClasses(!!errors.name)} />
+                  {errors.name && <p id="contact-name-error" role="alert" className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
                 </div>
                 <div>
                   <label htmlFor="contact-email" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Email</label>
-                  <input id="contact-email" type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} required className="w-full px-4 py-3 rounded-xl border border-border bg-white text-brand-textPrimary focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all" />
+                  <input id="contact-email" type="email" {...register("email")} aria-invalid={errors.email ? "true" : undefined} aria-describedby={errors.email ? "contact-email-error" : undefined} className={fieldClasses(!!errors.email)} />
+                  {errors.email && <p id="contact-email-error" role="alert" className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="contact-phone" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Phone</label>
-                  <input id="contact-phone" type="tel" value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-border bg-white text-brand-textPrimary focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all" />
+                  <input id="contact-phone" type="tel" {...register("phone")} aria-invalid={errors.phone ? "true" : undefined} aria-describedby={errors.phone ? "contact-phone-error" : undefined} className={fieldClasses(!!errors.phone)} />
+                  {errors.phone && <p id="contact-phone-error" role="alert" className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
                 </div>
                 <div>
                   <label htmlFor="contact-subject" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Subject</label>
-                  <select id="contact-subject" value={form.subject} onChange={(e) => setForm(f => ({ ...f, subject: e.target.value }))} required className="w-full px-4 py-3 rounded-xl border border-border bg-white text-brand-textPrimary focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all">
+                  <select id="contact-subject" {...register("subject")} aria-invalid={errors.subject ? "true" : undefined} aria-describedby={errors.subject ? "contact-subject-error" : undefined} className={fieldClasses(!!errors.subject)}>
                     <option value="">Select a subject</option>
                     <option value="order">Order Inquiry</option>
                     <option value="product">Product Question</option>
@@ -56,14 +88,16 @@ export default function ContactPage() {
                     <option value="collaboration">Collaboration</option>
                     <option value="other">Other</option>
                   </select>
+                  {errors.subject && <p id="contact-subject-error" role="alert" className="mt-1 text-sm text-red-500">{errors.subject.message}</p>}
                 </div>
               </div>
               <div>
                 <label htmlFor="contact-message" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Message</label>
-                <textarea id="contact-message" rows={5} value={form.message} onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))} required className="w-full px-4 py-3 rounded-xl border border-border bg-white text-brand-textPrimary placeholder:text-brand-textMuted/50 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all resize-none" placeholder="Tell us how we can help..." />
+                <textarea id="contact-message" rows={5} {...register("message")} aria-invalid={errors.message ? "true" : undefined} aria-describedby={errors.message ? "contact-message-error" : undefined} className={fieldClasses(!!errors.message)} placeholder="Tell us how we can help..." />
+                {errors.message && <p id="contact-message-error" role="alert" className="mt-1 text-sm text-red-500">{errors.message.message}</p>}
               </div>
               <button type="submit" disabled={isSending} className="w-full py-3.5 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-all duration-300 disabled:opacity-60 shadow-lg shadow-brand-primary/20">
-                {isSending ? "Sending..." : "Send Message"}
+                {isSending ? (<span className="inline-flex items-center justify-center gap-2"><Loader2 className="animate-spin" size={18} />Sending...</span>) : "Send Message"}
               </button>
             </form>
           </div>
