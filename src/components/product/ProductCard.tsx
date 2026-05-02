@@ -58,7 +58,7 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-5 top-5 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border shadow-sm backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
+            "absolute right-5 top-5 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
             isWishlisted ? "border-brand-primary bg-brand-primary text-white" : "border-white/70 bg-white/86 text-brand-textMuted hover:text-brand-primary",
           )}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
@@ -106,7 +106,7 @@ export function ProductCard({ product }: ProductCardProps) {
           onClick={onCart}
           disabled={!product.inStock}
           className={cn(
-            "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
+            "mt-4 inline-flex w-full min-h-[44px] items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
             product.inStock ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/15 hover:bg-brand-primary-hover" : "cursor-not-allowed bg-brand-bgLight text-brand-textMuted",
           )}
           aria-label={`Add ${product.name} to cart`}

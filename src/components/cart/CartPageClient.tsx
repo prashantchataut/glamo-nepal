@@ -48,7 +48,7 @@ export function CartPageClient() {
                         <h2 className="font-serif text-lg font-semibold text-brand-textPrimary">{item.product.name}</h2>
                         {item.selectedShade && <p className="text-sm text-brand-textMuted">Shade: {item.selectedShade}</p>}
                       </div>
-                      <button onClick={() => removeItem(item.product.id, item.selectedShade)} className="h-9 w-9 shrink-0 rounded-full text-brand-textMuted hover:bg-brand-bgLight hover:text-red-600" aria-label="Remove item">
+                      <button onClick={() => removeItem(item.product.id, item.selectedShade)} className="h-11 w-11 shrink-0 rounded-full text-brand-textMuted hover:bg-brand-bgLight hover:text-red-600" aria-label="Remove item">
                         <Trash2 className="mx-auto" size={16} />
                       </button>
                     </div>

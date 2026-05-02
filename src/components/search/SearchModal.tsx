@@ -109,7 +109,7 @@ export function SearchModal() {
                   className="flex-1 text-lg bg-transparent outline-none placeholder:text-brand-textMuted/50 text-brand-textPrimary"
                 />
                 {query && (
-                  <button onClick={() => setQuery("")} className="p-1.5 hover:bg-brand-bgLight rounded-full transition-colors">
+                  <button onClick={() => setQuery("")} className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-brand-bgLight transition-colors">
                     <X size={18} className="text-brand-textMuted" />
                   </button>
                 )}
@@ -125,7 +125,7 @@ export function SearchModal() {
                   <p className="text-sm text-brand-textMuted mb-4">{results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{query}&rdquo;</p>
                   <div className="mb-5 flex flex-wrap gap-2">
                     {suggestions.slice(0, 5).map((suggestion) => (
-                      <button key={`${suggestion.type}-${suggestion.href}`} type="button" onClick={() => { closeSearchModal(); router.push(suggestion.href); }} className="inline-flex items-center gap-1 rounded-full bg-brand-bgLight px-3 py-1.5 text-xs font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+                      <button key={`${suggestion.type}-${suggestion.href}`} type="button" onClick={() => { closeSearchModal(); router.push(suggestion.href); }} className="inline-flex items-center gap-1 rounded-full bg-brand-bgLight px-4 py-3 text-xs font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
                         <Sparkles size={12} /> {suggestion.label}
                       </button>
                     ))}

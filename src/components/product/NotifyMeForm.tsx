@@ -34,7 +34,7 @@ export function NotifyMeForm({ productName }: { productName: string }) {
           placeholder="Email or phone number"
           className="min-h-12 flex-1 rounded-full border border-border bg-brand-bgLight px-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/25"
         />
-        <button className="rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark">Notify me</button>
+        <button className="min-h-[44px] rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark">Notify me</button>
       </form>
       {submitted ? <p className="mt-3 text-xs font-semibold text-brand-primary">Request saved for {productName}.</p> : null}
     </div>

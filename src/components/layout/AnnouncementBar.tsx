@@ -45,7 +45,7 @@ export function AnnouncementBar() {
       </div>
       <button
         onClick={handleDismiss}
-        className="absolute right-3 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white text-brand-textMuted shadow-sm transition hover:text-brand-primary"
+        className="absolute right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white text-brand-textMuted shadow-sm transition hover:text-brand-primary"
         aria-label="Close announcement"
       >
         <X size={13} />

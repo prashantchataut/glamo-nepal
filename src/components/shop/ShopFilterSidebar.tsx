@@ -91,7 +91,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
       <FilterSection title="Brand">
         <div className="max-h-56 space-y-2 overflow-auto pr-1">
           {BRANDS.map((brand) => (
-            <label key={brand} className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary">
+            <label key={brand} className="min-h-[44px] cursor-pointer flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary">
               <input type="checkbox" checked={filters.brands.includes(brand)} onChange={() => onFilterChange({ ...filters, brands: toggle(filters.brands, brand) })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
               {brand}
             </label>
@@ -112,7 +112,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
       <FilterSection title="Skin type">
         <div className="space-y-2">
           {SKIN_TYPES.map((skinType) => (
-            <label key={skinType} className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary">
+            <label key={skinType} className="min-h-[44px] cursor-pointer flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary">
               <input type="checkbox" checked={filters.skinType.includes(skinType)} onChange={() => onFilterChange({ ...filters, skinType: toggle(filters.skinType, skinType) })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
               {skinType}
             </label>
@@ -122,8 +122,8 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
 
       <FilterSection title="Availability">
         <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm font-bold text-brand-textPrimary"><input type="checkbox" checked={filters.madeInNepal} onChange={(event) => onFilterChange({ ...filters, madeInNepal: event.target.checked })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" /> Made in Nepal only</label>
-          <label className="flex items-center gap-2 text-sm font-bold text-brand-textPrimary"><input type="checkbox" checked={filters.inStock} onChange={(event) => onFilterChange({ ...filters, inStock: event.target.checked })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" /> In stock only</label>
+          <label className="min-h-[44px] cursor-pointer flex items-center gap-2 text-sm font-bold text-brand-textPrimary"><input type="checkbox" checked={filters.madeInNepal} onChange={(event) => onFilterChange({ ...filters, madeInNepal: event.target.checked })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" /> Made in Nepal only</label>
+          <label className="min-h-[44px] cursor-pointer flex items-center gap-2 text-sm font-bold text-brand-textPrimary"><input type="checkbox" checked={filters.inStock} onChange={(event) => onFilterChange({ ...filters, inStock: event.target.checked })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" /> In stock only</label>
         </div>
       </FilterSection>
 

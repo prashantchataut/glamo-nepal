@@ -106,7 +106,7 @@ export function HeroBanner() {
                 onClick={() => emblaApi?.scrollTo(index)}
                 aria-label={`Go to ${slide.annotation}`}
                 className={cn(
-                  "h-2 rounded-full transition-all duration-300",
+                  "h-2 rounded-full p-2 transition-all duration-300",
                   index === selectedIndex
                     ? "w-10 bg-brand-primary"
                     : "w-2 bg-brand-primary/25 hover:bg-brand-primary/45"
