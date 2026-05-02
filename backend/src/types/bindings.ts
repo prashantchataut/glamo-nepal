@@ -1,11 +1,8 @@
 export interface CloudflareBindings {
-  DB: D1Database
+  SUPABASE_URL: string
+  SUPABASE_SERVICE_ROLE_KEY: string
   KV: KVNamespace
   R2: R2Bucket
-  JWT_PRIVATE_KEY: string
-  JWT_PUBLIC_KEY: string
-  GOOGLE_CLIENT_ID: string
-  GOOGLE_CLIENT_SECRET: string
   RESEND_API_KEY: string
   R2_PUBLIC_URL: string
   CLOUDINARY_CLOUD_NAME: string
@@ -32,5 +29,6 @@ export type AppEnv = {
     validatedBody: any
     validatedQuery: any
     validatedParams: any
+    supabase: import('@supabase/supabase-js').SupabaseClient
   }
 }

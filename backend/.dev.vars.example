@@ -1,12 +1,22 @@
-JWT_PRIVATE_KEY=
-JWT_PUBLIC_KEY=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+# Cloudflare Workers Environment Variables
+# Copy this file to .dev.vars for local development
+
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Email (Resend)
 RESEND_API_KEY=
+
+# R2 Storage
 R2_PUBLIC_URL=
+
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+
+# Payments
 KHALTI_SECRET_KEY=
 ESEWA_SECRET_KEY=
 ESEWA_MERCHANT_CODE=
