@@ -84,7 +84,7 @@ export async function createProduct(c: Context<AppEnv>) {
     const supabase = c.get('supabase')
     const kv = c.env.KV
 
-    const product = await ProductService.createProduct(data, user.id, supabase, kv, c.env)
+    const product = await ProductService.createProduct(data, user.id, supabase, kv)
     return ApiResponse.success(c, 'Product created successfully', product, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -105,7 +105,7 @@ export async function updateProduct(c: Context<AppEnv>) {
     const supabase = c.get('supabase')
     const kv = c.env.KV
 
-    const product = await ProductService.updateProduct(id, data, user.id, supabase, kv, c.env)
+    const product = await ProductService.updateProduct(id, data, user.id, supabase, kv)
     return ApiResponse.success(c, 'Product updated successfully', product)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -269,13 +269,13 @@ export async function addVariant(c: Context<AppEnv>) {
 
 export async function updateVariant(c: Context<AppEnv>) {
   try {
-    const { id, variantId } = c.req.param()
-    const data = c.get('validatedBody')
-    const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
+const { variantId } = c.req.param()
+  const data = c.get('validatedBody')
+  const user = c.get('user')
+  const supabase = c.get('supabase')
+  const kv = c.env.KV
 
-    const variant = await ProductService.updateVariant(variantId, data, user.id, supabase, kv)
+  const variant = await ProductService.updateVariant(variantId, data, user.id, supabase, kv)
     return ApiResponse.success(c, 'Variant updated successfully', variant)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -290,12 +290,12 @@ export async function updateVariant(c: Context<AppEnv>) {
 
 export async function deleteVariant(c: Context<AppEnv>) {
   try {
-    const { id, variantId } = c.req.param()
-    const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
+const { variantId } = c.req.param()
+  const user = c.get('user')
+  const supabase = c.get('supabase')
+  const kv = c.env.KV
 
-    await ProductService.deleteVariant(variantId, user.id, supabase, kv)
+  await ProductService.deleteVariant(variantId, user.id, supabase, kv)
     return ApiResponse.success(c, 'Variant deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {

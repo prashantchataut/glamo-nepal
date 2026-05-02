@@ -172,7 +172,7 @@ export async function uploadAvatar(supabase: SupabaseClient, userId: string, fil
 
   const result = await uploadImageToCloudinary(file, `avatars/${userId}`, env)
 
-  const { data: updated, error: updateError } = await supabase
+  const { error: updateError } = await supabase
     .from('profiles')
     .update({ avatar_url: result.url })
     .eq('id', userId)

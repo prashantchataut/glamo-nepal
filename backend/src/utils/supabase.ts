@@ -1,5 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-
 export class AppError extends Error {
   constructor(
     message: string,
@@ -30,7 +28,9 @@ export function assertSingle<T>(data: T[] | null, entity: string): T {
   return data[0]
 }
 
-export function sanitizeUser(user: any) {
-  const { password_hash, refresh_token, ...safe } = user
+export function sanitizeUser(user: Record<string, unknown>) {
+  const safe = { ...user }
+  delete safe.password_hash
+  delete safe.refresh_token
   return safe
 }

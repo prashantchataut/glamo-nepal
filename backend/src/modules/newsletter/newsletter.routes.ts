@@ -4,7 +4,7 @@ import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody, validateQuery } from '../../middleware/validate'
 import { rateLimit } from '../../middleware/rateLimit'
-import { subscribeSchema, subscriberFilterSchema, idParamSchema } from './newsletter.schema'
+import { subscribeSchema, subscriberFilterSchema } from './newsletter.schema'
 import type { ZodSchema } from 'zod'
 import {
   subscribe,

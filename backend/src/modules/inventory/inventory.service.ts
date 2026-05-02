@@ -1,57 +1,19 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
-import { parsePagination, buildPaginationResult } from '../../utils/pagination'
+import { handleSupabaseError } from '../../utils/supabase'
+import { parsePagination } from '../../utils/pagination'
 import { toDisplayPrice } from '../../utils/price'
-
-interface ProductRow {
-  id: string
-  name: string
-  slug: string
-  base_price: number
-  cost_price: number
-  stock_quantity: number
-  low_stock_threshold: number
-  is_active: boolean
-  category_name: string | null
-}
-
-interface VariantRow {
-  id: string
-  product_id: string
-  name: string
-  price: number
-  sale_price: number | null
-  stock_quantity: number
-  is_active: boolean
-  deleted_at: string | null
-}
-
-interface LogRow {
-  id: string
-  product_id: string
-  variant_id: string | null
-  change_type: string
-  quantity: number
-  previous_stock: number
-  new_stock: number
-  reason: string | null
-  performed_by: string | null
-  created_at: string
-  product_name?: string
-  variant_name?: string | null
-}
 
 export async function getStockReport(
   supabase: SupabaseClient,
   filters?: { lowStockOnly?: boolean; outOfStockOnly?: boolean; page?: number; limit?: number }
 ) {
-  let query = supabase
+  const query = supabase
     .from('products')
     .select('id, name, slug, base_price, cost_price, stock_quantity, low_stock_threshold, is_active, categories(name)', { count: 'exact' })
     .is('deleted_at', null)
     .order('name', { ascending: true })
 
-  const { data: products, error: prodError, count } = await query
+  const { data: products, error: prodError } = await query
 
   if (prodError) handleSupabaseError(prodError, 'getStockReport')
 

@@ -2,8 +2,8 @@ import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
-import { validateBody, validateParams } from '../../middleware/validate'
-import { createPopupSchema, updatePopupSchema, idParamSchema } from './popup.schema'
+import { validateBody } from '../../middleware/validate'
+import { createPopupSchema, updatePopupSchema } from './popup.schema'
 import type { ZodSchema } from 'zod'
 import {
   getActivePopup,

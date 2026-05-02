@@ -2,8 +2,8 @@ import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
-import { validateBody, validateQuery, validateParams } from '../../middleware/validate'
-import { createBlogPostSchema, updateBlogPostSchema, blogFilterSchema, slugParamSchema, idParamSchema } from './blog.schema'
+import { validateBody, validateQuery } from '../../middleware/validate'
+import { createBlogPostSchema, updateBlogPostSchema, blogFilterSchema } from './blog.schema'
 import type { ZodSchema } from 'zod'
 import {
   getBlogPosts,

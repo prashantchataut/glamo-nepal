@@ -1,9 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { CloudflareBindings } from '../../types/bindings'
 import { AppError, handleSupabaseError } from '../../utils/supabase'
-import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
+import { CACHE_TTL, getFromCache, setCache } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
-import { slugify, generateUniqueSlug } from '../../utils/slug'
+import { generateUniqueSlug } from '../../utils/slug'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
 
 const CACHE_PREFIX = 'blogs:'

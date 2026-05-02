@@ -19,7 +19,7 @@ export async function subscribe(supabase: SupabaseClient, email: string, ip: str
     throw new AppError('Too many subscription attempts. Please try again later.', 429, 'RATE_LIMITED')
   }
 
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing } = await supabase
     .from('newsletter_subscribers')
     .select('*')
     .eq('email', email)

@@ -2,9 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { AppError } from '../../utils/supabase'
 import { createAuditLog } from '../../utils/audit'
 import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
-import { slugify, generateUniqueSlug } from '../../utils/slug'
-import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
-import type { CloudflareBindings } from '../../types/bindings'
+import { generateUniqueSlug } from '../../utils/slug'
 
 interface BrandRow {
   id: string

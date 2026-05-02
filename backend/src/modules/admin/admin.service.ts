@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { AppError } from '../../utils/supabase'
-import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
+import { getFromCache, setCache } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 
 export async function getDashboardStats(supabase: SupabaseClient, kv: KVNamespace) {
@@ -210,7 +210,7 @@ export async function getSalesReport(supabase: SupabaseClient, startDate: string
       .in('id', productIds)
 
     const categoryIds = [...new Set(products?.map(p => p.category_id).filter(Boolean) || [])]
-    let catNameMap: Record<string, string> = {}
+    const catNameMap: Record<string, string> = {}
     if (categoryIds.length > 0) {
       const { data: categories } = await supabase
         .from('categories')

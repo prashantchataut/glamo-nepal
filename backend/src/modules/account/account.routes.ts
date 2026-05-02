@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/auth'
-import { validateBody, validateParams } from '../../middleware/validate'
-import { updateProfileSchema, createAddressSchema, updateAddressSchema, idParamSchema } from './account.schema'
+import { validateBody } from '../../middleware/validate'
+import { updateProfileSchema, createAddressSchema, updateAddressSchema } from './account.schema'
 import type { ZodSchema } from 'zod'
 import {
   getProfile,

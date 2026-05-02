@@ -186,8 +186,7 @@ export async function getProducts(
     limit: number
     isAdmin?: boolean
   },
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  supabase: SupabaseClient
 ) {
   let query = supabase
     .from('products')
@@ -311,7 +310,7 @@ export async function getProductsCached(
   const cached = await getFromCache<{ products: ReturnType<typeof formatProduct>[]; pagination: ReturnType<typeof buildPaginationResult> }>(kv, cacheKey)
   if (cached) return cached
 
-  const result = await getProducts(filters, supabase, kv)
+  const result = await getProducts(filters, supabase)
   await setCache(kv, cacheKey, result, CACHE_TTL.PRODUCT_LIST)
   return result
 }
@@ -438,8 +437,7 @@ export async function createProduct(
   },
   adminId: string,
   supabase: SupabaseClient,
-  kv: KVNamespace,
-  env: CloudflareBindings
+  kv: KVNamespace
 ) {
   const baseSlug = slugify(data.name)
   const { data: existingSlugs } = await supabase
@@ -498,8 +496,7 @@ export async function updateProduct(
   data: Record<string, unknown>,
   adminId: string,
   supabase: SupabaseClient,
-  kv: KVNamespace,
-  env: CloudflareBindings
+  kv: KVNamespace
 ) {
   const { data: existing, error: fetchError } = await supabase
     .from('products')
@@ -668,7 +665,7 @@ export async function uploadProductImages(
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
-  const { count, error: countError } = await supabase
+  const { count } = await supabase
     .from('product_images')
     .select('*', { count: 'exact', head: true })
     .eq('product_id', productId)
