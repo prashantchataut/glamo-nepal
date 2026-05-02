@@ -46,6 +46,9 @@ const config = {
           border: '#EEE3E6',
           error: '#E05252',
           success: '#4CAF82',
+          surfacePink: '#FBF7F8',
+          surfaceWarm: '#FFF9F7',
+          surfaceCream: '#FFFDFC',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -98,6 +101,12 @@ const config = {
         '20': '80px',
         '24': '96px',
       },
+      boxShadow: {
+        card: '0 20px 70px -58px rgba(36,31,34,0.55)',
+        'card-hover': '0 30px 90px -60px rgba(154,107,130,0.75)',
+        editorial: '0 30px 90px -65px rgba(36,31,34,0.45)',
+        soft: '0 20px 60px -15px rgba(139,58,143,0.08)',
+      },
       zIndex: {
         base: '0',
         card: '10',
@@ -114,6 +123,7 @@ const config = {
         tooltip: '95',
         whatsapp: '45',
         'back-to-top': '45',
+        'skip-link': '100',
       },
       borderRadius: {
         lg: 'var(--radius)',
