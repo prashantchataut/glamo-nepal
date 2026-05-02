@@ -130,7 +130,6 @@ export function CheckoutPageClient() {
           city: form.city,
           ward: form.ward,
           addressLine1: form.address,
-          country: "Nepal",
         },
         items,
         paymentMethod: paymentCodeMap[form.payment] || "cod",
