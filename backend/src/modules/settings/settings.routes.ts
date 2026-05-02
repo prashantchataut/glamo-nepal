@@ -14,7 +14,7 @@ import {
 const settingsRoutes = new Hono<AppEnv>()
 
 settingsRoutes.get('/public', getPublicSettings)
-settingsRoutes.get('/', authMiddleware, requireRole(['SUPER_ADMIN']), getSettings)
+settingsRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getSettings)
 settingsRoutes.patch('/', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateSettingsSchema as ZodSchema<any>), updateSettings)
 
 export { settingsRoutes }

@@ -1,13 +1,13 @@
 import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/auth'
-import { validateBody } from '../../middleware/validate'
-import { updateProfileSchema, createAddressSchema, updateAddressSchema } from './account.schema'
+import { validateBody, validateParams } from '../../middleware/validate'
+import { updateProfileSchema, createAddressSchema, updateAddressSchema, idParamSchema } from './account.schema'
 import type { ZodSchema } from 'zod'
 import {
   getProfile,
   updateProfile,
-  updateAvatar,
+  uploadAvatar,
   getAddresses,
   createAddress,
   updateAddress,
@@ -19,7 +19,7 @@ const accountRoutes = new Hono<AppEnv>()
 
 accountRoutes.get('/profile', authMiddleware, getProfile)
 accountRoutes.patch('/profile', authMiddleware, validateBody(updateProfileSchema as ZodSchema<any>), updateProfile)
-accountRoutes.post('/avatar', authMiddleware, updateAvatar)
+accountRoutes.post('/avatar', authMiddleware, uploadAvatar)
 accountRoutes.get('/addresses', authMiddleware, getAddresses)
 accountRoutes.post('/addresses', authMiddleware, validateBody(createAddressSchema as ZodSchema<any>), createAddress)
 accountRoutes.patch('/addresses/:id', authMiddleware, validateBody(updateAddressSchema as ZodSchema<any>), updateAddress)

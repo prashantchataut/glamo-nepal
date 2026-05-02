@@ -2,8 +2,8 @@ import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
-import { validateBody } from '../../middleware/validate'
-import { createBlogPostSchema, updateBlogPostSchema } from './blog.schema'
+import { validateBody, validateQuery, validateParams } from '../../middleware/validate'
+import { createBlogPostSchema, updateBlogPostSchema, blogFilterSchema, slugParamSchema, idParamSchema } from './blog.schema'
 import type { ZodSchema } from 'zod'
 import {
   getBlogPosts,
@@ -19,7 +19,7 @@ import {
 
 const blogRoutes = new Hono<AppEnv>()
 
-blogRoutes.get('/', getBlogPosts)
+blogRoutes.get('/', validateQuery(blogFilterSchema as ZodSchema<any>), getBlogPosts)
 blogRoutes.get('/categories', getBlogCategories)
 blogRoutes.get('/:slug', getBlogPostBySlug)
 blogRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createBlogPostSchema as ZodSchema<any>), createBlogPost)

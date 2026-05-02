@@ -1,13 +1,17 @@
 import { z } from 'zod'
 
 export const addToCartSchema = z.object({
-  productId: z.string().min(1),
-  variantId: z.string().optional(),
-  quantity: z.number().int().positive().default(1),
+  productId: z.string().uuid(),
+  variantId: z.string().uuid().optional(),
+  quantity: z.number().int().min(1).default(1),
 })
 
 export const updateCartItemSchema = z.object({
-  quantity: z.number().int().positive(),
+  quantity: z.number().int().min(1),
+})
+
+export const idParamSchema = z.object({
+  id: z.string().uuid(),
 })
 
 export type AddToCartInput = z.infer<typeof addToCartSchema>

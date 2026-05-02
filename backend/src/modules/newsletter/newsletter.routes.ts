@@ -2,8 +2,9 @@ import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
-import { validateBody } from '../../middleware/validate'
-import { subscribeSchema } from './newsletter.schema'
+import { validateBody, validateQuery } from '../../middleware/validate'
+import { rateLimit } from '../../middleware/rateLimit'
+import { subscribeSchema, subscriberFilterSchema, idParamSchema } from './newsletter.schema'
 import type { ZodSchema } from 'zod'
 import {
   subscribe,
@@ -15,9 +16,18 @@ import {
 
 const newsletterRoutes = new Hono<AppEnv>()
 
-newsletterRoutes.post('/subscribe', validateBody(subscribeSchema as ZodSchema<any>), subscribe)
+const subscribeRateLimit = rateLimit({
+  max: 3,
+  window: 3600,
+  keyGenerator: (c) => {
+    const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown'
+    return `newsletter:subscribe:${ip}`
+  },
+})
+
+newsletterRoutes.post('/subscribe', subscribeRateLimit, validateBody(subscribeSchema as ZodSchema<any>), subscribe)
 newsletterRoutes.get('/unsubscribe', unsubscribe)
-newsletterRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getSubscribers)
+newsletterRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(subscriberFilterSchema as ZodSchema<any>), getSubscribers)
 newsletterRoutes.get('/export', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), exportSubscribers)
 newsletterRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteSubscriber)
 
