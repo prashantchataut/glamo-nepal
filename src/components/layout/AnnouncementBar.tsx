@@ -34,7 +34,7 @@ export function AnnouncementBar() {
               </span>
             );
             return msg.icon === "phone" ? (
-              <a key={`${msg.text}-${i}`} href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="transition hover:text-brand-primary">
+              <a key={`${msg.text}-${i}`} href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 underline decoration-brand-primary/30 underline-offset-2 transition hover:decoration-brand-primary hover:text-brand-primary">
                 {content}
               </a>
             ) : (
