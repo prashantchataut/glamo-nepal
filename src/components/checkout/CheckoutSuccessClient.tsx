@@ -25,8 +25,8 @@ export function CheckoutSuccessClient() {
               <CheckCircle2 size={46} />
             </div>
             <p className="mt-6 text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Checkout success</p>
-            <h1 className="mx-auto mt-3 max-w-2xl font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-6xl">Thank you for your GLAMO order</h1>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-brand-textMuted md:text-base">Your order has been recorded in this browser session. GLAMO can now confirm delivery, stock and payment details with the customer.</p>
+            <h1 className="mx-auto mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Thank you for your order</h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-brand-textMuted">Your order has been recorded. GLAMO will confirm delivery and payment details with you shortly.</p>
           </div>
 
           {order ? (

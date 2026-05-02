@@ -141,11 +141,8 @@ export function CheckoutPageClient() {
         currency: "NPR",
       });
       orderNumber = apiOrder.data?.orderNumber || orderNumber;
-    } catch (error: unknown) {
-      const code = error && typeof error === "object" && "code" in error ? String((error as { code?: string }).code) : "";
-      if (code && code !== "API_BASE_URL_MISSING") {
-        toast.message("Order saved locally. GLAMO can reconcile it from customer support details.");
-      }
+    } catch {
+      toast.error("Order saved locally. GLAMO will reconcile it from your order details.");
     }
 
     await placeOrder({
@@ -194,8 +191,8 @@ export function CheckoutPageClient() {
           <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Secure checkout · NPR totals</p>
-              <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-6xl">Complete your GLAMO order</h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-brand-textMuted md:text-base">Confirm your delivery details, payment preference and order summary. Online payment can be connected when Khalti/eSewa credentials are added.</p>
+              <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Complete your order</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-brand-textMuted">Confirm delivery details, payment preference and order summary.</p>
             </div>
             <div className="grid grid-cols-2 gap-3 rounded-[1.5rem] border border-white/80 bg-white/75 p-4 backdrop-blur">
               {checkoutSteps.map((step, index) => (
@@ -256,7 +253,7 @@ export function CheckoutPageClient() {
 
             <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-7">
               <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Payment</h2>
-              <p className="mt-1 text-sm leading-6 text-brand-textMuted">Choose the method your customer-care team should confirm.</p>
+              <p className="mt-1 text-sm leading-6 text-brand-textMuted">Select your preferred payment method.</p>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {paymentMethods.map((method) => {
                   const disabled = method === "Cash on Delivery" && !deliveryRule.codAvailable;
@@ -278,8 +275,8 @@ export function CheckoutPageClient() {
                 })}
               </div>
               {form.payment !== "Cash on Delivery" ? (
-                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                  <AlertCircle className="mb-2" size={18} /> Payment gateway redirects are ready to connect when Khalti, eSewa and card credentials are added.
+                <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  <AlertCircle className="mb-2" size={18} /> Online payment confirmation will be handled by the payment provider after you place your order.
                 </div>
               ) : null}
               <label className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
