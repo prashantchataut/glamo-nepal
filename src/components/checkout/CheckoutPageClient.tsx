@@ -313,7 +313,7 @@ function Field({
   required = true,
 }: {
   label: string;
-  register: ReturnType<typeof import("react-hook-form").useForm<CheckoutFormData>["register"]>;
+  register: Record<string, unknown>;
   type?: string;
   placeholder?: string;
   error?: string;

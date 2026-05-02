@@ -63,9 +63,7 @@ function Field({
   type?: string;
   icon: React.ReactNode;
   placeholder?: string;
-  register: ReturnType<typeof useForm<FormData>>["register"] extends (name: infer N, ...args: infer A) => infer R
-    ? (name: N, ...args: A) => R
-    : never;
+  register: Record<string, unknown>;
   error?: { message?: string };
 }) {
   const id = label.replace(/\s+/g, "-").toLowerCase();
@@ -100,9 +98,7 @@ function PasswordField({
   minLength,
 }: {
   label: string;
-  register: ReturnType<typeof useForm<FormData>>["register"] extends (name: infer N, ...args: infer A) => infer R
-    ? (name: N, ...args: A) => R
-    : never;
+  register: Record<string, unknown>;
   error?: { message?: string };
   minLength?: number;
 }) {
@@ -201,7 +197,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     }, 500);
   };
 
-  const isPasswordMismatch = mode === "reset" && !!(errors as Record<string, { message?: string }>).confirmPassword?.message;
+  const formErrors = errors as Record<string, { message?: string }>;
+  const isPasswordMismatch = mode === "reset" && !!formErrors.confirmPassword;
 
   return (
     <div className="mx-auto grid max-w-5xl gap-8 rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:grid-cols-[0.9fr_1.1fr] md:p-8">
@@ -217,20 +214,20 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-2 md:p-4">
         {mode === "register" ? (
-          <Field label="Full name" icon={<UserRound size={18} />} register={register("name" as keyof FormData)} error={errors["name" as keyof FormData] as { message?: string } | undefined} />
+          <Field label="Full name" icon={<UserRound size={18} />} register={register("name")} error={formErrors.name} />
         ) : null}
         {mode !== "reset" ? (
-          <Field label="Email address" type="email" icon={<Mail size={18} />} register={register("email" as keyof FormData)} error={errors["email" as keyof FormData] as { message?: string } | undefined} />
+          <Field label="Email address" type="email" icon={<Mail size={18} />} register={register("email")} error={formErrors.email} />
         ) : null}
         {mode === "register" ? (
-          <Field label="Nepal phone" type="tel" icon={<Phone size={18} />} register={register("phone" as keyof FormData)} error={errors["phone" as keyof FormData] as { message?: string } | undefined} placeholder="+977 98XXXXXXXX" />
+          <Field label="Nepal phone" type="tel" icon={<Phone size={18} />} register={register("phone")} error={formErrors.phone} placeholder="+977 98XXXXXXXX" />
         ) : null}
         {mode === "login" || mode === "register" || mode === "reset" ? (
-          <PasswordField label={mode === "reset" ? "New password" : "Password"} register={register("password" as keyof FormData)} error={errors["password" as keyof FormData] as { message?: string } | undefined} minLength={8} />
+          <PasswordField label={mode === "reset" ? "New password" : "Password"} register={register("password")} error={formErrors.password} minLength={8} />
         ) : null}
         {mode === "reset" ? (
           <div>
-            <PasswordField label="Confirm new password" register={register("confirmPassword" as keyof FormData)} error={errors["confirmPassword" as keyof FormData] as { message?: string } | undefined} minLength={8} />
+            <PasswordField label="Confirm new password" register={register("confirmPassword")} error={formErrors.confirmPassword} minLength={8} />
           </div>
         ) : null}
         <button type="submit" disabled={isSubmitting || isPasswordMismatch} className="w-full rounded-full bg-brand-primary px-6 py-3.5 font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60">

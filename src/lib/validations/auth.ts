@@ -11,7 +11,7 @@ export const registerSchema = z.object({
   phone: z.union([
     z.string().regex(/^(\+977\s?)?9[78]\d{8}$/, "Enter a valid Nepal mobile number"),
     z.literal(""),
-  ], { errorMap: () => ({ message: "Enter a valid Nepal mobile number" }) }),
+  ], { error: "Enter a valid Nepal mobile number" }),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
