@@ -5,12 +5,14 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 export class GlamoApiError extends Error {
   code?: string;
   fieldErrors?: Record<string, string[]>;
+  status?: number;
 
-  constructor(error: ApiErrorResponse) {
+  constructor(error: ApiErrorResponse, status?: number) {
     super(error.message);
     this.name = "GlamoApiError";
     this.code = error.code;
     this.fieldErrors = error.fieldErrors;
+    this.status = status;
   }
 }
 
@@ -26,17 +28,26 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   const headers = new Headers(init?.headers);
   if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
 
-  const response = await fetch(`${API_BASE_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
-    ...init,
-    headers,
-    credentials: "include",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
+      ...init,
+      headers,
+      credentials: "include",
+    });
+  } catch (error) {
+    throw new GlamoApiError({
+      status: "error",
+      code: "NETWORK_ERROR",
+      message: error instanceof Error ? error.message : "A network error occurred",
+    });
+  }
 
   const rawPayload = await response.json().catch(() => null);
   const payload = normalizeApiPayload<T>(rawPayload);
 
   if (!response.ok || payload.status === "error") {
-    throw new GlamoApiError(payload as ApiErrorResponse);
+    throw new GlamoApiError(payload as ApiErrorResponse, response.status);
   }
 
   return payload as ApiResponse<T>;
