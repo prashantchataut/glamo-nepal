@@ -48,7 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <article aria-label={product.name} className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-border bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-primary/25 hover:shadow-card-hover focus-within:ring-2 focus-within:ring-brand-primary/20">
+    <article aria-label={product.name} className="card-hover shadow-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-border bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-primary/25 hover:shadow-card-hover focus-within:ring-2 focus-within:ring-brand-primary/20">
       <div className="relative p-3 pb-0">
         <div className="absolute left-5 top-5 z-10 flex max-w-[70%] flex-wrap gap-2">
           {badge ? <span className={cn("rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white shadow-sm", !product.inStock ? "bg-brand-textMuted" : "bg-brand-primary")}>{badge}</span> : null}
