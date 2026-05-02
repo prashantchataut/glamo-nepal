@@ -10,7 +10,7 @@ export function NewsletterSignup() {
   function handleSubmit(e: React.FormEvent) { e.preventDefault(); if (!email) return; setSubmitted(true); }
 
   return (
-    <section className="relative overflow-hidden border-t border-brand-border bg-[#FFF9F7] py-16 md:py-20 lg:py-24">
+    <section className="relative overflow-hidden border-t border-brand-border bg-brand-surfaceWarm py-16 md:py-20 lg:py-24">
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-secondary/30 blur-[110px]" />
       <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl rounded-[2.25rem] border border-brand-border bg-white/82 p-8 text-center shadow-[0_30px_90px_-65px_rgba(36,31,34,0.45)] backdrop-blur md:p-12">

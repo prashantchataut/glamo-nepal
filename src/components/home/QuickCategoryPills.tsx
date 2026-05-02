@@ -23,7 +23,7 @@ export function QuickCategoryPills() {
             <Link
               href={pill.link}
               key={pill.id}
-              className="inline-flex items-center rounded-full border border-brand-textPrimary/10 bg-[#FBF7F8] px-5 py-3 text-sm font-medium text-brand-textPrimary transition hover:border-brand-primary/30 hover:bg-white hover:text-brand-primary hover:shadow-sm"
+              className="inline-flex items-center rounded-full border border-brand-textPrimary/10 bg-brand-surfacePink px-5 py-3 text-sm font-medium text-brand-textPrimary transition hover:border-brand-primary/30 hover:bg-white hover:text-brand-primary hover:shadow-sm"
             >
               {pill.name}
             </Link>

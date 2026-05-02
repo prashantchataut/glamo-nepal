@@ -50,7 +50,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
   const reset = () => onFilterChange({ category: "", subCategory: "", brands: [], skinType: [], concerns: [], madeInNepal: false, search: "", minPrice: priceRange.min, maxPrice: priceRange.max, rating: 0, inStock: false, sort: "featured" });
 
   return (
-    <aside className="space-y-4 rounded-[2rem] border border-brand-border bg-[#FFFDFC] p-4 shadow-[0_24px_80px_-60px_rgba(36,31,34,0.45)] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+    <aside className="space-y-4 rounded-[2rem] border border-brand-border bg-brand-surfaceCream p-4 shadow-[0_24px_80px_-60px_rgba(36,31,34,0.45)] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <div className="flex items-center justify-between px-1">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Refine</p>

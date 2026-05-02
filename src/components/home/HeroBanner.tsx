@@ -29,7 +29,7 @@ export function HeroBanner() {
   }, [emblaApi, onSelect]);
 
   return (
-    <section className="border-b border-border/60 bg-[#FBF7F8]">
+    <section className="border-b border-border/60 bg-brand-surfacePink">
       <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
         <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_28px_80px_-50px_rgba(56,26,44,0.35)] ring-1 ring-black/5">
           <div ref={emblaRef} className="overflow-hidden">

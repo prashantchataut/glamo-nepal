@@ -13,7 +13,7 @@ export function DeliveryPromiseStrip() {
     <section aria-label="GLAMO delivery and trust promises" className="border-y border-black/5 bg-white">
       <div className="container mx-auto grid gap-3 px-4 py-5 md:grid-cols-2 md:px-6 xl:grid-cols-4">
         {promises.map((promise) => (
-            <div key={promise.title} className="flex items-start gap-3 rounded-[1.5rem] bg-[#FBF7F8] px-4 py-4 ring-1 ring-black/5">
+            <div key={promise.title} className="flex items-start gap-3 rounded-[1.5rem] bg-brand-surfacePink px-4 py-4 ring-1 ring-black/5">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-brand-primary shadow-sm">
                 {promise.icon}
               </div>

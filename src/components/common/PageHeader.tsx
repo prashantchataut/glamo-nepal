@@ -9,7 +9,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ eyebrow, title, description, children }: PageHeaderProps) {
   return (
-    <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_45%,#F7F1EA_100%)] py-12 md:py-16">
+    <section className="relative overflow-hidden border-b border-brand-border bg-[var(--gradient-editorial)] py-12 md:py-16">
       <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-brand-secondary/35 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-28 left-12 h-72 w-72 rounded-full bg-brand-gold/15 blur-3xl" />
       <div className="container relative mx-auto px-4 text-center md:px-6">

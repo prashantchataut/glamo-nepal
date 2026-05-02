@@ -25,10 +25,10 @@ const supportLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-brand-border bg-[#FFF9F7] pb-24 pt-14 text-brand-textMuted md:pb-10 md:pt-20">
+    <footer className="border-t border-brand-border bg-brand-surfaceWarm pb-24 pt-14 text-brand-textMuted md:pb-10 md:pt-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid gap-5 lg:grid-cols-[1.05fr_0.8fr_0.8fr_1.1fr]">
-          <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-[0_22px_70px_-55px_rgba(36,31,34,0.35)]">
+          <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-card">
             <Link href="/" className="flex items-center gap-2.5">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary ring-1 ring-brand-primary/10">
                 <Leaf className="h-5 w-5" strokeWidth={1.6} />

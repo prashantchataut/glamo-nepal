@@ -48,7 +48,7 @@ export const HERO_SLIDES = [
     cta: "Shop New Year Edit",
     ctaLink: "/collections/festival-ready",
     image: "/images/editorial/hero-editorial.svg",
-    bgColor: "bg-[#FFF7F5]",
+    bgColor: "bg-brand-surfaceWarm",
     annotation: "New Year 2083",
   },
   {
@@ -59,7 +59,7 @@ export const HERO_SLIDES = [
     cta: "Shop Best Sellers",
     ctaLink: "/collections/best-sellers",
     image: "/images/editorial/shop-collage.svg",
-    bgColor: "bg-[#F8EEF2]",
+    bgColor: "bg-brand-primary-light",
     annotation: "Best Sellers",
   },
   {
@@ -70,7 +70,7 @@ export const HERO_SLIDES = [
     cta: "Shop Local Picks",
     ctaLink: "/collections/made-in-nepal",
     image: "/images/editorial/new-year-editorial.svg",
-    bgColor: "bg-[#F7F1EA]",
+    bgColor: "bg-brand-surfacePink",
     annotation: "Local Love",
   },
 ];
@@ -93,7 +93,7 @@ export const TRUST_BADGES = [
 export const FEATURED_PRODUCTS: Product[] = PRODUCTS.filter((p) => p.isFeatured).slice(0, 8);
 export const PROMO_BANNERS = [
   { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/editorial/new-year-editorial.svg", gradient: "from-black/80 via-black/30 to-transparent" },
-  { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/editorial/shop-collage.svg", gradient: "from-[#8B3A8F]/90 via-[#8B3A8F]/40 to-transparent" },
+  { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/editorial/shop-collage.svg", gradient: "from-brand-primary/90 via-[#8B3A8F]/40 to-transparent" },
 ];
 export const SHOP_CATEGORIES = CATEGORIES.map((c) => ({ id: c.slug, name: c.name, image: c.image, slug: c.slug }));
 export const GLOW_EDIT_TABS = ["Best Sellers", "New Arrivals", "On Sale", "Made in Nepal"];

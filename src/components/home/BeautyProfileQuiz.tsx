@@ -15,7 +15,7 @@ export function BeautyProfileQuiz() {
   const picks = useMemo(() => PRODUCTS.filter((p) => p.skinType.includes(skinType) || p.concernTags.includes(concern)).slice(0, 3), [skinType, concern]);
 
   return (
-    <section className="bg-[#FBF7F8] py-16 md:py-24">
+    <section className="bg-brand-surfacePink py-16 md:py-24">
       <div className="container mx-auto grid gap-8 px-4 md:grid-cols-[0.8fr_1.2fr] md:px-6">
         <div>
           <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary"><Sparkles size={16} /> Beauty finder</p>
@@ -28,20 +28,20 @@ export function BeautyProfileQuiz() {
           <div className="grid gap-5 md:grid-cols-2">
             <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
               Skin type
-              <select value={skinType} onChange={(e) => setSkinType(e.target.value)} className="w-full rounded-2xl border border-border bg-[#FBF7F8] px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+              <select value={skinType} onChange={(e) => setSkinType(e.target.value)} className="w-full rounded-2xl border border-border bg-brand-surfacePink px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                 {skinTypes.map((x) => <option key={x}>{x}</option>)}
               </select>
             </label>
             <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
               Main concern
-              <select value={concern} onChange={(e) => setConcern(e.target.value)} className="w-full rounded-2xl border border-border bg-[#FBF7F8] px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+              <select value={concern} onChange={(e) => setConcern(e.target.value)} className="w-full rounded-2xl border border-border bg-brand-surfacePink px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                 {concerns.map((x) => <option key={x}>{x}</option>)}
               </select>
             </label>
           </div>
           <div className="mt-6 grid gap-3">
             {picks.map((p) => (
-              <Link key={p.id} href={`/product/${p.slug}`} className="flex items-center justify-between rounded-[1.5rem] bg-[#FBF7F8] p-4 transition hover:bg-[#F6EEF4]">
+              <Link key={p.id} href={`/product/${p.slug}`} className="flex items-center justify-between rounded-[1.5rem] bg-brand-surfacePink p-4 transition hover:bg-brand-primary-light">
                 <div>
                   <p className="font-serif text-lg font-semibold text-brand-textPrimary">{p.name}</p>
                   <p className="text-xs text-brand-textMuted">{p.brand} · {p.concernTags.slice(0, 2).join(", ")}</p>

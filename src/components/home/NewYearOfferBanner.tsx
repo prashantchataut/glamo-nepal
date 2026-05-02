@@ -5,7 +5,7 @@ export function NewYearOfferBanner() {
   return (
     <section className="bg-brand-bgLight py-14 md:py-20">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <div className="relative overflow-hidden rounded-[2.25rem] border border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_55%,#F7F1EA_100%)] px-6 py-8 shadow-[0_30px_90px_-65px_rgba(36,31,34,0.45)] md:px-10 md:py-12 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+        <div className="relative overflow-hidden rounded-[2.25rem] border border-brand-border bg-[var(--gradient-editorial)] px-6 py-8 shadow-editorial md:px-10 md:py-12 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
           <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-brand-secondary/35 blur-3xl" />
           <div className="relative z-10 max-w-2xl">
             <span className="inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10">New Year 2083 Beauty Edit</span>

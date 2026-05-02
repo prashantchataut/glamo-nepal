@@ -6,8 +6,8 @@ import { AlertTriangle, RefreshCcw, ShoppingBag } from "lucide-react";
 export function RouteError({ title = "This GLAMO page needs a refresh", description = "Something interrupted this section. Try again or continue shopping.", reset }: { title?: string; description?: string; reset?: () => void }) {
   return (
     <main className="min-h-[70vh] bg-brand-bgLight px-4 py-16">
-      <div className="mx-auto max-w-3xl overflow-hidden rounded-[2.25rem] border border-brand-border bg-white text-center shadow-[0_26px_90px_-65px_rgba(36,31,34,0.45)]">
-        <div className="bg-[linear-gradient(135deg,#FFFDFC_0%,#F8EEF2_52%,#F7F1EA_100%)] px-6 py-10 md:px-10 md:py-12">
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-[2.25rem] border border-brand-border bg-white text-center shadow-editorial">
+        <div className="bg-[var(--gradient-editorial)] px-6 py-10 md:px-10 md:py-12">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-amber-700 shadow-sm ring-1 ring-brand-border"><AlertTriangle size={32} /></div>
           <p className="mt-6 text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">GLAMO recovery</p>
           <h1 className="mx-auto mt-3 max-w-2xl font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl">{title}</h1>
