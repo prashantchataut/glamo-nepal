@@ -24,7 +24,7 @@ function Logo({ onClick }: { onClick?: () => void }) {
     <Link
       href="/"
       onClick={onClick}
-      className="relative z-10 inline-flex items-center gap-2.5 rounded-full px-1 py-1 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+      className="relative z-10 inline-flex items-center gap-3 rounded-full px-1 py-1 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-primary/30"
       aria-label="GLAMO Nepal home"
       prefetch={false}
     >
@@ -33,7 +33,7 @@ function Logo({ onClick }: { onClick?: () => void }) {
       </span>
       <span className="leading-none">
         <span className="block font-serif text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
-        <span className="block text-[9px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
+        <span className="block text-[10px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
       </span>
     </Link>
   );
@@ -79,7 +79,7 @@ export function Navbar() {
           >
             <Menu size={21} />
           </button>
-          <nav className="hidden min-w-0 items-center gap-5 lg:gap-7 md:flex" aria-label="Primary navigation">
+          <nav className="hidden min-w-0 items-center gap-6 lg:gap-8 md:flex" aria-label="Primary navigation">
             {desktopLinks.map((link) => {
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
@@ -87,7 +87,7 @@ export function Navbar() {
                   key={link.name}
                   href={link.href}
                   className={cn(
-                    "relative whitespace-nowrap text-[15px] font-semibold text-brand-textPrimary transition hover:text-brand-primary",
+                    "relative whitespace-nowrap text-base font-semibold text-brand-textPrimary transition hover:text-brand-primary",
                     active && "text-brand-primary",
                   )}
                 >

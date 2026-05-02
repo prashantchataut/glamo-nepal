@@ -22,9 +22,9 @@ export function AnnouncementBar() {
   if (!isVisible) return null;
 
   return (
-    <div className="sticky top-0 z-[40] overflow-hidden border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs">
-      <div className="flex whitespace-nowrap overflow-hidden py-2.5">
-        <div className="animate-marquee-scroll flex items-center gap-10 px-6">
+    <div className="sticky top-0 z-[40] overflow-hidden border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs">
+      <div className="flex whitespace-nowrap overflow-hidden py-3">
+        <div className="animate-marquee-scroll flex items-center gap-8 px-6">
           {[...ANNOUNCEMENT_MESSAGES, ...ANNOUNCEMENT_MESSAGES].map((msg, i) => {
             const Icon = iconMap[msg.icon];
             const content = (

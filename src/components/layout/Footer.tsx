@@ -35,7 +35,7 @@ export function Footer() {
               </span>
               <span>
                 <span className="block font-serif text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
-                <span className="block text-[9px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
+                <span className="block text-[10px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
               </span>
             </Link>
             <p className="mt-5 max-w-md text-sm leading-7">
