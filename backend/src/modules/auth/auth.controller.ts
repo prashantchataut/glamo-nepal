@@ -1,16 +1,37 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
+import { AppError } from '../../utils/supabase'
 import { ApiResponse } from '../../utils/response'
 import * as AuthService from './auth.service'
+
+function setAuthCookies(c: Context<AppEnv>, accessToken: string, refreshToken: string) {
+  c.header('Set-Cookie', [
+    `__Host-access_token=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900`,
+    `__Host-refresh_token=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800`,
+  ].join(', '))
+}
+
+function clearAuthCookies(c: Context<AppEnv>) {
+  c.header('Set-Cookie', [
+    `__Host-access_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`,
+    `__Host-refresh_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`,
+  ].join(', '))
+}
 
 export async function register(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    const result = await AuthService.register(data, c.env.DB, c.env)
+    const supabase = c.get('supabase')
+    const result = await AuthService.register(data, supabase)
+
+    if (result.accessToken && result.refreshToken) {
+      setAuthCookies(c, result.accessToken, result.refreshToken)
+    }
+
     return ApiResponse.success(c, 'Registration successful. Please verify your email.', result.user, 201)
   } catch (error: any) {
-    if (error.message === 'EMAIL_EXISTS') {
-      return ApiResponse.error(c, 'Email already registered', 409)
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Registration failed', 500)
   }
@@ -19,86 +40,67 @@ export async function register(c: Context<AppEnv>) {
 export async function login(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    const result = await AuthService.login(data, c.env.DB, c.env, c)
+    const supabase = c.get('supabase')
+    const result = await AuthService.login(data, supabase)
+
+    setAuthCookies(c, result.accessToken, result.refreshToken)
+
     return ApiResponse.success(c, 'Login successful', result.user)
   } catch (error: any) {
-    if (error.message === 'INVALID_CREDENTIALS') {
-      return ApiResponse.error(c, 'Invalid email or password', 401)
-    }
-    if (error.message === 'OAUTH_ACCOUNT') {
-      return ApiResponse.error(c, 'This account uses Google sign-in. Please use Google to log in.', 400)
-    }
-    if (error.message === 'ACCOUNT_DISABLED') {
-      return ApiResponse.error(c, 'Account is disabled', 403)
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Login failed', 500)
   }
 }
 
-export async function logout(c: Context<AppEnv>) {
-  try {
-    const user = c.get('user')
-    if (user) {
-      await AuthService.logout(user.id, c.env.DB, c)
-    }
-    return ApiResponse.success(c, 'Logged out successfully', null)
-  } catch (error: any) {
-    return ApiResponse.error(c, error.message || 'Logout failed', 500)
-  }
-}
-
 export async function refreshToken(c: Context<AppEnv>) {
   try {
-    const cookieHeader = c.req.header('Cookie')
-    let token: string | undefined
-    if (cookieHeader) {
-      const match = cookieHeader.match(/(?:^|;\s*)__Host-refresh_token=([^;]+)/)
-      token = match?.[1]
-    }
+    const data = c.get('validatedBody')
+    const supabase = c.get('supabase')
+    const result = await AuthService.refreshToken(data.refreshToken, supabase)
 
-    if (!token) {
-      return ApiResponse.error(c, 'No refresh token provided', 401)
-    }
+    setAuthCookies(c, result.accessToken, result.refreshToken)
 
-    const result = await AuthService.refreshToken(token, c.env.DB, c.env, c)
     return ApiResponse.success(c, 'Token refreshed', result.user)
   } catch (error: any) {
-    if (error.message === 'INVALID_TOKEN' || error.message === 'TOKEN_EXPIRED' || error.message === 'NO_TOKEN') {
-      return ApiResponse.error(c, 'Invalid or expired refresh token', 401)
-    }
-    if (error.message === 'USER_NOT_FOUND') {
-      return ApiResponse.error(c, 'User not found', 404)
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Token refresh failed', 500)
   }
 }
 
-export async function verifyEmail(c: Context<AppEnv>) {
+export async function logout(c: Context<AppEnv>) {
   try {
-    const { token } = c.req.param()
-    if (!token) {
-      return ApiResponse.error(c, 'Verification token is required', 400)
+    const supabase = c.get('supabase')
+    const authHeader = c.req.header('Authorization')
+    const accessToken = authHeader?.replace('Bearer ', '')
+
+    if (accessToken) {
+      await AuthService.logout(accessToken, supabase)
     }
 
-    await AuthService.verifyEmail(token, c.env.DB)
-    return ApiResponse.success(c, 'Email verified successfully', null)
+    clearAuthCookies(c)
+    return ApiResponse.success(c, 'Logged out successfully', null)
   } catch (error: any) {
-    if (error.message === 'INVALID_TOKEN') {
-      return ApiResponse.error(c, 'Invalid verification token', 400)
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
     }
-    if (error.message === 'TOKEN_EXPIRED') {
-      return ApiResponse.error(c, 'Verification token has expired', 400)
-    }
-    return ApiResponse.error(c, error.message || 'Email verification failed', 500)
+    return ApiResponse.error(c, error.message || 'Logout failed', 500)
   }
 }
 
 export async function forgotPassword(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    await AuthService.forgotPassword(data.email, c.env.DB, c.env)
+    const supabase = c.get('supabase')
+    await AuthService.forgotPassword(data.email, supabase, c.env.FRONTEND_URL)
     return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
   } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
     return ApiResponse.error(c, error.message || 'Failed to process request', 500)
   }
 }
@@ -106,64 +108,26 @@ export async function forgotPassword(c: Context<AppEnv>) {
 export async function resetPassword(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    await AuthService.resetPassword(data.token, data.password, c.env.DB)
+    const supabase = c.get('supabase')
+    await AuthService.resetPassword(data.password, supabase)
     return ApiResponse.success(c, 'Password reset successfully', null)
   } catch (error: any) {
-    if (error.message === 'INVALID_TOKEN') {
-      return ApiResponse.error(c, 'Invalid or expired reset token', 400)
-    }
-    if (error.message === 'TOKEN_EXPIRED') {
-      return ApiResponse.error(c, 'Reset token has expired', 400)
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Password reset failed', 500)
-  }
-}
-
-export async function changePassword(c: Context<AppEnv>) {
-  try {
-    const user = c.get('user')
-    const data = c.get('validatedBody')
-    await AuthService.changePassword(user.id, data.currentPassword, data.newPassword, c.env.DB)
-    return ApiResponse.success(c, 'Password changed successfully', null)
-  } catch (error: any) {
-    if (error.message === 'INVALID_CURRENT_PASSWORD') {
-      return ApiResponse.error(c, 'Current password is incorrect', 400)
-    }
-    return ApiResponse.error(c, error.message || 'Password change failed', 500)
-  }
-}
-
-export async function googleOAuthGetUrl(c: Context<AppEnv>) {
-  try {
-    const url = AuthService.googleOAuthGetUrl(c.env)
-    return ApiResponse.success(c, 'Google OAuth URL generated', { url })
-  } catch (error: any) {
-    return ApiResponse.error(c, error.message || 'Failed to generate OAuth URL', 500)
-  }
-}
-
-export async function googleOAuthCallback(c: Context<AppEnv>) {
-  try {
-    const code = c.req.query('code')
-    if (!code) {
-      return c.redirect(`${c.env.FRONTEND_URL}/login?error=google_auth_failed`)
-    }
-
-    const result = await AuthService.googleOAuthCallback(code, c.env.DB, c.env, c)
-    return c.redirect(`${c.env.FRONTEND_URL}/auth/callback?success=true`)
-  } catch (error: any) {
-    return c.redirect(`${c.env.FRONTEND_URL}/login?error=google_auth_failed`)
   }
 }
 
 export async function getMe(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
-    const result = await AuthService.getMe(user.id, c.env.DB)
+    const supabase = c.get('supabase')
+    const result = await AuthService.getMe(user.id, supabase)
     return ApiResponse.success(c, 'User fetched successfully', result)
   } catch (error: any) {
-    if (error.message === 'USER_NOT_FOUND') {
-      return ApiResponse.error(c, 'User not found', 404)
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Failed to fetch user', 500)
   }

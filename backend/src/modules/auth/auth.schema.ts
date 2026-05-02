@@ -1,61 +1,39 @@
 import { z } from 'zod'
 
-const nepalPhoneRegex = /^\+977[0-9]{10}$|^0[0-9]{9}$/
-
-export const registerSchema = z
-  .object({
-    firstName: z.string().min(1).max(50).optional(),
-    lastName: z.string().min(1).max(50).optional(),
-    email: z.string().email(),
-    phone: z.string().regex(nepalPhoneRegex).optional(),
-    password: z
-      .string()
-      .min(8)
-      .regex(/[A-Z]/, 'Must contain uppercase')
-      .regex(/[0-9]/, 'Must contain number'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+export const registerSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  firstName: z.string().min(1).max(100).optional(),
+  lastName: z.string().min(1).max(100).optional(),
+  phone: z.string().optional(),
+})
 
 export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-  rememberMe: z.boolean().optional().default(false),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1, 'Refresh token is required'),
 })
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email('Invalid email address'),
 })
 
-export const resetPasswordSchema = z
-  .object({
-    token: z.string(),
-    password: z
-      .string()
-      .min(8)
-      .regex(/[A-Z]/, 'Must contain uppercase')
-      .regex(/[0-9]/, 'Must contain number'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+export const resetPasswordSchema = z.object({
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+})
 
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string(),
-    newPassword: z
-      .string()
-      .min(8)
-      .regex(/[A-Z]/, 'Must contain uppercase')
-      .regex(/[0-9]/, 'Must contain number'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+export const updateProfileSchema = z.object({
+  firstName: z.string().min(1).max(100).optional(),
+  lastName: z.string().min(1).max(100).optional(),
+  phone: z.string().optional(),
+})
+
+export type RegisterInput = z.infer<typeof registerSchema>
+export type LoginInput = z.infer<typeof loginSchema>
+export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
