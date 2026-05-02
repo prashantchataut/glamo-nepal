@@ -109,20 +109,20 @@ export function Navbar() {
           </button>
           <Link href="/account/wishlist" className="relative hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:inline-flex" aria-label="Wishlist">
             <Heart size={19} />
-            {mounted && getWishlistTotal() > 0 ? <span className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getWishlistTotal()}</span> : null}
+            {mounted && getWishlistTotal() > 0 ? <span aria-live="polite" className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getWishlistTotal()}</span> : null}
           </Link>
           <Link href="/account" className="hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:inline-flex" aria-label="Account">
             <User size={19} />
           </Link>
           <button onClick={openCart} className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" aria-label="Cart">
             <ShoppingBag size={19} />
-            {mounted && getCartTotal() > 0 ? <span className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getCartTotal()}</span> : null}
+            {mounted && getCartTotal() > 0 ? <span aria-live="polite" className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getCartTotal()}</span> : null}
           </button>
         </div>
       </div>
 
       <div className={cn("fixed inset-0 z-menu-backdrop bg-brand-bgDark/35 backdrop-blur-sm transition-opacity duration-300 md:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
-      <aside className={cn("fixed inset-y-0 left-0 z-menu w-[90%] max-w-sm overflow-y-auto bg-brand-surfaceCream p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
+      <aside role="dialog" aria-modal="true" aria-label="Navigation menu" className={cn("fixed inset-y-0 left-0 z-menu w-[90%] max-w-sm overflow-y-auto bg-brand-surfaceCream p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between">
           <Logo onClick={() => setMobileMenuOpen(false)} />
           <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
