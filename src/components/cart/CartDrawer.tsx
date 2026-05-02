@@ -60,9 +60,9 @@ export function CartDrawer() {
         <>
           <div
             onClick={closeCart}
-            className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-cart-backdrop bg-black/50 backdrop-blur-sm"
           />
-          <div className="fixed inset-y-0 right-0 z-[60] flex w-full max-w-md flex-col bg-white shadow-2xl translate-x-0 transition-transform duration-300">
+          <div className="fixed inset-y-0 right-0 z-cart flex w-full max-w-md flex-col bg-white shadow-2xl translate-x-0 transition-transform duration-300">
             <div className="flex items-center justify-between p-6 border-b border-border/30">
               <h2 className="font-serif text-2xl font-semibold flex items-center gap-2">
                 <ShoppingBag size={22} strokeWidth={1.5} /> Your Cart <span className="text-brand-textMuted text-sm font-sans font-normal">({items.length})</span>

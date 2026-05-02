@@ -66,7 +66,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b border-brand-border/75 transition-all duration-300",
+        "sticky top-0 z-navbar border-b border-brand-border/75 transition-all duration-300",
         isScrolled ? "bg-white/92 shadow-[0_18px_45px_-34px_rgba(36,31,34,0.35)] backdrop-blur-2xl" : "bg-white/86 backdrop-blur-xl",
       )}
     >
@@ -121,8 +121,8 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className={cn("fixed inset-0 z-[65] bg-brand-bgDark/35 backdrop-blur-sm transition-opacity duration-300 md:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
-      <aside className={cn("fixed inset-y-0 left-0 z-[70] w-[90%] max-w-sm overflow-y-auto bg-[#FFFDFC] p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
+      <div className={cn("fixed inset-0 z-menu-backdrop bg-brand-bgDark/35 backdrop-blur-sm transition-opacity duration-300 md:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
+      <aside className={cn("fixed inset-y-0 left-0 z-menu w-[90%] max-w-sm overflow-y-auto bg-[#FFFDFC] p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between">
           <Logo onClick={() => setMobileMenuOpen(false)} />
           <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">

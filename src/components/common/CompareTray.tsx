@@ -10,7 +10,7 @@ export function CompareTray() {
   const { items, removeItem, clear } = useCompareStore();
   if (!items.length) return null;
   return (
-    <div className="fixed inset-x-4 bottom-20 z-40 mx-auto max-w-3xl rounded-3xl border border-brand-secondary/30 bg-white/95 p-3 shadow-2xl backdrop-blur md:bottom-5">
+    <div className="fixed inset-x-4 bottom-20 z-card mx-auto max-w-3xl rounded-3xl border border-brand-secondary/30 bg-white/95 p-3 shadow-2xl backdrop-blur md:bottom-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2 overflow-x-auto">
           {items.map((product) => (
