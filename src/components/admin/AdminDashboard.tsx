@@ -205,8 +205,8 @@ export function AdminDashboard() {
   }, [banners]);
 
   const selectedBanner = banners.find((banner) => banner.id === selectedBannerId) || banners[0];
-  const grossSales = useMemo(() => MOCK_ORDERS.reduce((sum, order) => sum + order.total, 0), [MOCK_ORDERS]);
-  const inventoryValue = useMemo(() => PRODUCTS.reduce((sum, product) => sum + product.price * product.stockCount, 0), [PRODUCTS]);
+  const grossSales = useMemo(() => MOCK_ORDERS.reduce((sum, order) => sum + order.total, 0), []);
+  const inventoryValue = useMemo(() => PRODUCTS.reduce((sum, product) => sum + product.price * product.stockCount, 0), []);
   const lowStockCount = INVENTORY_SUMMARY.lowStockCount;
   const productSearch = productQuery.trim().toLowerCase();
   const filteredProducts = useMemo(() => {
@@ -218,9 +218,9 @@ export function AdminDashboard() {
   const categoryCounts = useMemo(() => PRODUCTS.reduce<Record<string, number>>((acc, product) => {
     acc[product.category] = (acc[product.category] || 0) + 1;
     return acc;
-  }, {}), [PRODUCTS]);
+  }, {}), []);
   const maxCategoryCount = Math.max(...Object.values(categoryCounts));
-  const topProducts = useMemo(() => [...PRODUCTS].sort((a, b) => b.reviewsCount - a.reviewsCount).slice(0, 5), [PRODUCTS]);
+  const topProducts = useMemo(() => [...PRODUCTS].sort((a, b) => b.reviewsCount - a.reviewsCount).slice(0, 5), []);
 
   function updateBannerField(field: keyof ManagedBanner, value: string) {
     setBanners((current) => current.map((banner) => banner.id === selectedBanner.id ? { ...banner, [field]: value, updatedAt: new Date().toISOString().slice(0, 10) } : banner));
@@ -402,7 +402,40 @@ export function AdminDashboard() {
               </section>
 
               <section className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
-<div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-serif text-xl font-semibold">Order history</h3>
+                      <p className="mt-1 text-sm text-brand-textMuted">Track payment, status and fulfillment.</p>
+                    </div>
+                    <button onClick={() => setActiveSection("orders")} className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary min-h-[44px]">View all</button>
+                  </div>
+                  <div className="overflow-x-auto -mx-6 px-6">
+                    <table className="w-full min-w-[700px] text-sm">
+                      <caption className="sr-only">Recent orders</caption>
+                      <thead>
+                        <tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
+                          <th scope="col" className="px-4 py-3">Order</th><th scope="col" className="px-4 py-3">Customer</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3">Total</th><th scope="col" className="px-4 py-3">Status</th><th scope="col" className="px-4 py-3">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orderRows.map((order) => (
+                          <tr key={order.id} className="border-b border-brand-border/70 last:border-0">
+                            <td className="px-4 py-4 font-mono text-xs font-semibold text-brand-textPrimary">{order.orderNumber}</td>
+                            <td className="px-4 py-4">{order.shippingAddress.split(",")[0]}</td>
+                            <td className="px-4 py-4">{order.paymentMethod}</td>
+                            <td className="px-4 py-4 font-bold">{formatNpr(order.total)}</td>
+                            <td className="px-4 py-4"><StatusPill className={orderStatusStyles[order.status]}>{order.status}</StatusPill></td>
+                            <td className="px-4 py-4"><button aria-label="Open order actions" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted hover:bg-brand-bgLight"><MoreHorizontal size={16} /></button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="card-hover rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
                     <h3 className="font-serif text-xl font-semibold">Top categories</h3>
                     <div className="mt-4 space-y-4">
                       {Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}
