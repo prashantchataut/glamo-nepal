@@ -132,10 +132,11 @@ export async function uploadBlogCover(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const supabase = c.get('supabase')
     const formData = await c.req.formData()
-    const file = formData.get('file') as File
-    if (!file) {
+    const raw = formData.get('file')
+    if (!raw || typeof raw === 'string') {
       return ApiResponse.error(c, 'No file provided', 400)
     }
+    const file: File = raw
     const result = await BlogService.uploadCoverImage(supabase, id, file, c.env)
     return ApiResponse.success(c, 'Cover image uploaded', result)
   } catch (error: any) {

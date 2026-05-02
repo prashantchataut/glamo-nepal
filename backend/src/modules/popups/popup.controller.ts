@@ -36,7 +36,8 @@ export async function createPopup(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const supabase = c.get('supabase')
     const user = c.get('user')
-    const result = await PopupService.createPopup(supabase, data, user.id)
+    const kv = c.env.KV
+    const result = await PopupService.createPopup(supabase, data, user.id, kv)
     return ApiResponse.success(c, 'Popup created', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -52,7 +53,8 @@ export async function updatePopup(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const supabase = c.get('supabase')
     const user = c.get('user')
-    const result = await PopupService.updatePopup(supabase, id, data, user.id)
+    const kv = c.env.KV
+    const result = await PopupService.updatePopup(supabase, id, data, user.id, kv)
     return ApiResponse.success(c, 'Popup updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -67,7 +69,8 @@ export async function deletePopup(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const supabase = c.get('supabase')
     const user = c.get('user')
-    await PopupService.deletePopup(supabase, id, user.id)
+    const kv = c.env.KV
+    await PopupService.deletePopup(supabase, id, user.id, kv)
     return ApiResponse.success(c, 'Popup deleted', null)
   } catch (error: any) {
     if (error instanceof AppError) {

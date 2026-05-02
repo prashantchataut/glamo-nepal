@@ -32,7 +32,7 @@ export async function getGalleryItems(
   return data || []
 }
 
-export async function createGalleryItem(supabase: SupabaseClient, data: any, adminUserId: string) {
+export async function createGalleryItem(supabase: SupabaseClient, data: any, adminUserId: string, kv: KVNamespace) {
   const insertData: Record<string, any> = {
     title: data.title,
     description: data.description ?? null,

@@ -26,7 +26,8 @@ export async function createGalleryItem(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const supabase = c.get('supabase')
     const user = c.get('user')
-    const result = await GalleryService.createGalleryItem(supabase, data, user.id)
+    const kv = c.env.KV
+    const result = await GalleryService.createGalleryItem(supabase, data, user.id, kv)
     return ApiResponse.success(c, 'Gallery item created', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
