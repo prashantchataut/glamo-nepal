@@ -58,7 +58,7 @@ export const createOrderSchema = z.object({
 
 export const updateOrderStatusSchema = z.object({
   status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']),
-  paymentStatus: z.enum(['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED']).optional(),
+  paymentStatus: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']).optional(),
   comment: z.string().max(500).optional(),
 })
 
@@ -67,15 +67,14 @@ export const orderFilterSchema = z.object({
   paymentStatus: z.string().optional(),
   paymentMethod: z.string().optional(),
   userId: z.string().optional(),
-  dateFrom: z.string().optional(),
-  dateTo: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 
-export const applyCouponSchema = z.object({
-  code: z.string().min(1),
-  subtotal: z.coerce.number().nonnegative(),
+export const idParamSchema = z.object({
+  id: z.string().uuid(),
 })
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>

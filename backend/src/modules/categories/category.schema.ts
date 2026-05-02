@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+export const categoryFilterSchema = z.object({
+  parentId: z.string().uuid().optional().nullable(),
+  isActive: z.enum(['true', 'false']).optional().transform(v => v === 'true'),
+})
+
 export const createCategorySchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
@@ -14,7 +19,7 @@ export const updateCategorySchema = z.object({
   parentId: z.string().uuid().nullable().optional(),
   imageUrl: z.string().url().nullable().optional(),
   sortOrder: z.number().int().min(0).optional(),
-  isActive: z.number().int().min(0).max(1).optional(),
+  isActive: z.boolean().optional(),
 })
 
 export const slugParamSchema = z.object({

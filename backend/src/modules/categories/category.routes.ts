@@ -5,7 +5,7 @@ import { requireRole } from '../../middleware/requireRole'
 import { validateBody } from '../../middleware/validate'
 import { createCategorySchema, updateCategorySchema } from './category.schema'
 import {
-  getCategoryTree,
+  getCategories,
   getCategoryBySlug,
   createCategory,
   updateCategory,
@@ -15,7 +15,7 @@ import {
 
 const categoryRoutes = new Hono<AppEnv>()
 
-categoryRoutes.get('/', getCategoryTree)
+categoryRoutes.get('/', getCategories)
 categoryRoutes.get('/:slug', getCategoryBySlug)
 
 categoryRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createCategorySchema), createCategory)

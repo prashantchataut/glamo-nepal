@@ -1,7 +1,9 @@
-import { slugify, generateUniqueSlug } from '../../utils/slug'
-import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
-import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { AppError } from '../../utils/supabase'
 import { createAuditLog } from '../../utils/audit'
+import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
+import { slugify, generateUniqueSlug } from '../../utils/slug'
+import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
 import type { CloudflareBindings } from '../../types/bindings'
 
 interface CategoryRow {
@@ -12,7 +14,7 @@ interface CategoryRow {
   image_url: string | null
   parent_id: string | null
   sort_order: number
-  is_active: number
+  is_active: boolean
   created_at: string
   updated_at: string
   deleted_at: string | null
@@ -49,6 +51,11 @@ interface CategoryDetail {
   children: CategoryTreeNode[]
 }
 
+interface CategoryFilters {
+  parentId?: string | null
+  isActive?: boolean
+}
+
 function mapRowToCategory(row: CategoryRow) {
   return {
     id: row.id,
@@ -58,7 +65,7 @@ function mapRowToCategory(row: CategoryRow) {
     imageUrl: row.image_url,
     parentId: row.parent_id,
     sortOrder: row.sort_order,
-    isActive: !!row.is_active,
+    isActive: row.is_active,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -68,114 +75,187 @@ async function invalidateCategoryCache(kv: KVNamespace) {
   await Promise.all([
     deleteCache(kv, 'categories:tree'),
     deleteCacheByPrefix(kv, 'categories:slug:'),
+    deleteCacheByPrefix(kv, 'categories:list:'),
   ])
 }
 
-export async function getCategoryTree(db: D1Database, kv: KVNamespace): Promise<CategoryTreeNode[]> {
-  const cached = await getFromCache<CategoryTreeNode[]>(kv, 'categories:tree')
-  if (cached) return cached
+export async function getCategoriesCached(
+  supabase: SupabaseClient,
+  kv: KVNamespace,
+  filters?: CategoryFilters
+): Promise<{ tree: CategoryTreeNode[] } | { list: ReturnType<typeof mapRowToCategory>[] }> {
+  if (!filters || (filters.isActive === undefined && filters.parentId === undefined)) {
+    const cached = await getFromCache<CategoryTreeNode[]>(kv, 'categories:tree')
+    if (cached) return { tree: cached }
 
-  const { results } = await db
-    .prepare('SELECT * FROM categories WHERE is_active = 1 AND deleted_at IS NULL ORDER BY sort_order, name')
-    .all<CategoryRow>()
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .is('deleted_at', null)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true })
 
-  const categoryMap = new Map<string, CategoryTreeNode>()
-  const roots: CategoryTreeNode[] = []
+    if (error) throw new AppError('Failed to fetch categories', 500)
+    const rows = data as CategoryRow[]
 
-  for (const row of results) {
-    const node: CategoryTreeNode = {
-      id: row.id,
-      name: row.name,
-      slug: row.slug,
-      description: row.description,
-      imageUrl: row.image_url,
-      parentId: row.parent_id,
-      sortOrder: row.sort_order,
-      isActive: !!row.is_active,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      children: [],
+    const categoryMap = new Map<string, CategoryTreeNode>()
+    const roots: CategoryTreeNode[] = []
+
+    for (const row of rows) {
+      const node: CategoryTreeNode = {
+        id: row.id,
+        name: row.name,
+        slug: row.slug,
+        description: row.description,
+        imageUrl: row.image_url,
+        parentId: row.parent_id,
+        sortOrder: row.sort_order,
+        isActive: row.is_active,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        children: [],
+      }
+      categoryMap.set(row.id, node)
     }
-    categoryMap.set(row.id, node)
+
+    for (const node of categoryMap.values()) {
+      if (node.parentId && categoryMap.has(node.parentId)) {
+        categoryMap.get(node.parentId)!.children.push(node)
+      } else {
+        roots.push(node)
+      }
+    }
+
+    await setCache(kv, 'categories:tree', roots, CACHE_TTL.CATEGORIES)
+    return { tree: roots }
   }
 
-  for (const node of categoryMap.values()) {
-    if (node.parentId && categoryMap.has(node.parentId)) {
-      categoryMap.get(node.parentId)!.children.push(node)
+  const sortedFilterParams = JSON.stringify(filters)
+  const cacheKey = `categories:list:${sortedFilterParams}`
+  const cached = await getFromCache<ReturnType<typeof mapRowToCategory>[]>(kv, cacheKey)
+  if (cached) return { list: cached }
+
+  let query = supabase
+    .from('categories')
+    .select('*')
+    .is('deleted_at', null)
+
+  if (filters.parentId !== undefined) {
+    if (filters.parentId === null) {
+      query = query.is('parent_id', null)
     } else {
-      roots.push(node)
+      query = query.eq('parent_id', filters.parentId)
     }
   }
 
-  await setCache(kv, 'categories:tree', roots, CACHE_TTL.CATEGORIES)
-  return roots
+  if (filters.isActive !== undefined) {
+    query = query.eq('is_active', filters.isActive)
+  }
+
+  query = query.order('sort_order', { ascending: true }).order('name', { ascending: true })
+
+  const { data, error } = await query
+  if (error) throw new AppError('Failed to fetch categories', 500)
+
+  const mapped = (data as CategoryRow[]).map(mapRowToCategory)
+  await setCache(kv, cacheKey, mapped, CACHE_TTL.CATEGORIES)
+  return { list: mapped }
 }
 
-export async function getCategoryBySlug(slug: string, db: D1Database, kv: KVNamespace): Promise<CategoryDetail> {
+export async function getCategoryTree(
+  supabase: SupabaseClient,
+  kv: KVNamespace
+): Promise<CategoryTreeNode[]> {
+  const result = await getCategoriesCached(supabase, kv)
+  if ('tree' in result) return result.tree
+  return []
+}
+
+export async function getCategoryBySlug(
+  slug: string,
+  supabase: SupabaseClient,
+  kv: KVNamespace
+): Promise<CategoryDetail> {
   const cacheKey = `categories:slug:${slug}`
   const cached = await getFromCache<CategoryDetail>(kv, cacheKey)
   if (cached) return cached
 
-  const category = await db
-    .prepare('SELECT * FROM categories WHERE slug = ? AND is_active = 1 AND deleted_at IS NULL')
-    .bind(slug)
-    .first<CategoryRow>()
+  const { data: category, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .is('deleted_at', null)
+    .single()
 
-  if (!category) {
-    throw new Error('CATEGORY_NOT_FOUND')
+  if (error || !category) {
+    throw new AppError('CATEGORY_NOT_FOUND', 404)
   }
+
+  const row = category as CategoryRow
 
   let parentName: string | null = null
   let parentSlug: string | null = null
-  if (category.parent_id) {
-    const parent = await db
-      .prepare('SELECT name, slug FROM categories WHERE id = ? AND deleted_at IS NULL')
-      .bind(category.parent_id)
-      .first<{ name: string; slug: string }>()
+
+  if (row.parent_id) {
+    const { data: parent } = await supabase
+      .from('categories')
+      .select('name, slug')
+      .eq('id', row.parent_id)
+      .is('deleted_at', null)
+      .single()
+
     if (parent) {
       parentName = parent.name
       parentSlug = parent.slug
     }
   }
 
-  const productCountResult = await db
-    .prepare('SELECT COUNT(*) as count FROM products WHERE category_id = ? AND is_active = 1 AND deleted_at IS NULL')
-    .bind(category.id)
-    .first<{ count: number }>()
+  const { count: productCount } = await supabase
+    .from('products')
+    .select('*', { count: 'exact', head: true })
+    .eq('category_id', row.id)
+    .eq('is_active', true)
+    .is('deleted_at', null)
 
-  const { results: childrenRows } = await db
-    .prepare('SELECT * FROM categories WHERE parent_id = ? AND is_active = 1 AND deleted_at IS NULL ORDER BY sort_order, name')
-    .bind(category.id)
-    .all<CategoryRow>()
+  const { data: childrenRows } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('parent_id', row.id)
+    .eq('is_active', true)
+    .is('deleted_at', null)
+    .order('sort_order', { ascending: true })
+    .order('name', { ascending: true })
 
-  const children: CategoryTreeNode[] = childrenRows.map(row => ({
+  const children: CategoryTreeNode[] = (childrenRows as CategoryRow[] || []).map(child => ({
+    id: child.id,
+    name: child.name,
+    slug: child.slug,
+    description: child.description,
+    imageUrl: child.image_url,
+    parentId: child.parent_id,
+    sortOrder: child.sort_order,
+    isActive: child.is_active,
+    createdAt: child.created_at,
+    updatedAt: child.updated_at,
+    children: [],
+  }))
+
+  const result: CategoryDetail = {
     id: row.id,
     name: row.name,
     slug: row.slug,
     description: row.description,
     imageUrl: row.image_url,
     parentId: row.parent_id,
-    sortOrder: row.sort_order,
-    isActive: !!row.is_active,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    children: [],
-  }))
-
-  const result: CategoryDetail = {
-    id: category.id,
-    name: category.name,
-    slug: category.slug,
-    description: category.description,
-    imageUrl: category.image_url,
-    parentId: category.parent_id,
     parentName,
     parentSlug,
-    sortOrder: category.sort_order,
-    isActive: !!category.is_active,
-    createdAt: category.created_at,
-    updatedAt: category.updated_at,
-    productCount: productCountResult?.count ?? 0,
+    sortOrder: row.sort_order,
+    isActive: row.is_active,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    productCount: productCount ?? 0,
     children,
   }
 
@@ -184,6 +264,7 @@ export async function getCategoryBySlug(slug: string, db: D1Database, kv: KVName
 }
 
 export async function createCategory(
+  supabase: SupabaseClient,
   data: {
     name: string
     description?: string
@@ -191,69 +272,72 @@ export async function createCategory(
     imageUrl?: string
     sortOrder?: number
   },
-  adminId: string,
-  db: D1Database,
-  kv: KVNamespace,
-  env: CloudflareBindings
+  adminUserId: string,
+  kv: KVNamespace
 ) {
   const baseSlug = slugify(data.name)
 
-  const { results: existingSlugs } = await db
-    .prepare('SELECT slug FROM categories WHERE slug LIKE ? AND deleted_at IS NULL')
-    .bind(`${baseSlug}%`)
-    .all<{ slug: string }>()
+  const { data: existingSlugs } = await supabase
+    .from('categories')
+    .select('slug')
+    .ilike('slug', `${baseSlug}%`)
+    .is('deleted_at', null)
 
-  const slug = generateUniqueSlug(data.name, existingSlugs.map(r => r.slug))
+  const slug = generateUniqueSlug(data.name, (existingSlugs || []).map(r => r.slug))
 
   if (data.parentId) {
-    const parent = await db
-      .prepare('SELECT id FROM categories WHERE id = ? AND deleted_at IS NULL')
-      .bind(data.parentId)
-      .first()
+    const { data: parent } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('id', data.parentId)
+      .is('deleted_at', null)
+      .single()
+
     if (!parent) {
-      throw new Error('PARENT_NOT_FOUND')
+      throw new AppError('PARENT_NOT_FOUND', 404)
     }
   }
 
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
 
-  await db
-    .prepare(
-      'INSERT INTO categories (id, name, slug, description, image_url, parent_id, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)'
-    )
-    .bind(
-      id,
-      data.name,
-      slug,
-      data.description ?? null,
-      data.imageUrl ?? null,
-      data.parentId ?? null,
-      data.sortOrder ?? 0,
-      now,
-      now
-    )
-    .run()
+  const insertData: Record<string, unknown> = {
+    id,
+    name: data.name,
+    slug,
+    description: data.description ?? null,
+    image_url: data.imageUrl ?? null,
+    parent_id: data.parentId ?? null,
+    sort_order: data.sortOrder ?? 0,
+    is_active: true,
+    created_at: now,
+    updated_at: now,
+  }
+
+  const { error } = await supabase.from('categories').insert(insertData)
+  if (error) throw new AppError('Failed to create category', 500)
 
   await invalidateCategoryCache(kv)
 
-  await createAuditLog(db, {
-    userId: adminId,
+  await createAuditLog(supabase, {
+    userId: adminUserId,
     action: 'CREATE',
     entity: 'category',
     entityId: id,
-    changes: JSON.stringify(data),
+    changes: data,
   })
 
-  const category = await db
-    .prepare('SELECT * FROM categories WHERE id = ?')
-    .bind(id)
-    .first<CategoryRow>()
+  const { data: created } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .single()
 
-  return mapRowToCategory(category!)
+  return mapRowToCategory(created as CategoryRow)
 }
 
 export async function updateCategory(
+  supabase: SupabaseClient,
   id: string,
   data: {
     name?: string
@@ -261,161 +345,175 @@ export async function updateCategory(
     parentId?: string | null
     imageUrl?: string | null
     sortOrder?: number
-    isActive?: number
+    isActive?: boolean
   },
-  adminId: string,
-  db: D1Database,
+  adminUserId: string,
   kv: KVNamespace,
   env: CloudflareBindings
 ) {
-  const existing = await db
-    .prepare('SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL')
-    .bind(id)
-    .first<CategoryRow>()
+  const { data: existing, error: fetchError } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .is('deleted_at', null)
+    .single()
 
-  if (!existing) {
-    throw new Error('CATEGORY_NOT_FOUND')
+  if (fetchError || !existing) {
+    throw new AppError('CATEGORY_NOT_FOUND', 404)
   }
 
-  const updates: string[] = []
-  const values: any[] = []
+  const row = existing as CategoryRow
+  const updates: Record<string, unknown> = {}
+  let newSlug = row.slug
 
-  let newSlug = existing.slug
-
-  if (data.name !== undefined && data.name !== existing.name) {
+  if (data.name !== undefined && data.name !== row.name) {
     const baseSlug = slugify(data.name)
-    const { results: existingSlugs } = await db
-      .prepare('SELECT slug FROM categories WHERE slug LIKE ? AND id != ? AND deleted_at IS NULL')
-      .bind(`${baseSlug}%`, id)
-      .all<{ slug: string }>()
-    newSlug = generateUniqueSlug(data.name, existingSlugs.map(r => r.slug))
-    updates.push('name = ?', 'slug = ?')
-    values.push(data.name, newSlug)
+    const { data: existingSlugs } = await supabase
+      .from('categories')
+      .select('slug')
+      .ilike('slug', `${baseSlug}%`)
+      .neq('id', id)
+      .is('deleted_at', null)
+
+    newSlug = generateUniqueSlug(data.name, (existingSlugs || []).map(r => r.slug))
+    updates.name = data.name
+    updates.slug = newSlug
   }
 
   if (data.description !== undefined) {
-    updates.push('description = ?')
-    values.push(data.description ?? null)
+    updates.description = data.description ?? null
   }
 
   if (data.parentId !== undefined) {
     if (data.parentId !== null) {
       if (data.parentId === id) {
-        throw new Error('CIRCULAR_REFERENCE')
+        throw new AppError('CIRCULAR_REFERENCE', 400)
       }
-      const parent = await db
-        .prepare('SELECT id FROM categories WHERE id = ? AND deleted_at IS NULL')
-        .bind(data.parentId)
-        .first()
+      const { data: parent } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('id', data.parentId)
+        .is('deleted_at', null)
+        .single()
+
       if (!parent) {
-        throw new Error('PARENT_NOT_FOUND')
+        throw new AppError('PARENT_NOT_FOUND', 404)
       }
     }
-    updates.push('parent_id = ?')
-    values.push(data.parentId ?? null)
+    updates.parent_id = data.parentId ?? null
   }
 
   if (data.sortOrder !== undefined) {
-    updates.push('sort_order = ?')
-    values.push(data.sortOrder)
+    updates.sort_order = data.sortOrder
   }
 
   if (data.isActive !== undefined) {
-    updates.push('is_active = ?')
-    values.push(data.isActive)
+    updates.is_active = data.isActive
   }
 
   if (data.imageUrl !== undefined) {
-    if (data.imageUrl === null && existing.image_url) {
+    if (data.imageUrl === null && row.image_url) {
       try {
-        const publicId = existing.image_url.split('/upload/')[1]?.split('.')[0].split('/').slice(1).join('/')
+        const publicId = row.image_url.split('/upload/')[1]?.split('.')[0].split('/').slice(1).join('/')
         if (publicId) await deleteFromCloudinary(publicId, env)
       } catch {}
     }
-    updates.push('image_url = ?')
-    values.push(data.imageUrl)
+    updates.image_url = data.imageUrl
   }
 
-  if (updates.length === 0) {
-    return mapRowToCategory(existing)
+  if (Object.keys(updates).length === 0) {
+    return mapRowToCategory(row)
   }
 
-  updates.push("updated_at = datetime('now')")
-  values.push(id)
+  updates.updated_at = new Date().toISOString()
 
-  await db
-    .prepare(`UPDATE categories SET ${updates.join(', ')} WHERE id = ?`)
-    .bind(...values)
-    .run()
+  const { error: updateError } = await supabase
+    .from('categories')
+    .update(updates)
+    .eq('id', id)
+
+  if (updateError) throw new AppError('Failed to update category', 500)
 
   await invalidateCategoryCache(kv)
 
-  await createAuditLog(db, {
-    userId: adminId,
+  await createAuditLog(supabase, {
+    userId: adminUserId,
     action: 'UPDATE',
     entity: 'category',
     entityId: id,
-    changes: JSON.stringify(data),
+    changes: data,
   })
 
-  const updated = await db
-    .prepare('SELECT * FROM categories WHERE id = ?')
-    .bind(id)
-    .first<CategoryRow>()
+  const { data: updated } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .single()
 
-  return mapRowToCategory(updated!)
+  return mapRowToCategory(updated as CategoryRow)
 }
 
 export async function deleteCategory(
+  supabase: SupabaseClient,
   id: string,
-  adminId: string,
-  db: D1Database,
+  adminUserId: string,
   kv: KVNamespace,
   env: CloudflareBindings
 ) {
-  const category = await db
-    .prepare('SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL')
-    .bind(id)
-    .first<CategoryRow>()
+  const { data: category, error: fetchError } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .is('deleted_at', null)
+    .single()
 
-  if (!category) {
-    throw new Error('CATEGORY_NOT_FOUND')
+  if (fetchError || !category) {
+    throw new AppError('CATEGORY_NOT_FOUND', 404)
   }
 
-  const productCount = await db
-    .prepare('SELECT COUNT(*) as count FROM products WHERE category_id = ? AND is_active = 1 AND deleted_at IS NULL')
-    .bind(id)
-    .first<{ count: number }>()
+  const row = category as CategoryRow
 
-  if (productCount && productCount.count > 0) {
-    throw new Error('CATEGORY_HAS_PRODUCTS')
+  const { count: productCount } = await supabase
+    .from('products')
+    .select('*', { count: 'exact', head: true })
+    .eq('category_id', id)
+    .eq('is_active', true)
+    .is('deleted_at', null)
+
+  if (productCount && productCount > 0) {
+    throw new AppError('CATEGORY_HAS_PRODUCTS', 409)
   }
 
-  const childCount = await db
-    .prepare('SELECT COUNT(*) as count FROM categories WHERE parent_id = ? AND is_active = 1 AND deleted_at IS NULL')
-    .bind(id)
-    .first<{ count: number }>()
+  const { count: childCount } = await supabase
+    .from('categories')
+    .select('*', { count: 'exact', head: true })
+    .eq('parent_id', id)
+    .eq('is_active', true)
+    .is('deleted_at', null)
 
-  if (childCount && childCount.count > 0) {
-    throw new Error('CATEGORY_HAS_CHILDREN')
+  if (childCount && childCount > 0) {
+    throw new AppError('CATEGORY_HAS_CHILDREN', 409)
   }
 
-  await db
-    .prepare("UPDATE categories SET deleted_at = datetime('now'), is_active = 0, updated_at = datetime('now') WHERE id = ?")
-    .bind(id)
-    .run()
+  const now = new Date().toISOString()
+  const { error: deleteError } = await supabase
+    .from('categories')
+    .update({ deleted_at: now, is_active: false, updated_at: now })
+    .eq('id', id)
 
-  if (category.image_url) {
+  if (deleteError) throw new AppError('Failed to delete category', 500)
+
+  if (row.image_url) {
     try {
-      const publicId = category.image_url.split('/upload/')[1]?.split('.')[0].split('/').slice(1).join('/')
+      const publicId = row.image_url.split('/upload/')[1]?.split('.')[0].split('/').slice(1).join('/')
       if (publicId) await deleteFromCloudinary(publicId, env)
     } catch {}
   }
 
   await invalidateCategoryCache(kv)
 
-  await createAuditLog(db, {
-    userId: adminId,
+  await createAuditLog(supabase, {
+    userId: adminUserId,
     action: 'DELETE',
     entity: 'category',
     entityId: id,
@@ -423,50 +521,55 @@ export async function deleteCategory(
 }
 
 export async function uploadCategoryImage(
+  supabase: SupabaseClient,
   id: string,
   file: File,
-  adminId: string,
-  db: D1Database,
+  adminUserId: string,
   kv: KVNamespace,
   env: CloudflareBindings
 ) {
-  const category = await db
-    .prepare('SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL')
-    .bind(id)
-    .first<CategoryRow>()
+  const { data: category, error: fetchError } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .is('deleted_at', null)
+    .single()
 
-  if (!category) {
-    throw new Error('CATEGORY_NOT_FOUND')
+  if (fetchError || !category) {
+    throw new AppError('CATEGORY_NOT_FOUND', 404)
   }
+
+  const row = category as CategoryRow
 
   const result = await uploadImageToCloudinary(file, 'categories', env)
 
-  if (category.image_url) {
+  if (row.image_url) {
     try {
-      const publicId = category.image_url.split('/upload/')[1]?.split('.')[0].split('/').slice(1).join('/')
+      const publicId = row.image_url.split('/upload/')[1]?.split('.')[0].split('/').slice(1).join('/')
       if (publicId) await deleteFromCloudinary(publicId, env)
     } catch {}
   }
 
-  await db
-    .prepare("UPDATE categories SET image_url = ?, updated_at = datetime('now') WHERE id = ?")
-    .bind(result.url, id)
-    .run()
+  await supabase
+    .from('categories')
+    .update({ image_url: result.url, updated_at: new Date().toISOString() })
+    .eq('id', id)
 
   await invalidateCategoryCache(kv)
 
-  await createAuditLog(db, {
-    userId: adminId,
+  await createAuditLog(supabase, {
+    userId: adminUserId,
     action: 'UPDATE',
     entity: 'category',
     entityId: id,
-    changes: JSON.stringify({ imageUploaded: true }),
+    changes: { imageUploaded: true },
   })
 
-  const updated = await db
-    .prepare('SELECT * FROM categories WHERE id = ?')
-    .bind(id)
-    .first<CategoryRow>()
+  const { data: updated } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .single()
 
-  return mapRowToCategory(updated!)
+  return mapRowToCategory(updated as CategoryRow)
 }

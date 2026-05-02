@@ -1,12 +1,32 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { AppError, handleSupabaseError } from '../../utils/supabase'
+import { createAuditLog } from '../../utils/audit'
 import { generateOrderNumber } from '../../utils/orderNumber'
 import { toDisplayPrice, toStoredPrice } from '../../utils/price'
-import { buildPaginationResult, parsePagination } from '../../utils/pagination'
-import type { CreateOrderInput, OrderFilterInput, UpdateOrderStatusInput } from './order.schema'
+import { parsePagination, buildPaginationResult } from '../../utils/pagination'
+import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
 
-interface UserRow { id: string; email: string | null; phone: string | null; first_name: string | null; last_name: string | null }
-interface ProductRow { id: string; name: string; sku: string | null; slug: string; base_price: number; sale_price: number | null; stock_quantity: number; track_inventory: number }
-interface ProductImageRow { url: string | null }
-interface VariantRow { id: string; name: string; sku: string | null; price: number; sale_price: number | null; stock_quantity: number; is_active: number }
+interface ProductRow {
+  id: string
+  name: string
+  sku: string | null
+  slug: string
+  base_price: number
+  sale_price: number | null
+  stock_quantity: number
+  track_inventory: boolean
+}
+
+interface VariantRow {
+  id: string
+  name: string
+  sku: string | null
+  price: number
+  sale_price: number | null
+  stock_quantity: number
+  is_active: boolean
+}
+
 interface OrderRow {
   id: string
   order_number: string
@@ -20,12 +40,15 @@ interface OrderRow {
   discount_amount: number
   total_amount: number
   coupon_id: string | null
-  shipping_address: string
-  billing_address: string | null
+  shipping_address: Record<string, unknown> | null
+  billing_address: Record<string, unknown> | null
   notes: string | null
+  cancelled_at: string | null
+  cancel_reason: string | null
   created_at: string
   updated_at: string
 }
+
 interface OrderItemRow {
   id: string
   order_id: string
@@ -38,6 +61,23 @@ interface OrderItemRow {
   unit_price: number
   total_price: number
   image_url: string | null
+}
+
+interface StatusHistoryRow {
+  id: string
+  order_id: string
+  status: string
+  comment: string | null
+  changed_by: string | null
+  created_at: string
+}
+
+interface ProfileRow {
+  id: string
+  email: string | null
+  phone: string | null
+  first_name: string | null
+  last_name: string | null
 }
 
 function paymentMethodToDb(method: string) {
@@ -56,8 +96,8 @@ function splitName(name?: string) {
   return { firstName: parts[0] || 'GLAMO', lastName: parts.slice(1).join(' ') || 'Customer' }
 }
 
-function addressToJson(address: CreateOrderInput['shippingAddress'], fallbackName?: string, fallbackPhone?: string) {
-  return JSON.stringify({
+function normalizeAddress(address: CreateOrderInput['shippingAddress'], fallbackName?: string, fallbackPhone?: string): Record<string, unknown> {
+  return {
     fullName: address.fullName || fallbackName || 'GLAMO Customer',
     phone: address.phone || fallbackPhone || '',
     address1: address.address1 || address.addressLine1 || '',
@@ -69,24 +109,19 @@ function addressToJson(address: CreateOrderInput['shippingAddress'], fallbackNam
     postalCode: address.postalCode || '',
     country: address.country || 'Nepal',
     landmark: address.landmark || '',
-  })
+  }
 }
 
-function parseAddress(address: string | null) {
-  if (!address) return null
-  try { return JSON.parse(address) } catch { return { address1: address } }
-}
-
-function formatOrder(row: OrderRow, items: OrderItemRow[] = [], user?: UserRow | null) {
+function formatOrder(row: OrderRow, items: OrderItemRow[] = [], history: StatusHistoryRow[] = [], profile?: ProfileRow | null) {
   return {
     id: row.id,
     orderNumber: row.order_number,
     userId: row.user_id,
-    customer: user ? {
-      id: user.id,
-      name: [user.first_name, user.last_name].filter(Boolean).join(' ') || 'GLAMO Customer',
-      email: user.email,
-      phone: user.phone,
+    customer: profile ? {
+      id: profile.id,
+      name: [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'GLAMO Customer',
+      email: profile.email,
+      phone: profile.phone,
     } : null,
     status: row.status,
     paymentStatus: row.payment_status,
@@ -96,9 +131,11 @@ function formatOrder(row: OrderRow, items: OrderItemRow[] = [], user?: UserRow |
     shippingCharge: toDisplayPrice(row.shipping_charge),
     discountAmount: toDisplayPrice(row.discount_amount),
     totalAmount: toDisplayPrice(row.total_amount),
-    shippingAddress: parseAddress(row.shipping_address),
-    billingAddress: parseAddress(row.billing_address),
+    shippingAddress: row.shipping_address,
+    billingAddress: row.billing_address,
     notes: row.notes,
+    cancelledAt: row.cancelled_at,
+    cancelReason: row.cancel_reason,
     items: items.map((item) => ({
       id: item.id,
       productId: item.product_id,
@@ -111,35 +148,62 @@ function formatOrder(row: OrderRow, items: OrderItemRow[] = [], user?: UserRow |
       totalPrice: toDisplayPrice(item.total_price),
       imageUrl: item.image_url,
     })),
+    statusHistory: history.map((h) => ({
+      id: h.id,
+      status: h.status,
+      comment: h.comment,
+      changedBy: h.changed_by,
+      createdAt: h.created_at,
+    })),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
 }
 
-async function findOrCreateCustomer(data: CreateOrderInput, db: D1Database, authUserId?: string) {
+async function findOrCreateCustomer(data: CreateOrderInput, supabase: SupabaseClient, authUserId?: string) {
   if (authUserId) return authUserId
   const customer = data.customer
-  if (!customer) throw new Error('CUSTOMER_REQUIRED')
+  if (!customer) throw new AppError('Customer details are required for guest checkout', 400, 'CUSTOMER_REQUIRED')
 
-  let existing: UserRow | null = null
+  let existingProfile: ProfileRow | null = null
   if (customer.email) {
-    existing = await db.prepare('SELECT * FROM users WHERE email = ? AND deleted_at IS NULL').bind(customer.email.toLowerCase()).first<UserRow>()
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', customer.email.toLowerCase())
+      .is('deleted_at', null)
+      .maybeSingle<ProfileRow>()
+    existingProfile = data
   }
-  if (!existing && customer.phone) {
-    existing = await db.prepare('SELECT * FROM users WHERE phone = ? AND deleted_at IS NULL').bind(customer.phone).first<UserRow>()
+  if (!existingProfile && customer.phone) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('phone', customer.phone)
+      .is('deleted_at', null)
+      .maybeSingle<ProfileRow>()
+    existingProfile = data
   }
-  if (existing) return existing.id
+  if (existingProfile) return existingProfile.id
 
   const { firstName, lastName } = splitName(customer.name)
-  const id = crypto.randomUUID()
   const email = customer.email?.toLowerCase() || `guest+${Date.now()}-${Math.floor(Math.random() * 100000)}@glamonepal.local`
-  await db.prepare(
-    `INSERT INTO users (id, email, phone, first_name, last_name, role, is_active, email_verified, phone_verified)
-     VALUES (?, ?, ?, ?, ?, 'CUSTOMER', 1, ?, ?)`
-  ).bind(id, email, customer.phone, firstName, lastName, customer.email ? 1 : 0, 0).run()
+  const id = crypto.randomUUID()
+
+  const { error } = await supabase.from('profiles').insert({
+    id,
+    email,
+    phone: customer.phone,
+    first_name: firstName,
+    last_name: lastName,
+    role: 'CUSTOMER',
+    is_active: true,
+    email_verified: !!customer.email,
+    phone_verified: false,
+  })
+  if (error) handleSupabaseError(error, 'findOrCreateCustomer.insert')
   return id
 }
-
 
 function simpleSlug(value: string) {
   return value
@@ -158,113 +222,276 @@ function frontendCategorySlug(value?: string) {
   return slug
 }
 
-async function ensureCheckoutCategory(db: D1Database, category?: string) {
+async function ensureCheckoutCategory(supabase: SupabaseClient, category?: string) {
   const preferred = frontendCategorySlug(category)
-  let row = await db.prepare('SELECT id FROM categories WHERE slug = ? AND deleted_at IS NULL AND is_active = 1').bind(preferred).first<{ id: string }>()
-  if (row?.id) return row.id
+  const { data: existing } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', preferred)
+    .is('deleted_at', null)
+    .eq('is_active', true)
+    .maybeSingle<{ id: string }>()
+  if (existing?.id) return existing.id
 
-  row = await db.prepare('SELECT id FROM categories WHERE deleted_at IS NULL AND is_active = 1 ORDER BY sort_order ASC, name ASC LIMIT 1').first<{ id: string }>()
-  if (row?.id) return row.id
+  const { data: fallback } = await supabase
+    .from('categories')
+    .select('id')
+    .is('deleted_at', null)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .limit(1)
+    .maybeSingle<{ id: string }>()
+  if (fallback?.id) return fallback.id
 
   const id = 'cat_checkout'
-  await db.prepare(
-    `INSERT OR IGNORE INTO categories (id, name, slug, description, sort_order, is_active)
-     VALUES (?, 'GLAMO Checkout', 'glamo-checkout', 'Products created from checkout payloads', 999, 1)`
-  ).bind(id).run()
+  const { error } = await supabase.from('categories').insert({
+    id,
+    name: 'GLAMO Checkout',
+    slug: 'glamo-checkout',
+    description: 'Products created from checkout payloads',
+    sort_order: 999,
+    is_active: true,
+  })
+  if (error && error.code !== '23505') handleSupabaseError(error, 'ensureCheckoutCategory.insert')
   return id
 }
 
-async function ensureCheckoutBrand(db: D1Database, brand?: string) {
+async function ensureCheckoutBrand(supabase: SupabaseClient, brand?: string) {
   if (!brand) return null
   const slug = simpleSlug(brand)
-  let row = await db.prepare('SELECT id FROM brands WHERE slug = ? AND deleted_at IS NULL AND is_active = 1').bind(slug).first<{ id: string }>()
-  if (row?.id) return row.id
+  const { data: existing } = await supabase
+    .from('brands')
+    .select('id')
+    .eq('slug', slug)
+    .is('deleted_at', null)
+    .eq('is_active', true)
+    .maybeSingle<{ id: string }>()
+  if (existing?.id) return existing.id
 
   const id = `brand_${slug}`.slice(0, 80)
-  await db.prepare(
-    `INSERT OR IGNORE INTO brands (id, name, slug, description, is_active)
-     VALUES (?, ?, ?, ?, 1)`
-  ).bind(id, brand, slug, `Checkout-created brand profile for ${brand}`).run()
-  row = await db.prepare('SELECT id FROM brands WHERE id = ? OR slug = ?').bind(id, slug).first<{ id: string }>()
-  return row?.id || null
+  const { error } = await supabase.from('brands').insert({
+    id,
+    name: brand,
+    slug,
+    description: `Checkout-created brand profile for ${brand}`,
+    is_active: true,
+  })
+  if (error && error.code !== '23505') handleSupabaseError(error, 'ensureCheckoutBrand.insert')
+
+  const { data: created } = await supabase
+    .from('brands')
+    .select('id')
+    .eq('id', id)
+    .maybeSingle<{ id: string }>()
+  return created?.id || null
 }
 
-async function createCheckoutProduct(line: CreateOrderInput['items'][number], db: D1Database) {
+async function createCheckoutProduct(line: CreateOrderInput['items'][number], supabase: SupabaseClient) {
   const payload = line.product
   const productIdentifier = line.productId || payload?.id || `checkout_${crypto.randomUUID()}`
   const name = payload?.name || `GLAMO product ${productIdentifier}`
   const slug = payload?.slug || simpleSlug(`${name}-${productIdentifier}`)
   const sku = payload?.sku || productIdentifier.toUpperCase()
   const basePrice = toStoredPrice(Number(payload?.price || 0))
-  if (!basePrice) throw new Error(`PRODUCT_NOT_FOUND:${productIdentifier}`)
+  if (!basePrice) throw new AppError(`Product not found: ${productIdentifier}`, 404, 'PRODUCT_NOT_FOUND')
 
-  const categoryId = await ensureCheckoutCategory(db, payload?.category)
-  const brandId = await ensureCheckoutBrand(db, payload?.brand)
+  const categoryId = await ensureCheckoutCategory(supabase, payload?.category)
+  const brandId = await ensureCheckoutBrand(supabase, payload?.brand)
 
-  await db.prepare(
-    `INSERT OR IGNORE INTO products (id, name, slug, description, short_description, sku, category_id, brand_id, base_price, sale_price, currency, is_active, is_featured, is_digital, track_inventory, stock_quantity, low_stock_threshold, tags)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'NPR', 1, 0, 0, 0, 9999, 5, ?)`
-  ).bind(productIdentifier, name, slug, `Checkout catalog item: ${name}`, name, sku, categoryId, brandId, basePrice, JSON.stringify(['checkout', payload?.category || 'beauty'])).run()
+  const { error: productError } = await supabase.from('products').insert({
+    id: productIdentifier,
+    name,
+    slug,
+    description: `Checkout catalog item: ${name}`,
+    short_description: name,
+    sku,
+    category_id: categoryId,
+    brand_id: brandId,
+    base_price: basePrice,
+    currency: 'NPR',
+    is_active: true,
+    is_featured: false,
+    is_digital: false,
+    track_inventory: false,
+    stock_quantity: 9999,
+    low_stock_threshold: 5,
+    tags: ['checkout', payload?.category || 'beauty'],
+  })
+  if (productError && productError.code !== '23505') handleSupabaseError(productError, 'createCheckoutProduct.insert')
 
   if (payload?.image) {
-    await db.prepare(
-      `INSERT OR IGNORE INTO product_images (id, product_id, url, alt_text, sort_order, is_primary)
-       VALUES (?, ?, ?, ?, 0, 1)`
-    ).bind(`img_${productIdentifier}`.slice(0, 90), productIdentifier, payload.image, name).run()
+    const imageId = `img_${productIdentifier}`.slice(0, 90)
+    await supabase.from('product_images').insert({
+      id: imageId,
+      product_id: productIdentifier,
+      url: payload.image,
+      alt_text: name,
+      sort_order: 0,
+      is_primary: true,
+    }).then(({ error }) => {
+      if (error && error.code !== '23505') console.error('Failed to insert checkout product image:', error)
+    })
   }
 
-  const product = await db.prepare('SELECT * FROM products WHERE id = ? OR slug = ? OR sku = ?').bind(productIdentifier, slug, sku).first<ProductRow>()
-  if (!product) throw new Error(`PRODUCT_NOT_FOUND:${productIdentifier}`)
+  const { data: product, error: fetchError } = await supabase
+    .from('products')
+    .select('*')
+    .or(`id.eq.${productIdentifier},slug.eq.${slug},sku.eq.${sku}`)
+    .is('deleted_at', null)
+    .eq('is_active', true)
+    .limit(1)
+    .maybeSingle<ProductRow>()
+  if (fetchError) handleSupabaseError(fetchError, 'createCheckoutProduct.fetch')
+  if (!product) throw new AppError(`Product not found: ${productIdentifier}`, 404, 'PRODUCT_NOT_FOUND')
   return product
 }
 
-async function getProductForLine(line: CreateOrderInput['items'][number], db: D1Database) {
+async function getProductForLine(line: CreateOrderInput['items'][number], supabase: SupabaseClient) {
   const productIdentifier = line.productId || line.product?.id || ''
   const sku = line.product?.sku || ''
   const slug = line.product?.slug || ''
+
   let product: ProductRow | null = null
-  if (productIdentifier) product = await db.prepare('SELECT * FROM products WHERE id = ? AND deleted_at IS NULL AND is_active = 1').bind(productIdentifier).first<ProductRow>()
-  if (!product && sku) product = await db.prepare('SELECT * FROM products WHERE sku = ? AND deleted_at IS NULL AND is_active = 1').bind(sku).first<ProductRow>()
-  if (!product && slug) product = await db.prepare('SELECT * FROM products WHERE slug = ? AND deleted_at IS NULL AND is_active = 1').bind(slug).first<ProductRow>()
-  if (!product && line.product) product = await createCheckoutProduct(line, db)
-  if (!product) throw new Error(`PRODUCT_NOT_FOUND:${productIdentifier || sku || slug}`)
+
+  if (productIdentifier) {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productIdentifier)
+      .is('deleted_at', null)
+      .eq('is_active', true)
+      .maybeSingle<ProductRow>()
+    product = data
+  }
+  if (!product && sku) {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('sku', sku)
+      .is('deleted_at', null)
+      .eq('is_active', true)
+      .maybeSingle<ProductRow>()
+    product = data
+  }
+  if (!product && slug) {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .is('deleted_at', null)
+      .eq('is_active', true)
+      .maybeSingle<ProductRow>()
+    product = data
+  }
+  if (!product && line.product) {
+    product = await createCheckoutProduct(line, supabase)
+  }
+  if (!product) throw new AppError(`Product not found: ${productIdentifier || sku || slug}`, 404, 'PRODUCT_NOT_FOUND')
   return product
 }
 
-async function getVariantForLine(line: CreateOrderInput['items'][number], product: ProductRow, db: D1Database) {
+async function getVariantForLine(line: CreateOrderInput['items'][number], product: ProductRow, supabase: SupabaseClient) {
   if (!line.variantId) return null
-  const variant = await db.prepare('SELECT * FROM product_variants WHERE id = ? AND product_id = ? AND deleted_at IS NULL').bind(line.variantId, product.id).first<VariantRow>()
-  if (!variant || !variant.is_active) throw new Error('VARIANT_NOT_FOUND')
+  const { data: variant, error } = await supabase
+    .from('product_variants')
+    .select('*')
+    .eq('id', line.variantId)
+    .eq('product_id', product.id)
+    .is('deleted_at', null)
+    .maybeSingle<VariantRow>()
+  if (error) handleSupabaseError(error, 'getVariantForLine')
+  if (!variant || !variant.is_active) throw new AppError('Selected product variant is unavailable', 404, 'VARIANT_NOT_FOUND')
   return variant
 }
 
-async function getPrimaryImage(productId: string, db: D1Database) {
-  const image = await db.prepare('SELECT url FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, sort_order ASC LIMIT 1').bind(productId).first<ProductImageRow>()
-  return image?.url || null
+async function getPrimaryImage(productId: string, supabase: SupabaseClient) {
+  const { data } = await supabase
+    .from('product_images')
+    .select('url')
+    .eq('product_id', productId)
+    .order('is_primary', { ascending: false })
+    .order('sort_order', { ascending: true })
+    .limit(1)
+    .maybeSingle<{ url: string | null }>()
+  return data?.url || null
 }
 
-async function getOrderItems(orderId: string, db: D1Database) {
-  const result = await db.prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY created_at ASC').bind(orderId).all<OrderItemRow>()
-  return result.results
+async function getOrderItems(orderId: string, supabase: SupabaseClient) {
+  const { data, error } = await supabase
+    .from('order_items')
+    .select('*')
+    .eq('order_id', orderId)
+    .order('created_at', { ascending: true })
+  if (error) handleSupabaseError(error, 'getOrderItems')
+  return (data ?? []) as OrderItemRow[]
 }
 
-export async function createOrder(data: CreateOrderInput, db: D1Database, authUserId?: string) {
-  const userId = await findOrCreateCustomer(data, db, authUserId)
+async function getStatusHistory(orderId: string, supabase: SupabaseClient) {
+  const { data, error } = await supabase
+    .from('order_status_histories')
+    .select('*')
+    .eq('order_id', orderId)
+    .order('created_at', { ascending: true })
+  if (error) handleSupabaseError(error, 'getStatusHistory')
+  return (data ?? []) as StatusHistoryRow[]
+}
+
+async function getProfile(userId: string, supabase: SupabaseClient) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('id, email, phone, first_name, last_name')
+    .eq('id', userId)
+    .maybeSingle<ProfileRow>()
+  return data ?? null
+}
+
+async function fetchOrderWithRelations(orderId: string, supabase: SupabaseClient) {
+  const { data: row, error } = await supabase
+    .from('orders')
+    .select('*')
+    .or(`id.eq.${orderId},order_number.eq.${orderId}`)
+    .limit(1)
+    .maybeSingle<OrderRow>()
+  if (error) handleSupabaseError(error, 'fetchOrder')
+  if (!row) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+
+  const [items, history, profile] = await Promise.all([
+    getOrderItems(row.id, supabase),
+    getStatusHistory(row.id, supabase),
+    getProfile(row.user_id, supabase),
+  ])
+
+  return formatOrder(row, items, history, profile)
+}
+
+export async function createOrder(data: CreateOrderInput, supabase: SupabaseClient, authUserId?: string) {
+  const userId = await findOrCreateCustomer(data, supabase, authUserId)
   const orderId = crypto.randomUUID()
   const orderNumber = generateOrderNumber()
   const paymentMethod = paymentMethodToDb(data.paymentMethod)
-  const lineItems = [] as Array<{ product: ProductRow; variant: VariantRow | null; image: string | null; quantity: number; unitPrice: number; totalPrice: number }>
+
+  const lineItems: Array<{
+    product: ProductRow
+    variant: VariantRow | null
+    image: string | null
+    quantity: number
+    unitPrice: number
+    totalPrice: number
+  }> = []
   let subtotal = 0
 
   for (const line of data.items) {
-    const product = await getProductForLine(line, db)
-    const variant = await getVariantForLine(line, product, db)
+    const product = await getProductForLine(line, supabase)
+    const variant = await getVariantForLine(line, product, supabase)
     const available = variant ? variant.stock_quantity : product.stock_quantity
-    if ((variant || product.track_inventory) && available < line.quantity) throw new Error(`INSUFFICIENT_STOCK:${product.name}`)
+    if ((variant || product.track_inventory) && available < line.quantity) {
+      throw new AppError(`Insufficient stock for ${product.name}`, 409, 'INSUFFICIENT_STOCK')
+    }
     const unitPrice = variant ? (variant.sale_price ?? variant.price) : (product.sale_price ?? product.base_price)
     const totalPrice = unitPrice * line.quantity
     subtotal += totalPrice
-    lineItems.push({ product, variant, image: await getPrimaryImage(product.id, db), quantity: line.quantity, unitPrice, totalPrice })
+    const image = await getPrimaryImage(product.id, supabase)
+    lineItems.push({ product, variant, image, quantity: line.quantity, unitPrice, totalPrice })
   }
 
   const shippingCharge = data.deliveryFee !== undefined ? toStoredPrice(data.deliveryFee) : 0
@@ -272,110 +499,268 @@ export async function createOrder(data: CreateOrderInput, db: D1Database, authUs
   const requestedTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
   const calculatedTotal = Math.max(0, subtotal + shippingCharge - discountAmount)
   const totalAmount = requestedTotal && requestedTotal >= calculatedTotal ? requestedTotal : calculatedTotal
-  const shippingAddress = addressToJson(data.shippingAddress, data.customer?.name, data.customer?.phone)
-  const billingAddress = data.billingAddress ? addressToJson(data.billingAddress, data.customer?.name, data.customer?.phone) : null
+  const shippingAddress = normalizeAddress(data.shippingAddress, data.customer?.name, data.customer?.phone)
+  const billingAddress = data.billingAddress ? normalizeAddress(data.billingAddress, data.customer?.name, data.customer?.phone) : null
   const notes = data.notes || data.orderNotes || null
 
-  const statements: D1PreparedStatement[] = []
-  statements.push(db.prepare(
-    `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, discount_amount, total_amount, shipping_address, billing_address, notes)
-     VALUES (?, ?, ?, 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(orderId, orderNumber, userId, paymentMethod === 'CASH_ON_DELIVERY' ? 'PENDING' : 'PENDING', paymentMethod, subtotal, shippingCharge, discountAmount, totalAmount, shippingAddress, billingAddress, notes))
+  const { error: orderError } = await supabase.from('orders').insert({
+    id: orderId,
+    order_number: orderNumber,
+    user_id: userId,
+    status: 'PENDING',
+    payment_status: 'PENDING',
+    payment_method: paymentMethod,
+    subtotal,
+    shipping_charge: shippingCharge,
+    discount_amount: discountAmount,
+    total_amount: totalAmount,
+    shipping_address: shippingAddress,
+    billing_address: billingAddress,
+    notes,
+  })
+  if (orderError) handleSupabaseError(orderError, 'createOrder.insertOrder')
 
-  statements.push(db.prepare('INSERT INTO order_status_histories (id, order_id, status, comment, changed_by) VALUES (?, ?, ?, ?, ?)').bind(crypto.randomUUID(), orderId, 'PENDING', 'Order received', userId))
+  const { error: historyError } = await supabase.from('order_status_histories').insert({
+    id: crypto.randomUUID(),
+    order_id: orderId,
+    status: 'PENDING',
+    comment: 'Order received',
+    changed_by: userId,
+  })
+  if (historyError) console.error('Failed to insert initial status history:', historyError)
+
+  const orderItemInserts = lineItems.map((line) => ({
+    id: crypto.randomUUID(),
+    order_id: orderId,
+    product_id: line.product.id,
+    variant_id: line.variant?.id || null,
+    product_name: line.product.name,
+    variant_name: line.variant?.name || null,
+    sku: line.variant?.sku || line.product.sku,
+    quantity: line.quantity,
+    unit_price: line.unitPrice,
+    total_price: line.totalPrice,
+    image_url: line.image,
+  }))
+
+  const { error: itemsError } = await supabase.from('order_items').insert(orderItemInserts)
+  if (itemsError) handleSupabaseError(itemsError, 'createOrder.insertItems')
 
   for (const line of lineItems) {
-    statements.push(db.prepare(
-      `INSERT INTO order_items (id, order_id, product_id, variant_id, product_name, variant_name, sku, quantity, unit_price, total_price, image_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(crypto.randomUUID(), orderId, line.product.id, line.variant?.id || null, line.product.name, line.variant?.name || null, line.variant?.sku || line.product.sku, line.quantity, line.unitPrice, line.totalPrice, line.image))
-
     if (line.variant) {
-      statements.push(db.prepare('UPDATE product_variants SET stock_quantity = stock_quantity - ?, updated_at = datetime(\'now\') WHERE id = ?').bind(line.quantity, line.variant.id))
+      const { error } = await supabase.rpc('decrement_stock_variant', {
+        variant_id: line.variant.id,
+        qty: line.quantity,
+      })
+      if (error) {
+        await supabase
+          .from('product_variants')
+          .update({ stock_quantity: line.variant.stock_quantity - line.quantity })
+          .eq('id', line.variant.id)
+      }
     } else if (line.product.track_inventory) {
-      statements.push(db.prepare('UPDATE products SET stock_quantity = stock_quantity - ?, updated_at = datetime(\'now\') WHERE id = ?').bind(line.quantity, line.product.id))
+      const { error } = await supabase.rpc('decrement_stock_product', {
+        product_id_param: line.product.id,
+        qty: line.quantity,
+      })
+      if (error) {
+        await supabase
+          .from('products')
+          .update({ stock_quantity: line.product.stock_quantity - line.quantity })
+          .eq('id', line.product.id)
+      }
     }
   }
 
-  await db.batch(statements)
-  const row = await db.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first<OrderRow>()
-  const items = await getOrderItems(orderId, db)
-  const user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>()
-  return formatOrder(row!, items, user)
+  return fetchOrderWithRelations(orderId, supabase)
 }
 
-export async function listOrders(filters: OrderFilterInput, db: D1Database, user?: { id: string; role: string }) {
-  const { page, limit, skip: offset } = parsePagination({ page: String(filters.page || 1), limit: String(filters.limit || 20) })
-  const conditions: string[] = []
-  const params: unknown[] = []
+export async function listOrders(filters: OrderFilterInput, supabase: SupabaseClient, user?: { id: string; role: string }) {
+  const { page, limit } = parsePagination({ page: String(filters.page || 1), limit: String(filters.limit || 20) })
   const isAdmin = user && ['ADMIN', 'SUPER_ADMIN', 'STAFF'].includes(user.role)
+
+  let query = supabase
+    .from('orders')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+
   if (!isAdmin && user) {
-    conditions.push('o.user_id = ?')
-    params.push(user.id)
+    query = query.eq('user_id', user.id)
   } else if (filters.userId) {
-    conditions.push('o.user_id = ?')
-    params.push(filters.userId)
+    query = query.eq('user_id', filters.userId)
   }
-  if (filters.status) { conditions.push('o.status = ?'); params.push(filters.status.toUpperCase()) }
-  if (filters.paymentStatus) { conditions.push('o.payment_status = ?'); params.push(filters.paymentStatus.toUpperCase()) }
-  if (filters.paymentMethod) { conditions.push('o.payment_method = ?'); params.push(paymentMethodToDb(filters.paymentMethod)) }
-  if (filters.dateFrom) { conditions.push('o.created_at >= ?'); params.push(filters.dateFrom) }
-  if (filters.dateTo) { conditions.push('o.created_at <= ?'); params.push(filters.dateTo) }
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
-  const count = await db.prepare(`SELECT COUNT(*) as count FROM orders o ${where}`).bind(...params).first<{ count: number }>()
-  const rows = await db.prepare(`SELECT * FROM orders o ${where} ORDER BY o.created_at DESC LIMIT ? OFFSET ?`).bind(...params, limit, offset).all<OrderRow>()
+
+  if (filters.status) query = query.eq('status', filters.status.toUpperCase())
+  if (filters.paymentStatus) query = query.eq('payment_status', filters.paymentStatus.toUpperCase())
+  if (filters.paymentMethod) query = query.eq('payment_method', paymentMethodToDb(filters.paymentMethod))
+  if (filters.startDate) query = query.gte('created_at', filters.startDate)
+  if (filters.endDate) query = query.lte('created_at', filters.endDate)
+
+  const from = (page - 1) * limit
+  const to = from + limit - 1
+  query = query.range(from, to)
+
+  const { data: rows, error, count } = await query
+  if (error) handleSupabaseError(error, 'listOrders')
+
   const orders = []
-  for (const row of rows.results) {
-    const items = await getOrderItems(row.id, db)
-    orders.push(formatOrder(row, items))
+  for (const row of (rows ?? []) as OrderRow[]) {
+    const items = await getOrderItems(row.id, supabase)
+    orders.push(formatOrder(row as OrderRow, items))
   }
-  return { orders, pagination: buildPaginationResult(count?.count || 0, page, limit) }
+
+  return { orders, pagination: buildPaginationResult(count ?? 0, page, limit) }
 }
 
-export async function getOrder(id: string, db: D1Database, user?: { id: string; role: string }) {
-  const row = await db.prepare('SELECT * FROM orders WHERE id = ? OR order_number = ?').bind(id, id).first<OrderRow>()
-  if (!row) throw new Error('ORDER_NOT_FOUND')
+export async function getOrder(orderId: string, supabase: SupabaseClient, user?: { id: string; role: string }) {
+  const { data: row, error } = await supabase
+    .from('orders')
+    .select('*')
+    .or(`id.eq.${orderId},order_number.eq.${orderId}`)
+    .limit(1)
+    .maybeSingle<OrderRow>()
+  if (error) handleSupabaseError(error, 'getOrder')
+  if (!row) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+
   const isAdmin = user && ['ADMIN', 'SUPER_ADMIN', 'STAFF'].includes(user.role)
-  if (user && !isAdmin && row.user_id !== user.id) throw new Error('ORDER_FORBIDDEN')
-  const items = await getOrderItems(row.id, db)
-  const customer = await db.prepare('SELECT * FROM users WHERE id = ?').bind(row.user_id).first<UserRow>()
-  return formatOrder(row, items, customer)
-}
+  if (user && !isAdmin && row.user_id !== user.id) {
+    throw new AppError('You cannot access this order', 403, 'ORDER_FORBIDDEN')
+  }
 
-export async function updateOrderStatus(id: string, data: UpdateOrderStatusInput, db: D1Database, adminId: string) {
-  const row = await db.prepare('SELECT * FROM orders WHERE id = ? OR order_number = ?').bind(id, id).first<OrderRow>()
-  if (!row) throw new Error('ORDER_NOT_FOUND')
-  await db.batch([
-    db.prepare('UPDATE orders SET status = ?, payment_status = COALESCE(?, payment_status), updated_at = datetime(\'now\') WHERE id = ?').bind(data.status, data.paymentStatus || null, row.id),
-    db.prepare('INSERT INTO order_status_histories (id, order_id, status, comment, changed_by) VALUES (?, ?, ?, ?, ?)').bind(crypto.randomUUID(), row.id, data.status, data.comment || null, adminId),
+  const [items, history, profile] = await Promise.all([
+    getOrderItems(row.id, supabase),
+    getStatusHistory(row.id, supabase),
+    getProfile(row.user_id, supabase),
   ])
-  return getOrder(row.id, db)
+
+  return formatOrder(row, items, history, profile)
 }
 
-export async function cancelOrder(id: string, db: D1Database, user: { id: string; role: string }, reason = 'Customer requested cancellation') {
-  const row = await db.prepare('SELECT * FROM orders WHERE id = ? OR order_number = ?').bind(id, id).first<OrderRow>()
-  if (!row) throw new Error('ORDER_NOT_FOUND')
+export async function updateOrderStatus(orderId: string, data: UpdateOrderStatusInput, supabase: SupabaseClient, adminUserId: string) {
+  const { data: row, error: fetchError } = await supabase
+    .from('orders')
+    .select('*')
+    .or(`id.eq.${orderId},order_number.eq.${orderId}`)
+    .limit(1)
+    .maybeSingle<OrderRow>()
+  if (fetchError) handleSupabaseError(fetchError, 'updateOrderStatus.fetch')
+  if (!row) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+
+  const updateData: Record<string, unknown> = {
+    status: data.status,
+    updated_at: new Date().toISOString(),
+  }
+  if (data.paymentStatus) updateData.payment_status = data.paymentStatus
+
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update(updateData)
+    .eq('id', row.id)
+  if (updateError) handleSupabaseError(updateError, 'updateOrderStatus.update')
+
+  const { error: historyError } = await supabase.from('order_status_histories').insert({
+    id: crypto.randomUUID(),
+    order_id: row.id,
+    status: data.status,
+    comment: data.comment || null,
+    changed_by: adminUserId,
+  })
+  if (historyError) console.error('Failed to insert status history:', historyError)
+
+  await createAuditLog(supabase, {
+    userId: adminUserId,
+    action: 'UPDATE_STATUS',
+    entity: 'orders',
+    entityId: row.id,
+    changes: { status: data.status, paymentStatus: data.paymentStatus },
+  })
+
+  return fetchOrderWithRelations(row.id, supabase)
+}
+
+export async function cancelOrder(orderId: string, supabase: SupabaseClient, user: { id: string; role: string }, reason = 'Customer requested cancellation') {
+  const { data: row, error: fetchError } = await supabase
+    .from('orders')
+    .select('*')
+    .or(`id.eq.${orderId},order_number.eq.${orderId}`)
+    .limit(1)
+    .maybeSingle<OrderRow>()
+  if (fetchError) handleSupabaseError(fetchError, 'cancelOrder.fetch')
+  if (!row) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+
   const isAdmin = ['ADMIN', 'SUPER_ADMIN', 'STAFF'].includes(user.role)
-  if (!isAdmin && row.user_id !== user.id) throw new Error('ORDER_FORBIDDEN')
-  if (['SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'].includes(row.status)) throw new Error('ORDER_NOT_CANCELLABLE')
-  await db.batch([
-    db.prepare('UPDATE orders SET status = \'CANCELLED\', cancelled_at = datetime(\'now\'), cancel_reason = ?, updated_at = datetime(\'now\') WHERE id = ?').bind(reason, row.id),
-    db.prepare('INSERT INTO order_status_histories (id, order_id, status, comment, changed_by) VALUES (?, ?, \'CANCELLED\', ?, ?)').bind(crypto.randomUUID(), row.id, reason, user.id),
-  ])
-  return getOrder(row.id, db, user)
+  if (!isAdmin && row.user_id !== user.id) {
+    throw new AppError('You cannot cancel this order', 403, 'ORDER_FORBIDDEN')
+  }
+  if (['SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'].includes(row.status)) {
+    throw new AppError('This order can no longer be cancelled', 409, 'ORDER_NOT_CANCELLABLE')
+  }
+
+  const now = new Date().toISOString()
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({
+      status: 'CANCELLED',
+      cancelled_at: now,
+      cancel_reason: reason,
+      updated_at: now,
+    })
+    .eq('id', row.id)
+  if (updateError) handleSupabaseError(updateError, 'cancelOrder.update')
+
+  const { error: historyError } = await supabase.from('order_status_histories').insert({
+    id: crypto.randomUUID(),
+    order_id: row.id,
+    status: 'CANCELLED',
+    comment: reason,
+    changed_by: user.id,
+  })
+  if (historyError) console.error('Failed to insert cancellation history:', historyError)
+
+  await createAuditLog(supabase, {
+    userId: user.id,
+    action: 'CANCEL',
+    entity: 'orders',
+    entityId: row.id,
+    changes: { status: 'CANCELLED', reason },
+  })
+
+  return fetchOrderWithRelations(row.id, supabase)
 }
 
-export async function markOrderPaymentVerified(id: string, provider: string, token: string, db: D1Database) {
-  const row = await db.prepare('SELECT * FROM orders WHERE id = ? OR order_number = ?').bind(id, id).first<OrderRow>()
-  if (!row) throw new Error('ORDER_NOT_FOUND')
+export async function verifyCheckoutPayment(orderId: string, provider: string, token: string, supabase: SupabaseClient) {
+  const { data: row, error: fetchError } = await supabase
+    .from('orders')
+    .select('*')
+    .or(`id.eq.${orderId},order_number.eq.${orderId}`)
+    .limit(1)
+    .maybeSingle<OrderRow>()
+  if (fetchError) handleSupabaseError(fetchError, 'verifyCheckoutPayment.fetch')
+  if (!row) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+
   const paymentMethod = paymentMethodToDb(provider)
   const nextStatus = row.status === 'PENDING' ? 'CONFIRMED' : row.status
-  await db.batch([
-    db.prepare("UPDATE orders SET payment_status = 'COMPLETED', payment_method = ?, payment_id = ?, status = ?, updated_at = datetime('now') WHERE id = ?").bind(paymentMethod, token, nextStatus, row.id),
-    db.prepare('INSERT INTO order_status_histories (id, order_id, status, comment, changed_by) VALUES (?, ?, ?, ?, ?)').bind(crypto.randomUUID(), row.id, nextStatus, `Payment verified via ${provider}`, row.user_id),
-  ])
-  const updated = await db.prepare('SELECT * FROM orders WHERE id = ?').bind(row.id).first<OrderRow>()
-  const items = await getOrderItems(row.id, db)
-  const customer = await db.prepare('SELECT * FROM users WHERE id = ?').bind(row.user_id).first<UserRow>()
-  return formatOrder(updated!, items, customer)
+
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({
+      payment_status: 'PAID',
+      payment_method: paymentMethod,
+      payment_id: token,
+      status: nextStatus,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', row.id)
+  if (updateError) handleSupabaseError(updateError, 'verifyCheckoutPayment.update')
+
+  const { error: historyError } = await supabase.from('order_status_histories').insert({
+    id: crypto.randomUUID(),
+    order_id: row.id,
+    status: nextStatus,
+    comment: `Payment verified via ${provider}`,
+    changed_by: row.user_id,
+  })
+  if (historyError) console.error('Failed to insert payment verification history:', historyError)
+
+  return fetchOrderWithRelations(row.id, supabase)
 }

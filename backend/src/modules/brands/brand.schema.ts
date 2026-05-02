@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+export const brandFilterSchema = z.object({
+  isActive: z.enum(['true', 'false']).optional().transform(v => v === 'true'),
+})
+
 export const createBrandSchema = z.object({
   name: z.string().min(1, 'Brand name is required'),
   description: z.string().optional(),
