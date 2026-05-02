@@ -3,10 +3,22 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { SITE_CONFIG } from "@/lib/constants";
 import { useAuthStore } from "@/store/useAuthStore";
+import {
+  loginSchema,
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  type LoginFormData,
+  type RegisterFormData,
+  type ForgotPasswordFormData,
+  type ResetPasswordFormData,
+} from "@/lib/validations/auth";
 
 export type AuthMode = "login" | "register" | "forgot" | "reset";
 
@@ -37,62 +49,116 @@ const labels: Record<AuthMode, { eyebrow: string; title: string; description: st
   },
 };
 
+type FormData = LoginFormData | RegisterFormData | ForgotPasswordFormData | ResetPasswordFormData;
+
 function Field({
   label,
   type = "text",
   icon,
   placeholder,
-  value,
-  onChange,
-  required = true,
+  register,
+  error,
 }: {
   label: string;
   type?: string;
   icon: React.ReactNode;
   placeholder?: string;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
+  register: ReturnType<typeof useForm<FormData>>["register"] extends (name: infer N, ...args: infer A) => infer R
+    ? (name: N, ...args: A) => R
+    : never;
+  error?: { message?: string };
 }) {
+  const id = label.replace(/\s+/g, "-").toLowerCase();
   return (
     <label className="block text-sm font-semibold text-brand-textPrimary">
       {label}
       <span className="mt-2 flex items-center rounded-2xl border border-border bg-brand-bgLight px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20">
         <span className="text-brand-textMuted">{icon}</span>
         <input
+          id={id}
           type={type}
-          required={required}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
+          aria-invalid={error ? !!error.message : undefined}
+          aria-describedby={error?.message ? `${id}-error` : undefined}
+          {...register}
           className="min-h-12 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-brand-textMuted/70"
         />
       </span>
+      {error?.message && (
+        <p id={`${id}-error`} role="alert" className="mt-1 text-xs font-semibold text-red-600">
+          {error.message}
+        </p>
+      )}
     </label>
   );
 }
 
-function PasswordField({ label, value, onChange, minLength }: { label: string; value: string; onChange: (value: string) => void; minLength?: number }) {
+function PasswordField({
+  label,
+  register,
+  error,
+  minLength,
+}: {
+  label: string;
+  register: ReturnType<typeof useForm<FormData>>["register"] extends (name: infer N, ...args: infer A) => infer R
+    ? (name: N, ...args: A) => R
+    : never;
+  error?: { message?: string };
+  minLength?: number;
+}) {
   const [visible, setVisible] = useState(false);
+  const id = label.replace(/\s+/g, "-").toLowerCase();
   return (
     <label className="block text-sm font-semibold text-brand-textPrimary">
       {label}
       <span className="mt-2 flex items-center rounded-2xl border border-border bg-brand-bgLight px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20">
         <LockKeyhole size={18} className="text-brand-textMuted" strokeWidth={1.6} />
         <input
+          id={id}
           type={visible ? "text" : "password"}
-          required
           minLength={minLength}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
+          aria-invalid={error ? !!error.message : undefined}
+          aria-describedby={error?.message ? `${id}-error` : undefined}
+          {...register}
           className="min-h-12 flex-1 bg-transparent px-3 text-sm outline-none"
         />
         <button type="button" onClick={() => setVisible((current) => !current)} className="rounded-full p-1 text-brand-textMuted transition hover:text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/25" aria-label={visible ? "Hide password" : "Show password"}>
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </span>
+      {error?.message && (
+        <p id={`${id}-error`} role="alert" className="mt-1 text-xs font-semibold text-red-600">
+          {error.message}
+        </p>
+      )}
     </label>
   );
+}
+
+function getSchema(mode: AuthMode) {
+  switch (mode) {
+    case "login":
+      return loginSchema;
+    case "register":
+      return registerSchema;
+    case "forgot":
+      return forgotPasswordSchema;
+    case "reset":
+      return resetPasswordSchema;
+  }
+}
+
+function getDefaultValues(mode: AuthMode) {
+  switch (mode) {
+    case "login":
+      return { email: "customer@glamonepal.com", password: "glamo-beauty-2026" };
+    case "register":
+      return { name: "GLAMO Customer", email: "customer@glamonepal.com", phone: SITE_CONFIG.phone, password: "glamo-beauty-2026" };
+    case "forgot":
+      return { email: "customer@glamonepal.com" };
+    case "reset":
+      return { password: "glamo-beauty-2026", confirmPassword: "glamo-beauty-2026" };
+  }
 }
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
@@ -100,21 +166,18 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const params = useSearchParams();
   const login = useAuthStore((state) => state.login);
   const copy = labels[mode];
-  const [name, setName] = useState("GLAMO Customer");
-  const [email, setEmail] = useState("customer@glamonepal.com");
-  const [phone, setPhone] = useState(SITE_CONFIG.phone);
-  const [password, setPassword] = useState("glamo-beauty-2026");
-  const [confirmPassword, setConfirmPassword] = useState("glamo-beauty-2026");
   const [isSubmitting, setSubmitting] = useState(false);
-  const isPasswordMismatch = mode === "reset" && confirmPassword.length > 0 && password !== confirmPassword;
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (isPasswordMismatch) {
-      toast.error("Passwords do not match.");
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(getSchema(mode)),
+    defaultValues: getDefaultValues(mode) as Partial<FormData>,
+  });
 
+  const onSubmit = (data: FormData) => {
     setSubmitting(true);
     window.setTimeout(() => {
       setSubmitting(false);
@@ -127,7 +190,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         router.push("/login");
         return;
       }
-      const normalizedEmail = email || "customer@glamonepal.com";
+      const normalizedEmail = (data as LoginFormData).email || "customer@glamonepal.com";
       const role = normalizedEmail.toLowerCase().includes("admin") ? "admin" : "customer";
       document.cookie = "glamo-auth-token=authenticated; path=/; max-age=604800; SameSite=Lax";
       document.cookie = `glamo-user-role=${role}; path=/; max-age=604800; SameSite=Lax`;
@@ -137,6 +200,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       router.refresh();
     }, 500);
   };
+
+  const isPasswordMismatch = mode === "reset" && !!(errors as Record<string, { message?: string }>).confirmPassword?.message;
 
   return (
     <div className="mx-auto grid max-w-5xl gap-8 rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:grid-cols-[0.9fr_1.1fr] md:p-8">
@@ -150,15 +215,22 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         </div>
       </aside>
 
-      <form onSubmit={submit} className="space-y-4 p-2 md:p-4">
-        {mode === "register" ? <Field label="Full name" icon={<UserRound size={18} />} value={name} onChange={setName} /> : null}
-        {mode !== "reset" ? <Field label="Email address" type="email" icon={<Mail size={18} />} value={email} onChange={setEmail} /> : null}
-        {mode === "register" ? <Field label="Nepal phone" type="tel" icon={<Phone size={18} />} value={phone} onChange={setPhone} placeholder="+977 98XXXXXXXX" /> : null}
-        {mode === "login" || mode === "register" || mode === "reset" ? <PasswordField label={mode === "reset" ? "New password" : "Password"} value={password} onChange={setPassword} minLength={8} /> : null}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-2 md:p-4">
+        {mode === "register" ? (
+          <Field label="Full name" icon={<UserRound size={18} />} register={register("name" as keyof FormData)} error={errors["name" as keyof FormData] as { message?: string } | undefined} />
+        ) : null}
+        {mode !== "reset" ? (
+          <Field label="Email address" type="email" icon={<Mail size={18} />} register={register("email" as keyof FormData)} error={errors["email" as keyof FormData] as { message?: string } | undefined} />
+        ) : null}
+        {mode === "register" ? (
+          <Field label="Nepal phone" type="tel" icon={<Phone size={18} />} register={register("phone" as keyof FormData)} error={errors["phone" as keyof FormData] as { message?: string } | undefined} placeholder="+977 98XXXXXXXX" />
+        ) : null}
+        {mode === "login" || mode === "register" || mode === "reset" ? (
+          <PasswordField label={mode === "reset" ? "New password" : "Password"} register={register("password" as keyof FormData)} error={errors["password" as keyof FormData] as { message?: string } | undefined} minLength={8} />
+        ) : null}
         {mode === "reset" ? (
           <div>
-            <PasswordField label="Confirm new password" value={confirmPassword} onChange={setConfirmPassword} minLength={8} />
-            {isPasswordMismatch ? <p className="mt-1 text-xs font-semibold text-red-600">Passwords do not match.</p> : null}
+            <PasswordField label="Confirm new password" register={register("confirmPassword" as keyof FormData)} error={errors["confirmPassword" as keyof FormData] as { message?: string } | undefined} minLength={8} />
           </div>
         ) : null}
         <button type="submit" disabled={isSubmitting || isPasswordMismatch} className="w-full rounded-full bg-brand-primary px-6 py-3.5 font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60">

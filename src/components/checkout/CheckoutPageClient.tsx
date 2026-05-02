@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
@@ -14,8 +16,9 @@ import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { calculateDeliveryFee, getDeliveryRule, getDistrictsForProvince, getFreeDeliveryProgress, PROVINCES } from "@/lib/delivery";
 import { formatNpr } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import { checkoutSchema, type CheckoutFormData } from "@/lib/validations/checkout";
 
-const paymentMethods = ["Cash on Delivery", "Khalti", "eSewa", "Cards"];
+const paymentMethods = ["Cash on Delivery", "Khalti", "eSewa", "Cards"] as const;
 
 const paymentCodeMap: Record<string, PaymentMethodCode> = {
   "Cash on Delivery": "cod",
@@ -25,55 +28,45 @@ const paymentCodeMap: Record<string, PaymentMethodCode> = {
 };
 const checkoutSteps = ["Contact", "Delivery", "Payment", "Review"];
 
-interface CheckoutFormState {
-  name: string;
-  email: string;
-  phone: string;
-  province: string;
-  district: string;
-  city: string;
-  ward: string;
-  address: string;
-  giftWrap: boolean;
-  notes: string;
-  payment: string;
-}
-
-const initialForm: CheckoutFormState = {
-  name: "",
-  email: "",
-  phone: "",
-  province: "Bagmati",
-  district: "Kathmandu",
-  city: "Kathmandu",
-  ward: "",
-  address: "",
-  giftWrap: false,
-  notes: "",
-  payment: "Cash on Delivery",
-};
-
 export function CheckoutPageClient() {
   const router = useRouter();
   const { items, getSubtotal, clearCart } = useCartStore();
   const { status, placeOrder } = useCheckoutStore();
-  const [form, setForm] = useState<CheckoutFormState>(initialForm);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutSchema),
+    mode: "onBlur",
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      province: "Bagmati",
+      district: "Kathmandu",
+      city: "Kathmandu",
+      ward: "",
+      address: "",
+      giftWrap: false,
+      notes: "",
+      payment: "Cash on Delivery",
+    },
+  });
+
+  const form = watch();
   const subtotal = getSubtotal();
   const deliveryRule = getDeliveryRule(form.district, form.province);
   const deliveryFee = calculateDeliveryFee(subtotal, form.district, form.province);
   const freeDelivery = getFreeDeliveryProgress(subtotal, form.district, form.province);
   const giftWrapFee = form.giftWrap ? 100 : 0;
   const total = subtotal + deliveryFee + giftWrapFee;
-  const phoneValid = /^(\+977\s?)?9[78]\d{8}$/.test(form.phone.trim());
   const districtOptions = useMemo(() => getDistrictsForProvince(form.province), [form.province]);
   const canSubmit = Boolean(
-    items.length > 0 &&
-      form.name.trim() &&
-      phoneValid &&
-      form.district &&
-      form.city.trim() &&
-      form.ward.trim() &&
-      form.address.trim() &&
+    isValid &&
+      items.length > 0 &&
       (form.payment !== "Cash on Delivery" || deliveryRule.codAvailable),
   );
 
@@ -82,59 +75,47 @@ export function CheckoutPageClient() {
   }, [items.length, subtotal]);
 
   const completedSteps = [
-    Boolean(form.name.trim() && phoneValid),
-    Boolean(form.province && form.district && form.city.trim() && form.ward.trim() && form.address.trim()),
+    Boolean(form.name.trim() && form.phone.trim() && !errors.name && !errors.phone),
+    Boolean(form.province && form.district && form.city.trim() && form.ward.trim() && form.address.trim() && !errors.city && !errors.ward && !errors.address),
     Boolean(form.payment && (form.payment !== "Cash on Delivery" || deliveryRule.codAvailable)),
     canSubmit,
   ];
 
-  function updateForm(next: Partial<CheckoutFormState>) {
-    setForm((current) => ({ ...current, ...next }));
-  }
-
   function updateProvince(province: string) {
     const districts = getDistrictsForProvince(province);
-    setForm((current) => ({
-      ...current,
-      province,
-      district: districts[0] || "Other",
-      city: province === "Bagmati" ? "Kathmandu" : "",
-    }));
+    setValue("province", province, { shouldValidate: true });
+    setValue("district", districts[0] || "Other", { shouldValidate: true });
+    setValue("city", province === "Bagmati" ? "Kathmandu" : "", { shouldValidate: true });
   }
 
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!canSubmit) {
-      toast.error("Please complete required checkout details");
-      return;
-    }
+  async function onSubmit(data: CheckoutFormData) {
     let orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    const shippingAddress = `${form.address}, Ward ${form.ward}, ${form.city}, ${form.district}, ${form.province}, Nepal`;
+    const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
       value: total,
-      method: form.payment,
-      district: form.district,
-      province: form.province,
+      method: data.payment,
+      district: data.district,
+      province: data.province,
       deliveryFee,
-      giftWrap: form.giftWrap,
+      giftWrap: data.giftWrap,
     });
 
     try {
       const apiOrder = await createCheckoutOrder({
-        customer: { name: form.name, email: form.email || `${form.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: form.phone },
+        customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone },
         shippingAddress: {
-          fullName: form.name,
-          phone: form.phone,
-          province: form.province,
-          district: form.district,
-          city: form.city,
-          ward: form.ward,
-          addressLine1: form.address,
+          fullName: data.name,
+          phone: data.phone,
+          province: data.province,
+          district: data.district,
+          city: data.city,
+          ward: data.ward,
+          addressLine1: data.address,
         },
         items,
-        paymentMethod: paymentCodeMap[form.payment] || "cod",
-        giftWrap: form.giftWrap,
-        orderNotes: form.notes,
+        paymentMethod: paymentCodeMap[data.payment] || "cod",
+        giftWrap: data.giftWrap,
+        orderNotes: data.notes,
         deliveryFee,
         subtotal,
         grandTotal: total,
@@ -148,10 +129,10 @@ export function CheckoutPageClient() {
     await placeOrder({
       orderNumber,
       total,
-      paymentMethod: form.payment,
+      paymentMethod: data.payment,
       shippingAddress,
-      customerName: form.name,
-      customerPhone: form.phone,
+      customerName: data.name,
+      customerPhone: data.phone,
       items: items.map((item) => ({
         name: item.product.name,
         brand: item.product.brand,
@@ -205,7 +186,7 @@ export function CheckoutPageClient() {
           </div>
         </section>
 
-        <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px]">
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px]">
           <section className="space-y-6">
             <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-7">
               <div className="flex items-start gap-3">
@@ -216,24 +197,24 @@ export function CheckoutPageClient() {
                 </div>
               </div>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <Field label="Full name" value={form.name} onChange={(value) => updateForm({ name: value })} autoComplete="name" />
-                <Field label="Email" type="email" value={form.email} onChange={(value) => updateForm({ email: value })} autoComplete="email" required={false} />
-                <Field label="Nepal phone" value={form.phone} onChange={(value) => updateForm({ phone: value })} placeholder="+977 9818212188" error={form.phone && !phoneValid ? "Use a valid Nepal mobile number" : ""} autoComplete="tel" />
+                <Field label="Full name" register={register("name")} error={errors.name?.message} autoComplete="name" />
+                <Field label="Email" type="email" register={register("email")} error={errors.email?.message} autoComplete="email" required={false} />
+                <Field label="Nepal phone" register={register("phone")} placeholder="+977 9818212188" error={errors.phone?.message} autoComplete="tel" />
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   Province
-                  <select value={form.province} onChange={(event) => updateProvince(event.target.value)} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select {...register("province")} onChange={(e) => updateProvince(e.target.value)} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {PROVINCES.map((province) => <option key={province}>{province}</option>)}
                   </select>
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   District
-                  <select value={form.district} onChange={(event) => updateForm({ district: event.target.value })} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select {...register("district")} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {districtOptions.map((district) => <option key={district}>{district}</option>)}
                   </select>
                 </label>
-                <Field label="City / Municipality" value={form.city} onChange={(value) => updateForm({ city: value })} autoComplete="address-level2" />
-                <Field label="Ward" value={form.ward} onChange={(value) => updateForm({ ward: value })} />
-                <Field label="Address" value={form.address} onChange={(value) => updateForm({ address: value })} autoComplete="street-address" />
+                <Field label="City / Municipality" register={register("city")} error={errors.city?.message} autoComplete="address-level2" />
+                <Field label="Ward" register={register("ward")} error={errors.ward?.message} />
+                <Field label="Address" register={register("address")} error={errors.address?.message} autoComplete="street-address" />
               </div>
               <div className="mt-5"><CodAvailabilityChecker district={form.district} province={form.province} /></div>
               <div className="mt-5 rounded-[1.5rem] border border-brand-secondary/25 bg-brand-bgLight p-4">
@@ -261,11 +242,9 @@ export function CheckoutPageClient() {
                     <label key={method} className={`rounded-2xl border p-4 text-sm font-semibold transition ${form.payment === method ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-brand-bgLight text-brand-textPrimary"} ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}>
                       <input
                         type="radio"
-                        name="payment"
+                        {...register("payment")}
                         value={method}
-                        checked={form.payment === method}
                         disabled={disabled}
-                        onChange={(event) => updateForm({ payment: event.target.value })}
                         className="sr-only"
                       />
                       <span>{method}</span>
@@ -280,12 +259,12 @@ export function CheckoutPageClient() {
                 </div>
               ) : null}
               <label className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
-                <input type="checkbox" checked={form.giftWrap} onChange={(event) => updateForm({ giftWrap: event.target.checked })} className="h-4 w-4 rounded border-brand-border text-brand-primary accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
+                <input type="checkbox" {...register("giftWrap")} className="h-4 w-4 rounded border-brand-border text-brand-primary accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
                 <Gift size={18} /> Add gift wrapping for NPR 100
               </label>
               <label className="mt-5 block space-y-2 text-sm font-semibold text-brand-textPrimary">
                 Order notes
-                <textarea value={form.notes} onChange={(event) => updateForm({ notes: event.target.value })} rows={4} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
+                <textarea {...register("notes")} rows={4} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
               </label>
             </div>
           </section>
@@ -326,8 +305,7 @@ export function CheckoutPageClient() {
 
 function Field({
   label,
-  value,
-  onChange,
+  register: registerProps,
   type = "text",
   placeholder,
   error,
@@ -335,27 +313,30 @@ function Field({
   required = true,
 }: {
   label: string;
-  value: string;
-  onChange: (value: string) => void;
+  register: ReturnType<typeof import("react-hook-form").useForm<CheckoutFormData>["register"]>;
   type?: string;
   placeholder?: string;
   error?: string;
   autoComplete?: string;
   required?: boolean;
 }) {
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const errorId = `${id}-error`;
   return (
     <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
       {label}
       <input
+        id={id}
         type={type}
-        value={value}
         required={required}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? errorId : undefined}
+        {...registerProps}
+        className={`w-full rounded-2xl border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30 ${error ? "border-red-500" : "border-brand-border"}`}
       />
-      {error ? <span className="text-xs text-red-600">{error}</span> : null}
+      {error ? <span id={errorId} role="alert" className="text-xs text-red-600">{error}</span> : null}
     </label>
   );
 }
