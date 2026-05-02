@@ -11,7 +11,11 @@ export const LEGACY_ROLE_COOKIE = "glamo-user-role";
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 function getSecret() {
-  return process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET || "local-dev-change-me";
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET;
+  if (!secret) {
+    throw new Error("ADMIN_SESSION_SECRET or AUTH_SECRET environment variable is required. Set it in .env.local before running the admin panel.");
+  }
+  return secret;
 }
 
 function bytesToBase64Url(bytes: Uint8Array) {
@@ -44,9 +48,14 @@ function timingSafeEqual(a: string, b: string) {
 }
 
 export function getAdminCredentials() {
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) {
+    throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required. Set them in .env.local before running the admin panel.");
+  }
   return {
-    email: process.env.ADMIN_EMAIL || "admin@glamonepal.com",
-    password: process.env.ADMIN_PASSWORD || "ChangeMe@123",
+    email,
+    password,
     name: process.env.ADMIN_NAME || "GLAMO Admin",
   };
 }

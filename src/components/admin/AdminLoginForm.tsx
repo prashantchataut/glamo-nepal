@@ -8,7 +8,7 @@ export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = useMemo(() => searchParams.get("redirect") || "/admin", [searchParams]);
-  const [email, setEmail] = useState("admin@glamonepal.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -87,6 +87,7 @@ export function AdminLoginForm() {
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                placeholder="admin@glamonepal.com"
                 autoComplete="username"
                 className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10"
                 required
