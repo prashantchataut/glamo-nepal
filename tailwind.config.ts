@@ -31,6 +31,18 @@ const config = {
         ]
       },
       colors: {
+        admin: {
+          success: '#4CAF82',
+          'success-light': '#E8F5E9',
+          warning: '#F59E0B',
+          'warning-light': '#FFF8E1',
+          error: '#E05252',
+          'error-light': '#FFEBEE',
+          info: '#0EA5E9',
+          'info-light': '#E0F2FE',
+          neutral: '#71717A',
+          'neutral-light': '#F4F4F5',
+        },
         brand: {
           primary: '#9A6B82',
           'primary-hover': '#85576E',
@@ -108,6 +120,8 @@ const config = {
         soft: '0 20px 60px -15px rgba(139,58,143,0.08)',
       },
       zIndex: {
+        'admin-overlay': '45',
+        'admin-header': '30',
         base: '0',
         card: '10',
         'section-header': '20',
