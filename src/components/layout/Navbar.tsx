@@ -19,9 +19,15 @@ const desktopLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-function Logo() {
+function Logo({ onClick }: { onClick?: () => void }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5" aria-label="GLAMO Nepal home">
+    <Link
+      href="/"
+      onClick={onClick}
+      className="relative z-10 inline-flex items-center gap-2.5 rounded-full px-1 py-1 outline-none transition focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+      aria-label="GLAMO Nepal home"
+      prefetch={false}
+    >
       <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary shadow-sm ring-1 ring-brand-primary/10">
         <Leaf className="h-5 w-5" strokeWidth={1.6} />
       </span>
@@ -64,8 +70,8 @@ export function Navbar() {
         isScrolled ? "bg-white/92 shadow-[0_18px_45px_-34px_rgba(36,31,34,0.35)] backdrop-blur-2xl" : "bg-white/86 backdrop-blur-xl",
       )}
     >
-      <div className="container relative mx-auto flex h-[74px] items-center px-4 md:h-[78px] md:px-6">
-        <div className="flex shrink-0 items-center gap-2">
+      <div className="container mx-auto grid h-[74px] grid-cols-[auto_1fr_auto] items-center gap-2 px-4 md:h-[78px] md:grid-cols-[1fr_auto_1fr] md:gap-6 md:px-6">
+        <div className="flex min-w-0 items-center justify-start">
           <button
             className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:hidden"
             onClick={() => setMobileMenuOpen(true)}
@@ -73,11 +79,18 @@ export function Navbar() {
           >
             <Menu size={21} />
           </button>
-          <nav className="hidden items-center gap-7 md:flex" aria-label="Primary navigation">
+          <nav className="hidden min-w-0 items-center gap-5 lg:gap-7 md:flex" aria-label="Primary navigation">
             {desktopLinks.map((link) => {
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
-                <Link key={link.name} href={link.href} className={cn("relative text-[15px] font-semibold text-brand-textPrimary transition hover:text-brand-primary", active && "text-brand-primary")}>
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={cn(
+                    "relative whitespace-nowrap text-[15px] font-semibold text-brand-textPrimary transition hover:text-brand-primary",
+                    active && "text-brand-primary",
+                  )}
+                >
                   {link.name}
                   {active ? <span className="absolute -bottom-2 left-0 h-0.5 w-full rounded-full bg-brand-primary" /> : null}
                 </Link>
@@ -86,11 +99,11 @@ export function Navbar() {
           </nav>
         </div>
 
-        <div className="absolute inset-x-0 flex justify-center pointer-events-none">
-          <div className="pointer-events-auto"><Logo /></div>
+        <div className="flex justify-center md:justify-self-center">
+          <Logo />
         </div>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
+        <div className="ml-auto flex shrink-0 items-center justify-end gap-1 md:gap-2">
           <button onClick={openSearchModal} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" aria-label="Search">
             <Search size={19} />
           </button>
@@ -111,7 +124,7 @@ export function Navbar() {
       <div className={cn("fixed inset-0 z-[65] bg-brand-bgDark/35 backdrop-blur-sm transition-opacity duration-300 md:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
       <aside className={cn("fixed inset-y-0 left-0 z-[70] w-[90%] max-w-sm overflow-y-auto bg-[#FFFDFC] p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between">
-          <Logo />
+          <Logo onClick={() => setMobileMenuOpen(false)} />
           <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
             <X size={20} />
           </button>

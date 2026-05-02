@@ -3,6 +3,7 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import {
   AlertTriangle,
   BarChart3,
@@ -161,7 +162,7 @@ function BannerPreview({ banner }: { banner: ManagedBanner }) {
           </Link>
         </div>
         <div className="relative min-h-[180px] bg-white/10">
-          <img src={banner.desktopImage} alt="Banner preview" className="h-full w-full object-cover" />
+          <NextImage src={banner.desktopImage} alt="Banner preview" fill className="object-cover" sizes="(max-width: 768px) 100vw, 40vw" unoptimized />
         </div>
       </div>
     </div>
@@ -479,7 +480,7 @@ export function AdminDashboard() {
                         <tr key={product.id} className="border-b border-brand-border/70 last:border-0">
                           <td className="px-3 py-3">
                             <div className="flex items-center gap-3">
-                              <img src={product.image} alt="" className="h-10 w-10 rounded-xl bg-brand-bgLight object-cover" />
+                              <NextImage src={product.image} alt="" width={40} height={40} className="h-10 w-10 rounded-xl bg-brand-bgLight object-cover" />
                               <div>
                                 <p className="font-semibold text-brand-textPrimary">{product.name}</p>
                                 <p className="text-[11px] text-brand-textMuted">{product.brand}</p>
