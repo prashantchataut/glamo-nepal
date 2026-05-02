@@ -1,22 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { AlertTriangle, RefreshCcw, ShoppingBag } from "lucide-react";
 
-export function RouteError({ title = "Something went wrong", description = "We could not load this GLAMO section. Please try again or return to the shop.", reset }: { title?: string; description?: string; reset?: () => void }) {
+export function RouteError({ title = "This GLAMO page needs a refresh", description = "Something interrupted this section. Try again or continue shopping.", reset }: { title?: string; description?: string; reset?: () => void }) {
   return (
-    <main className="bg-brand-bgLight py-16">
-      <div className="container mx-auto max-w-2xl px-4 text-center md:px-6">
-        <div className="rounded-[2rem] border border-amber-200 bg-white p-8 shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 text-amber-700">
-            <AlertTriangle size={30} />
-          </div>
-          <p className="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">GLAMO recovery</p>
-          <h1 className="mt-3 font-serif text-4xl font-semibold text-brand-textPrimary">{title}</h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-brand-textMuted">{description}</p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            {reset ? <button onClick={reset} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 font-semibold text-white transition hover:bg-brand-bgDark"><RefreshCcw size={17} /> Try again</button> : null}
-            <Link href="/shop" className="rounded-full border border-brand-primary px-6 py-3 font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">Back to shop</Link>
+    <main className="min-h-[70vh] bg-brand-bgLight px-4 py-16">
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-[2.25rem] border border-brand-border bg-white text-center shadow-[0_26px_90px_-65px_rgba(36,31,34,0.45)]">
+        <div className="bg-[linear-gradient(135deg,#FFFDFC_0%,#F8EEF2_52%,#F7F1EA_100%)] px-6 py-10 md:px-10 md:py-12">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-amber-700 shadow-sm ring-1 ring-brand-border"><AlertTriangle size={32} /></div>
+          <p className="mt-6 text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">GLAMO recovery</p>
+          <h1 className="mx-auto mt-3 max-w-2xl font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl">{title}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-brand-textMuted md:text-base">{description}</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {reset ? <button onClick={reset} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 font-semibold text-white transition hover:bg-brand-primary-hover"><RefreshCcw size={17} /> Try again</button> : null}
+            <Link href="/shop" className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 bg-white px-6 py-3 font-semibold text-brand-primary transition hover:bg-brand-primary-light"><ShoppingBag size={17} /> Back to shop</Link>
           </div>
         </div>
       </div>

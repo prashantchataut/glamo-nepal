@@ -1,0 +1,21 @@
+import { Hono } from 'hono'
+import type { AppEnv } from '../../types/bindings'
+import { authMiddleware } from '../../middleware/auth'
+import { requireRole } from '../../middleware/requireRole'
+import { validateBody } from '../../middleware/validate'
+import { createOrderSchema, updateOrderStatusSchema } from './order.schema'
+import { createOrder, verifyCheckoutPayment, listOrders, getOrder, updateOrderStatus, cancelOrder } from './order.controller'
+
+const orderRoutes = new Hono<AppEnv>()
+const checkoutRoutes = new Hono<AppEnv>()
+
+checkoutRoutes.post('/orders', validateBody(createOrderSchema), createOrder)
+checkoutRoutes.post('/orders/:id/payments/:provider/verify', verifyCheckoutPayment)
+
+orderRoutes.use('*', authMiddleware)
+orderRoutes.get('/', listOrders)
+orderRoutes.get('/:id', getOrder)
+orderRoutes.post('/:id/cancel', cancelOrder)
+orderRoutes.patch('/:id/status', requireRole(['ADMIN', 'SUPER_ADMIN', 'STAFF']), validateBody(updateOrderStatusSchema), updateOrderStatus)
+
+export { orderRoutes, checkoutRoutes }

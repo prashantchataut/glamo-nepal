@@ -3,5 +3,5 @@
 import { RouteError } from "@/components/common/RouteError";
 
 export default function ErrorBoundary({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  return <RouteError title="Unable to load this GLAMO section" description="This section could not load correctly." reset={reset} />;
+  return <RouteError title="This section needs a quick refresh" description="Something interrupted this page while loading." reset={reset} />;
 }

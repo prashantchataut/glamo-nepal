@@ -50,17 +50,17 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
         <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
           <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
             <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-white shadow-sm">
-              <div className="bg-brand-bgDark p-6 text-white">
+              <div className="bg-[linear-gradient(135deg,#FFFDFC_0%,#F8EEF2_60%,#F7F1EA_100%)] p-6 text-brand-textPrimary">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 font-serif text-xl font-semibold text-brand-gold ring-1 ring-white/15">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white font-serif text-xl font-semibold text-brand-primary ring-1 ring-brand-border">
                     {user.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}
                   </div>
                   <div className="min-w-0">
                     <p className="truncate font-semibold">{user.name}</p>
-                    <p className="truncate text-xs text-white/65">{user.email}</p>
+                    <p className="truncate text-xs text-brand-textMuted">{user.email}</p>
                   </div>
                 </div>
-                <p className="mt-4 rounded-full bg-white/10 px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-white/80">
+                <p className="mt-4 rounded-full bg-white px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
                   {user.loyaltyPoints.toLocaleString()} glow points
                 </p>
               </div>

@@ -9,6 +9,7 @@ import { categoryRoutes } from './modules/categories/category.routes'
 import { brandRoutes } from './modules/brands/brand.routes'
 import { productRoutes } from './modules/products/product.routes'
 import { inventoryRoutes } from './modules/inventory/inventory.routes'
+import { orderRoutes, checkoutRoutes } from './modules/orders/order.routes'
 
 const app = new Hono<AppEnv>()
 
@@ -54,6 +55,8 @@ app.route('/api/v1/categories', categoryRoutes)
 app.route('/api/v1/brands', brandRoutes)
 app.route('/api/v1/products', productRoutes)
 app.route('/api/v1/inventory', inventoryRoutes)
+app.route('/api/v1/orders', orderRoutes)
+app.route('/api/v1/checkout', checkoutRoutes)
 
 app.notFound((c) => {
   return c.json({

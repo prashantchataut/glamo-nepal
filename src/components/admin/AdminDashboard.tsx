@@ -568,7 +568,7 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "customers" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the backend user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the live user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
           ) : null}
 
           {activeSection === "analytics" ? (

@@ -37,7 +37,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["All Skin Types", "Combination"],
     concerns: ["Brightening", "Hydration", "Sun Protection"],
     occasion: "Daily skincare",
-    image: "/images/product-placeholder-sunscreen.svg",
+    image: "/images/editorial/collection-new-arrivals.svg",
     productSlugs: ["rose-water-calm-toner", "himalayan-vitamin-c-glow-serum", "invisible-city-spf-50-pa"],
     steps: [
       { label: "Refresh", productSlug: "rose-water-calm-toner", note: "Pat on after cleansing for a soft hydrating layer." },
@@ -54,7 +54,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["Sensitive", "Dry"],
     concerns: ["Barrier Repair", "Hydration", "Sensitive Skin"],
     occasion: "Night care",
-    image: "/images/product-placeholder-sponge.svg",
+    image: "/images/editorial/collection-sensitive-skin.svg",
     productSlugs: ["rose-water-calm-toner", "barrier-repair-ceramide-cream", "daily-dew-gel-moisturizer"],
     steps: [
       { label: "Soothe", productSlug: "rose-water-calm-toner", note: "Apply gently without rubbing." },
@@ -71,7 +71,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["All Skin Types"],
     concerns: ["Long Wear", "Festival", "Dewy Finish"],
     occasion: "Festival makeup",
-    image: "/images/product-placeholder-skincare.svg",
+    image: "/images/editorial/collection-festival-ready.svg",
     productSlugs: ["velvet-matte-lip-cream", "monsoon-proof-mascara", "cream-blush-stick-peach-bloom"],
     steps: [
       { label: "Cheeks", productSlug: "cream-blush-stick-peach-bloom", note: "Blend in thin layers for a fresh finish." },
@@ -88,7 +88,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     skinTypes: ["All Skin Types"],
     concerns: ["Natural", "Hydration", "Made in Nepal"],
     occasion: "Gifting",
-    image: "/images/promo-new-year.svg",
+    image: "/images/editorial/collection-made-in-nepal.svg",
     productSlugs: ["rose-water-calm-toner", "daily-dew-gel-moisturizer", "tea-tree-blemish-gel"],
     steps: [
       { label: "Refresh", productSlug: "rose-water-calm-toner", note: "Giftable everyday refresh step." },

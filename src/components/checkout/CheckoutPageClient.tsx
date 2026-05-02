@@ -1,18 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, Truck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
+import { createCheckoutOrder } from "@/lib/api/checkout";
+import type { PaymentMethodCode } from "@/lib/api/contracts";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { calculateDeliveryFee, getDeliveryRule, getDistrictsForProvince, getFreeDeliveryProgress, PROVINCES } from "@/lib/delivery";
 import { formatNpr } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 
-const paymentMethods = ["Khalti", "eSewa", "Cash on Delivery", "Cards"];
+const paymentMethods = ["Cash on Delivery", "Khalti", "eSewa", "Cards"];
+
+const paymentCodeMap: Record<string, PaymentMethodCode> = {
+  "Cash on Delivery": "cod",
+  Khalti: "khalti",
+  eSewa: "esewa",
+  Cards: "card",
+};
 const checkoutSteps = ["Contact", "Delivery", "Payment", "Review"];
 
 interface CheckoutFormState {
@@ -98,8 +108,9 @@ export function CheckoutPageClient() {
       toast.error("Please complete required checkout details");
       return;
     }
-    const orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    trackEvent("order_simulated", {
+    let orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const shippingAddress = `${form.address}, Ward ${form.ward}, ${form.city}, ${form.district}, ${form.province}, Nepal`;
+    trackEvent("order_placed", {
       value: total,
       method: form.payment,
       district: form.district,
@@ -107,60 +118,120 @@ export function CheckoutPageClient() {
       deliveryFee,
       giftWrap: form.giftWrap,
     });
-    await placeOrder({ orderNumber, total, paymentMethod: form.payment });
+
+    try {
+      const apiOrder = await createCheckoutOrder({
+        customer: { name: form.name, email: form.email || `${form.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: form.phone },
+        shippingAddress: {
+          fullName: form.name,
+          phone: form.phone,
+          province: form.province,
+          district: form.district,
+          city: form.city,
+          ward: form.ward,
+          addressLine1: form.address,
+          country: "Nepal",
+        },
+        items,
+        paymentMethod: paymentCodeMap[form.payment] || "cod",
+        giftWrap: form.giftWrap,
+        orderNotes: form.notes,
+        deliveryFee,
+        subtotal,
+        grandTotal: total,
+        currency: "NPR",
+      });
+      orderNumber = apiOrder.data?.orderNumber || orderNumber;
+    } catch (error: unknown) {
+      const code = error && typeof error === "object" && "code" in error ? String((error as { code?: string }).code) : "";
+      if (code && code !== "API_BASE_URL_MISSING") {
+        toast.message("Order saved locally. GLAMO can reconcile it from customer support details.");
+      }
+    }
+
+    await placeOrder({
+      orderNumber,
+      total,
+      paymentMethod: form.payment,
+      shippingAddress,
+      customerName: form.name,
+      customerPhone: form.phone,
+      items: items.map((item) => ({
+        name: item.product.name,
+        brand: item.product.brand,
+        image: item.product.image,
+        price: item.product.price,
+        quantity: item.quantity,
+        selectedShade: item.selectedShade,
+      })),
+    });
     clearCart();
     router.push("/checkout/success");
   }
 
   if (!items.length) {
     return (
-      <main className="bg-brand-bgLight py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="font-serif text-5xl font-semibold">Checkout</h1>
-          <p className="mt-3 text-brand-textMuted">Your cart is empty or your order has already been placed.</p>
-          <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-primary px-8 py-3 font-semibold text-white">Return to shop</Link>
+      <main className="bg-brand-bgLight py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-sm md:p-12">
+            <ShoppingBag className="mx-auto mb-5 text-brand-primary/45" size={70} />
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-primary">Checkout</p>
+            <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl">Your beauty bag is empty</h1>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-brand-textMuted">Add skincare, makeup or routine picks before opening checkout.</p>
+            <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-primary-hover">
+              Return to shop
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="bg-brand-bgLight py-12">
+    <main className="bg-brand-bgLight py-8 md:py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Secure checkout</p>
-        <h1 className="mt-2 font-serif text-5xl font-semibold text-brand-textPrimary">Checkout</h1>
-        <div className="mt-6 grid gap-3 sm:grid-cols-4">
-          {checkoutSteps.map((step, index) => (
-            <div key={step} className="rounded-xl bg-white p-4 shadow-sm">
-              <div className={completedSteps[index] ? "h-2 rounded-full bg-brand-primary" : "h-2 rounded-full bg-brand-secondary/25"} />
-              <p className="mt-3 text-sm font-semibold text-brand-textPrimary">{index + 1}. {step}</p>
+        <section className="relative overflow-hidden rounded-[2.25rem] border border-brand-border bg-[linear-gradient(135deg,#FFFDFC_0%,#F8EEF2_48%,#F7F1EA_100%)] p-6 shadow-sm md:p-10">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-secondary/40 blur-3xl" />
+          <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Secure checkout · NPR totals</p>
+              <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-6xl">Complete your GLAMO order</h1>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-brand-textMuted md:text-base">Confirm your delivery details, payment preference and order summary. Online payment can be connected when Khalti/eSewa credentials are added.</p>
             </div>
-          ))}
-        </div>
+            <div className="grid grid-cols-2 gap-3 rounded-[1.5rem] border border-white/80 bg-white/75 p-4 backdrop-blur">
+              {checkoutSteps.map((step, index) => (
+                <div key={step} className="rounded-2xl bg-brand-bgLight p-3">
+                  <div className={completedSteps[index] ? "h-1.5 rounded-full bg-brand-primary" : "h-1.5 rounded-full bg-brand-secondary/35"} />
+                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{index + 1}. {step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-[1fr_390px]">
+        <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px]">
           <section className="space-y-6">
-            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
+            <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-7">
               <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-1 text-brand-primary" />
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary"><ShieldCheck size={20} /></span>
                 <div>
-                  <h2 className="font-serif text-3xl font-semibold">Customer details</h2>
-                  <p className="mt-1 text-sm text-brand-textMuted">Enter your delivery details and payment preference to complete your order smoothly.</p>
+                  <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Customer details</h2>
+                  <p className="mt-1 text-sm leading-6 text-brand-textMuted">Use a reachable Nepal mobile number for delivery confirmation.</p>
                 </div>
               </div>
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <Field label="Full name" value={form.name} onChange={(value) => updateForm({ name: value })} autoComplete="name" />
                 <Field label="Email" type="email" value={form.email} onChange={(value) => updateForm({ email: value })} autoComplete="email" required={false} />
                 <Field label="Nepal phone" value={form.phone} onChange={(value) => updateForm({ phone: value })} placeholder="+977 9818212188" error={form.phone && !phoneValid ? "Use a valid Nepal mobile number" : ""} autoComplete="tel" />
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   Province
-                  <select value={form.province} onChange={(event) => updateProvince(event.target.value)} className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select value={form.province} onChange={(event) => updateProvince(event.target.value)} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {PROVINCES.map((province) => <option key={province}>{province}</option>)}
                   </select>
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   District
-                  <select value={form.district} onChange={(event) => updateForm({ district: event.target.value })} className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select value={form.district} onChange={(event) => updateForm({ district: event.target.value })} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {districtOptions.map((district) => <option key={district}>{district}</option>)}
                   </select>
                 </label>
@@ -169,7 +240,7 @@ export function CheckoutPageClient() {
                 <Field label="Address" value={form.address} onChange={(value) => updateForm({ address: value })} autoComplete="street-address" />
               </div>
               <div className="mt-5"><CodAvailabilityChecker district={form.district} province={form.province} /></div>
-              <div className="mt-5 rounded-xl border border-brand-secondary/25 bg-brand-bgLight p-4">
+              <div className="mt-5 rounded-[1.5rem] border border-brand-secondary/25 bg-brand-bgLight p-4">
                 <div className="flex items-start gap-3">
                   <Truck className="mt-0.5 text-brand-primary" size={18} />
                   <div className="flex-1">
@@ -184,66 +255,72 @@ export function CheckoutPageClient() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <h2 className="font-serif text-3xl font-semibold">Payment</h2>
+            <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-7">
+              <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Payment</h2>
+              <p className="mt-1 text-sm leading-6 text-brand-textMuted">Choose the method your customer-care team should confirm.</p>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {paymentMethods.map((method) => {
                   const disabled = method === "Cash on Delivery" && !deliveryRule.codAvailable;
                   return (
-                    <label key={method} className={`rounded-xl border p-4 text-sm font-semibold transition ${form.payment === method ? "border-brand-primary bg-brand-primary text-white" : "border-border bg-brand-bgLight text-brand-textPrimary"} ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}>
+                    <label key={method} className={`rounded-2xl border p-4 text-sm font-semibold transition ${form.payment === method ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-brand-bgLight text-brand-textPrimary"} ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}>
                       <input
                         type="radio"
                         name="payment"
                         value={method}
                         checked={form.payment === method}
                         disabled={disabled}
-                        onChange={(event) => {
-                          updateForm({ payment: event.target.value });
-                          trackEvent("payment_method_selected", { method: event.target.value, district: form.district });
-                        }}
+                        onChange={(event) => updateForm({ payment: event.target.value })}
                         className="sr-only"
                       />
-                      {method}
-                      {disabled ? <span className="mt-1 block text-xs font-normal">Not available for selected district</span> : null}
+                      <span>{method}</span>
+                      {method !== "Cash on Delivery" ? <span className="mt-1 block text-xs opacity-75">Manual confirmation ready</span> : null}
                     </label>
                   );
                 })}
               </div>
               {form.payment !== "Cash on Delivery" ? (
-                <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
-                  <AlertCircle className="mb-2" /> Online payment options will be available soon. For now, choose the option that suits you best and continue with checkout.
+                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  <AlertCircle className="mb-2" size={18} /> Payment gateway redirects are ready to connect when Khalti, eSewa and card credentials are added.
                 </div>
               ) : null}
-              <label className="mt-5 flex items-center gap-3 rounded-xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
-                <input type="checkbox" checked={form.giftWrap} onChange={(event) => updateForm({ giftWrap: event.target.checked })} className="h-4 w-4 rounded border-border text-brand-primary accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
+              <label className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
+                <input type="checkbox" checked={form.giftWrap} onChange={(event) => updateForm({ giftWrap: event.target.checked })} className="h-4 w-4 rounded border-brand-border text-brand-primary accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
                 <Gift size={18} /> Add gift wrapping for NPR 100
               </label>
               <label className="mt-5 block space-y-2 text-sm font-semibold text-brand-textPrimary">
                 Order notes
-                <textarea value={form.notes} onChange={(event) => updateForm({ notes: event.target.value })} rows={4} className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
+                <textarea value={form.notes} onChange={(event) => updateForm({ notes: event.target.value })} rows={4} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
               </label>
             </div>
           </section>
 
-          <aside className="h-fit rounded-[2rem] bg-white p-6 shadow-sm lg:sticky lg:top-[calc(var(--total-header-height)+24px)]">
-            <h2 className="font-serif text-3xl font-semibold">Summary</h2>
-            <div className="mt-5 space-y-3 text-sm">
+          <aside className="h-fit rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6 lg:sticky lg:top-[calc(var(--total-header-height)+24px)]">
+            <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Order summary</h2>
+            <div className="mt-5 space-y-4">
               {items.map((item) => (
-                <div key={`${item.product.id}-${item.selectedShade || "default"}`} className="flex justify-between gap-3">
-                  <span className="text-brand-textMuted">{item.quantity} × {item.product.name}{item.selectedShade ? ` (${item.selectedShade})` : ""}</span>
-                  <span className="font-semibold">{formatNpr(item.product.price * item.quantity)}</span>
+                <div key={`${item.product.id}-${item.selectedShade || "default"}`} className="flex gap-3 rounded-2xl bg-brand-bgLight p-3">
+                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
+                    <Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="56px" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-1 text-sm font-semibold text-brand-textPrimary">{item.product.name}</p>
+                    <p className="mt-0.5 text-xs text-brand-textMuted">Qty {item.quantity}{item.selectedShade ? ` · ${item.selectedShade}` : ""}</p>
+                  </div>
+                  <span className="text-sm font-bold text-brand-textPrimary">{formatNpr(item.product.price * item.quantity)}</span>
                 </div>
               ))}
-              <div className="flex justify-between border-t border-border pt-4"><span>Subtotal</span><span>{formatNpr(subtotal)}</span></div>
-              <div className="flex justify-between"><span>Delivery</span><span>{deliveryFee ? formatNpr(deliveryFee) : "Free"}</span></div>
-              <div className="flex justify-between"><span>Gift wrap</span><span>{giftWrapFee ? formatNpr(giftWrapFee) : "No"}</span></div>
-              <div className="flex justify-between border-t border-border pt-4 text-xl"><span className="font-semibold">Total</span><span className="font-bold text-brand-gold">{formatNpr(total)}</span></div>
             </div>
-            <button disabled={!canSubmit || status === "pending"} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-4 font-semibold text-white hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:cursor-not-allowed disabled:bg-brand-textMuted">
+            <div className="mt-5 space-y-3 text-sm">
+              <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNpr(subtotal)}</span></div>
+              <div className="flex justify-between"><span className="text-brand-textMuted">Delivery</span><span>{deliveryFee ? formatNpr(deliveryFee) : "Free"}</span></div>
+              <div className="flex justify-between"><span className="text-brand-textMuted">Gift wrap</span><span>{giftWrapFee ? formatNpr(giftWrapFee) : "No"}</span></div>
+              <div className="flex justify-between border-t border-brand-border pt-4 text-xl"><span className="font-semibold">Total</span><span className="font-bold text-brand-primary">{formatNpr(total)}</span></div>
+            </div>
+            <button disabled={!canSubmit || status === "pending"} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-4 font-semibold text-white transition hover:bg-brand-primary-hover focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:cursor-not-allowed disabled:bg-brand-textMuted">
               <LockKeyhole size={18} />{status === "pending" ? "Placing order..." : "Place order"}
             </button>
             {status === "success" ? <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700"><CheckCircle2 size={16} /> Order placed successfully.</p> : null}
-            <p className="mt-4 text-xs leading-relaxed text-brand-textMuted">Need help before placing your order? Contact GLAMO for quick delivery and payment support.</p>
+            <p className="mt-4 text-xs leading-relaxed text-brand-textMuted">Need help before placing your order? WhatsApp GLAMO for delivery and payment support.</p>
           </aside>
         </form>
       </div>
@@ -280,7 +357,7 @@ function Field({
         placeholder={placeholder}
         autoComplete={autoComplete}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+        className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
       />
       {error ? <span className="text-xs text-red-600">{error}</span> : null}
     </label>
