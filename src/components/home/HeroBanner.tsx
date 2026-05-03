@@ -72,12 +72,12 @@ export function HeroBanner() {
                       <div className="pointer-events-none absolute inset-x-10 top-8 h-20 rounded-full bg-white/50 blur-2xl" />
                       <div className="relative aspect-[4/4.8] w-full max-w-[460px] overflow-hidden rounded-[2rem] bg-white/60 p-3 ring-1 ring-black/5">
                         <div className="absolute left-6 top-6 z-10 rounded-full bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-bgDark shadow-sm">
-                          Up to 30% OFF
+                          {slide.annotation}
                         </div>
                         <div className="absolute bottom-6 left-6 z-10 max-w-[220px] rounded-[1.5rem] bg-white/92 px-5 py-4 shadow-lg ring-1 ring-black/5 backdrop-blur">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-primary">GLAMO edit</p>
-                          <p className="mt-2 font-serif text-2xl font-semibold text-brand-textPrimary">New Year 2083</p>
-                          <p className="mt-1 text-sm leading-6 text-brand-textMuted">Celebrate with skin-loving essentials, makeup heroes and giftable beauty picks.</p>
+                          <p className="mt-2 font-serif text-2xl font-semibold text-brand-textPrimary">{slide.title1} {slide.title2}</p>
+                          <p className="mt-1 text-sm leading-6 text-brand-textMuted">{slide.subtitle}</p>
                         </div>
                         <div className="relative h-full overflow-hidden rounded-[1.5rem] bg-white">
                           <Image

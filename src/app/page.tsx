@@ -3,7 +3,7 @@ import { TrustBadgeMarquee } from "@/components/home/TrustBadgeMarquee";
 import { QuickCategoryPills } from "@/components/home/QuickCategoryPills";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { ShopByCategory } from "@/components/home/ShopByCategory";
-import { NewYearOfferBanner } from "@/components/home/NewYearOfferBanner";
+import { EditorialBanner } from "@/components/home/EditorialBanner";
 import { PromoBannerGrid } from "@/components/home/PromoBannerGrid";
 import { TheGlowEdit } from "@/components/home/TheGlowEdit";
 import { BrandsMarquee } from "@/components/home/BrandsMarquee";
@@ -33,7 +33,7 @@ export default function HomePage() {
       <FeaturedProducts />
       <ProductRecommendationStrip title="Recommended for You" subtitle="Personalized picks" context="home" />
       <ShopByCategory />
-      <NewYearOfferBanner />
+      <EditorialBanner />
       <PromoBannerGrid />
       <TheGlowEdit />
       <ProductRecommendationStrip title="Trending Now" subtitle="Popular this week" context="home" />

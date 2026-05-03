@@ -40,10 +40,10 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     id: "3",
-    title: "Giftable Beauty Picks for New Year 2083",
-    slug: "new-year-2083-beauty-gift-guide",
+    title: "Giftable Beauty Picks for Any Occasion",
+    slug: "beauty-gift-guide",
     excerpt: "A simple beauty gift guide for skincare lovers, makeup minimalists and fragrance fans.",
-    content: `<h2>Choose gifts by routine</h2><p>Skincare sets work well for customers who enjoy daily rituals, while lip and cheek tints are easy gifts for makeup lovers.</p><h2>Add a festive finishing touch</h2><p>Fragrance, body care and a soft glam lip shade can make a New Year beauty gift feel personal without being difficult to choose.</p>`,
+    content: `<h2>Choose gifts by routine</h2><p>Skincare sets work well for customers who enjoy daily rituals, while lip and cheek tints are easy gifts for makeup lovers.</p><h2>Add a thoughtful finishing touch</h2><p>Fragrance, body care and a soft glam lip shade can make any beauty gift feel personal without being difficult to choose.</p>`,
     category: "Gift Guide",
     image: "/images/product-placeholder-foundation.svg",
     author: { name: "GLAMO Editorial", avatar: "/images/promo-store.svg" },

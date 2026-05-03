@@ -21,6 +21,9 @@ export const SITE_CONFIG = {
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/glamo_nepal/",
     facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://facebook.com/glamonepal",
   },
+  logo: "/images/logo.svg",
+  openingHours: "Mo-Fr 10:00-19:00, Sa 10:00-17:00",
+  coordinates: { latitude: 27.6944, longitude: 85.3244 },
 };
 
 export const NAV_CATEGORIES = CATEGORIES.map((c) => ({ name: c.name, href: `/shop?category=${c.slug}`, description: c.description }));
@@ -43,13 +46,13 @@ export const HERO_SLIDES = [
   {
     id: 1,
     title1: "The",
-    title2: "New Year Glow",
+    title2: "Festival Glow",
     subtitle: "Fresh skincare, soft glam makeup and gifting edits curated for celebrations across Nepal.",
-    cta: "Shop New Year Edit",
+    cta: "Shop Festival Edit",
     ctaLink: "/collections/festival-ready",
     image: "/images/editorial/hero-editorial.svg",
     bgColor: "bg-brand-surfaceWarm",
-    annotation: "New Year 2083",
+    annotation: "Festival Edit",
   },
   {
     id: 2,
@@ -92,7 +95,7 @@ export const TRUST_BADGES = [
 
 export const FEATURED_PRODUCTS: Product[] = PRODUCTS.filter((p) => p.isFeatured).slice(0, 8);
 export const PROMO_BANNERS = [
-  { id: 1, title: "New Year Beauty Refresh", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "New Year 2083", image: "/images/editorial/new-year-editorial.svg", gradient: "from-black/80 via-black/30 to-transparent" },
+  { id: 1, title: "Festival Beauty Edit", subtitle: "Curated skincare, lip and fragrance picks for celebrations and gifting.", cta: "Shop the Edit", ctaLink: "/collections/festival-ready", tag: "Festival", image: "/images/editorial/new-year-editorial.svg", gradient: "from-black/80 via-black/30 to-transparent" },
   { id: 2, title: "Visit Our Store", subtitle: "Find us at Naya Baneshwor, Mantra In & Out Square, Kathmandu.", cta: "Get Directions", ctaLink: "/contact", tag: "In Store", image: "/images/editorial/shop-collage.svg", gradient: "from-brand-primary/90 via-[#8B3A8F]/40 to-transparent" },
 ];
 export const SHOP_CATEGORIES = CATEGORIES.map((c) => ({ id: c.slug, name: c.name, image: c.image, slug: c.slug }));
@@ -114,6 +117,6 @@ export const INSTAGRAM_POSTS = [
 export const BLOG_POSTS = [
   { id: 1, title: "How to Build a Kathmandu Skincare Routine", category: "Skincare", excerpt: "A simple routine framework for sun, dust, humidity and seasonal dryness.", image: "/images/promo-store.svg", slug: "kathmandu-skincare-routine" },
   { id: 2, title: "Festival Makeup That Lasts", category: "Makeup", excerpt: "Primer, tint, lip and setting tips for New Year, wedding events and long celebrations.", image: "/images/product-placeholder-blush.svg", slug: "festival-makeup-that-lasts" },
-  { id: 3, title: "Giftable Beauty Picks for New Year", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "/images/product-placeholder-foundation.svg", slug: "new-year-2083-beauty-gift-guide" },
+  { id: 3, title: "Giftable Beauty Picks for Any Occasion", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "/images/product-placeholder-foundation.svg", slug: "beauty-gift-guide" },
 ];
 export const BRAND_LOGOS = BRANDS.slice(0, 8).map((name, index) => ({ id: index + 1, name, image: `/brands/brand-${index + 1}.svg` }));
