@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createCheckoutOrder } from "@/lib/api/checkout";
+import type { CheckoutPayload as ApiCheckoutPayload } from "@/lib/api/contracts";
 import { GlamoApiError } from "@/lib/api/client";
 
 export type OrderStatus = "idle" | "pending" | "success" | "failed";
@@ -69,7 +70,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       placeOrder: async (order, payload) => {
         set({ status: "pending", error: null });
         try {
-          const apiResponse = await createCheckoutOrder(payload as any);
+          const apiResponse = await createCheckoutOrder(payload as unknown as ApiCheckoutPayload);
           const apiOrder = apiResponse.data;
           const createdAt = apiOrder.createdAt || new Date().toISOString();
           const saved: SimulatedOrder = {

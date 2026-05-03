@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag, Truck, XCircle } from "lucide-react";
-import { toast } from "sonner";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 
 import type { PaymentMethodCode } from "@/lib/api/contracts";
