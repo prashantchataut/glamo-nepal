@@ -7,7 +7,7 @@ export function NewsletterSignup() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) { e.preventDefault(); if (!email) return; setSubmitted(true); }
+  function handleSubmit(e: React.FormEvent) { e.preventDefault(); if (!email) return; localStorage.setItem("glamo-newsletter-interest", email); setSubmitted(true); }
 
   return (
     <section className="relative overflow-hidden border-t border-brand-border bg-brand-surfaceWarm py-16 md:py-20 lg:py-24">
@@ -18,11 +18,11 @@ export function NewsletterSignup() {
           <h2 className="font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl lg:text-6xl">Get Glowing. <span className="italic text-brand-primary">Get GLAMO.</span></h2>
           <p className="mx-auto mt-5 mb-8 max-w-lg text-base leading-7 text-brand-textMuted">New arrivals, routine tips and Nepal-only beauty edits without inbox clutter.</p>
           {submitted ? (
-            <div className="mx-auto max-w-md rounded-full border border-emerald-200 bg-emerald-50 px-8 py-4 text-center"><p className="font-bold text-emerald-700">You are in!</p><p className="mt-1 text-sm text-emerald-700/70">We will send beauty updates to your inbox.</p></div>
+            <div className="mx-auto max-w-md rounded-full border border-brand-primary/20 bg-brand-primary-light px-8 py-4 text-center"><p className="font-bold text-brand-primary">You are on the list!</p><p className="mt-1 text-sm text-brand-primary/70">We will reach out when our newsletter launches. Thank you for your interest.</p></div>
           ) : (
             <form className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
               <div className="relative flex-grow"><Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-textMuted" strokeWidth={1.5} /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email address" required className="w-full rounded-full border border-brand-border bg-brand-bgLight py-4 pl-12 pr-6 text-brand-textPrimary placeholder:text-brand-textMuted/60 outline-none transition-all duration-300 focus:border-brand-primary/40 focus:ring-2 focus:ring-brand-primary/20" /></div>
-              <button type="submit" className="whitespace-nowrap rounded-full bg-brand-primary px-8 py-4 font-bold text-white shadow-lg shadow-brand-primary/15 transition hover:bg-brand-primary-hover">Subscribe</button>
+              <button type="submit" className="btn-press whitespace-nowrap rounded-full bg-brand-primary px-8 py-4 font-bold text-white shadow-lg shadow-brand-primary/15 transition hover:bg-brand-primary-hover">Join waitlist</button>
             </form>
           )}
           <p className="mt-5 text-xs text-brand-textMuted">No spam. Just glow tips and exclusive deals.</p>
