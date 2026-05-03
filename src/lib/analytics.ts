@@ -68,22 +68,31 @@ export function trackEvent(event: GlamoAnalyticsEvent, payload: AnalyticsPayload
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { trackProductView, trackAddToCart, trackWishlistToggle, trackSearchQuery, trackCheckoutStart } = require("./tracking");
+    const tracking = require("./tracking") as typeof import("./tracking");
     switch (event) {
       case "product_viewed":
-        trackProductView({ product_id: payload.productId || "", product_slug: payload.productSlug || "", category: payload.category, brand: payload.brand });
+        tracking.trackProductView({ product_id: payload.productId || "", product_slug: payload.productSlug || "", category: payload.category, brand: payload.brand });
         break;
       case "add_to_cart":
-        trackAddToCart({ product_id: payload.productId || "", product_slug: payload.productSlug || "", quantity: payload.itemCount, price_npr: payload.value });
+        tracking.trackAddToCart({ product_id: payload.productId || "", product_slug: payload.productSlug || "", quantity: payload.itemCount, price_npr: payload.value });
+        break;
+      case "remove_from_cart":
+        tracking.track({ type: "remove_from_cart", entity_id: payload.productId || "", metadata: { product_slug: payload.productSlug, quantity: payload.itemCount, price_npr: payload.value }, timestamp: new Date().toISOString() });
         break;
       case "wishlist_toggle":
-        trackWishlistToggle({ product_id: payload.productId || "", product_slug: payload.productSlug || "", action: payload.action === "remove" ? "remove" : "add" });
+        tracking.trackWishlistToggle({ product_id: payload.productId || "", product_slug: payload.productSlug || "", action: payload.action === "remove" ? "remove" : "add" });
         break;
       case "search_submitted":
-        trackSearchQuery({ query: payload.query || "", results_count: payload.results });
+        tracking.trackSearchQuery({ query: payload.query || "", results_count: payload.results });
         break;
       case "checkout_started":
-        trackCheckoutStart({ cart_value_npr: payload.value, item_count: payload.itemCount });
+        tracking.trackCheckoutStart({ cart_value_npr: payload.value, item_count: payload.itemCount });
+        break;
+      case "order_placed":
+        tracking.trackPurchaseSuccess({ order_id: payload.productId || "", cart_value_npr: payload.value, item_count: payload.itemCount });
+        break;
+      case "page_view":
+        tracking.track({ type: "page_view", metadata: { path: payload.path || window.location.pathname }, timestamp: new Date().toISOString() });
         break;
     }
   } catch {

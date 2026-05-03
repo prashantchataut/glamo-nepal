@@ -19,10 +19,10 @@ export const SITE_CONFIG = {
   paymentMethods: ["Khalti", "eSewa", "Cash on Delivery", "Cards"],
   social: {
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/glamo_nepal/",
-    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://facebook.com/glamonepal",
+    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://www.facebook.com/glamonepal",
   },
   logo: "/images/logo.svg",
-  openingHours: "Mo-Fr 10:00-19:00, Sa 10:00-17:00",
+  openingHours: "Su-Fr 10:00-19:00, Sa 10:00-17:00",
   coordinates: { latitude: 27.6944, longitude: 85.3244 },
 };
 
@@ -36,7 +36,7 @@ export const NAV_LINKS = [
 ];
 
 export const ANNOUNCEMENT_MESSAGES = [
-  { icon: "truck" as const, text: "FREE DELIVERY INSIDE VALLEY ON ORDERS OVER NPR 2,500" },
+  { icon: "truck" as const, text: "FREE DELIVERY ON ORDERS OVER NPR 2,500" },
   { icon: "shield" as const, text: "AUTHENTIC BEAUTY CURATION" },
   { icon: "leaf" as const, text: "MADE IN NEPAL PICKS AVAILABLE" },
   { icon: "phone" as const, text: "+977 9818212188" },

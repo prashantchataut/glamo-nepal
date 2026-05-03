@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Leaf, Phone, ShieldCheck, Truck, X } from "lucide-react";
-import { ANNOUNCEMENT_MESSAGES } from "@/lib/constants";
+import { ANNOUNCEMENT_MESSAGES, SITE_CONFIG } from "@/lib/constants";
 
 const iconMap = { truck: Truck, leaf: Leaf, shield: ShieldCheck, phone: Phone };
-const WHATSAPP_URL = "https://wa.me/9779818212188";
+const WHATSAPP_URL = SITE_CONFIG.whatsapp;
 
 export function AnnouncementBar() {
   const [isVisible, setIsVisible] = useState(true);

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { X, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
+import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
+import { formatNpr } from "@/lib/utils";
 
 export function CartDrawer() {
   const [mounted, setMounted] = useState(false);
@@ -49,7 +51,7 @@ export function CartDrawer() {
 
   if (!mounted) return null;
 
-  const FREE_SHIPPING_THRESHOLD = 2500;
+  const FREE_SHIPPING_THRESHOLD = FREE_DELIVERY_THRESHOLD;
   const totalPrice = getTotalPrice();
   const progress = Math.min((totalPrice / FREE_SHIPPING_THRESHOLD) * 100, 100);
   const amountToFreeShipping = Math.max(FREE_SHIPPING_THRESHOLD - totalPrice, 0);
@@ -130,7 +132,7 @@ export function CartDrawer() {
                           </h3>
                         </div>
                         <button
-                          onClick={() => removeItem(item.product.id)}
+                          onClick={() => removeItem(item.product.id, item.selectedShade)}
                           className="flex items-center justify-center w-[44px] h-[44px] text-brand-textMuted hover:text-red-500 transition-colors shrink-0"
                           aria-label="Remove item"
                         >
@@ -158,7 +160,7 @@ export function CartDrawer() {
                           </button>
                         </div>
                         <span className="font-semibold text-brand-gold text-lg">
-                          NPR {(item.product.price * item.quantity).toLocaleString()}
+                          {formatNpr(item.product.price * item.quantity)}
                         </span>
                       </div>
                     </div>
@@ -172,7 +174,7 @@ export function CartDrawer() {
                 <div className="flex justify-between items-center mb-6">
                   <span className="text-brand-textMuted font-medium">Subtotal</span>
                   <span className="font-serif text-2xl font-semibold text-brand-textPrimary">
-                    NPR {totalPrice.toLocaleString()}
+                    {formatNpr(totalPrice)}
                   </span>
                 </div>
                 <div className="flex flex-col gap-3">

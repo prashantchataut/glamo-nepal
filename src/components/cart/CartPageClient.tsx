@@ -6,12 +6,13 @@ import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 import { trackCheckoutStart } from "@/lib/tracking";
+import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { formatNpr } from "@/lib/utils";
 
 export function CartPageClient() {
   const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
   const subtotal = getSubtotal();
-  const delivery = subtotal >= 2500 || subtotal === 0 ? 0 : 150;
+  const delivery = subtotal >= FREE_DELIVERY_THRESHOLD || subtotal === 0 ? 0 : 150;
   const total = subtotal + delivery;
 
   if (!items.length) {
@@ -84,7 +85,7 @@ export function CartPageClient() {
                 <span className="font-medium text-brand-textPrimary">{delivery === 0 ? "Free" : formatNpr(delivery)}</span>
               </div>
               {delivery > 0 && (
-                <p className="text-xs text-brand-textMuted">Free delivery on orders over NPR 2,500</p>
+                <p className="text-xs text-brand-textMuted">Free delivery on orders over {formatNpr(FREE_DELIVERY_THRESHOLD)}</p>
               )}
               <div className="border-t border-brand-border pt-3">
                 <div className="flex justify-between font-semibold text-brand-textPrimary">

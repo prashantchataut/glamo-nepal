@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { trackEvent } from "@/lib/analytics";
 
 export type ProductBadge = "Best Seller" | "New" | "Sale" | "Limited";
 
@@ -91,6 +92,10 @@ export const useCartStore = create<CartState>()(
         });
       },
       removeItem: (productId, selectedShade) => {
+        const item = get().items.find((i) => sameLine(i, productId, selectedShade));
+        if (item) {
+          trackEvent("remove_from_cart", { productId: item.product.id, productSlug: item.product.slug, value: item.product.price, itemCount: item.quantity });
+        }
         set((state) => ({ items: state.items.filter((item) => !sameLine(item, productId, selectedShade)) }));
       },
       updateQuantity: (productId, quantity, selectedShade) => {

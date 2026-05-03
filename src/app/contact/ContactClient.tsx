@@ -30,11 +30,18 @@ export default function ContactClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to send message");
+      if (!res.ok) {
+        if (res.status === 503) {
+          toast.error("Contact form is not yet available. Please message us on WhatsApp or email hello@glamonepal.com.");
+        } else {
+          throw new Error("Failed to send message");
+        }
+        return;
+      }
       toast.success("Message sent! We'll get back to you soon.");
       reset();
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again or message us on WhatsApp.");
     } finally {
       setIsSending(false);
     }

@@ -6,11 +6,14 @@ const API_ENDPOINT = "/api/v1/events";
 export type TrackingEventType =
   | "product_view"
   | "add_to_cart"
+  | "remove_from_cart"
   | "wishlist_toggle"
-  | "search_query"
+  | "search"
   | "category_view"
   | "checkout_start"
-  | "purchase_success";
+  | "purchase_success"
+  | "page_view"
+  | "share";
 
 interface TrackingEvent {
   type: TrackingEventType;
@@ -174,7 +177,8 @@ export function trackSearchQuery(payload: {
   results_count?: number;
 }): void {
   track({
-    type: "search_query",
+    type: "search",
+    entity_id: payload.query,
     metadata: { query: payload.query, results_count: payload.results_count },
     timestamp: new Date().toISOString(),
   });

@@ -19,6 +19,7 @@ import { trackEvent } from "@/lib/analytics";
 import { checkoutSchema, type CheckoutFormData } from "@/lib/validations/checkout";
 
 const paymentMethods = ["Cash on Delivery", "Khalti", "eSewa", "Cards"] as const;
+const comingSoonMethods = new Set(["Khalti", "eSewa", "Cards"]);
 
 const paymentCodeMap: Record<string, PaymentMethodCode> = {
   "Cash on Delivery": "cod",
@@ -159,8 +160,8 @@ export function CheckoutPageClient() {
     } catch {
       return;
     }
-    clearCart();
     router.push("/checkout/success");
+    clearCart();
   }
 
   if (!items.length) {
@@ -301,7 +302,7 @@ export function CheckoutPageClient() {
               <p className="mt-1 text-sm leading-6 text-brand-textMuted">Select your preferred payment method.</p>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {paymentMethods.map((method) => {
-                  const disabled = method === "Cash on Delivery" && !deliveryRule.codAvailable;
+                  const disabled = (method === "Cash on Delivery" && !deliveryRule.codAvailable) || comingSoonMethods.has(method);
                   return (
                     <label key={method} className={`rounded-2xl border p-4 text-sm font-semibold transition ${form.payment === method ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-brand-bgLight text-brand-textPrimary"} ${disabled ? "cursor-not-allowed opacity-55" : "cursor-pointer"}`}>
                       <input
@@ -312,7 +313,7 @@ export function CheckoutPageClient() {
                         className="sr-only"
                       />
                       <span>{method}</span>
-                      {method !== "Cash on Delivery" ? <span className="mt-1 block text-xs opacity-75">Manual confirmation ready</span> : null}
+                      {comingSoonMethods.has(method) ? <span className="mt-1 block text-xs opacity-75">Coming soon</span> : method === "Cash on Delivery" ? null : <span className="mt-1 block text-xs opacity-75">Manual confirmation ready</span>}
                     </label>
                   );
                 })}

@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { SAMPLE_USER as SAMPLE_USER } from "@/lib/data/users";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useCartStore } from "@/store/useCartStore";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 
 const navLinks = [
   { name: "Dashboard", href: "/account", icon: LayoutDashboard },
@@ -21,6 +23,8 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const resetCheckout = useCheckoutStore((state) => state.reset);
   const sessionUser = useAuthStore((state) => state.user);
   const user = sessionUser ?? SAMPLE_USER;
 
@@ -28,6 +32,8 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
     document.cookie = "glamo-auth-token=; path=/; max-age=0; SameSite=Lax";
     document.cookie = "glamo-user-role=; path=/; max-age=0; SameSite=Lax";
     logout();
+    clearCart();
+    resetCheckout();
     toast.success("Logged out of GLAMO account.");
     router.push("/login");
     router.refresh();

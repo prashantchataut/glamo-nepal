@@ -18,12 +18,12 @@ export default function AddressesPage() {
           <h1 className="mt-2 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">Saved delivery addresses</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-textMuted">Save Nepal delivery details for faster checkout.</p>
         </div>
-        <button className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark"><Plus size={16} /> Add address</button>
+        <button disabled className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full bg-brand-primary/50 px-6 py-3 text-sm font-semibold text-white/80"><Plus size={16} /> Add address <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wider">Coming soon</span></button>
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2">
         {SAMPLE_ADDRESSES.map((address) => (
-          <article key={address.id} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+          <article key={address.id} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
@@ -42,11 +42,15 @@ export default function AddressesPage() {
               <p>{address.city}, {address.district}, {address.province}</p>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <button className="rounded-full border border-brand-primary px-5 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">Edit</button>
-              {!address.isDefault ? <button className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-brand-textMuted transition hover:border-brand-primary hover:text-brand-primary">Make default</button> : null}
+              <button disabled className="cursor-not-allowed rounded-full border border-brand-primary/40 px-5 py-2 text-sm font-semibold text-brand-primary/50">Edit <span className="text-[10px] uppercase tracking-wider">Soon</span></button>
+              {!address.isDefault ? <button disabled className="cursor-not-allowed rounded-full border border-border px-5 py-2 text-sm font-semibold text-brand-textMuted/50">Make default <span className="text-[10px] uppercase tracking-wider">Soon</span></button> : null}
             </div>
           </article>
         ))}
+      </div>
+
+      <div className="mt-8 rounded-[2rem] border border-brand-primary/20 bg-brand-primary/5 p-6 text-center">
+        <p className="text-sm text-brand-textMuted">Address management is coming soon. For now, you can enter delivery details at checkout. <span className="font-semibold text-brand-primary">Need help? Message us on WhatsApp.</span></p>
       </div>
     </div>
   );

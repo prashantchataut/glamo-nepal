@@ -3,10 +3,29 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Share2, Copy } from "lucide-react";
 import type { BlogPost } from "@/lib/data/blog";
+import { SITE_CONFIG } from "@/lib/constants";
 
 export default function BlogPostClient({ post, related }: { post: BlogPost; related: BlogPost[] }) {
   const [readingProgress, setReadingProgress] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const postUrl = `${SITE_CONFIG.website}/blog/${post.slug}`;
+  const shareText = `${post.title} — ${SITE_CONFIG.fullTitle}`;
+
+  const shareLinks = [
+    { label: "WhatsApp", href: `https://wa.me/?text=${encodeURIComponent(shareText + " " + postUrl)}`, icon: "💬" },
+    { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, icon: "📘" },
+    { label: "Twitter", href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(postUrl)}`, icon: "🐦" },
+  ];
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(postUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* clipboard not available */ }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +69,18 @@ export default function BlogPostClient({ post, related }: { post: BlogPost; rela
 
         <div className="mx-auto max-w-2xl">
           <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-brand-textPrimary prose-p:text-brand-textMuted prose-a:text-brand-primary" dangerouslySetInnerHTML={{ __html: post.content }} />
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <span className="flex items-center gap-2 text-sm font-semibold text-brand-textMuted"><Share2 size={16} /> Share</span>
+            {shareLinks.map((link) => (
+              <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary">
+                <span>{link.icon}</span> {link.label}
+              </a>
+            ))}
+            <button onClick={handleCopy} className="inline-flex items-center gap-1.5 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary">
+              <Copy size={14} /> {copied ? "Copied!" : "Copy link"}
+            </button>
+          </div>
 
           <div className="mt-12 border-t border-border/30 pt-8">
             <div className="flex items-center gap-4">

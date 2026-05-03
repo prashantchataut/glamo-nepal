@@ -42,6 +42,7 @@ import { PRODUCTS } from "@/lib/data/products";
 import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type InventoryRisk } from "@/lib/data/inventory";
 import { MOCK_ORDERS, type Order } from "@/lib/data/orders";
 import { SITE_CONFIG } from "@/lib/constants";
+import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { cn, formatNpr } from "@/lib/utils";
 import { ComingSoonTooltip } from "@/components/ui/ComingSoonTooltip";
 
@@ -592,7 +593,7 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "settings" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value="NPR 2,500" /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value={`NPR ${FREE_DELIVERY_THRESHOLD.toLocaleString()}`} /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
           ) : null}
         </main>
       </div>

@@ -52,7 +52,7 @@ export function createMetadata({ title, description, path = "/", image = "/image
 }
 
 export const defaultMetadata = createMetadata({
-  title: "Premium Beauty & Cosmetics",
+  title: "GLAMO NEPAL — Premium Beauty & Cosmetics",
   description: SITE_CONFIG.description,
   path: "/",
 });
@@ -156,7 +156,7 @@ export function localBusinessJsonLd() {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
         opens: "10:00",
         closes: "19:00",
       },
