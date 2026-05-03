@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
-import { BLOG_POSTS } from "@/lib/constants";
+import { BLOG_POSTS_SYNC as BLOG_POSTS } from "@/lib/data/blog";
 
 export function BlogPreview() {
   return (

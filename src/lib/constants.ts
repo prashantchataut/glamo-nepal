@@ -114,9 +114,5 @@ export const INSTAGRAM_POSTS = [
   { id: "ig5", image: "/images/promo-new-year.svg", caption: "@glamo_nepal Made for you" },
   { id: "ig6", image: "/images/product-placeholder-serum-2.svg", caption: "@glamo_nepal Body care love" },
 ];
-export const BLOG_POSTS = [
-  { id: 1, title: "How to Build a Kathmandu Skincare Routine", category: "Skincare", excerpt: "A simple routine framework for sun, dust, humidity and seasonal dryness.", image: "/images/promo-store.svg", slug: "kathmandu-skincare-routine" },
-  { id: 2, title: "Festival Makeup That Lasts", category: "Makeup", excerpt: "Primer, tint, lip and setting tips for New Year, wedding events and long celebrations.", image: "/images/product-placeholder-blush.svg", slug: "festival-makeup-that-lasts" },
-  { id: 3, title: "Giftable Beauty Picks for Any Occasion", category: "Gift Guide", excerpt: "Easy picks for skincare lovers, fragrance gifting and feel-good vanity upgrades.", image: "/images/product-placeholder-foundation.svg", slug: "beauty-gift-guide" },
-];
+
 export const BRAND_LOGOS = BRANDS.slice(0, 8).map((name, index) => ({ id: index + 1, name, image: `/brands/brand-${index + 1}.svg` }));

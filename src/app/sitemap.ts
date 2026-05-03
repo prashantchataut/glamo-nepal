@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { PRODUCTS, CATEGORIES } from "@/lib/data/products";
-import { BLOG_POSTS } from "@/lib/data/blog";
+import { BLOG_POSTS_SYNC } from "@/lib/data/blog";
 import { SITE_CONFIG } from "@/lib/constants";
 import { PRODUCT_COLLECTIONS } from "@/lib/collections";
 import { getBrandProfiles } from "@/lib/brands";
@@ -45,7 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "weekly" as const,
     priority: 0.68,
   }));
-  const blogRoutes = BLOG_POSTS.map((post) => ({
+  const blogRoutes = BLOG_POSTS_SYNC.map((post) => ({
     url: `${base}/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: "monthly" as const,

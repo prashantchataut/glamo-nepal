@@ -1,1 +1,59 @@
-export * from "@/lib/mock/blog";
+import { BLOG_POSTS, getBlogBySlug as getBlogBySlugMock, getRelatedPosts as getRelatedPostsMock, type BlogPost } from "@/lib/mock/blog";
+import { fetchBlogPosts, fetchBlogPost, fetchRelatedPosts } from "@/lib/api/blog";
+
+let apiAvailable: boolean | null = null;
+
+async function checkApiAvailable(): Promise<boolean> {
+  if (apiAvailable !== null) return apiAvailable;
+  try {
+    await fetchBlogPosts({ limit: 1 });
+    apiAvailable = true;
+    return true;
+  } catch {
+    apiAvailable = false;
+    return false;
+  }
+}
+
+export type { BlogPost };
+export { BLOG_CATEGORIES } from "@/lib/mock/blog";
+
+export async function getBlogPosts(params?: { page?: number; limit?: number; category?: string }): Promise<{ posts: BlogPost[]; total: number }> {
+  if (await checkApiAvailable()) {
+    try {
+      return await fetchBlogPosts(params);
+    } catch {
+      apiAvailable = false;
+    }
+  }
+  let posts = [...BLOG_POSTS];
+  if (params?.category) posts = posts.filter((p) => p.category === params.category);
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? posts.length;
+  const start = (page - 1) * limit;
+  return { posts: posts.slice(start, start + limit), total: posts.length };
+}
+
+export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  if (await checkApiAvailable()) {
+    try {
+      return await fetchBlogPost(slug);
+    } catch {
+      apiAvailable = false;
+    }
+  }
+  return getBlogBySlugMock(slug) ?? null;
+}
+
+export async function getRelatedPosts(slug: string, limit = 3): Promise<BlogPost[]> {
+  if (await checkApiAvailable()) {
+    try {
+      return await fetchRelatedPosts(slug, limit);
+    } catch {
+      apiAvailable = false;
+    }
+  }
+  return getRelatedPostsMock(slug, limit);
+}
+
+export const BLOG_POSTS_SYNC = BLOG_POSTS;
