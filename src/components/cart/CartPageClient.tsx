@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
+import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 import { formatNpr } from "@/lib/utils";
 
 export function CartPageClient() {
@@ -99,6 +100,7 @@ export function CartPageClient() {
             </Link>
           </aside>
         </div>
+        <ProductRecommendationStrip title="You might also like" subtitle="Complete your order" context="cart" />
       </div>
     </main>
   );

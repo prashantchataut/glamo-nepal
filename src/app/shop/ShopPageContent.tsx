@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Grid3X3, LayoutGrid, Search, ShieldCheck, SlidersHorizontal, Sparkles, Truck, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
 import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
@@ -168,6 +169,8 @@ export default function ShopPageContent() {
           ))}
         </div>
       </section>
+
+      <ProductRecommendationStrip title="Recommended for You" subtitle="Personalized picks" context="shop" />
 
       <div className="container mx-auto px-4 py-8 md:px-6 md:py-10">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">

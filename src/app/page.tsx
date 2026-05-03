@@ -13,6 +13,8 @@ import { BeautyProfileQuiz } from "@/components/home/BeautyProfileQuiz";
 import { BlogPreview } from "@/components/home/BlogPreview";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
+import { RecentlyViewedStrip } from "@/components/product/RecentlyViewedStrip";
+import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -27,11 +29,14 @@ export default function HomePage() {
       <HeroBanner />
       <TrustBadgeMarquee />
       <QuickCategoryPills />
+      <RecentlyViewedStrip />
       <FeaturedProducts />
+      <ProductRecommendationStrip title="Recommended for You" subtitle="Personalized picks" context="home" />
       <ShopByCategory />
       <NewYearOfferBanner />
       <PromoBannerGrid />
       <TheGlowEdit />
+      <ProductRecommendationStrip title="Trending Now" subtitle="Popular this week" context="home" />
       <BrandsMarquee />
       <RoutineBuilderPreview />
       <BrandPhilosophyBanner />
