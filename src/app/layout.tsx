@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
+import { TrackingProvider } from "@/components/providers/TrackingProvider";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { defaultMetadata, organizationJsonLd } from "@/lib/seo";
+import { defaultMetadata, localBusinessJsonLd, organizationJsonLd, webSiteJsonLd } from "@/lib/seo";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning className={`${cormorant.variable} ${dmSans.variable}`}>
       <body className="min-h-screen bg-brand-bgLight font-sans text-brand-textPrimary antialiased">
         <JsonLd data={organizationJsonLd()} />
-        <AppShell>{children}</AppShell>
+        <JsonLd data={localBusinessJsonLd()} />
+        <JsonLd data={webSiteJsonLd()} />
+        <TrackingProvider><AppShell>{children}</AppShell></TrackingProvider>
       </body>
     </html>
   );

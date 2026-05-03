@@ -28,6 +28,11 @@ export interface AnalyticsPayload {
   currency?: "NPR";
   method?: string;
   action?: string;
+  category?: string;
+  brand?: string;
+  query?: string;
+  results?: number;
+  itemCount?: number;
   [key: string]: string | number | boolean | undefined;
 }
 
@@ -60,6 +65,29 @@ export function trackEvent(event: GlamoAnalyticsEvent, payload: AnalyticsPayload
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push(data);
   window.gtag?.("event", event, data);
+
+  try {
+    const { trackProductView, trackAddToCart, trackWishlistToggle, trackSearchQuery, trackCheckoutStart } = require("./tracking");
+    switch (event) {
+      case "product_viewed":
+        trackProductView({ product_id: payload.productId || "", product_slug: payload.productSlug || "", category: payload.category, brand: payload.brand });
+        break;
+      case "add_to_cart":
+        trackAddToCart({ product_id: payload.productId || "", product_slug: payload.productSlug || "", quantity: payload.itemCount, price_npr: payload.value });
+        break;
+      case "wishlist_toggle":
+        trackWishlistToggle({ product_id: payload.productId || "", product_slug: payload.productSlug || "", action: payload.action === "remove" ? "remove" : "add" });
+        break;
+      case "search_submitted":
+        trackSearchQuery({ query: payload.query || "", results_count: payload.results });
+        break;
+      case "checkout_started":
+        trackCheckoutStart({ cart_value_npr: payload.value, item_count: payload.itemCount });
+        break;
+    }
+  } catch {
+    // tracking module not available during SSR
+  }
 
   const numericValue = typeof data.value === "number" ? data.value : undefined;
 

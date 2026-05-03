@@ -88,7 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Star size={14} fill="currentColor" className="text-brand-gold" />
           <span className="text-sm font-bold text-brand-textPrimary">{product.rating}</span>
           <span className="text-sm text-brand-textMuted">({product.reviewsCount})</span>
-          {product.stockCount > 0 && product.stockCount <= 5 ? <span className="ml-auto text-xs font-bold text-amber-700">Only {product.stockCount} left</span> : null}
+          {(product as Product & { _fastMoving?: boolean })._fastMoving ? <span className="ml-auto rounded-full bg-teal-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-teal-800 shadow-sm">Fast moving</span> : product.stockCount > 0 && product.stockCount <= 5 ? <span className="ml-auto text-xs font-bold text-amber-700">Only {product.stockCount} left</span> : null}
         </div>
 
         <div className="mt-4 flex items-end justify-between gap-4 border-t border-brand-border pt-4">
