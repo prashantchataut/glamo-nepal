@@ -67,7 +67,8 @@ export function trackEvent(event: GlamoAnalyticsEvent, payload: AnalyticsPayload
   window.gtag?.("event", event, data);
 
   try {
-    const { trackProductView, trackAddToCart, trackWishlistToggle, trackSearchQuery, trackCheckoutStart } = require("./tracking");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { trackProductView, trackAddToCart, trackWishlistToggle, trackSearchQuery, trackCheckoutStart } = require("./tracking");
     switch (event) {
       case "product_viewed":
         trackProductView({ product_id: payload.productId || "", product_slug: payload.productSlug || "", category: payload.category, brand: payload.brand });

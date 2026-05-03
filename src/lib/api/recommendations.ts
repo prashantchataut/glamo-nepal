@@ -1,7 +1,6 @@
 import { PRODUCTS, getRelatedProducts } from "@/lib/mock/products";
 import type { Product } from "@/store/useCartStore";
 import { apiRequest } from "./client";
-import type { ApiResponse } from "./contracts";
 
 export interface RecommendedProduct {
   id: string;

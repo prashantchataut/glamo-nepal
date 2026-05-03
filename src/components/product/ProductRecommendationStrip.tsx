@@ -20,7 +20,6 @@ export function ProductRecommendationStrip({
   context,
   productId,
   limit = 8,
-  showReasonLabels = false,
 }: ProductRecommendationStripProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

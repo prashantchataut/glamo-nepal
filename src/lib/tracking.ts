@@ -1,13 +1,20 @@
-import type { GlamoAnalyticsEvent, AnalyticsPayload } from "./analytics";
-
 const FLUSH_INTERVAL_MS = 5000;
 const MAX_BATCH_SIZE = 50;
 const STORAGE_KEY = "glamo_session_id";
 const API_ENDPOINT = "/api/v1/events";
 
+export type TrackingEventType =
+  | "product_view"
+  | "add_to_cart"
+  | "wishlist_toggle"
+  | "search_query"
+  | "category_view"
+  | "checkout_start"
+  | "purchase_success";
+
 interface TrackingEvent {
-  type: GlamoAnalyticsEvent;
-  entity_id?: string;
+  type: TrackingEventType;
+  entity_id?: string | null;
   metadata?: Record<string, unknown>;
   timestamp: string;
 }
@@ -18,10 +25,10 @@ interface PendingBatch {
   events: TrackingEvent[];
 }
 
-let buffer: TrackingEvent[] = [];
+const buffer: TrackingEvent[] = [];
 let sessionId: string | null = null;
-let userId: string | null = null;
-let flushTimer: ReturnType<typeof setInterval> | null = null;
+let userId: string | null | undefined = null;
+// Flush interval is started in initEventTracker and runs until page unload
 let isFlushing = false;
 
 function getOrCreateSessionId(): string {
@@ -53,7 +60,8 @@ export function initEventTracker(): void {
   sessionId = getOrCreateSessionId();
   userId = getOrCreateUserId();
 
-  flushTimer = setInterval(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _flushInterval = setInterval(() => {
     flush();
   }, FLUSH_INTERVAL_MS);
 
