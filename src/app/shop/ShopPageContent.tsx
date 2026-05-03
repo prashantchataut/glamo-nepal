@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Grid3X3, LayoutGrid, Search, ShieldCheck, SlidersHorizontal, Sparkles, Truck, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -10,6 +10,7 @@ import { ProductRecommendationStrip } from "@/components/product/ProductRecommen
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
 import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
+import { trackCategoryView } from "@/lib/tracking";
 import { cn, formatNpr } from "@/lib/utils";
 
 const PRICE_RANGE = getPriceRange();
@@ -105,6 +106,12 @@ export default function ShopPageContent() {
 
   const categoryObj = CATEGORIES.find((category) => category.slug === filters.category);
   const spotlightProducts = PRODUCTS.filter((product) => product.isBestSeller || product.isNewArrival).slice(0, 3);
+
+  useEffect(() => {
+    if (filters.category) {
+      trackCategoryView({ category_slug: filters.category });
+    }
+  }, [filters.category]);
 
   return (
     <div className="min-h-screen bg-brand-bgLight">

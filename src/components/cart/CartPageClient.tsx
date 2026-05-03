@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
+import { trackCheckoutStart } from "@/lib/tracking";
 import { formatNpr } from "@/lib/utils";
 
 export function CartPageClient() {
@@ -92,7 +93,7 @@ export function CartPageClient() {
                 </div>
               </div>
             </div>
-            <Link href="/checkout" className="mt-6 block rounded-full bg-brand-primary py-3.5 text-center font-semibold text-white transition hover:bg-brand-bgDark">
+            <Link href="/checkout" onClick={() => trackCheckoutStart({ cart_value_npr: subtotal, item_count: items.reduce((t, i) => t + i.quantity, 0) })} className="mt-6 block rounded-full bg-brand-primary py-3.5 text-center font-semibold text-white transition hover:bg-brand-bgDark">
               Proceed to checkout
             </Link>
             <Link href="/shop" className="mt-3 block text-center text-sm font-medium text-brand-textMuted transition hover:text-brand-primary">
