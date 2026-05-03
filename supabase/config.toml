@@ -1,0 +1,133 @@
+[project]
+id = "glamo-nepal"
+name = "GLAMO Nepal"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[api.tls]
+enabled = false
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+email_enable_signup = true
+email_double_confirm_changes = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+
+[auth.providers.google]
+enabled = false
+
+[storage]
+file_size_limit = "50MB"
+
+[edge_runtime]
+enabled = true
+
+[functions.api.auth]
+verify_jwt = false
+
+[functions.api.account]
+verify_jwt = true
+
+[functions.api.products]
+verify_jwt = false
+
+[functions.api.categories]
+verify_jwt = false
+
+[functions.api.brands]
+verify_jwt = false
+
+[functions.api.cart]
+verify_jwt = true
+
+[functions.api.wishlist]
+verify_jwt = true
+
+[functions.api.orders]
+verify_jwt = true
+
+[functions.api.coupons]
+verify_jwt = false
+
+[functions.api.reviews]
+verify_jwt = false
+
+[functions.api.inventory]
+verify_jwt = true
+
+[functions.api.banners]
+verify_jwt = false
+
+[functions.api.popups]
+verify_jwt = false
+
+[functions.api.blogs]
+verify_jwt = false
+
+[functions.api.gallery]
+verify_jwt = false
+
+[functions.api.team]
+verify_jwt = false
+
+[functions.api.newsletter]
+verify_jwt = false
+
+[functions.api.settings]
+verify_jwt = false
+
+[functions.api.admin]
+verify_jwt = true
+
+[functions.api.events]
+verify_jwt = false
+
+[functions.api.recommendations]
+verify_jwt = false
+
+[functions.payments.khalti-initiate]
+verify_jwt = true
+
+[functions.payments.khalti-verify]
+verify_jwt = false
+
+[functions.payments.esewa-initiate]
+verify_jwt = true
+
+[functions.payments.esewa-verify]
+verify_jwt = false
+
+[functions.payments.cod-initiate]
+verify_jwt = true
+
+[functions.payments.payment-status]
+verify_jwt = true
+
+[functions.emails.order-confirmation]
+verify_jwt = true
+
+[functions.emails.order-status-update]
+verify_jwt = true
+
+[functions.emails.low-stock-alert]
+verify_jwt = true
+
+[functions.emails.welcome]
+verify_jwt = true
