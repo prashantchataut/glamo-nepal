@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
+import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag, Truck, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 import { createCheckoutOrder } from "@/lib/api/checkout";
 import type { PaymentMethodCode } from "@/lib/api/contracts";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { calculateDeliveryFee, getDeliveryRule, getDistrictsForProvince, getFreeDeliveryProgress, PROVINCES } from "@/lib/delivery";
+import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-location";
+import { calculateDeliveryFee, getDeliveryRule, getFreeDeliveryProgress } from "@/lib/delivery";
 import { formatNpr } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { checkoutSchema, type CheckoutFormData } from "@/lib/validations/checkout";
@@ -57,13 +58,15 @@ export function CheckoutPageClient() {
   });
 
   const form = watch();
+  const municipalityOptions = useMemo(() => getMunicipalitiesForDistrict(form.district as District), [form.district]);
+  const [showOtherCity, setShowOtherCity] = useState(false);
   const subtotal = getSubtotal();
   const deliveryRule = getDeliveryRule(form.district, form.province);
   const deliveryFee = calculateDeliveryFee(subtotal, form.district, form.province);
   const freeDelivery = getFreeDeliveryProgress(subtotal, form.district, form.province);
   const giftWrapFee = form.giftWrap ? 100 : 0;
   const total = subtotal + deliveryFee + giftWrapFee;
-  const districtOptions = useMemo(() => getDistrictsForProvince(form.province), [form.province]);
+  const districtOptions = useMemo(() => getDistrictsForProvince(form.province as Province), [form.province]);
   const canSubmit = Boolean(
     isValid &&
       items.length > 0 &&
@@ -82,10 +85,17 @@ export function CheckoutPageClient() {
   ];
 
   function updateProvince(province: string) {
-    const districts = getDistrictsForProvince(province);
+    const districts = getDistrictsForProvince(province as Province);
     setValue("province", province, { shouldValidate: true });
-    setValue("district", districts[0] || "Other", { shouldValidate: true });
-    setValue("city", province === "Bagmati" ? "Kathmandu" : "", { shouldValidate: true });
+    setValue("district", districts[0] || "Kathmandu", { shouldValidate: true });
+    setValue("city", "", { shouldValidate: true });
+    setShowOtherCity(false);
+  }
+
+  function updateDistrict(district: string) {
+    setValue("district", district, { shouldValidate: true });
+    setValue("city", "", { shouldValidate: true });
+    setShowOtherCity(false);
   }
 
   async function onSubmit(data: CheckoutFormData) {
@@ -208,28 +218,75 @@ export function CheckoutPageClient() {
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   District
-                  <select {...register("district")} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select {...register("district")} onChange={(e) => updateDistrict(e.target.value)} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {districtOptions.map((district) => <option key={district}>{district}</option>)}
                   </select>
                 </label>
-                <Field label="City / Municipality" register={register("city")} error={errors.city?.message} autoComplete="address-level2" />
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-brand-textPrimary">City / Municipality</label>
+                  {!showOtherCity ? (
+                    <select
+                      {...register("city")}
+                      onChange={(e) => {
+                        if (e.target.value === "__other__") {
+                          setShowOtherCity(true);
+                          setValue("city", "", { shouldValidate: true });
+                        } else {
+                          setValue("city", e.target.value, { shouldValidate: true });
+                        }
+                      }}
+                      value={showOtherCity ? "__other__" : form.city}
+                      className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+                    >
+                      <option value="">Select city / municipality</option>
+                      {municipalityOptions.map((m) => (
+                        <option key={m.name} value={m.name}>{m.name} ({m.type})</option>
+                      ))}
+                      <option value="__other__">Other (type below)</option>
+                    </select>
+                  ) : (
+                    <div className="space-y-2">
+                      <input
+                        {...register("city")}
+                        placeholder="Enter your city / municipality"
+                        className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+                      />
+                      <button type="button" onClick={() => { setShowOtherCity(false); setValue("city", municipalityOptions[0]?.name ?? "", { shouldValidate: true }); }} className="text-xs text-brand-primary underline">Back to list</button>
+                    </div>
+                  )}
+                  {errors.city && <span role="alert" className="text-xs text-red-600">{errors.city.message}</span>}
+                </div>
                 <Field label="Ward" register={register("ward")} error={errors.ward?.message} />
                 <Field label="Address" register={register("address")} error={errors.address?.message} autoComplete="street-address" />
               </div>
               <div className="mt-5"><CodAvailabilityChecker district={form.district} province={form.province} /></div>
-              <div className="mt-5 rounded-[1.5rem] border border-brand-secondary/25 bg-brand-bgLight p-4">
-                <div className="flex items-start gap-3">
-                  <Truck className="mt-0.5 text-brand-primary" size={18} />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-brand-textPrimary">Delivery estimate: {deliveryRule.estimate}</p>
-                    <p className="mt-1 text-xs text-brand-textMuted">Free delivery threshold for this route: {formatNpr(freeDelivery.threshold)}.</p>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                      <div className="h-full rounded-full bg-brand-primary" style={{ width: `${freeDelivery.percent}%` }} />
+<div className="mt-5 rounded-[1.5rem] border border-brand-secondary/25 bg-brand-bgLight p-4">
+                  <div className="flex items-start gap-3">
+                    <Truck className="mt-0.5 text-brand-primary" size={18} />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-brand-textPrimary">
+                          Delivery: {deliveryFee ? formatNpr(deliveryFee) : "FREE"}
+                        </p>
+                        {deliveryRule.codAvailable ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                            <CheckCircle2 size={12} /> COD available
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                            <XCircle size={12} /> Prepaid only
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs text-brand-textMuted">Estimated delivery: {deliveryRule.estimate}</p>
+                      <p className="mt-1 text-xs text-brand-textMuted">Free delivery threshold for this route: {formatNpr(freeDelivery.threshold)}.</p>
+                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+                        <div className="h-full rounded-full bg-brand-primary" style={{ width: `${freeDelivery.percent}%` }} />
+                      </div>
+                      {freeDelivery.remaining > 0 ? <p className="mt-2 text-xs text-brand-textMuted">Add {formatNpr(freeDelivery.remaining)} more for free delivery on this route.</p> : <p className="mt-2 text-xs font-semibold text-emerald-700">Free delivery unlocked.</p>}
                     </div>
-                    {freeDelivery.remaining > 0 ? <p className="mt-2 text-xs text-brand-textMuted">Add {formatNpr(freeDelivery.remaining)} more for free delivery on this route.</p> : <p className="mt-2 text-xs font-semibold text-emerald-700">Free delivery unlocked.</p>}
                   </div>
                 </div>
-              </div>
             </div>
 
             <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-7">

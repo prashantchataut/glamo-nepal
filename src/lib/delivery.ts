@@ -1,4 +1,35 @@
-export type Province = "Koshi" | "Madhesh" | "Bagmati" | "Gandaki" | "Lumbini" | "Karnali" | "Sudurpashchim";
+import {
+  type Province as ProvinceType,
+  type District as DistrictType,
+  type ServiceLevel as ServiceLevelType,
+  type DistrictDeliveryRule as NewDistrictDeliveryRule,
+  type ProvinceDeliveryDefault,
+  type Municipality as MunicipalityType,
+  type DistrictInfo as DistrictInfoType,
+  PROVINCES,
+  DISTRICTS,
+  DISTRICTS_BY_PROVINCE,
+  DISTRICT_DELIVERY_RULES as NEW_DISTRICT_DELIVERY_RULES,
+  ALL_DISTRICTS,
+  MUNICIPALITIES_BY_DISTRICT,
+  getDistrictsForProvince as _getDistrictsForProvince,
+  getMunicipalitiesForDistrict as _getMunicipalitiesForDistrict,
+  getDeliveryRule as _getDeliveryRule,
+  calculateDeliveryFee as _calculateDeliveryFee,
+  getFreeDeliveryProgress as _getFreeDeliveryProgress,
+  isValidProvinceDistrictCombo,
+  isCodAvailable,
+} from "./nepal-location";
+
+export type Province = ProvinceType;
+export type District = DistrictType;
+export type ServiceLevel = ServiceLevelType;
+export type Municipality = MunicipalityType;
+export type DistrictInfo = DistrictInfoType;
+export { PROVINCES, DISTRICTS, DISTRICTS_BY_PROVINCE, ALL_DISTRICTS, MUNICIPALITIES_BY_DISTRICT };
+export { _getMunicipalitiesForDistrict as getMunicipalitiesForDistrict, isValidProvinceDistrictCombo, isCodAvailable };
+
+export const FREE_DELIVERY_THRESHOLD = 2500;
 
 export interface DistrictDeliveryRule {
   district: string;
@@ -8,65 +39,46 @@ export interface DistrictDeliveryRule {
   estimate: string;
   fee: number;
   freeDeliveryThreshold: number;
-  serviceLevel: "valley" | "metro" | "standard" | "remote" | "pending";
+  serviceLevel: ServiceLevel | "pending";
   ownerNote: string;
 }
 
-export const FREE_DELIVERY_THRESHOLD = 2500;
+function adaptRule(rule: NewDistrictDeliveryRule | ProvinceDeliveryDefault): DistrictDeliveryRule {
+  return {
+    district: "district" in rule ? rule.district : "Other",
+    province: rule.province,
+    codAvailable: rule.codAvailable,
+    prepaidAvailable: true,
+    estimate: rule.estimatedDays,
+    fee: rule.fee,
+    freeDeliveryThreshold: rule.freeDeliveryThreshold,
+    serviceLevel: rule.serviceLevel,
+    ownerNote: "",
+  };
+}
 
-export const PROVINCES: Province[] = ["Koshi", "Madhesh", "Bagmati", "Gandaki", "Lumbini", "Karnali", "Sudurpashchim"];
+export const DISTRICT_DELIVERY_RULES: DistrictDeliveryRule[] = NEW_DISTRICT_DELIVERY_RULES.map(adaptRule);
 
-export const DISTRICT_DELIVERY_RULES: DistrictDeliveryRule[] = [
-  { district: "Kathmandu", province: "Bagmati", codAvailable: true, prepaidAvailable: true, estimate: "1-2 business days", fee: 100, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "valley", ownerNote: "Mock rule: fast Valley delivery. Confirm courier SLA before launch." },
-  { district: "Lalitpur", province: "Bagmati", codAvailable: true, prepaidAvailable: true, estimate: "1-2 business days", fee: 100, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "valley", ownerNote: "Mock rule: fast Valley delivery. Confirm courier SLA before launch." },
-  { district: "Bhaktapur", province: "Bagmati", codAvailable: true, prepaidAvailable: true, estimate: "1-2 business days", fee: 120, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "valley", ownerNote: "Mock rule: fast Valley delivery. Confirm courier SLA before launch." },
-  { district: "Chitwan", province: "Bagmati", codAvailable: true, prepaidAvailable: true, estimate: "2-4 business days", fee: 190, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "metro", ownerNote: "Mock rule: COD likely but courier confirmation needed." },
-  { district: "Pokhara", province: "Gandaki", codAvailable: true, prepaidAvailable: true, estimate: "2-4 business days", fee: 180, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "metro", ownerNote: "Mock rule: COD likely for metro route. Confirm courier partner." },
-  { district: "Biratnagar", province: "Koshi", codAvailable: false, prepaidAvailable: true, estimate: "3-5 business days", fee: 240, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Mock rule: prepaid-only until COD contract is confirmed." },
-  { district: "Dharan", province: "Koshi", codAvailable: false, prepaidAvailable: true, estimate: "3-5 business days", fee: 240, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Mock rule: prepaid-only until COD contract is confirmed." },
-  { district: "Birgunj", province: "Madhesh", codAvailable: false, prepaidAvailable: true, estimate: "3-5 business days", fee: 230, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Mock rule: courier serviceable, COD pending owner rules." },
-  { district: "Janakpur", province: "Madhesh", codAvailable: false, prepaidAvailable: true, estimate: "3-5 business days", fee: 230, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Mock rule: courier serviceable, COD pending owner rules." },
-  { district: "Butwal", province: "Lumbini", codAvailable: true, prepaidAvailable: true, estimate: "3-5 business days", fee: 220, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Mock rule: likely serviceable. Confirm COD remittance timeline." },
-  { district: "Nepalgunj", province: "Lumbini", codAvailable: false, prepaidAvailable: true, estimate: "4-6 business days", fee: 260, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Mock rule: prepaid preferred until courier COD rules are approved." },
-  { district: "Surkhet", province: "Karnali", codAvailable: false, prepaidAvailable: true, estimate: "5-8 business days", fee: 320, freeDeliveryThreshold: 3500, serviceLevel: "remote", ownerNote: "Mock rule: longer delivery route. Owner must confirm courier coverage." },
-  { district: "Dhangadhi", province: "Sudurpashchim", codAvailable: false, prepaidAvailable: true, estimate: "5-8 business days", fee: 340, freeDeliveryThreshold: 3500, serviceLevel: "remote", ownerNote: "Mock rule: prepaid preferred until COD coverage is confirmed." },
-];
+function normalizeProvince(province: string): Province {
+  return (PROVINCES.includes(province as Province) ? province : "Bagmati") as Province;
+}
 
-export const DISTRICTS_BY_PROVINCE = PROVINCES.reduce<Record<Province, string[]>>((acc, province) => {
-  acc[province] = DISTRICT_DELIVERY_RULES.filter((rule) => rule.province === province).map((rule) => rule.district);
-  if (!acc[province].includes("Other")) acc[province].push("Other");
-  return acc;
-}, {} as Record<Province, string[]>);
+function normalizeDistrict(district: string): District {
+  return (DISTRICTS.includes(district as District) ? district : "Kathmandu") as District;
+}
 
-const fallbackByProvince: Record<Province, DistrictDeliveryRule> = {
-  Koshi: { district: "Other", province: "Koshi", codAvailable: false, prepaidAvailable: true, estimate: "4-7 business days", fee: 280, freeDeliveryThreshold: 3500, serviceLevel: "pending", ownerNote: "Fallback mock rule. Confirm district-level courier and COD coverage." },
-  Madhesh: { district: "Other", province: "Madhesh", codAvailable: false, prepaidAvailable: true, estimate: "4-7 business days", fee: 270, freeDeliveryThreshold: 3500, serviceLevel: "pending", ownerNote: "Fallback mock rule. Confirm district-level courier and COD coverage." },
-  Bagmati: { district: "Other", province: "Bagmati", codAvailable: true, prepaidAvailable: true, estimate: "2-4 business days", fee: 180, freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD, serviceLevel: "standard", ownerNote: "Fallback Bagmati rule. Owner must confirm serviceable municipalities." },
-  Gandaki: { district: "Other", province: "Gandaki", codAvailable: false, prepaidAvailable: true, estimate: "4-7 business days", fee: 280, freeDeliveryThreshold: 3500, serviceLevel: "pending", ownerNote: "Fallback mock rule. Confirm district-level courier and COD coverage." },
-  Lumbini: { district: "Other", province: "Lumbini", codAvailable: false, prepaidAvailable: true, estimate: "4-7 business days", fee: 290, freeDeliveryThreshold: 3500, serviceLevel: "pending", ownerNote: "Fallback mock rule. Confirm district-level courier and COD coverage." },
-  Karnali: { district: "Other", province: "Karnali", codAvailable: false, prepaidAvailable: true, estimate: "5-10 business days", fee: 360, freeDeliveryThreshold: 4000, serviceLevel: "remote", ownerNote: "Fallback remote rule. Confirm coverage, return windows and extra charges." },
-  Sudurpashchim: { district: "Other", province: "Sudurpashchim", codAvailable: false, prepaidAvailable: true, estimate: "5-10 business days", fee: 360, freeDeliveryThreshold: 4000, serviceLevel: "remote", ownerNote: "Fallback remote rule. Confirm coverage, return windows and extra charges." },
-};
-
-export function getDistrictsForProvince(province: string) {
-  return DISTRICTS_BY_PROVINCE[(province as Province) || "Bagmati"] ?? DISTRICTS_BY_PROVINCE.Bagmati;
+export function getDistrictsForProvince(province: string): string[] {
+  return _getDistrictsForProvince(normalizeProvince(province));
 }
 
 export function getDeliveryRule(district: string, province: string = "Bagmati"): DistrictDeliveryRule {
-  const normalizedProvince = (PROVINCES.includes(province as Province) ? province : "Bagmati") as Province;
-  const exact = DISTRICT_DELIVERY_RULES.find((rule) => rule.district === district && rule.province === normalizedProvince);
-  if (exact) return exact;
-  return { ...fallbackByProvince[normalizedProvince], district: district || "Other" };
+  return adaptRule(_getDeliveryRule(normalizeDistrict(district), normalizeProvince(province)));
 }
 
-export function calculateDeliveryFee(subtotal: number, district: string, province = "Bagmati") {
-  const rule = getDeliveryRule(district, province);
-  return subtotal >= rule.freeDeliveryThreshold ? 0 : rule.fee;
+export function calculateDeliveryFee(subtotal: number, district: string, province = "Bagmati"): number {
+  return _calculateDeliveryFee(subtotal, normalizeDistrict(district), normalizeProvince(province));
 }
 
-export function getFreeDeliveryProgress(subtotal: number, district: string, province = "Bagmati") {
-  const rule = getDeliveryRule(district, province);
-  const remaining = Math.max(0, rule.freeDeliveryThreshold - subtotal);
-  const percent = Math.min(100, Math.round((subtotal / rule.freeDeliveryThreshold) * 100));
-  return { threshold: rule.freeDeliveryThreshold, remaining, percent };
+export function getFreeDeliveryProgress(subtotal: number, district: string, province = "Bagmati"): { threshold: number; remaining: number; percent: number } {
+  return _getFreeDeliveryProgress(subtotal, normalizeDistrict(district), normalizeProvince(province));
 }
