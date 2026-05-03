@@ -121,10 +121,10 @@ export default function ShopPageContent() {
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">NPR pricing · Nepal delivery</p>
             <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">
-              {categoryObj?.name || "Shop the GLAMO glow edit"}
+              {categoryObj?.name || "All Products"}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-brand-textMuted">
-              {categoryObj?.description || "Browse skincare, soft-glam makeup and daily beauty essentials with clean filters, authentic cues and product visuals that feel like a real beauty shelf."}
+              {categoryObj?.description || "Browse skincare, soft-glam makeup and daily beauty essentials with NPR pricing and Nepal delivery."}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href="/collections/best-sellers" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary/15 transition hover:bg-brand-primary-hover">Best sellers</Link>
