@@ -25,6 +25,7 @@ import { newsletterRoutes } from './modules/newsletter/newsletter.routes'
 import { settingsRoutes } from './modules/settings/settings.routes'
 import { adminRoutes } from './modules/admin/admin.routes'
 import { eventRoutes } from './modules/events/event.routes'
+import { recommendationRoutes } from './modules/recommendations/recommendation.routes'
 import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
@@ -93,6 +94,7 @@ app.route('/api/v1/newsletter', newsletterRoutes)
 app.route('/api/v1/settings', settingsRoutes)
 app.route('/api/v1/admin', adminRoutes)
 app.route('/api/v1/events', eventRoutes)
+app.route('/api/v1/recommendations', recommendationRoutes)
 
 app.get('/api/docs.json', (c) => c.json(openApiSpec))
 app.get('/api/docs', (c) => {
