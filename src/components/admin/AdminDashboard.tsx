@@ -43,6 +43,7 @@ import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type Invento
 import { MOCK_ORDERS, type Order } from "@/lib/data/orders";
 import { SITE_CONFIG } from "@/lib/constants";
 import { cn, formatNpr } from "@/lib/utils";
+import { ComingSoonTooltip } from "@/components/ui/ComingSoonTooltip";
 
 type AdminSection = "dashboard" | "products" | "orders" | "inventory" | "banners" | "customers" | "analytics" | "settings";
 type BannerSlot = "desktop" | "mobile";
@@ -468,9 +469,9 @@ export function AdminDashboard() {
                   <p className="mt-1 text-sm text-brand-textMuted">Search, review and prepare SKUs for catalog APIs.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button disabled title="Coming soon" className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary disabled:opacity-50 disabled:cursor-not-allowed"><Filter size={15} /> Filter</button>
+                  <ComingSoonTooltip><button disabled className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary disabled:opacity-50 disabled:cursor-not-allowed"><Filter size={15} /> Filter</button></ComingSoonTooltip>
                   <button onClick={exportProductsCsv} className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary"><Download size={15} /> Export</button>
-                  <button disabled title="Coming soon" className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"><Plus size={15} /> Add product</button>
+                  <ComingSoonTooltip><button disabled className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"><Plus size={15} /> Add product</button></ComingSoonTooltip>
                 </div>
               </div>
               <div className="relative mt-4 max-w-lg">
@@ -507,9 +508,9 @@ export function AdminDashboard() {
 <td className="px-4 py-4"><StatusPill className={status === "Active" ? "bg-admin-success-light text-admin-success ring-admin-success/20" : status === "Low" ? "bg-admin-warning-light text-admin-warning ring-admin-warning/20" : "bg-admin-error-light text-admin-error ring-admin-error/20"}>{status}</StatusPill></td>
                            <td className="px-4 py-4">
                              <div className="flex gap-1">
-                               <button disabled title="Coming soon" aria-label="View product" className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight disabled:opacity-50 disabled:cursor-not-allowed"><Eye size={15} /></button>
-                               <button disabled title="Coming soon" aria-label="Edit product" className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight disabled:opacity-50 disabled:cursor-not-allowed"><Pencil size={15} /></button>
-                               <button disabled title="Coming soon" aria-label="Delete product" className="flex h-11 w-11 items-center justify-center rounded-lg text-admin-error hover:bg-admin-error-light disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={15} /></button>
+                               <ComingSoonTooltip><button disabled aria-label="View product" className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight disabled:opacity-50 disabled:cursor-not-allowed"><Eye size={15} /></button></ComingSoonTooltip>
+                               <ComingSoonTooltip><button disabled aria-label="Edit product" className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight disabled:opacity-50 disabled:cursor-not-allowed"><Pencil size={15} /></button></ComingSoonTooltip>
+                               <ComingSoonTooltip><button disabled aria-label="Delete product" className="flex h-11 w-11 items-center justify-center rounded-lg text-admin-error hover:bg-admin-error-light disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={15} /></button></ComingSoonTooltip>
                             </div>
                           </td>
                         </tr>
@@ -525,7 +526,7 @@ export function AdminDashboard() {
             <section className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div><h2 className="font-serif text-2xl font-semibold">Orders</h2><p className="mt-1 text-sm text-brand-textMuted">Update statuses for COD, Khalti, eSewa and card orders.</p></div>
-                <div className="flex flex-wrap gap-2"><button disabled title="Coming soon" className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">Today</button><button disabled title="Coming soon" className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">This week</button><button disabled title="Coming soon" className="btn-press rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Create manual order</button></div>
+                <div className="flex flex-wrap gap-2"><ComingSoonTooltip><button disabled className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">Today</button></ComingSoonTooltip><ComingSoonTooltip><button disabled className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">This week</button></ComingSoonTooltip><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Create manual order</button></ComingSoonTooltip></div>
               </div>
               <div className="mt-4 overflow-x-auto -mx-6 px-6">
                 <table className="w-full min-w-[900px] text-sm">
@@ -549,7 +550,7 @@ export function AdminDashboard() {
                 <p className="mt-0.5 text-sm text-brand-textMuted">Monitor stock, reorder points and estimated cover.</p>
                 <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNpr(inventoryValue)} note="Current retail value" /></div>
                 <div className="mt-5 space-y-2">
-                  {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{item.name}</p><p className="text-xs text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><div className="flex items-center gap-2"><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><button disabled title="Coming soon" className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Restock</button></div></div>)}
+                  {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{item.name}</p><p className="text-xs text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><div className="flex items-center gap-2"><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Restock</button></ComingSoonTooltip></div></div>)}
                 </div>
               </div>
               <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-serif text-xl font-semibold">Inventory rules</h3><div className="mt-4 space-y-4 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-admin-warning" size={16} /> Connect inventory ledger before accepting real orders.</p></div></div>
