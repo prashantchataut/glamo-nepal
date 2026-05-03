@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag, Truck, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
-import { createCheckoutOrder } from "@/lib/api/checkout";
+
 import type { PaymentMethodCode } from "@/lib/api/contracts";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
@@ -32,7 +32,7 @@ const checkoutSteps = ["Contact", "Delivery", "Payment", "Review"];
 export function CheckoutPageClient() {
   const router = useRouter();
   const { items, getSubtotal, clearCart } = useCartStore();
-  const { status, placeOrder } = useCheckoutStore();
+  const { status, error, placeOrder } = useCheckoutStore();
   const {
     register,
     handleSubmit,
@@ -99,7 +99,7 @@ export function CheckoutPageClient() {
   }
 
   async function onSubmit(data: CheckoutFormData) {
-    let orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
       value: total,
@@ -111,47 +111,55 @@ export function CheckoutPageClient() {
     });
 
     try {
-      const apiOrder = await createCheckoutOrder({
-        customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone },
-        shippingAddress: {
-          fullName: data.name,
-          phone: data.phone,
-          province: data.province,
-          district: data.district,
-          city: data.city,
-          ward: data.ward,
-          addressLine1: data.address,
+      await placeOrder(
+        {
+          orderNumber,
+          total,
+          paymentMethod: data.payment,
+          shippingAddress,
+          customerName: data.name,
+          customerPhone: data.phone,
+          items: items.map((item) => ({
+            name: item.product.name,
+            brand: item.product.brand,
+            image: item.product.image,
+            price: item.product.price,
+            quantity: item.quantity,
+            selectedShade: item.selectedShade,
+          })),
         },
-        items,
-        paymentMethod: paymentCodeMap[data.payment] || "cod",
-        giftWrap: data.giftWrap,
-        orderNotes: data.notes,
-        deliveryFee,
-        subtotal,
-        grandTotal: total,
-        currency: "NPR",
-      });
-      orderNumber = apiOrder.data?.orderNumber || orderNumber;
+        {
+          customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone },
+          shippingAddress: {
+            fullName: data.name,
+            phone: data.phone,
+            province: data.province,
+            district: data.district,
+            city: data.city,
+            ward: data.ward,
+            addressLine1: data.address,
+          },
+          items: items.map((item) => ({
+            productId: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            selectedShade: item.selectedShade,
+            image: item.product.image,
+            brand: item.product.brand,
+          })),
+          paymentMethod: paymentCodeMap[data.payment] || "cod",
+          giftWrap: data.giftWrap,
+          orderNotes: data.notes,
+          deliveryFee,
+          subtotal,
+          grandTotal: total,
+          currency: "NPR" as const,
+        },
+      );
     } catch {
-      toast.error("Order saved locally. GLAMO will reconcile it from your order details.");
+      return;
     }
-
-    await placeOrder({
-      orderNumber,
-      total,
-      paymentMethod: data.payment,
-      shippingAddress,
-      customerName: data.name,
-      customerPhone: data.phone,
-      items: items.map((item) => ({
-        name: item.product.name,
-        brand: item.product.brand,
-        image: item.product.image,
-        price: item.product.price,
-        quantity: item.quantity,
-        selectedShade: item.selectedShade,
-      })),
-    });
     clearCart();
     router.push("/checkout/success");
   }
@@ -352,6 +360,7 @@ export function CheckoutPageClient() {
               <LockKeyhole size={18} />{status === "pending" ? "Placing order..." : "Place order"}
             </button>
             {status === "success" ? <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700"><CheckCircle2 size={16} /> Order placed successfully.</p> : null}
+            {status === "failed" && error ? <p className="mt-3 flex items-center gap-2 text-sm text-red-600"><AlertCircle size={16} /> {error}</p> : null}
             <p className="mt-4 text-xs leading-relaxed text-brand-textMuted">Need help before placing your order? WhatsApp GLAMO for delivery and payment support.</p>
           </aside>
         </form>
