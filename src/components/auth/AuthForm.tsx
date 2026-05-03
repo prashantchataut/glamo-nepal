@@ -96,11 +96,13 @@ function PasswordField({
   register,
   error,
   minLength,
+  placeholder,
 }: {
   label: string;
   register: Record<string, unknown>;
   error?: { message?: string };
   minLength?: number;
+  placeholder?: string;
 }) {
   const [visible, setVisible] = useState(false);
   const id = label.replace(/\s+/g, "-").toLowerCase();
@@ -112,11 +114,12 @@ function PasswordField({
         <input
           id={id}
           type={visible ? "text" : "password"}
+          placeholder={placeholder}
           minLength={minLength}
           aria-invalid={error ? !!error.message : undefined}
           aria-describedby={error?.message ? `${id}-error` : undefined}
           {...register}
-          className="min-h-12 flex-1 bg-transparent px-3 text-sm outline-none"
+          className="min-h-12 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-brand-textMuted/70"
         />
         <button type="button" onClick={() => setVisible((current) => !current)} className="rounded-full p-1 text-brand-textMuted transition hover:text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/25" aria-label={visible ? "Hide password" : "Show password"}>
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -147,13 +150,13 @@ function getSchema(mode: AuthMode) {
 function getDefaultValues(mode: AuthMode) {
   switch (mode) {
     case "login":
-      return { email: "customer@glamonepal.com", password: "glamo-beauty-2026" };
+      return { email: "", password: "" };
     case "register":
-      return { name: "GLAMO Customer", email: "customer@glamonepal.com", phone: SITE_CONFIG.phone, password: "glamo-beauty-2026" };
+      return { name: "", email: "", phone: "", password: "" };
     case "forgot":
-      return { email: "customer@glamonepal.com" };
+      return { email: "" };
     case "reset":
-      return { password: "glamo-beauty-2026", confirmPassword: "glamo-beauty-2026" };
+      return { password: "", confirmPassword: "" };
   }
 }
 
@@ -186,7 +189,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         router.push("/login");
         return;
       }
-      const normalizedEmail = (data as LoginFormData).email || "customer@glamonepal.com";
+      const normalizedEmail = (data as LoginFormData).email;
       const role = normalizedEmail.toLowerCase().includes("admin") ? "admin" : "customer";
       document.cookie = "glamo-auth-token=authenticated; path=/; max-age=604800; SameSite=Lax";
       document.cookie = `glamo-user-role=${role}; path=/; max-age=604800; SameSite=Lax`;
@@ -214,20 +217,20 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-2 md:p-4">
         {mode === "register" ? (
-          <Field label="Full name" icon={<UserRound size={18} />} register={register("name")} error={formErrors.name} />
+          <Field label="Full name" icon={<UserRound size={18} />} register={register("name")} error={formErrors.name} placeholder="Your full name" />
         ) : null}
         {mode !== "reset" ? (
-          <Field label="Email address" type="email" icon={<Mail size={18} />} register={register("email")} error={formErrors.email} />
+          <Field label="Email address" type="email" icon={<Mail size={18} />} register={register("email")} error={formErrors.email} placeholder="you@example.com" />
         ) : null}
         {mode === "register" ? (
           <Field label="Nepal phone" type="tel" icon={<Phone size={18} />} register={register("phone")} error={formErrors.phone} placeholder="+977 98XXXXXXXX" />
         ) : null}
         {mode === "login" || mode === "register" || mode === "reset" ? (
-          <PasswordField label={mode === "reset" ? "New password" : "Password"} register={register("password")} error={formErrors.password} minLength={8} />
+          <PasswordField label={mode === "reset" ? "New password" : "Password"} register={register("password")} error={formErrors.password} minLength={8} placeholder={mode === "reset" ? "At least 8 characters" : "Enter your password"} />
         ) : null}
         {mode === "reset" ? (
           <div>
-            <PasswordField label="Confirm new password" register={register("confirmPassword")} error={formErrors.confirmPassword} minLength={8} />
+            <PasswordField label="Confirm new password" register={register("confirmPassword")} error={formErrors.confirmPassword} minLength={8} placeholder="Re-enter your new password" />
           </div>
         ) : null}
         <button type="submit" disabled={isSubmitting || isPasswordMismatch} className="w-full rounded-full bg-brand-primary px-6 py-3.5 font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60">

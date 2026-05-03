@@ -215,8 +215,8 @@ export function CheckoutPageClient() {
                 </div>
               </div>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <Field label="Full name" register={register("name")} error={errors.name?.message} autoComplete="name" />
-                <Field label="Email" type="email" register={register("email")} error={errors.email?.message} autoComplete="email" required={false} />
+                <Field label="Full name" register={register("name")} placeholder="Your full name" error={errors.name?.message} autoComplete="name" />
+                <Field label="Email" type="email" register={register("email")} placeholder="you@example.com" error={errors.email?.message} autoComplete="email" />
                 <Field label="Nepal phone" register={register("phone")} placeholder="+977 9818212188" error={errors.phone?.message} autoComplete="tel" />
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   Province
@@ -264,8 +264,8 @@ export function CheckoutPageClient() {
                   )}
                   {errors.city && <span role="alert" className="text-xs text-red-600">{errors.city.message}</span>}
                 </div>
-                <Field label="Ward" register={register("ward")} error={errors.ward?.message} />
-                <Field label="Address" register={register("address")} error={errors.address?.message} autoComplete="street-address" />
+                <Field label="Ward" register={register("ward")} placeholder="Ward number" error={errors.ward?.message} />
+                <Field label="Address" register={register("address")} placeholder="Street, house number, landmark" error={errors.address?.message} autoComplete="street-address" />
               </div>
               <div className="mt-5"><CodAvailabilityChecker district={form.district} province={form.province} /></div>
 <div className="mt-5 rounded-[1.5rem] border border-brand-secondary/25 bg-brand-bgLight p-4">
