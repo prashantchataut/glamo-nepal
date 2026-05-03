@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 750" width="100%" height="100%">
+  <defs>
+    <linearGradient id="heroBgM" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDF6F9"/>
+      <stop offset="50%" stop-color="#F0E5F5"/>
+      <stop offset="100%" stop-color="#FDF6F9"/>
+    </linearGradient>
+    <radialGradient id="blobRightM" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#D4A0D7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#D4A0D7" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blobLeftM" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#8B3A8F" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#8B3A8F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="pearlGradM" cx="0.35" cy="0.35" r="0.65">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#D4A0D7" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#D4A0D7" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grainM">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <filter id="blur120M">
+      <feGaussianBlur stdDeviation="100"/>
+    </filter>
+    <filter id="blur80M">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+  </defs>
+
+  <!-- Base gradient -->
+  <rect width="390" height="750" fill="url(#heroBgM)"/>
+
+  <!-- Large soft blob, top-right -->
+  <ellipse cx="390" cy="50" rx="350" ry="350" fill="url(#blobRightM)" filter="url(#blur120M)"/>
+
+  <!-- Medium soft blob, bottom-left -->
+  <ellipse cx="-40" cy="650" rx="250" ry="250" fill="url(#blobLeftM)" filter="url(#blur80M)"/>
+
+  <!-- Gold geometric accent arcs (top-right, scaled for mobile) -->
+  <g id="goldArcs" opacity="0.15" fill="none" stroke="#C9A84C" stroke-width="0.75">
+    <path d="M 340 80 A 50 50 0 1 1 340 130"/>
+    <path d="M 340 40 A 90 90 0 1 1 340 220"/>
+    <path d="M 340 0 A 130 130 0 1 1 340 310"/>
+  </g>
+
+  <!-- Scattered petals -->
+  <g id="petals" fill="#8B3A8F">
+    <path d="M 80 50 Q 95 25 110 50 Q 95 75 80 50 Z" opacity="0.10"/>
+    <path d="M 220 30 Q 238 0 256 30 Q 238 60 220 30 Z" opacity="0.08"/>
+    <path d="M 50 120 Q 70 95 90 120 Q 70 145 50 120 Z" opacity="0.12"/>
+  </g>
+
+  <!-- Fine gold line accent -->
+  <g id="goldLineAccent">
+    <line x1="20" y1="375" x2="70" y2="375" stroke="#C9A84C" stroke-width="1"/>
+    <text x="78" y="379" fill="#C9A84C" font-size="7" font-family="serif">&#9670;</text>
+  </g>
+
+  <!-- Pearl dots -->
+  <g id="pearlDots">
+    <circle cx="280" cy="350" r="6" fill="url(#pearlGradM)"/>
+    <circle cx="320" cy="250" r="8" fill="url(#pearlGradM)"/>
+    <circle cx="200" cy="420" r="5" fill="url(#pearlGradM)"/>
+    <circle cx="150" cy="300" r="7" fill="url(#pearlGradM)"/>
+    <circle cx="260" cy="500" r="6" fill="url(#pearlGradM)"/>
+  </g>
+
+  <!-- Grain texture overlay -->
+  <rect width="390" height="750" filter="url(#grainM)" opacity="0.03"/>
+</svg>

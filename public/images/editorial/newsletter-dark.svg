@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 400" width="100%" height="100%">
+  <defs>
+    <radialGradient id="nlGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#8B3A8F" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#8B3A8F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="1440" height="400" fill="#1A0A1E"/>
+
+  <!-- Large radial glow center -->
+  <ellipse cx="720" cy="200" rx="600" ry="300" fill="url(#nlGlow)"/>
+
+  <!-- Constellation dots -->
+  <g fill="white" opacity="0.15">
+    <circle cx="180" cy="80" r="1.5"/>
+    <circle cx="340" cy="160" r="1"/>
+    <circle cx="520" cy="60" r="2"/>
+    <circle cx="680" cy="120" r="1.5"/>
+    <circle cx="800" cy="280" r="1"/>
+    <circle cx="960" cy="90" r="2"/>
+    <circle cx="1100" cy="200" r="1.5"/>
+    <circle cx="1250" cy="140" r="1"/>
+    <circle cx="1320" cy="300" r="1.5"/>
+    <circle cx="250" cy="280" r="1"/>
+    <circle cx="450" cy="320" r="1.5"/>
+    <circle cx="600" cy="350" r="1"/>
+    <circle cx="880" cy="50" r="1.5"/>
+    <circle cx="1050" cy="340" r="1"/>
+    <circle cx="150" cy="200" r="1"/>
+    <circle cx="400" cy="240" r="2"/>
+    <circle cx="750" cy="180" r="1"/>
+    <circle cx="950" cy="250" r="1.5"/>
+    <circle cx="1200" cy="80" r="1"/>
+    <circle cx="300" cy="350" r="1.5"/>
+    <circle cx="550" cy="140" r="1"/>
+    <circle cx="700" cy="300" r="1"/>
+    <circle cx="1150" cy="280" r="1.5"/>
+    <circle cx="100" cy="340" r="1"/>
+    <circle cx="630" cy="90" r="1.5"/>
+    <circle cx="850" cy="160" r="1"/>
+    <circle cx="1300" cy="180" r="2"/>
+    <circle cx="200" cy="130" r="1"/>
+    <circle cx="500" cy="260" r="1.5"/>
+    <circle cx="1050" cy="60" r="1"/>
+  </g>
+
+  <!-- Gold corner accents - top-left -->
+  <g stroke="#C9A84C" stroke-width="1" opacity="0.4">
+    <line x1="40" y1="40" x2="120" y2="40"/>
+    <line x1="40" y1="40" x2="40" y2="120"/>
+  </g>
+
+  <!-- Gold corner accents - bottom-right -->
+  <g stroke="#C9A84C" stroke-width="1" opacity="0.4">
+    <line x1="1400" y1="360" x2="1320" y2="360"/>
+    <line x1="1400" y1="360" x2="1400" y2="280"/>
+  </g>
+
+  <!-- GLAMO watermark -->
+  <text x="720" y="220" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="160" font-weight="700" fill="white" opacity="0.03" letter-spacing="40">GLAMO</text>
+
+  <!-- Sparkling dots -->
+  <g fill="white">
+    <circle cx="350" cy="100" r="2" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.4;0.1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="900" cy="80" r="1.5" opacity="0.2">
+      <animate attributeName="opacity" values="0.1;0.35;0.1" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="600" cy="300" r="2" opacity="0.25">
+      <animate attributeName="opacity" values="0.1;0.45;0.1" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1100" cy="250" r="1.5" opacity="0.2">
+      <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="220" r="2" opacity="0.15">
+      <animate attributeName="opacity" values="0.1;0.4;0.1" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1250" cy="120" r="1.5" opacity="0.2">
+      <animate attributeName="opacity" values="0.1;0.35;0.1" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="750" cy="340" r="2" opacity="0.25">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="480" cy="160" r="1.5" opacity="0.15">
+      <animate attributeName="opacity" values="0.1;0.3;0.1" dur="2.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

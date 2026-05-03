@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="nlLightBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FDF6F9"/>
+      <stop offset="50%" stop-color="#F0E5F5"/>
+      <stop offset="100%" stop-color="#FDF6F9"/>
+    </linearGradient>
+    <radialGradient id="nlBlob" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#D4A0D7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#D4A0D7" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="nlBlur">
+      <feGaussianBlur stdDeviation="100"/>
+    </filter>
+  </defs>
+
+  <!-- Background gradient -->
+  <rect width="1440" height="400" fill="url(#nlLightBg)"/>
+
+  <!-- Soft blurred blob center-right -->
+  <ellipse cx="1000" cy="200" rx="500" ry="300" fill="url(#nlBlob)" filter="url(#nlBlur)"/>
+
+  <!-- Botanical line art -->
+  <g fill="none" stroke="#8B3A8F" stroke-width="0.8" opacity="0.06">
+    <!-- Left scattered petals -->
+    <path d="M 80 320 Q 95 300 110 320 Q 95 340 80 320 Z"/>
+    <path d="M 200 280 Q 218 255 236 280 Q 218 305 200 280 Z"/>
+    <path d="M 120 180 Q 135 160 150 180 Q 135 200 120 180 Z"/>
+    <line x1="80" y1="320" x2="95" y2="300" stroke-width="0.5"/>
+
+    <!-- Right scattered petals -->
+    <path d="M 1300 100 Q 1315 80 1330 100 Q 1315 120 1300 100 Z"/>
+    <path d="M 1200 250 Q 1218 225 1236 250 Q 1218 275 1200 250 Z"/>
+    <path d="M 1350 300 Q 1365 280 1380 300 Q 1365 320 1350 300 Z"/>
+    <line x1="1300" y1="100" x2="1315" y2="80" stroke-width="0.5"/>
+  </g>
+</svg>

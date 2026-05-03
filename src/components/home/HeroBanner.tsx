@@ -9,6 +9,8 @@ import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HERO_SLIDES } from "@/lib/constants";
+import { HeroBackground } from "@/components/ui/illustrations/HeroBackground";
+import { HeroCalloutCardA, HeroCalloutCardB, HeroCalloutCardC } from "@/components/ui/illustrations/HeroCalloutCards";
 
 export function HeroBanner() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 6500, stopOnInteraction: false })]);
@@ -32,7 +34,10 @@ export function HeroBanner() {
   return (
     <section className="border-b border-border/60 bg-brand-surfacePink">
       <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
-        <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_28px_80px_-50px_rgba(56,26,44,0.35)] ring-1 ring-black/5">
+        <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_28px_80px_-50px_rgba(56,26,44,0.35)] ring-1 ring-black/5 relative">
+          <div className="absolute inset-0 pointer-events-none z-0 hidden md:block">
+            <HeroBackground />
+          </div>
           <div ref={emblaRef} className="overflow-hidden">
             <div className="flex">
               {HERO_SLIDES.map((slide, index) => (
@@ -71,6 +76,9 @@ export function HeroBanner() {
 
                     <div className="relative z-10 order-1 md:order-2 flex items-center justify-center">
                       <div className="pointer-events-none absolute inset-x-10 top-8 h-20 rounded-full bg-white/50 blur-2xl" />
+                      <HeroCalloutCardA className="absolute -right-2 top-12 z-20 hidden lg:block" />
+                      <HeroCalloutCardB className="absolute -left-4 bottom-16 z-20 hidden lg:block" />
+                      <HeroCalloutCardC className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 hidden lg:block" />
                       <div className="relative aspect-[4/4.8] w-full max-w-[460px] overflow-hidden rounded-[2rem] bg-white/60 p-3 ring-1 ring-black/5">
                         <div className="absolute left-6 top-6 z-10 rounded-full bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-bgDark shadow-sm">
                           {slide.annotation}

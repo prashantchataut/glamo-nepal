@@ -1,15 +1,15 @@
 "use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
-import { Leaf, ShieldCheck, Heart, Sparkles, Award } from "lucide-react";
+import { TrustIcon, TrustIconName } from "@/components/ui/illustrations/TrustIcons";
 import { TRUST_BADGES } from "@/lib/constants";
 
-const iconMap: Record<string, React.ElementType> = {
-  heart: Heart,
-  shield: ShieldCheck,
-  sparkles: Sparkles,
-  leaf: Leaf,
-  award: Award,
+const iconMap: Record<string, TrustIconName> = {
+  heart: "cruelty-free",
+  shield: "authentic",
+  sparkles: "dermatologist",
+  leaf: "vegan",
+  award: "safe-skin",
 };
 
 export function TrustBadgeMarquee() {
@@ -20,11 +20,11 @@ export function TrustBadgeMarquee() {
       <div className="flex whitespace-nowrap">
         <div className="animate-marquee-scroll flex items-center gap-16 md:gap-24 px-8">
           {doubled.map((badge, i) => {
-            const Icon = iconMap[badge.icon];
+            const iconName = iconMap[badge.icon] || "cruelty-free";
             return (
               <div key={`badge-${i}`} className="flex items-center gap-3">
                 <span className="p-2 bg-white/10 rounded-full">
-                  {Icon && <Icon size={16} strokeWidth={1.5} />}
+                  <TrustIcon name={iconName} size={16} />
                 </span>
                 <span className="font-medium tracking-[0.08em] text-xs md:text-sm uppercase">{badge.text}</span>
               </div>

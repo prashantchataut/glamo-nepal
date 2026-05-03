@@ -3,19 +3,12 @@
 
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
+import { PhilosophyBackground } from "@/components/ui/illustrations/PhilosophyBackground";
 
 export function BrandPhilosophyBanner() {
   return (
-    <section className="relative py-16 md:py-20 lg:py-24 overflow-hidden bg-gradient-to-br from-brand-bgLight via-brand-secondary/10 to-brand-bgLight">
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-15">
-        <svg className="absolute -left-20 top-10 w-64 h-64 text-brand-primary" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 0 C50 50, 0 50, 0 50 C0 50, 50 50, 50 100 C50 50, 100 50, 100 50 C100 50, 50 50, 50 0 Z" />
-        </svg>
-        <svg className="absolute -right-20 bottom-10 w-80 h-80 text-brand-secondary" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 0 C50 50, 0 50, 0 50 C0 50, 50 50, 50 100 C50 50, 100 50, 100 50 C100 50, 50 50, 50 0 Z" />
-        </svg>
-      </div>
-
+    <section className="relative py-16 md:py-20 lg:py-24 overflow-hidden">
+      <PhilosophyBackground />
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <div className="max-w-4xl mx-auto">
           <span className="inline-block px-4 py-1.5 bg-brand-primary/10 text-brand-primary text-[10px] font-bold uppercase tracking-[0.2em] rounded-full mb-8 border border-brand-primary/15">

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 420" width="100%" height="100%">
+  <defs>
+    <linearGradient id="promoLightBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDF6F9"/>
+      <stop offset="50%" stop-color="#F5E6F5"/>
+      <stop offset="100%" stop-color="#FDF6F9"/>
+    </linearGradient>
+    <radialGradient id="promoCircle" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#D4A0D7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#D4A0D7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Light background -->
+  <rect width="680" height="420" fill="url(#promoLightBg)"/>
+
+  <!-- Decorative circle top-right -->
+  <circle cx="580" cy="100" r="150" fill="none" stroke="#8B3A8F" stroke-width="0.75" opacity="0.08"/>
+  <circle cx="580" cy="100" r="100" fill="url(#promoCircle)"/>
+
+  <!-- Left-center content -->
+  <!-- "JUST ARRIVED" label with purple dot -->
+  <circle cx="62" cy="138" r="3" fill="#8B3A8F"/>
+  <text x="72" y="142" font-family="DM Sans, sans-serif" font-size="10" fill="#8B3A8F" letter-spacing="3" font-weight="500">JUST ARRIVED</text>
+
+  <!-- "New Glow" -->
+  <text x="60" y="210" font-family="Cormorant Garamond, Georgia, serif" font-size="56" fill="#1C1C1C" font-weight="600">New Glow</text>
+
+  <!-- "Collection" italic -->
+  <text x="60" y="265" font-family="Cormorant Garamond, Georgia, serif" font-size="56" fill="#8B3A8F" font-style="italic" font-weight="600">Collection</text>
+
+  <!-- Subtext -->
+  <text x="60" y="300" font-family="DM Sans, sans-serif" font-size="14" fill="#6B6B6B" font-weight="400">Discover our latest additions</text>
+
+  <!-- CTA button filled -->
+  <rect x="60" y="325" width="140" height="40" rx="20" fill="#8B3A8F"/>
+  <text x="130" y="350" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="13" fill="white" font-weight="500">Explore →</text>
+
+  <!-- Bottom-right botanical elements -->
+  <g transform="translate(500, 280)" fill="none" stroke="#8B3A8F" stroke-width="0.8" opacity="0.1">
+    <path d="M 0 100 Q 15 60 30 100 Q 15 140 0 100 Z"/>
+    <path d="M 20 100 Q 35 50 50 100 Q 35 150 20 100 Z"/>
+    <path d="M 40 100 Q 55 65 70 100 Q 55 135 40 100 Z"/>
+    <path d="M 60 100 Q 75 55 90 100 Q 75 145 60 100 Z"/>
+    <!-- Lotus center -->
+    <circle cx="45" cy="100" r="6" stroke-width="0.6"/>
+    <circle cx="45" cy="100" r="3" stroke-width="0.4"/>
+    <!-- Stem -->
+    <line x1="45" y1="106" x2="45" y2="140" stroke-width="0.6"/>
+  </g>
+</svg>

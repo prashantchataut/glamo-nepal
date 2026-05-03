@@ -151,7 +151,7 @@ body.scroll-locked {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, theme('colors.brand.bgLight') 25%, theme('colors.brand.secondary/20') 50%, theme('colors.brand.bgLight') 75%);
+  background: linear-gradient(90deg, #F0E5F5 25%, #F7F0FF 50%, #F0E5F5 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }

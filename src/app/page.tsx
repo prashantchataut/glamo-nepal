@@ -15,6 +15,7 @@ import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { RecentlyViewedStrip } from "@/components/product/RecentlyViewedStrip";
 import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
+import { SoftWaveDivider, BlushCurveDivider, GoldSparkleLine } from "@/components/ui/illustrations/SectionDividers";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -30,17 +31,23 @@ export default function HomePage() {
       <TrustBadgeMarquee />
       <QuickCategoryPills />
       <RecentlyViewedStrip />
+      <GoldSparkleLine className="my-8 md:my-12" />
       <FeaturedProducts />
       <ProductRecommendationStrip title="Recommended for You" subtitle="Personalized picks" context="home" />
+      <BlushCurveDivider />
       <ShopByCategory />
       <EditorialBanner />
+      <SoftWaveDivider />
       <PromoBannerGrid />
+      <GoldSparkleLine className="my-8 md:my-12" />
       <TheGlowEdit />
       <ProductRecommendationStrip title="Trending Now" subtitle="Popular this week" context="home" />
       <BrandsMarquee />
+      <BlushCurveDivider />
       <RoutineBuilderPreview />
       <BrandPhilosophyBanner />
       <BeautyProfileQuiz />
+      <GoldSparkleLine className="my-8 md:my-12" />
       <BlogPreview />
       <InstagramGallery />
       <NewsletterSignup />
