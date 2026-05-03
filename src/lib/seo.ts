@@ -40,10 +40,12 @@ export function createMetadata({ title, description, path = "/", image = "/image
       images: [{ url: imageUrl, width: 1200, height: 630, alt: `${title} - ${siteName}` }],
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary_large_image" as const,
       title: `${title} | ${siteName}`,
       description,
       images: [imageUrl],
+      site: "@glamo_nepal",
+      creator: "@glamo_nepal",
     },
     robots: noIndex ? { index: false, follow: false } : { index: true, follow: true },
   };
@@ -109,6 +111,95 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
       position: index + 1,
       name: item.name,
       item: absoluteUrl(item.path),
+    })),
+  };
+}
+
+export function faqJsonLd(items: Array<{ question: string; answer: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}
+
+export function localBusinessJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["LocalBusiness", "HealthAndBeautyStore"],
+    name: SITE_CONFIG.fullTitle,
+    url: SITE_CONFIG.website,
+    telephone: SITE_CONFIG.phone,
+    email: SITE_CONFIG.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Naya Baneshwor, Mantra In & Out Square",
+      addressLocality: "Kathmandu",
+      addressRegion: "Bagmati",
+      postalCode: "44600",
+      addressCountry: "NP",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: SITE_CONFIG.coordinates.latitude,
+      longitude: SITE_CONFIG.coordinates.longitude,
+    },
+    image: absoluteUrl(SITE_CONFIG.logo),
+    priceRange: "$$",
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "10:00",
+        closes: "19:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: "Saturday",
+        opens: "10:00",
+        closes: "17:00",
+      },
+    ],
+    sameAs: [SITE_CONFIG.social.instagram, SITE_CONFIG.social.facebook].filter(Boolean),
+    currenciesAccepted: SITE_CONFIG.currency,
+    paymentAccepted: SITE_CONFIG.paymentMethods.join(", "),
+  };
+}
+
+export function webSiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_CONFIG.fullTitle,
+    url: SITE_CONFIG.website,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_CONFIG.website}/shop?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+export function itemListJsonLd(items: Array<{ name: string; url: string; image?: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: absoluteUrl(item.url),
+      ...(item.image ? { image: absoluteUrl(item.image) } : {}),
     })),
   };
 }

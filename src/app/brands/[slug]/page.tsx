@@ -29,7 +29,7 @@ export default function BrandDetailPage({ params }: { params: { slug: string } }
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{brand.description}</p>
             <div className="mt-6 flex flex-wrap gap-2">{brand.concerns.map((concern) => <span key={concern} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-primary shadow-sm ring-1 ring-brand-border">{concern}</span>)}</div>
           </div>
-          <div className="relative aspect-square overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm"><Image src={brand.image} alt={`${brand.name} brand visual`} fill className="object-cover" /></div>
+          <div className="relative aspect-square overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm"><Image src={brand.image} alt={`${brand.name} brand visual`} fill sizes="(max-width: 1024px) 100vw, 320px" className="object-cover" /></div>
         </div>
       </section>
       <section className="container mx-auto px-4 py-10 md:px-6 md:py-14">

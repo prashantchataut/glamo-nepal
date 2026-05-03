@@ -44,7 +44,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
             </div>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
-            <Image src={bundle.image} alt={bundle.title} fill priority className="object-cover" />
+            <Image src={bundle.image} alt={bundle.title} fill sizes="(max-width: 1024px) 100vw, 0.9fr" priority className="object-cover" />
           </div>
         </div>
       </section>

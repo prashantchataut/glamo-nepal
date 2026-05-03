@@ -31,7 +31,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{collection.description}</p>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-brand-border bg-white shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
-            <Image src={collection.image} alt={collection.title} fill priority className="object-cover" />
+            <Image src={collection.image} alt={collection.title} fill sizes="(max-width: 1024px) 100vw, 420px" priority className="object-cover" />
           </div>
         </div>
       </section>
