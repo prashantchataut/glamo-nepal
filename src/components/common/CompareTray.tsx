@@ -1,10 +1,11 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { useCompareStore } from "@/store/useCompareStore";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 
 export function CompareTray() {
   const { items, removeItem, clear } = useCompareStore();
@@ -18,7 +19,7 @@ export function CompareTray() {
               <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white"><Image src={product.image} alt="" fill className="object-cover" /></div>
               <div className="min-w-[120px]">
                 <p className="line-clamp-1 text-xs font-semibold text-brand-textPrimary">{product.name}</p>
-                <p className="text-[11px] text-brand-gold">{formatNpr(product.price)}</p>
+                <p className="text-[11px] text-brand-gold">{formatNPR(product.price)}</p>
               </div>
               <button onClick={() => removeItem(product.id)} aria-label={`Remove ${product.name} from compare`} className="rounded-full p-1 text-brand-textMuted hover:bg-white hover:text-brand-primary"><X size={14} /></button>
             </div>

@@ -1,11 +1,12 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Package, RotateCcw, ShoppingBag, Truck } from "lucide-react";
 import { SAMPLE_ORDERS } from "@/lib/data/orders";
 import { useCheckoutStore, type SimulatedOrder } from "@/store/useCheckoutStore";
-import { cn, formatNpr } from "@/lib/utils";
+import { cn, formatNPR } from "@/lib/utils";
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-amber-50 text-amber-700 ring-amber-100",
@@ -71,7 +72,7 @@ export function OrdersClient() {
                 </div>
                 <div className="flex items-center justify-between gap-4 md:block md:text-right">
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-textMuted">Total</p>
-                  <p className="mt-1 text-xl font-bold text-brand-textPrimary">{formatNpr(order.total)}</p>
+                  <p className="mt-1 text-xl font-bold text-brand-textPrimary">{formatNPR(order.total)}</p>
                   {detailHref ? <span className="mt-3 hidden items-center justify-end gap-2 text-sm font-bold text-brand-primary md:flex">View details <ArrowRight size={16} /></span> : <span className="mt-3 hidden text-sm font-semibold text-brand-textMuted md:block">Stored locally</span>}
                 </div>
               </div>

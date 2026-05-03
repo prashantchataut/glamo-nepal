@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
 import { AlertTriangle, RefreshCcw, ShoppingBag } from "lucide-react";

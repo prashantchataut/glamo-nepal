@@ -1,9 +1,12 @@
 import { z } from "zod";
-import { PROVINCES, isValidProvinceDistrictCombo, type Province, type District } from "@/lib/nepal-location";
+import { PROVINCES, isValidProvinceDistrictCombo, type Province, type District } from "@/lib/nepal-locations";
 
 export const checkoutSchema = z.object({
   name: z.string().min(2, "Full name is required"),
-  email: z.string().email("Enter a valid email address"),
+  email: z.union([
+    z.string().email("Enter a valid email address"),
+    z.literal(""),
+  ], { error: "Enter a valid email address" }),
   phone: z.string().regex(/^(\+977\s?)?9[78]\d{8}$/, "Enter a valid Nepal mobile number (e.g. 9818212188)"),
   province: z.enum(PROVINCES as [string, ...string[]], { message: "Select a province" }),
   district: z.string().min(1, "Select a district"),

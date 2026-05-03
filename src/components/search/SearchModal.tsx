@@ -1,213 +1,43 @@
 "use client";
+// Client component required: modal state, keyboard navigation, focus, recent searches, and live search.
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, X, TrendingUp, Clock, ArrowRight, Sparkles } from "lucide-react";
-import { useUIStore } from "@/store/useUIStore";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Clock, Search, Sparkles, TrendingUp, X } from "lucide-react";
+import { EmptyState } from "@/components/common/EmptyState";
 import { searchProducts, TRENDING_SEARCHES } from "@/lib/data/products";
-import { ProductCard } from "@/components/product/ProductCard";
-import { getNoResultRecommendations, getSearchSuggestions } from "@/lib/search";
+import { getSearchSuggestions } from "@/lib/search";
 import { trackEvent } from "@/lib/analytics";
+import { formatNPR } from "@/lib/utils";
+import { useUIStore } from "@/store/useUIStore";
 
 export function SearchModal() {
   const { isSearchModalOpen, closeSearchModal } = useUIStore();
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [results, setResults] = useState<ReturnType<typeof searchProducts>>([]);
-  const suggestions = getSearchSuggestions(query, 7);
-  const noResultRecommendations = getNoResultRecommendations(query, 4);
+  const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
+  const results = useMemo(() => (debouncedQuery.trim().length >= 2 ? searchProducts(debouncedQuery).slice(0, 8) : []), [debouncedQuery]);
+  const suggestions = getSearchSuggestions(debouncedQuery, 7);
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("glamo-recent-searches");
-      if (stored) setRecentSearches(JSON.parse(stored));
-    } catch {}
-  }, []);
+  useEffect(() => { try { const stored = localStorage.getItem("glamo-recent-searches"); if (stored) setRecentSearches(JSON.parse(stored)); } catch { /* noop */ } }, []);
+  useEffect(() => { const handle = window.setTimeout(() => setDebouncedQuery(query), 300); return () => window.clearTimeout(handle); }, [query]);
+  useEffect(() => { if (isSearchModalOpen) window.setTimeout(() => inputRef.current?.focus(), 80); if (!isSearchModalOpen) { setQuery(""); setDebouncedQuery(""); setActiveIndex(0); } }, [isSearchModalOpen]);
+  useEffect(() => { if (isSearchModalOpen) { const width = window.innerWidth - document.documentElement.clientWidth; document.body.style.paddingRight = `${width}px`; document.body.classList.add("scroll-locked"); } else { document.body.style.paddingRight = ""; document.body.classList.remove("scroll-locked"); } return () => { document.body.style.paddingRight = ""; document.body.classList.remove("scroll-locked"); }; }, [isSearchModalOpen]);
 
-  useEffect(() => {
-    if (isSearchModalOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-    if (!isSearchModalOpen) {
-      setQuery("");
-      setResults([]);
-    }
-  }, [isSearchModalOpen]);
+  const saveRecent = useCallback((searchQuery: string) => { try { const stored = localStorage.getItem("glamo-recent-searches"); const recent: string[] = stored ? JSON.parse(stored) : []; const updated = [searchQuery, ...recent.filter((term) => term.toLowerCase() !== searchQuery.toLowerCase())].slice(0, 5); localStorage.setItem("glamo-recent-searches", JSON.stringify(updated)); setRecentSearches(updated); } catch { /* noop */ } }, []);
+  const goToSearch = useCallback((searchQuery: string) => { const trimmed = searchQuery.trim(); if (!trimmed) return; saveRecent(trimmed); trackEvent("search_submitted", { query: trimmed, results: searchProducts(trimmed).length }); router.push(`/search?q=${encodeURIComponent(trimmed)}`); closeSearchModal(); }, [closeSearchModal, router, saveRecent]);
+  const goToProduct = useCallback((index: number) => { const product = results[index]; if (!product) return; saveRecent(debouncedQuery || product.name); router.push(`/product/${product.slug}`); closeSearchModal(); }, [closeSearchModal, debouncedQuery, results, router, saveRecent]);
+  useEffect(() => { if (!isSearchModalOpen) return; const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closeSearchModal(); if (event.key === "ArrowDown" && results.length) { event.preventDefault(); setActiveIndex((i) => Math.min(i + 1, results.length - 1)); } if (event.key === "ArrowUp" && results.length) { event.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)); } if (event.key === "Enter") { event.preventDefault(); results.length ? goToProduct(activeIndex) : goToSearch(query); } }; window.addEventListener("keydown", onKeyDown); return () => window.removeEventListener("keydown", onKeyDown); }, [activeIndex, closeSearchModal, goToProduct, goToSearch, isSearchModalOpen, query, results.length]);
+  function clearRecent() { try { localStorage.removeItem("glamo-recent-searches"); setRecentSearches([]); } catch { /* noop */ } }
 
-  useEffect(() => {
-    if (query.trim().length >= 2) {
-      setResults(searchProducts(query));
-    } else {
-      setResults([]);
-    }
-  }, [query]);
-
-  useEffect(() => {
-    if (!isSearchModalOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeSearchModal();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isSearchModalOpen, closeSearchModal]);
-
-  useEffect(() => {
-    if (isSearchModalOpen) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.body.classList.add('scroll-locked');
-    } else {
-      document.body.style.paddingRight = '';
-      document.body.classList.remove('scroll-locked');
-    }
-    return () => {
-      document.body.style.paddingRight = '';
-      document.body.classList.remove('scroll-locked');
-    };
-  }, [isSearchModalOpen]);
-
-  const handleSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) return;
-    try {
-      const stored = localStorage.getItem("glamo-recent-searches");
-      const recent = stored ? JSON.parse(stored) : [];
-      const updated = [searchQuery, ...recent.filter((s: string) => s !== searchQuery)].slice(0, 5);
-      localStorage.setItem("glamo-recent-searches", JSON.stringify(updated));
-      setRecentSearches(updated);
-    } catch {}
-    const resultCount = searchProducts(searchQuery).length;
-    trackEvent("search_submitted", { query: searchQuery, results: resultCount });
-    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-    closeSearchModal();
-  }, [router, closeSearchModal]);
-
-  const clearRecent = () => {
-    try {
-      localStorage.removeItem("glamo-recent-searches");
-      setRecentSearches([]);
-    } catch {}
-  };
-
-  return (
-    <>
-      {isSearchModalOpen ? (
-        <>
-          <div onClick={closeSearchModal} className="fixed inset-0 z-modal-backdrop bg-black/50 backdrop-blur-sm" />
-          <div role="dialog" aria-modal="true" aria-label="Search products" className="fixed left-0 right-0 top-0 z-modal bg-white shadow-2xl">
-            <div className="container mx-auto px-4 md:px-6">
-              <div className="flex items-center gap-4 py-4 border-b border-border/30">
-                <Search size={20} className="text-brand-textMuted shrink-0" strokeWidth={1.5} />
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
-                  placeholder="Search for products, brands, categories..."
-                  className="flex-1 text-lg bg-transparent outline-none placeholder:text-brand-textMuted/50 text-brand-textPrimary"
-                />
-                {query && (
-                  <button onClick={() => setQuery("")} className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-brand-bgLight transition-colors">
-                    <X size={18} className="text-brand-textMuted" />
-                  </button>
-                )}
-                <button onClick={closeSearchModal} className="text-sm font-semibold text-brand-textMuted hover:text-brand-textPrimary transition-colors">
-                  Cancel
-                </button>
-              </div>
-            </div>
-
-            <div className="container mx-auto px-4 md:px-6 py-6 max-h-[70vh] overflow-y-auto">
-              {query.trim().length >= 2 && results.length > 0 ? (
-                <div>
-                  <p className="text-sm text-brand-textMuted mb-4">{results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{query}&rdquo;</p>
-                  <div className="mb-5 flex flex-wrap gap-2">
-                    {suggestions.slice(0, 5).map((suggestion) => (
-                      <button key={`${suggestion.type}-${suggestion.href}`} type="button" onClick={() => { closeSearchModal(); router.push(suggestion.href); }} className="inline-flex items-center gap-1 rounded-full bg-brand-bgLight px-4 py-3 text-xs font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
-                        <Sparkles size={12} /> {suggestion.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {results.slice(0, 8).map((product) => (
-                      <div key={product.id} onClick={() => { closeSearchModal(); router.push(`/product/${product.slug}`); }} className="cursor-pointer">
-                        <ProductCard product={product} />
-                      </div>
-                    ))}
-                  </div>
-                  {results.length > 8 && (
-                    <div className="text-center mt-6">
-                      <button
-                        onClick={() => handleSearch(query)}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-colors"
-                      >
-                        View All Results <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : query.trim().length >= 2 && results.length === 0 ? (
-                <div className="text-center py-12">
-                  <Search size={48} className="text-brand-textMuted/20 mx-auto mb-4" />
-                  <p className="font-serif text-xl text-brand-textPrimary mb-2">No results found</p>
-                  <p className="text-sm text-brand-textMuted">Try a popular search or browse these best-match recommendations.</p>
-                  <div className="mt-5 flex flex-wrap justify-center gap-2">
-                    {TRENDING_SEARCHES.slice(0, 5).map((term) => (
-                      <button key={term} onClick={() => { setQuery(term); handleSearch(term); }} className="rounded-full bg-brand-bgLight px-4 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">{term}</button>
-                    ))}
-                  </div>
-                  <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-                    {noResultRecommendations.map((product) => <ProductCard key={product.id} product={product} />)}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {recentSearches.length > 0 && (
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-brand-textMuted flex items-center gap-2">
-                          <Clock size={14} /> Recent Searches
-                        </h3>
-                        <button onClick={clearRecent} className="text-xs text-brand-textMuted hover:text-brand-primary transition-colors">Clear</button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {recentSearches.map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => { setQuery(s); handleSearch(s); }}
-                            className="px-4 py-2 bg-brand-bgLight rounded-full text-sm text-brand-textPrimary hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-brand-textMuted flex items-center gap-2 mb-3">
-                      <TrendingUp size={14} /> Trending Searches
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {TRENDING_SEARCHES.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => { setQuery(s); handleSearch(s); }}
-                          className="px-4 py-2 bg-brand-bgLight rounded-full text-sm text-brand-textPrimary hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      ) : null}
-    </>
-  );
+  return <AnimatePresence>{isSearchModalOpen ? <><motion.div key="search-backdrop" onClick={closeSearchModal} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-modal-backdrop bg-black/50 backdrop-blur-sm" /><motion.div key="search-modal" role="dialog" aria-modal="true" aria-label="Search products" initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.95, y: reduceMotion ? 0 : -12 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.95, y: reduceMotion ? 0 : -12 }} transition={{ duration: 0.22, ease: "easeOut" }} className="fixed left-3 right-3 top-3 z-modal overflow-hidden rounded-3xl bg-white shadow-2xl md:left-1/2 md:right-auto md:top-6 md:w-[min(940px,calc(100vw-48px))] md:-translate-x-1/2">
+    <div className="border-b border-brand-border px-4 md:px-6"><div className="flex items-center gap-3 py-4"><Search size={20} className="shrink-0 text-brand-textMuted" strokeWidth={1.5} /><label htmlFor="glamo-search-input" className="sr-only">Search GLAMO Nepal products</label><input id="glamo-search-input" ref={inputRef} type="search" value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Search skincare, lipstick, sunscreen..." className="min-h-11 flex-1 bg-transparent text-base text-brand-textPrimary outline-none placeholder:text-brand-textMuted/60 md:text-lg" aria-controls="glamo-search-results" />{query ? <button type="button" onClick={() => setQuery("")} className="inline-flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-brand-bgLight focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2" aria-label="Clear search"><X size={18} className="text-brand-textMuted" /></button> : null}<button type="button" onClick={closeSearchModal} className="rounded-full px-4 py-2 text-sm font-semibold text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2" aria-label="Close search">Cancel</button></div></div>
+    <div id="glamo-search-results" className="max-h-[78vh] overflow-y-auto px-4 py-6 md:px-6">{debouncedQuery.trim().length >= 2 && results.length > 0 ? <div><p className="mb-4 text-sm text-brand-textMuted">{results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{debouncedQuery}&rdquo;</p>{suggestions.length ? <div className="mb-5 flex flex-wrap gap-2">{suggestions.slice(0, 5).map((suggestion) => <button key={`${suggestion.type}-${suggestion.href}`} type="button" onClick={() => { closeSearchModal(); router.push(suggestion.href); }} className="inline-flex items-center gap-1 rounded-full bg-brand-bgLight px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-brand-primary transition hover:bg-brand-primary hover:text-white"><Sparkles size={12} /> {suggestion.label}</button>)}</div> : null}<div className="grid gap-3 md:grid-cols-2">{results.map((product, index) => <button key={product.id} type="button" onMouseEnter={() => setActiveIndex(index)} onClick={() => goToProduct(index)} className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${activeIndex === index ? "border-brand-primary bg-brand-primary-light" : "border-brand-border bg-white hover:bg-brand-bgLight"}`} aria-current={activeIndex === index ? "true" : undefined}><div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight"><Image src={product.image} alt={`${product.brand} ${product.name}`} fill className="object-cover" sizes="64px" /></div><div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">{product.brand}</p><p className="truncate font-serif text-lg font-semibold text-brand-textPrimary">{product.name}</p><p className="text-sm font-semibold text-brand-gold">{formatNPR(product.price)}</p></div><ArrowRight size={16} className="text-brand-primary" /></button>)}</div><div className="mt-6 text-center"><button onClick={() => goToSearch(debouncedQuery)} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-brand-primary-hover">View all results <ArrowRight size={16} /></button></div></div> : debouncedQuery.trim().length >= 2 ? <div><EmptyState variant="search" query={debouncedQuery} className="py-12" /><div className="mt-6 flex flex-wrap justify-center gap-2">{TRENDING_SEARCHES.slice(0, 6).map((term) => <button key={term} onClick={() => setQuery(term)} className="rounded-full bg-brand-bgLight px-4 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">{term}</button>)}</div></div> : <div className="space-y-8">{recentSearches.length > 0 ? <div><div className="mb-3 flex items-center justify-between"><h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-brand-textMuted"><Clock size={14} /> Recent searches</h3><button onClick={clearRecent} className="text-xs font-semibold text-brand-textMuted hover:text-brand-primary">Clear</button></div><div className="flex flex-wrap gap-2">{recentSearches.map((term) => <button key={term} onClick={() => goToSearch(term)} className="rounded-full bg-brand-bgLight px-4 py-2 text-sm font-semibold text-brand-textPrimary transition hover:bg-brand-primary hover:text-white">{term}</button>)}</div></div> : null}<div><h3 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-brand-textMuted"><TrendingUp size={14} /> Trending searches</h3><div className="flex flex-wrap gap-2">{TRENDING_SEARCHES.map((term) => <button key={term} onClick={() => setQuery(term)} className="rounded-full bg-brand-bgLight px-4 py-2 text-sm font-semibold text-brand-textPrimary transition hover:bg-brand-primary hover:text-white">{term}</button>)}</div></div></div>}</div>
+  </motion.div></> : null}</AnimatePresence>;
 }

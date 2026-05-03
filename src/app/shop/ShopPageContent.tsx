@@ -11,7 +11,7 @@ import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
 import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
 import { trackCategoryView } from "@/lib/tracking";
-import { cn, formatNpr } from "@/lib/utils";
+import { cn, formatNPR } from "@/lib/utils";
 
 const PRICE_RANGE = getPriceRange();
 const DEFAULT_FILTERS: FilterState = { category: "", subCategory: "", brands: [], skinType: [], concerns: [], madeInNepal: false, search: "", minPrice: PRICE_RANGE.min, maxPrice: PRICE_RANGE.max, rating: 0, inStock: false, sort: "featured" };
@@ -157,7 +157,7 @@ export default function ShopPageContent() {
                   <span className="min-w-0">
                     <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary">{product.badge || "Glow pick"}</span>
                     <span className="mt-1 line-clamp-2 block font-serif text-lg font-semibold leading-tight text-brand-textPrimary">{product.name}</span>
-                    <span className="mt-1 block text-sm font-bold text-brand-gold">{formatNpr(product.price)}</span>
+                    <span className="mt-1 block text-sm font-bold text-brand-gold">{formatNPR(product.price)}</span>
                   </span>
                 </Link>
               ))}

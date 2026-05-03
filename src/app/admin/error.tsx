@@ -1,7 +1,8 @@
 "use client";
+// Client component required: Next.js error boundaries receive reset() and run after render failures.
 
 import { RouteError } from "@/components/common/RouteError";
 
-export default function ErrorBoundary({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  return <RouteError title="This section needs a quick refresh" description="Something interrupted this page while loading." reset={reset} />;
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  return <RouteError error={error} reset={reset} />;
 }

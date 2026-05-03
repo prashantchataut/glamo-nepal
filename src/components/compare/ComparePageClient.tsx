@@ -1,11 +1,12 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { useCompareStore } from "@/store/useCompareStore";
 import type { Product } from "@/store/useCartStore";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 
 type CompareRow = {
   label: string;
@@ -13,7 +14,7 @@ type CompareRow = {
 };
 
 const rows: CompareRow[] = [
-  { label: "Price", render: (p) => formatNpr(p.price) },
+  { label: "Price", render: (p) => formatNPR(p.price) },
   { label: "Brand", render: (p) => p.brand },
   { label: "Category", render: (p) => p.category },
   { label: "Concern", render: (p) => p.concernTags.join(", ") },

@@ -21,7 +21,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
     throw new GlamoApiError({
       status: "error",
       code: "API_BASE_URL_MISSING",
-      message: "NEXT_PUBLIC_API_BASE_URL is not configured. Use mock catalog methods until the API is ready.",
+      message: "NEXT_PUBLIC_API_BASE_URL is not configured. Use local catalog methods until the API is ready.",
     });
   }
 

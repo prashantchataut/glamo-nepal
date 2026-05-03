@@ -1,8 +1,9 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { CheckCircle2, Clock, MapPin, XCircle } from "lucide-react";
 import { getDeliveryRule, isCodAvailable } from "@/lib/delivery";
-import { cn, formatNpr } from "@/lib/utils";
+import { cn, formatNPR } from "@/lib/utils";
 
 export function getCodRule(district: string, province?: string) {
   const rule = getDeliveryRule(district, province);
@@ -22,7 +23,7 @@ export function CodAvailabilityChecker({ district, province }: { district: strin
         <div>
           <p className="font-semibold">{codAvailable ? "COD available" : "Prepaid checkout recommended"} in {district}</p>
           <p className="mt-1 flex items-center gap-1 text-sm opacity-80"><Clock size={14} /> Estimated delivery: {rule.estimate}</p>
-          <p className="mt-1 flex items-center gap-1 text-sm opacity-80"><MapPin size={14} /> Delivery fee before threshold: {formatNpr(rule.fee)}</p>
+          <p className="mt-1 flex items-center gap-1 text-sm opacity-80"><MapPin size={14} /> Delivery fee before threshold: {formatNPR(rule.fee)}</p>
         </div>
       </div>
     </div>

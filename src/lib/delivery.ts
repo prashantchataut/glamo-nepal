@@ -19,7 +19,7 @@ import {
   getFreeDeliveryProgress as _getFreeDeliveryProgress,
   isValidProvinceDistrictCombo,
   isCodAvailable,
-} from "./nepal-location";
+} from "./nepal-locations";
 
 export type Province = ProvinceType;
 export type District = DistrictType;

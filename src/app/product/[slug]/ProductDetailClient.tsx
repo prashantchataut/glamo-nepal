@@ -18,7 +18,7 @@ import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import { trackEvent } from "@/lib/analytics";
 import { getRecommendedBundles } from "@/lib/data/bundles";
 import { getAuthenticityNote, getBatchExpiryNote, getPatchTestNote, getReturnEligibility } from "@/lib/product-safety";
-import { cn, formatNpr } from "@/lib/utils";
+import { cn, formatNPR } from "@/lib/utils";
 
 export default function ProductDetailClient({ product, related }: { product: Product; related: Product[] }) {
   const [shade, setShade] = useState(product.shadeOptions?.[0]?.name || "");
@@ -70,7 +70,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 <div className="mt-3 flex items-center gap-2 text-brand-gold">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} fill={i < Math.round(product.rating) ? "currentColor" : "none"} />)}<span className="text-sm text-brand-textMuted">{product.rating} · {product.reviewsCount} reviews</span></div>
                 <p className="mt-5 text-base leading-8 text-brand-textMuted md:text-lg">{product.description.trim()}</p>
                 <div className="mt-5 flex flex-wrap gap-2">{product.madeInNepal && <span className="rounded-full bg-brand-primary px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-white">Made in Nepal</span>}{product.concernTags.map((tag) => <span key={tag} className="rounded-full bg-brand-primary-light px-3 py-1 text-xs font-bold text-brand-primary">{tag}</span>)}</div>
-                <div className="mt-6 flex items-end gap-3"><span className="font-serif text-4xl font-semibold text-brand-gold">{formatNpr(product.price)}</span>{product.originalPrice && <span className="pb-1 text-brand-textMuted line-through">{formatNpr(product.originalPrice)}</span>}</div>
+                <div className="mt-6 flex items-end gap-3"><span className="font-serif text-4xl font-semibold text-brand-gold">{formatNPR(product.price)}</span>{product.originalPrice && <span className="pb-1 text-brand-textMuted line-through">{formatNPR(product.originalPrice)}</span>}</div>
                 <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-brand-textMuted md:grid-cols-4"><InfoPill label="Size" value={product.size} /><InfoPill label="Origin" value={product.origin} /><InfoPill label="Stock" value={`${product.stockCount} units`} /><button onClick={copySku} aria-label={`Copy SKU ${product.sku}`} className="rounded-2xl border border-brand-border bg-brand-bgLight p-3 text-left font-bold text-brand-primary"><Copy size={14} className="mb-1" />{product.sku}</button></div>
                 {product.shadeOptions?.length ? <div className="mt-6"><p className="mb-3 text-sm font-bold text-brand-textPrimary">Shade: {shade}</p><div className="flex flex-wrap gap-2">{product.shadeOptions.map((option) => <button key={option.name} onClick={() => setShade(option.name)} className={cn("rounded-full border px-4 py-2 text-sm font-bold", shade === option.name ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-white text-brand-textMuted")}>{option.hex && <span className="mr-2 inline-block h-3 w-3 rounded-full align-middle" style={{ backgroundColor: option.hex }} />} {option.name}</button>)}</div></div> : null}
                 {!product.inStock ? <div className="mt-7"><NotifyMeForm productName={product.name} /></div> : null}
@@ -93,7 +93,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
         <ProductRecommendationStrip title="Customers also viewed" subtitle="You might like" context="product" productId={product.id} showReasonLabels />
       </div>
       <RecentlyViewedStrip excludeSlug={product.slug} />
-      <div className={cn("fixed inset-x-0 bottom-16 z-50 border-t border-brand-border bg-white/95 p-3 shadow-2xl backdrop-blur transition-transform md:hidden", showSticky ? "translate-y-0" : "translate-y-full")}><div className="flex items-center gap-3"><div className="min-w-0 flex-1"><p className="line-clamp-1 font-bold text-brand-textPrimary">{product.name}</p><p className="text-brand-gold">{formatNpr(product.price)}</p></div><button onClick={addToCart} aria-label="Add to cart" className="rounded-full bg-brand-primary px-5 py-3 font-bold text-white">Add</button></div></div>
+      <div className={cn("fixed inset-x-0 bottom-16 z-50 border-t border-brand-border bg-white/95 p-3 shadow-2xl backdrop-blur transition-transform md:hidden", showSticky ? "translate-y-0" : "translate-y-full")}><div className="flex items-center gap-3"><div className="min-w-0 flex-1"><p className="line-clamp-1 font-bold text-brand-textPrimary">{product.name}</p><p className="text-brand-gold">{formatNPR(product.price)}</p></div><button onClick={addToCart} aria-label="Add to cart" className="rounded-full bg-brand-primary px-5 py-3 font-bold text-white">Add</button></div></div>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import type { LegalSection } from "@/components/legal/LegalLayout";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/config";
+import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
+import { formatNPR } from "@/lib/utils";
 
 export const privacySections: LegalSection[] = [
   { id: "collection", title: "Information we collect", body: ["GLAMO NEPAL may collect customer details such as name, phone number, email address, delivery address, order preferences and support messages when customers shop, create an account or contact the store.", "Basic device and shopping activity information may be used to improve site performance, product discovery and customer support."] },
@@ -20,7 +22,7 @@ export const termsSections: LegalSection[] = [
 export const shippingSections: LegalSection[] = [
   { id: "coverage", title: "Delivery coverage", body: ["GLAMO NEPAL delivers inside Kathmandu Valley and to many locations across Nepal through available courier partners.", "Some addresses may require phone confirmation before dispatch."] },
   { id: "timelines", title: "Estimated timelines", body: ["Kathmandu Valley orders are usually delivered within 1 to 2 business days after confirmation.", "Outside-Valley orders usually arrive within 3 to 5 business days after dispatch, with additional time possible for remote areas or weather disruptions."] },
-  { id: "fees", title: "Delivery fees", body: ["Free delivery is available on eligible orders over NPR 2,500 inside Kathmandu Valley. Thresholds for other areas may vary.", "Delivery fees below that threshold depend on address, courier coverage, order size and payment method."] },
+  { id: "fees", title: "Delivery fees", body: [`Free delivery is available on eligible orders over ${formatNPR(FREE_DELIVERY_THRESHOLD)} inside Kathmandu Valley. Thresholds for other areas may vary.`, "Delivery fees below that threshold depend on address, courier coverage, order size and payment method."] },
   { id: "pickup", title: "Store pickup", body: [`Store pickup may be arranged from ${SITE_CONFIG.address} after order confirmation.`] },
 ];
 

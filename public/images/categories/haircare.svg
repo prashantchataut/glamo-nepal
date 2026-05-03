@@ -1,1 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760" role="img" aria-label="Haircare category editorial"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F2E7DB"/><stop offset="1" stop-color="#FFF9F2"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#402334" flood-opacity="0.18"/></filter></defs><rect width="1000" height="760" rx="70" fill="url(#g)"/><circle cx="790" cy="160" r="130" fill="#D2A66E" opacity="0.30"/><circle cx="175" cy="610" r="105" fill="#fff" opacity="0.54"/><g filter="url(#s)"><rect x="365" y="190" width="230" height="360" rx="92" fill="#fff"/><rect x="410" y="245" width="140" height="170" rx="52" fill="#F2E7DB"/><rect x="430" y="137" width="100" height="80" rx="24" fill="#5F473D"/><line x1="426" y1="340" x2="536" y2="340" stroke="#D2A66E" stroke-width="18" stroke-linecap="round"/><text x="480" y="395" text-anchor="middle" font-family="Georgia,serif" font-size="42" fill="#5F473D">Haircare</text></g><text x="80" y="130" font-family="Georgia,serif" font-size="60" font-weight="700" fill="#5F473D">Haircare</text><text x="82" y="178" font-family="Arial,sans-serif" font-size="22" letter-spacing="4" fill="#70656B">GLAMO NEPAL EDIT</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Haircare">
+  
+  <defs>
+    <linearGradient id="bg-cat-haircare" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FBF8EF"/>
+      <stop offset="0.58" stop-color="#E9E2D2"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-cat-haircare" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-cat-haircare" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-cat-haircare" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-cat-haircare" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" rx="0" fill="url(#bg-cat-haircare)"/>
+  <circle cx="710" cy="150" r="130" fill="#FFFFFF" opacity="0.52"/>
+  <circle cx="150" cy="715" r="122" fill="#FFFFFF" opacity="0.42"/>
+  <g transform="translate(-50 -55) scale(.96)"><g filter="url(#shadow-cat-haircare)">
+    <path d="M375 250 H625 L668 776 Q500 845 332 776 Z" fill="url(#glass-cat-haircare)"/>
+    <rect x="376" y="212" width="248" height="74" rx="24" fill="#3A2B22"/>
+    <rect x="405" y="414" width="190" height="220" rx="50" fill="#D8CCB8" opacity="0.58"/>
+    <line x1="405" y1="681" x2="595" y2="681" stroke="#C9A84C" stroke-width="13" stroke-linecap="round"/>
+    <text x="500" y="496" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="538" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#7A6A55">Haircare</text>
+    <line x1="405.0" y1="584" x2="595.0" y2="584" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M621 312 C650 416 642 598 592 745" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" opacity="0.58"/>
+  </g><g filter="url(#shadow-cat-haircare)">
+    <rect x="459.0" y="227" width="82" height="74" rx="22" fill="#3A2B22"/>
+    <rect x="375.0" y="285" width="250" height="470" rx="78" fill="url(#glass-cat-haircare)"/>
+    <rect x="420.0" y="393" width="160" height="196" rx="54" fill="#D8CCB8" opacity="0.60"/>
+    <rect x="412.0" y="525" width="176" height="16" rx="8" fill="#7A6A55" opacity="0.42"/>
+    <rect x="417.0" y="563" width="166" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="631" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="673" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#7A6A55">Oil</text>
+    <line x1="402.0" y1="719" x2="598.0" y2="719" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M569.0 327 C599.0 391 597.0 601 567.0 705" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g></g>
+  <rect x="75" y="694" width="750" height="118" rx="44" fill="#FFFFFF" opacity=".78"/>
+  <text x="450" y="752" text-anchor="middle" font-family="Cormorant Garamond, Georgia" font-size="52" font-weight="700" fill="#241F22">Haircare</text>
+  <text x="450" y="790" text-anchor="middle" font-family="DM Sans, Arial" font-size="17" font-weight="700" letter-spacing="4" fill="#7A6A55">GLAMO EDIT</text>
+</svg>

@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -105,7 +106,6 @@ export function AdminLoginForm() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Enter your password"
                   autoComplete="current-password"
                   className="w-full rounded-2xl border border-brand-border bg-white py-4 pl-12 pr-12 text-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10"
                   required

@@ -1,14 +1,16 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
-import { ArrowLeft, Download, RotateCcw } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, Download, PackageCheck, RotateCcw, Truck } from "lucide-react";
 import { SAMPLE_ORDERS } from "@/lib/data/orders";
 import { useCheckoutStore, type SimulatedOrder } from "@/store/useCheckoutStore";
-import { cn, formatNpr } from "@/lib/utils";
+import { cn, formatNPR } from "@/lib/utils";
 
-const steps = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered"];
+const steps = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered"] as const;
+const stepIcons = [Clock3, CheckCircle2, PackageCheck, Truck, CheckCircle2];
 
 type DisplayOrder = SimulatedOrder & { source: "session" | "sample" };
 
@@ -60,12 +62,18 @@ export function OrderDetailClient() {
         <section className="mt-8 rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">
           <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Tracking timeline</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-5">
-            {steps.map((step, index) => (
-              <div key={step} className="relative rounded-2xl bg-brand-bgLight p-4">
-                <div className={cn("flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold", index <= activeIndex ? "bg-brand-primary text-white" : "bg-white text-brand-textMuted")}>{index + 1}</div>
-                <p className={cn("mt-3 text-sm font-semibold", index <= activeIndex ? "text-brand-primary" : "text-brand-textMuted")}>{step}</p>
-              </div>
-            ))}
+            {steps.map((step, index) => {
+              const Icon = stepIcons[index];
+              const completed = index < activeIndex;
+              const current = index === activeIndex;
+              return (
+                <div key={step} className="relative rounded-2xl bg-brand-bgLight p-4">
+                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold", completed ? "bg-emerald-600 text-white" : current ? "bg-brand-primary text-white" : "bg-white text-brand-textMuted")}><Icon size={18} /></div>
+                  <p className={cn("mt-3 text-sm font-semibold", completed ? "text-emerald-700" : current ? "text-brand-primary" : "text-brand-textMuted")}>{step}</p>
+                  <p className="mt-1 text-xs text-brand-textMuted">{completed || current ? order.date : "Pending update"}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
       ) : null}
@@ -83,7 +91,7 @@ export function OrderDetailClient() {
                   <p className="truncate font-semibold text-brand-textPrimary">{item.name}</p>
                   <p className="text-xs text-brand-textMuted">{item.brand} · Qty {item.quantity}</p>
                 </div>
-                <p className="font-bold text-brand-gold">{formatNpr(item.price * item.quantity)}</p>
+                <p className="font-bold text-brand-gold">{formatNPR(item.price * item.quantity)}</p>
               </div>
             ))}
           </div>
@@ -100,9 +108,9 @@ export function OrderDetailClient() {
           <section className="rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">
             <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Summary</h2>
             <div className="mt-4 space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNpr(order.total)}</span></div>
+              <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNPR(order.total)}</span></div>
               <div className="flex justify-between"><span className="text-brand-textMuted">Delivery</span><span className="text-emerald-600">Free</span></div>
-              <div className="flex justify-between border-t border-border pt-3 font-semibold"><span>Total</span><span className="text-lg text-brand-gold">{formatNpr(order.total)}</span></div>
+              <div className="flex justify-between border-t border-border pt-3 font-semibold"><span>Total</span><span className="text-lg text-brand-gold">{formatNPR(order.total)}</span></div>
             </div>
           </section>
           <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">

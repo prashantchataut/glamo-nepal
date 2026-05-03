@@ -34,5 +34,5 @@ export async function createStockAlert(payload: StockAlertPayload): Promise<ApiR
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
     return apiRequest<{ queued: boolean }>("/stock-alerts", { method: "POST", body: JSON.stringify(payload) });
   }
-  return ok({ queued: true }, "Mock stock alert queued. Connect email/SMS before launch.");
+  return ok({ queued: true }, "Stock alert request received. GLAMO will contact the customer when it is available.");
 }

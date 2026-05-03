@@ -1,5 +1,5 @@
 import { Clock3, MapPin, PackageCheck, ShieldCheck } from "lucide-react";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/config";
 
 const promises = [
   { icon: <Clock3 className="h-5 w-5" aria-hidden="true" />, title: "Fast Valley delivery", body: "Kathmandu Valley orders usually arrive within 1–2 business days." },

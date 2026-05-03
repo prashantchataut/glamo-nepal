@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
@@ -41,9 +42,9 @@ import {
 import { PRODUCTS } from "@/lib/data/products";
 import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type InventoryRisk } from "@/lib/data/inventory";
 import { MOCK_ORDERS, type Order } from "@/lib/data/orders";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/config";
 import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
-import { cn, formatNpr } from "@/lib/utils";
+import { cn, formatNPR } from "@/lib/utils";
 import { ComingSoonTooltip } from "@/components/ui/ComingSoonTooltip";
 
 type AdminSection = "dashboard" | "products" | "orders" | "inventory" | "banners" | "customers" | "analytics" | "settings";
@@ -399,7 +400,7 @@ export function AdminDashboard() {
               <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
                 <StatCard icon={Users} label="Customers" value="26" note="Seeded customer view until API connected" />
                 <StatCard icon={Package} label="Products" value={PRODUCTS.length} note={`${PRODUCTS.filter((product) => product.madeInNepal).length} Made in Nepal picks`} />
-                <StatCard icon={ShoppingBag} label="Orders" value={MOCK_ORDERS.length} note={`${formatNpr(grossSales)} sample order value`} />
+                <StatCard icon={ShoppingBag} label="Orders" value={MOCK_ORDERS.length} note={`${formatNPR(grossSales)} sample order value`} />
                 <StatCard icon={AlertTriangle} label="Stock watch" value={lowStockCount} note={`${INVENTORY_SUMMARY.totalUnits} total units`} />
               </section>
 
@@ -426,7 +427,7 @@ export function AdminDashboard() {
                             <td className="px-4 py-4 font-mono text-xs font-semibold text-brand-textPrimary">{order.orderNumber}</td>
                             <td className="px-4 py-4">{order.shippingAddress.split(",")[0]}</td>
                             <td className="px-4 py-4">{order.paymentMethod}</td>
-                            <td className="px-4 py-4 font-bold">{formatNpr(order.total)}</td>
+                            <td className="px-4 py-4 font-bold">{formatNPR(order.total)}</td>
                             <td className="px-4 py-4"><StatusPill className={orderStatusStyles[order.status]}>{order.status}</StatusPill></td>
                             <td className="px-4 py-4"><button aria-label="Open order actions" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted hover:bg-brand-bgLight"><MoreHorizontal size={16} /></button></td>
                           </tr>
@@ -504,7 +505,7 @@ export function AdminDashboard() {
                           </td>
 <td className="px-4 py-4 font-mono text-xs">{product.sku}</td>
                            <td className="px-4 py-4 capitalize">{product.category}</td>
-                           <td className="px-4 py-4 font-semibold">{formatNpr(product.price)}</td>
+                           <td className="px-4 py-4 font-semibold">{formatNPR(product.price)}</td>
                            <td className="px-4 py-4">{product.stockCount} pcs</td>
 <td className="px-4 py-4"><StatusPill className={status === "Active" ? "bg-admin-success-light text-admin-success ring-admin-success/20" : status === "Low" ? "bg-admin-warning-light text-admin-warning ring-admin-warning/20" : "bg-admin-error-light text-admin-error ring-admin-error/20"}>{status}</StatusPill></td>
                            <td className="px-4 py-4">
@@ -535,7 +536,7 @@ export function AdminDashboard() {
                   <thead><tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted"><th scope="col" className="px-4 py-3">Order</th><th scope="col" className="px-4 py-3">Date</th><th scope="col" className="px-4 py-3">Items</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3">Address</th><th scope="col" className="px-4 py-3">Total</th><th scope="col" className="px-4 py-3">Status</th></tr></thead>
                   <tbody>{orderRows.map((order) => (
                     <tr key={order.id} className="border-b border-brand-border/70 last:border-0">
-<td className="px-4 py-4 font-mono text-xs font-semibold">{order.orderNumber}</td><td className="px-4 py-4">{order.date}</td><td className="px-4 py-4">{order.items.length}</td><td className="px-4 py-4">{order.paymentMethod}</td><td className="px-4 py-4 max-w-[200px] truncate">{order.shippingAddress}</td><td className="px-4 py-4 font-semibold">{formatNpr(order.total)}</td>
+<td className="px-4 py-4 font-mono text-xs font-semibold">{order.orderNumber}</td><td className="px-4 py-4">{order.date}</td><td className="px-4 py-4">{order.items.length}</td><td className="px-4 py-4">{order.paymentMethod}</td><td className="px-4 py-4 max-w-[200px] truncate">{order.shippingAddress}</td><td className="px-4 py-4 font-semibold">{formatNPR(order.total)}</td>
                        <td className="px-4 py-4"><select aria-label="Order status" value={order.status} onChange={(event) => setOrderStatusById((current) => ({ ...current, [order.id]: event.target.value as Order["status"] }))} className="rounded-full border border-brand-border bg-white px-3 py-2 text-xs font-medium outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"><option>Pending</option><option>Confirmed</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select></td>
                     </tr>
                   ))}</tbody>
@@ -549,7 +550,7 @@ export function AdminDashboard() {
               <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
                 <h2 className="font-serif text-2xl font-semibold">Stock control</h2>
                 <p className="mt-0.5 text-sm text-brand-textMuted">Monitor stock, reorder points and estimated cover.</p>
-                <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNpr(inventoryValue)} note="Current retail value" /></div>
+                <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNPR(inventoryValue)} note="Current retail value" /></div>
                 <div className="mt-5 space-y-2">
                   {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{item.name}</p><p className="text-xs text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><div className="flex items-center gap-2"><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Restock</button></ComingSoonTooltip></div></div>)}
                 </div>

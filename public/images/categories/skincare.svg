@@ -1,1 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760" role="img" aria-label="Skincare category editorial"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FBEAED"/><stop offset="1" stop-color="#F7F1EA"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#402334" flood-opacity="0.18"/></filter></defs><rect width="1000" height="760" rx="70" fill="url(#g)"/><circle cx="790" cy="160" r="130" fill="#E6C5D2" opacity="0.30"/><circle cx="175" cy="610" r="105" fill="#fff" opacity="0.54"/><g filter="url(#s)"><rect x="365" y="190" width="230" height="360" rx="92" fill="#fff"/><rect x="410" y="245" width="140" height="170" rx="52" fill="#FBEAED"/><rect x="430" y="137" width="100" height="80" rx="24" fill="#9A6B82"/><line x1="426" y1="340" x2="536" y2="340" stroke="#E6C5D2" stroke-width="18" stroke-linecap="round"/><text x="480" y="395" text-anchor="middle" font-family="Georgia,serif" font-size="42" fill="#9A6B82">Skincare</text></g><text x="80" y="130" font-family="Georgia,serif" font-size="60" font-weight="700" fill="#9A6B82">Skincare</text><text x="82" y="178" font-family="Arial,sans-serif" font-size="22" letter-spacing="4" fill="#70656B">GLAMO NEPAL EDIT</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Skincare">
+  
+  <defs>
+    <linearGradient id="bg-cat-skincare" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF8F8"/>
+      <stop offset="0.58" stop-color="#F7E6EE"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-cat-skincare" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-cat-skincare" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-cat-skincare" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-cat-skincare" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" rx="0" fill="url(#bg-cat-skincare)"/>
+  <circle cx="710" cy="150" r="130" fill="#FFFFFF" opacity="0.52"/>
+  <circle cx="150" cy="715" r="122" fill="#FFFFFF" opacity="0.42"/>
+  <g transform="translate(-50 -55) scale(.96)"><g filter="url(#shadow-cat-skincare)">
+    <rect x="459.0" y="227" width="82" height="74" rx="22" fill="#8B3A8F"/>
+    <rect x="375.0" y="285" width="250" height="470" rx="78" fill="url(#glass-cat-skincare)"/>
+    <rect x="420.0" y="393" width="160" height="196" rx="54" fill="#F2CEDB" opacity="0.60"/>
+    <rect x="412.0" y="525" width="176" height="16" rx="8" fill="#9D5C7B" opacity="0.42"/>
+    <rect x="417.0" y="563" width="166" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="631" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="673" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Serum</text>
+    <line x1="402.0" y1="719" x2="598.0" y2="719" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M569.0 327 C599.0 391 597.0 601 567.0 705" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g><g filter="url(#shadow-cat-skincare)">
+    <ellipse cx="500" cy="334" rx="190" ry="56" fill="#8B3A8F"/>
+    <rect x="310" y="332" width="380" height="100" rx="34" fill="#8B3A8F"/>
+    <path d="M278 427 H722 L660 760 Q500 838 340 760 Z" fill="url(#glass-cat-skincare)"/>
+    <ellipse cx="500" cy="427" rx="222" ry="62" fill="#FFFFFF" opacity="0.88"/>
+    <rect x="382" y="537" width="236" height="102" rx="36" fill="#F2CEDB" opacity="0.60"/>
+    <text x="500" y="580" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="622" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Cream</text>
+    <line x1="390.0" y1="668" x2="610.0" y2="668" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M670 486 C702 565 674 688 618 757" stroke="#FFFFFF" stroke-width="21" stroke-linecap="round" opacity="0.52"/>
+  </g></g>
+  <rect x="75" y="694" width="750" height="118" rx="44" fill="#FFFFFF" opacity=".78"/>
+  <text x="450" y="752" text-anchor="middle" font-family="Cormorant Garamond, Georgia" font-size="52" font-weight="700" fill="#241F22">Skincare</text>
+  <text x="450" y="790" text-anchor="middle" font-family="DM Sans, Arial" font-size="17" font-weight="700" letter-spacing="4" fill="#9D5C7B">GLAMO EDIT</text>
+</svg>

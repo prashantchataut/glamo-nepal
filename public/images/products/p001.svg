@@ -1,20 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="520" viewBox="0 0 420 520" role="img" aria-label="GLAMO product packshot p001">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-label="Himalayan Vitamin C Glow Serum">
+  
   <defs>
-    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="30" stdDeviation="22" flood-color="#241F22" flood-opacity="0.20"/></filter>
-    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="24"/></filter>
-    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF" stop-opacity="0.88"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0.18"/></linearGradient>
-  </defs><rect width="420" height="520" fill="#FFF9F5"/>
-  <rect width="420" height="520" fill="#FBE9ED" opacity="0.72"/>
-  <circle cx="327.6" cy="93.6" r="92.4" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="84" cy="436.8" r="84" fill="#9A6B82" opacity="0.08"/>
-  <path d="M0 395.2 C 84 322.4, 159.6 447.2, 243.6 374.4 C 327.6 301.59999999999997, 378 353.6, 420 291.20000000000005 L 420 520 L 0 520Z" fill="#FFFFFF" opacity="0.42"/>
-  <ellipse cx="210" cy="384.8" rx="100.8" ry="20.8" fill="#241F22" opacity="0.13"/><circle cx="84" cy="112" r="10" fill="#fff" opacity="0.82"/><circle cx="104" cy="132" r="7" fill="#fff" opacity="0.76"/><circle cx="330" cy="404" r="9" fill="#fff" opacity="0.7"/><circle cx="360" cy="380" r="5" fill="#fff" opacity="0.68"/><g transform="translate(54 420) rotate(-35) scale(0.72)" opacity="0.8"><path d="M0 0 C 36 -26 70 -20 90 10 C 52 18 22 14 0 0Z" fill="#7F9B74"/><path d="M5 2 C 34 0 56 5 82 10" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="3"/></g><g transform="translate(324 118) rotate(150) scale(0.54)" opacity="0.8"><path d="M0 0 C 36 -26 70 -20 90 10 C 52 18 22 14 0 0Z" fill="#9CA978"/><path d="M5 2 C 34 0 56 5 82 10" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="3"/></g><g filter="url(#shadow)" transform="translate(0 4)">
-    <rect x="188" y="96" width="44" height="92" rx="18" fill="#FFFFFF"/>
-    <rect x="168" y="164" width="84" height="46" rx="12" fill="#9A6B82"/>
-    <rect x="166" y="202" width="88" height="206" rx="32" fill="#FFFFFF"/>
-    <rect x="181" y="222" width="58" height="132" rx="22" fill="#FBE9ED"/>
-    <rect x="194" y="282" width="32" height="8" rx="4" fill="#C3A067" opacity="0.9"/>
-    <rect x="196" y="305" width="28" height="5" rx="2.5" fill="#9A6B82" opacity="0.32"/>
-    <path d="M239 222 C 225 250 226 322 239 354" stroke="url(#shine)" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
-  </g><text x="210" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="3" fill="#9A6B82" opacity="0.82">GLAMO NEPAL</text>
+    <linearGradient id="bg-p001" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF8F8"/>
+      <stop offset="0.58" stop-color="#F7E6EE"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-p001" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-p001" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-p001" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-p001" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs><rect width="1000" height="1000" rx="0" fill="url(#bg-p001)"/>
+  <circle cx="780" cy="178" r="142" fill="url(#halo-p001)"/>
+  <circle cx="154" cy="770" r="126" fill="#FFFFFF" opacity="0.48"/>
+  <circle cx="205" cy="206" r="72" fill="#F2CEDB" opacity="0.32"/>
+  <circle cx="842" cy="760" r="112" fill="#FFFFFF" opacity="0.30"/>
+  <path d="M0 724 C172 635 356 741 507 660 C671 571 802 627 1000 542 L1000 1000 L0 1000 Z" fill="#FFFDFC" opacity="0.76"/>
+  <ellipse cx="508" cy="810" rx="238" ry="52" fill="#1A0A1E" opacity="0.10"/>
+  <g opacity="0.72">
+    <path d="M154 646 C116 619 121 561 174 548 C209 582 198 628 154 646Z" fill="#9D5C7B" opacity="0.22"/>
+    <path d="M815 428 C856 399 912 425 912 481 C860 497 823 474 815 428Z" fill="#C9A84C" opacity="0.20"/>
+    <path d="M785 644 l17 31 35 8 -31 18 -4 36 -25 -26 -37 8 18 -33 -19 -31 36 7z" fill="#C9A84C" opacity="0.40"/>
+  </g>
+  <g transform="translate(-90 -55) scale(1.18)"><g filter="url(#shadow-p001)">
+    <rect x="459.0" y="227" width="82" height="74" rx="22" fill="#8B3A8F"/>
+    <rect x="375.0" y="285" width="250" height="470" rx="78" fill="url(#glass-p001)"/>
+    <rect x="420.0" y="393" width="160" height="196" rx="54" fill="#F2CEDB" opacity="0.60"/>
+    <rect x="412.0" y="525" width="176" height="16" rx="8" fill="#9D5C7B" opacity="0.42"/>
+    <rect x="417.0" y="563" width="166" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="631" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">KATHMANDU GLOW</text>
+    <text x="500" y="673" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Himalayan Vitamin C</text>
+    <text x="500" y="711" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Glow Serum</text>
+    <line x1="402.0" y1="757" x2="598.0" y2="757" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M569.0 327 C599.0 391 597.0 601 567.0 705" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g></g>
 </svg>

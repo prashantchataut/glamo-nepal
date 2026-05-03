@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
 
     if (!supabaseResponse.ok) {
       const errorText = await supabaseResponse.text();
-      console.error("Supabase contact insert failed:", supabaseResponse.status, errorText);
       return NextResponse.json(
         { status: "error", message: "Failed to submit contact form. Please try again.", code: "UPSTREAM_ERROR" },
         { status: 502 },
@@ -57,7 +56,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ status: "success", message: "Message sent successfully! We will get back to you soon." });
   } catch (error) {
-    console.error("Contact form error:", error);
     return NextResponse.json(
       { status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
       { status: 500 },

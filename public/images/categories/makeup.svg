@@ -1,1 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760" role="img" aria-label="Makeup category editorial"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FCE2E7"/><stop offset="1" stop-color="#FFF6EF"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#402334" flood-opacity="0.18"/></filter></defs><rect width="1000" height="760" rx="70" fill="url(#g)"/><circle cx="790" cy="160" r="130" fill="#D98BA3" opacity="0.30"/><circle cx="175" cy="610" r="105" fill="#fff" opacity="0.54"/><g filter="url(#s)"><rect x="365" y="190" width="230" height="360" rx="92" fill="#fff"/><rect x="410" y="245" width="140" height="170" rx="52" fill="#FCE2E7"/><rect x="430" y="137" width="100" height="80" rx="24" fill="#8B3A5B"/><line x1="426" y1="340" x2="536" y2="340" stroke="#D98BA3" stroke-width="18" stroke-linecap="round"/><text x="480" y="395" text-anchor="middle" font-family="Georgia,serif" font-size="42" fill="#8B3A5B">Makeup</text></g><text x="80" y="130" font-family="Georgia,serif" font-size="60" font-weight="700" fill="#8B3A5B">Makeup</text><text x="82" y="178" font-family="Arial,sans-serif" font-size="22" letter-spacing="4" fill="#70656B">GLAMO NEPAL EDIT</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Makeup">
+  
+  <defs>
+    <linearGradient id="bg-cat-makeup" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF6F4"/>
+      <stop offset="0.58" stop-color="#F4D6DA"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-cat-makeup" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-cat-makeup" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-cat-makeup" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-cat-makeup" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" rx="0" fill="url(#bg-cat-makeup)"/>
+  <circle cx="710" cy="150" r="130" fill="#FFFFFF" opacity="0.52"/>
+  <circle cx="150" cy="715" r="122" fill="#FFFFFF" opacity="0.42"/>
+  <g transform="translate(-50 -55) scale(.96)"><g filter="url(#shadow-cat-makeup)">
+    <rect x="364" y="492" width="132" height="288" rx="32" fill="#2A1A24"/>
+    <rect x="387" y="438" width="88" height="106" rx="28" fill="#B4516D"/>
+    <path d="M388 438 C405 358 448 308 474 336 L474 448 Z" fill="#F1B9C7"/>
+    <rect x="544" y="384" width="142" height="396" rx="40" fill="url(#glass-cat-makeup)"/>
+    <rect x="566" y="318" width="98" height="95" rx="31" fill="#B4516D"/>
+    <text x="614" y="556" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="614" y="598" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#B4516D">Makeup Edit</text>
+    <line x1="554.0" y1="644" x2="674.0" y2="644" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  </g><g filter="url(#shadow-cat-makeup)">
+    <circle cx="500" cy="520" r="218" fill="#2A1A24"/>
+    <circle cx="500" cy="520" r="178" fill="url(#glass-cat-makeup)"/>
+    <circle cx="500" cy="520" r="122" fill="#F1B9C7" opacity="0.86"/>
+    <path d="M386 566 C447 469 544 455 617 545 C535 584 456 594 386 566Z" fill="#B4516D" opacity="0.50"/>
+    <text x="500" y="755" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="797" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#B4516D">Color</text>
+    <line x1="385.0" y1="843" x2="615.0" y2="843" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  </g></g>
+  <rect x="75" y="694" width="750" height="118" rx="44" fill="#FFFFFF" opacity=".78"/>
+  <text x="450" y="752" text-anchor="middle" font-family="Cormorant Garamond, Georgia" font-size="52" font-weight="700" fill="#241F22">Makeup</text>
+  <text x="450" y="790" text-anchor="middle" font-family="DM Sans, Arial" font-size="17" font-weight="700" letter-spacing="4" fill="#B4516D">GLAMO EDIT</text>
+</svg>

@@ -59,7 +59,7 @@ function mapToProduct(rp: RecommendedProduct): Product {
     subCategory: "",
     price: rp.salePrice ?? rp.basePrice,
     originalPrice: rp.salePrice ? rp.basePrice : undefined,
-    image: "/images/product-placeholder-skincare.svg",
+    image: "/images/products/p001.svg",
     rating: 0,
     reviewsCount: 0,
     skinType: [],

@@ -1,20 +1,6 @@
 "use client";
-
+// Client component required: reacts to window scroll and triggers smooth scroll to top.
 import { useEffect, useState } from "react";
 import { ArrowUp } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-export function BackToTopButton() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className={cn("fixed bottom-20 left-4 z-back-to-top rounded-full border border-brand-secondary/30 bg-white p-3 text-brand-primary shadow-lg transition-all md:bottom-6 md:left-6", visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0")} aria-label="Back to top">
-      <ArrowUp size={20} />
-    </button>
-  );
-}
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+export function BackToTopButton() { const [visible, setVisible] = useState(false); const reduceMotion = useReducedMotion(); useEffect(() => { const onScroll = () => setVisible(window.scrollY > 400); onScroll(); window.addEventListener("scroll", onScroll, { passive: true }); return () => window.removeEventListener("scroll", onScroll); }, []); return <AnimatePresence>{visible ? <motion.button type="button" onClick={() => window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" })} initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduceMotion ? 0 : 12 }} transition={{ duration: 0.2, ease: "easeOut" }} className="fixed bottom-[calc(var(--mobile-nav-height)+16px)] right-4 z-back-to-top inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary text-white shadow-lg shadow-brand-primary/25 transition hover:-translate-y-0.5 hover:bg-brand-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 md:bottom-6 md:right-6" aria-label="Back to top"><ArrowUp size={20} /></motion.button> : null}</AnimatePresence>; }

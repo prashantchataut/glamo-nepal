@@ -1,11 +1,12 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, Copy, PackageCheck, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 
 export function CheckoutSuccessClient() {
   const order = useCheckoutStore((state) => state.lastOrder);
@@ -42,7 +43,7 @@ export function CheckoutSuccessClient() {
                   </button>
                 </div>
                 <div className="mt-5 grid gap-3 text-sm text-brand-textMuted">
-                  <p><span className="font-semibold text-brand-textPrimary">Total:</span> {formatNpr(order.total)}</p>
+                  <p><span className="font-semibold text-brand-textPrimary">Total:</span> {formatNPR(order.total)}</p>
                   <p><span className="font-semibold text-brand-textPrimary">Payment:</span> {order.paymentMethod}</p>
                   <p><span className="font-semibold text-brand-textPrimary">Delivery:</span> {order.shippingAddress}</p>
                 </div>

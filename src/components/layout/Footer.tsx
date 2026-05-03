@@ -1,9 +1,9 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
 import { Leaf, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
-import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/config";
 
 const shopLinks = [
   ["Shop All", "/shop"],
@@ -42,9 +42,9 @@ export function Footer() {
               Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu and across Nepal.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white"><FaInstagram size={16} /></a>
-              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white"><FaFacebook size={16} /></a>
-              <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-[#25D366] hover:text-white"><FaWhatsapp size={16} /></a>
+              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white"><Instagram size={16} /></a>
+              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white"><Facebook size={16} /></a>
+              <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-[#25D366] hover:text-white"><MessageCircle size={16} /></a>
             </div>
           </div>
 

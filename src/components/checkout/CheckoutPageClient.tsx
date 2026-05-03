@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -12,9 +13,9 @@ import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChe
 import type { PaymentMethodCode } from "@/lib/api/contracts";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-location";
+import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-locations";
 import { calculateDeliveryFee, getDeliveryRule, getFreeDeliveryProgress } from "@/lib/delivery";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { checkoutSchema, type CheckoutFormData } from "@/lib/validations/checkout";
 
@@ -41,7 +42,7 @@ export function CheckoutPageClient() {
     formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: {
       name: "",
       email: "",
@@ -215,18 +216,18 @@ export function CheckoutPageClient() {
                 </div>
               </div>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <Field label="Full name" register={register("name")} placeholder="Your full name" error={errors.name?.message} autoComplete="name" />
-                <Field label="Email" type="email" register={register("email")} placeholder="you@example.com" error={errors.email?.message} autoComplete="email" />
+                <Field label="Full name" register={register("name")} error={errors.name?.message} autoComplete="name" />
+                <Field label="Email" type="email" register={register("email")} error={errors.email?.message} autoComplete="email" required={false} />
                 <Field label="Nepal phone" register={register("phone")} placeholder="+977 9818212188" error={errors.phone?.message} autoComplete="tel" />
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   Province
-                  <select {...register("province")} onChange={(e) => updateProvince(e.target.value)} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select {...register("province")} onChange={(e) => updateProvince(e.target.value)} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {PROVINCES.map((province) => <option key={province}>{province}</option>)}
                   </select>
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   District
-                  <select {...register("district")} onChange={(e) => updateDistrict(e.target.value)} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+                  <select {...register("district")} onChange={(e) => updateDistrict(e.target.value)} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {districtOptions.map((district) => <option key={district}>{district}</option>)}
                   </select>
                 </label>
@@ -244,7 +245,7 @@ export function CheckoutPageClient() {
                         }
                       }}
                       value={showOtherCity ? "__other__" : form.city}
-                      className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+                      className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
                     >
                       <option value="">Select city / municipality</option>
                       {municipalityOptions.map((m) => (
@@ -257,15 +258,15 @@ export function CheckoutPageClient() {
                       <input
                         {...register("city")}
                         placeholder="Enter your city / municipality"
-                        className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
+                        className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30"
                       />
                       <button type="button" onClick={() => { setShowOtherCity(false); setValue("city", municipalityOptions[0]?.name ?? "", { shouldValidate: true }); }} className="text-xs text-brand-primary underline">Back to list</button>
                     </div>
                   )}
                   {errors.city && <span role="alert" className="text-xs text-red-600">{errors.city.message}</span>}
                 </div>
-                <Field label="Ward" register={register("ward")} placeholder="Ward number" error={errors.ward?.message} />
-                <Field label="Address" register={register("address")} placeholder="Street, house number, landmark" error={errors.address?.message} autoComplete="street-address" />
+                <Field label="Ward" register={register("ward")} error={errors.ward?.message} />
+                <Field label="Address" register={register("address")} error={errors.address?.message} autoComplete="street-address" />
               </div>
               <div className="mt-5"><CodAvailabilityChecker district={form.district} province={form.province} /></div>
 <div className="mt-5 rounded-[1.5rem] border border-brand-secondary/25 bg-brand-bgLight p-4">
@@ -274,7 +275,7 @@ export function CheckoutPageClient() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-brand-textPrimary">
-                          Delivery: {deliveryFee ? formatNpr(deliveryFee) : "FREE"}
+                          Delivery: {deliveryFee ? formatNPR(deliveryFee) : "FREE"}
                         </p>
                         {deliveryRule.codAvailable ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
@@ -287,11 +288,11 @@ export function CheckoutPageClient() {
                         )}
                       </div>
                       <p className="mt-1 text-xs text-brand-textMuted">Estimated delivery: {deliveryRule.estimate}</p>
-                      <p className="mt-1 text-xs text-brand-textMuted">Free delivery threshold for this route: {formatNpr(freeDelivery.threshold)}.</p>
+                      <p className="mt-1 text-xs text-brand-textMuted">Free delivery threshold for this route: {formatNPR(freeDelivery.threshold)}.</p>
                       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
                         <div className="h-full rounded-full bg-brand-primary" style={{ width: `${freeDelivery.percent}%` }} />
                       </div>
-                      {freeDelivery.remaining > 0 ? <p className="mt-2 text-xs text-brand-textMuted">Add {formatNpr(freeDelivery.remaining)} more for free delivery on this route.</p> : <p className="mt-2 text-xs font-semibold text-emerald-700">Free delivery unlocked.</p>}
+                      {freeDelivery.remaining > 0 ? <p className="mt-2 text-xs text-brand-textMuted">Add {formatNPR(freeDelivery.remaining)} more for free delivery on this route.</p> : <p className="mt-2 text-xs font-semibold text-emerald-700">Free delivery unlocked.</p>}
                     </div>
                   </div>
                 </div>
@@ -329,7 +330,7 @@ export function CheckoutPageClient() {
               </label>
               <label className="mt-5 block space-y-2 text-sm font-semibold text-brand-textPrimary">
                 Order notes
-                <textarea {...register("notes")} rows={4} className="w-full rounded-2xl border border-brand-border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
+                <textarea {...register("notes")} rows={4} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" placeholder="Delivery notes, preferred time, gift message..." />
               </label>
             </div>
           </section>
@@ -346,15 +347,15 @@ export function CheckoutPageClient() {
                     <p className="line-clamp-1 text-sm font-semibold text-brand-textPrimary">{item.product.name}</p>
                     <p className="mt-0.5 text-xs text-brand-textMuted">Qty {item.quantity}{item.selectedShade ? ` · ${item.selectedShade}` : ""}</p>
                   </div>
-                  <span className="text-sm font-bold text-brand-textPrimary">{formatNpr(item.product.price * item.quantity)}</span>
+                  <span className="text-sm font-bold text-brand-textPrimary">{formatNPR(item.product.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
             <div className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNpr(subtotal)}</span></div>
-              <div className="flex justify-between"><span className="text-brand-textMuted">Delivery</span><span>{deliveryFee ? formatNpr(deliveryFee) : "Free"}</span></div>
-              <div className="flex justify-between"><span className="text-brand-textMuted">Gift wrap</span><span>{giftWrapFee ? formatNpr(giftWrapFee) : "No"}</span></div>
-              <div className="flex justify-between border-t border-brand-border pt-4 text-xl"><span className="font-semibold">Total</span><span className="font-bold text-brand-primary">{formatNpr(total)}</span></div>
+              <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNPR(subtotal)}</span></div>
+              <div className="flex justify-between"><span className="text-brand-textMuted">Delivery</span><span>{deliveryFee ? formatNPR(deliveryFee) : "Free"}</span></div>
+              <div className="flex justify-between"><span className="text-brand-textMuted">Gift wrap</span><span>{giftWrapFee ? formatNPR(giftWrapFee) : "No"}</span></div>
+              <div className="flex justify-between border-t border-brand-border pt-4 text-xl"><span className="font-semibold">Total</span><span className="font-bold text-brand-gold">{formatNPR(total)}</span></div>
             </div>
             <button disabled={!canSubmit || status === "pending"} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-4 font-semibold text-white transition hover:bg-brand-primary-hover focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:cursor-not-allowed disabled:bg-brand-textMuted">
               <LockKeyhole size={18} />{status === "pending" ? "Placing order..." : "Place order"}
@@ -400,7 +401,7 @@ function Field({
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? errorId : undefined}
         {...registerProps}
-        className={`w-full rounded-2xl border bg-brand-bgLight px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30 ${error ? "border-red-500" : "border-brand-border"}`}
+        className={`w-full rounded-xl border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30 ${error ? "border-red-500" : "border-brand-border"}`}
       />
       {error ? <span id={errorId} role="alert" className="text-xs text-red-600">{error}</span> : null}
     </label>

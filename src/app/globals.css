@@ -18,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 320 8% 13%;
 
-    --primary: 330 19% 51%;
+    --primary: 296 42% 39%;
     --primary-foreground: 18 54% 97%;
 
     --secondary: 333 39% 84%;
@@ -35,26 +35,26 @@
 
     --border: 340 22% 91%;
     --input: 340 22% 91%;
-    --ring: 330 19% 51%;
+    --ring: 296 42% 39%;
 
     --radius: 0.75rem;
     --font-cormorant: Georgia, "Times New Roman", serif;
     --font-dm-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-    --color-primary: #9A6B82;
-    --color-primary-hover: #85576E;
-    --color-primary-light: #F8EEF2;
+    --color-primary: #8B3A8F;
+    --color-primary-hover: #77317A;
+    --color-primary-light: #F8EEF8;
     --color-secondary: #E5C6D4;
-    --color-gold: #C3A067;
-    --color-gold-light: #F8F0DD;
-    --color-dark: #241F22;
-    --color-text: #241F22;
+    --color-gold: #C9A84C;
+    --color-gold-light: #FBF4DD;
+    --color-dark: #1A0A1E;
+    --color-text: #1A0A1E;
     --color-muted: #70656B;
     --color-background: #FCF7F5;
     --color-border: #EEE3E6;
     --color-error: #E05252;
     --color-success: #4CAF82;
-    --gradient-editorial: linear-gradient(135deg, #FFF9F7 0%, #F8EEF2 45%, #F7F1EA 100%);
+    --gradient-editorial: linear-gradient(135deg, #FFF9F7 0%, #F8EEF8 45%, #F7F1EA 100%);
   }
 
   .dark {
@@ -164,4 +164,9 @@ body.scroll-locked {
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+@layer base {
+  :focus-visible { outline: 2px solid #8B3A8F; outline-offset: 2px; }
+  input, select, textarea { font-size: 16px; }
 }

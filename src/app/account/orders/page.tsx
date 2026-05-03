@@ -1,13 +1,15 @@
 import { createMetadata } from "@/lib/seo";
-import { OrdersClient } from "@/components/account/OrdersClient";
+import { OrderDetailClient } from "@/components/account/OrderDetailClient";
 
-export const metadata = createMetadata({
-  title: "Your Orders",
-  description: "View your GLAMO NEPAL order history, track deliveries and manage returns.",
-  path: "/account/orders",
-  noIndex: true,
-});
+export function generateMetadata({ params }: { params: { id: string } }) {
+  return createMetadata({
+    title: `Order ${params.id}`,
+    description: "View GLAMO NEPAL order details, delivery timeline and item summary.",
+    path: `/account/orders/${params.id}`,
+    noIndex: true,
+  });
+}
 
-export default function OrdersPage() {
-  return <OrdersClient />;
+export default function OrderDetailPage() {
+  return <OrderDetailClient />;
 }

@@ -1,31 +1,38 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
+import { EmptyState } from "@/components/common/EmptyState";
 import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 import { trackCheckoutStart } from "@/lib/tracking";
-import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
-import { formatNpr } from "@/lib/utils";
+import { FREE_DELIVERY_THRESHOLD, calculateDeliveryFee } from "@/lib/delivery";
+import { formatNPR } from "@/lib/utils";
 
 export function CartPageClient() {
   const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const [lineErrors, setLineErrors] = useState<Record<string, string>>({});
   const subtotal = getSubtotal();
-  const delivery = subtotal >= FREE_DELIVERY_THRESHOLD || subtotal === 0 ? 0 : 150;
+  const delivery = calculateDeliveryFee(subtotal, "Kathmandu", "Bagmati");
   const total = subtotal + delivery;
+
+  function lineKey(productId: string, selectedShade?: string) {
+    return `${productId}-${selectedShade || "base"}`;
+  }
+
+  function changeQuantity(productId: string, quantity: number, selectedShade?: string) {
+    const result = updateQuantity(productId, quantity, selectedShade);
+    const key = lineKey(productId, selectedShade);
+    setLineErrors((current) => ({ ...current, [key]: result.ok ? "" : result.message || "Unable to update quantity" }));
+  }
 
   if (!items.length) {
     return (
-      <main className="bg-brand-bgLight py-20">
-        <div className="container mx-auto px-4 text-center">
-          <ShoppingBag className="mx-auto mb-5 text-brand-secondary" size={72} />
-          <h1 className="font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">Your cart is empty</h1>
-          <p className="mx-auto mt-3 max-w-md text-brand-textMuted">Explore GLAMO NEPAL skincare, makeup and beauty picks in NPR.</p>
-          <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark">
-            Start shopping
-          </Link>
-        </div>
+      <main className="bg-brand-bgLight py-16 md:py-24">
+        <div className="mx-auto max-w-[1400px] px-4 md:px-8"><EmptyState variant="cart" /></div>
       </main>
     );
   }
@@ -34,12 +41,12 @@ export function CartPageClient() {
     <main className="bg-brand-bgLight py-12">
       <div className="container mx-auto px-4 md:px-6">
         <h1 className="font-serif text-3xl font-semibold text-brand-textPrimary md:text-4xl">Shopping cart</h1>
-        <p className="mt-1 text-sm text-brand-textMuted">Free delivery on orders over NPR 2,500.</p>
+        <p className="mt-1 text-sm text-brand-textMuted">Free delivery on orders over {formatNPR(FREE_DELIVERY_THRESHOLD)}.</p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
           <section className="space-y-4">
             {items.map((item) => (
-              <div key={`${item.product.id}-${item.selectedShade || "base"}`} className="rounded-2xl bg-white p-4 shadow-sm">
+              <div key={lineKey(item.product.id, item.selectedShade)} className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
                 <div className="flex gap-4">
                   <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight">
                     <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
@@ -57,16 +64,17 @@ export function CartPageClient() {
                     </div>
                     <div className="mt-4 flex items-end justify-between">
                       <div className="flex items-center gap-3 rounded-full border border-brand-border bg-brand-bgLight px-3 py-2">
-                        <button disabled={item.quantity <= 1} onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedShade)} aria-label="Decrease quantity" className="disabled:opacity-40">
+                        <button disabled={item.quantity <= 1} onClick={() => changeQuantity(item.product.id, item.quantity - 1, item.selectedShade)} aria-label="Decrease quantity" className="disabled:opacity-40">
                           <Minus size={14} />
                         </button>
                         <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedShade)} aria-label="Increase quantity">
+                        <button onClick={() => changeQuantity(item.product.id, item.quantity + 1, item.selectedShade)} aria-label="Increase quantity">
                           <Plus size={14} />
                         </button>
                       </div>
-                      <p className="text-lg font-bold text-brand-textPrimary">{formatNpr(item.product.price * item.quantity)}</p>
+                      <p className="text-lg font-semibold text-brand-gold">{formatNPR(item.product.price * item.quantity)}</p>
                     </div>
+                    {lineErrors[lineKey(item.product.id, item.selectedShade)] ? <p className="mt-2 text-xs font-semibold text-amber-700">{lineErrors[lineKey(item.product.id, item.selectedShade)]}</p> : null}
                   </div>
                 </div>
               </div>
@@ -78,19 +86,19 @@ export function CartPageClient() {
             <div className="mt-5 space-y-3 text-sm">
               <div className="flex justify-between text-brand-textMuted">
                 <span>Subtotal</span>
-                <span className="font-medium text-brand-textPrimary">{formatNpr(subtotal)}</span>
+                <span className="font-medium text-brand-textPrimary">{formatNPR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-brand-textMuted">
                 <span>Delivery</span>
-                <span className="font-medium text-brand-textPrimary">{delivery === 0 ? "Free" : formatNpr(delivery)}</span>
+                <span className="font-medium text-brand-textPrimary">{delivery === 0 ? "Free" : formatNPR(delivery)}</span>
               </div>
               {delivery > 0 && (
-                <p className="text-xs text-brand-textMuted">Free delivery on orders over {formatNpr(FREE_DELIVERY_THRESHOLD)}</p>
+                <p className="text-xs text-brand-textMuted">Free delivery on orders over {formatNPR(FREE_DELIVERY_THRESHOLD)}</p>
               )}
               <div className="border-t border-brand-border pt-3">
                 <div className="flex justify-between font-semibold text-brand-textPrimary">
                   <span>Total</span>
-                  <span className="text-lg">{formatNpr(total)}</span>
+                  <span className="text-lg text-brand-gold">{formatNPR(total)}</span>
                 </div>
               </div>
             </div>

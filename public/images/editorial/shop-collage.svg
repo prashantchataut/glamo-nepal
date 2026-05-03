@@ -1,1 +1,79 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="980" viewBox="0 0 1300 980" role="img" aria-label="Curated shelf essentials"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FCE2E7"/><stop offset=".6" stop-color="#FFF6EF"/><stop offset="1" stop-color="#fff"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="36" stdDeviation="34" flood-color="#432134" flood-opacity="0.16"/></filter></defs><rect width="1300" height="980" fill="url(#bg)"/><circle cx="1050" cy="172" r="190" fill="#D98BA3" opacity=".28"/><circle cx="286" cy="806" r="150" fill="#fff" opacity=".58"/><path d="M0 720 C210 600 360 790 570 650 C780 510 960 650 1300 520 L1300 980 L0 980Z" fill="#fff" opacity=".48"/><g filter="url(#s)"><rect x="500" y="230" width="205" height="470" rx="80" fill="#fff"/><rect x="542" y="308" width="122" height="190" rx="48" fill="#FCE2E7"/><rect x="546" y="152" width="112" height="120" rx="28" fill="#8B3A5B"/><line x1="546" y1="410" x2="660" y2="410" stroke="#D98BA3" stroke-width="16" stroke-linecap="round"/><rect x="720" y="318" width="165" height="350" rx="64" fill="#fff"/><rect x="755" y="382" width="94" height="132" rx="38" fill="#FCE2E7"/><rect x="760" y="246" width="82" height="92" rx="24" fill="#D98BA3"/><circle cx="427" cy="556" r="112" fill="#fff"/><circle cx="427" cy="556" r="82" fill="#FCE2E7"/><path d="M348 568 a80 64 0 0 1 158 0" fill="#D98BA3" opacity=".68"/></g><text x="86" y="150" font-family="Georgia,serif" font-size="82" font-weight="700" fill="#8B3A5B">Curated shelf essentials</text><text x="90" y="208" font-family="Arial,sans-serif" font-size="24" letter-spacing="5" fill="#70656B">SOFT GLAM · SKINCARE · NPR PRICING</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="The GLAMO beauty shelf">
+  
+  <defs>
+    <linearGradient id="bg-editorial-shop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF6F4"/>
+      <stop offset="0.58" stop-color="#F4D6DA"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-editorial-shop" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-editorial-shop" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-editorial-shop" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-editorial-shop" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg-editorial-shop)"/>
+  <circle cx="980" cy="154" r="196" fill="#FFFFFF" opacity="0.48"/>
+  <circle cx="168" cy="724" r="168" fill="#FFFFFF" opacity="0.38"/>
+  <circle cx="214" cy="152" r="58" fill="#F1B9C7" opacity="0.52"/>
+  <path d="M0 638 C218 510 420 680 602 540 C770 410 958 532 1200 402 L1200 900 L0 900Z" fill="#FFFDFC" opacity=".84"/>
+  <g transform="translate(-34 114) scale(.76)"><g filter="url(#shadow-editorial-shop)">
+    <rect x="459.0" y="227" width="82" height="74" rx="22" fill="#2A1A24"/>
+    <rect x="375.0" y="285" width="250" height="470" rx="78" fill="url(#glass-editorial-shop)"/>
+    <rect x="420.0" y="393" width="160" height="196" rx="54" fill="#F1B9C7" opacity="0.60"/>
+    <rect x="412.0" y="525" width="176" height="16" rx="8" fill="#B4516D" opacity="0.42"/>
+    <rect x="417.0" y="563" width="166" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="631" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="673" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#B4516D">Hydra Serum</text>
+    <line x1="402.0" y1="719" x2="598.0" y2="719" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M569.0 327 C599.0 391 597.0 601 567.0 705" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g></g>
+  <g transform="translate(246 54) scale(.86)"><g filter="url(#shadow-editorial-shop)">
+    <ellipse cx="500" cy="334" rx="190" ry="56" fill="#2A1A24"/>
+    <rect x="310" y="332" width="380" height="100" rx="34" fill="#2A1A24"/>
+    <path d="M278 427 H722 L660 760 Q500 838 340 760 Z" fill="url(#glass-editorial-shop)"/>
+    <ellipse cx="500" cy="427" rx="222" ry="62" fill="#FFFFFF" opacity="0.88"/>
+    <rect x="382" y="537" width="236" height="102" rx="36" fill="#F1B9C7" opacity="0.60"/>
+    <text x="500" y="580" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="622" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#B4516D">Glow Cream</text>
+    <line x1="390.0" y1="668" x2="610.0" y2="668" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M670 486 C702 565 674 688 618 757" stroke="#FFFFFF" stroke-width="21" stroke-linecap="round" opacity="0.52"/>
+  </g></g>
+  <g transform="translate(612 116) scale(.78)"><g filter="url(#shadow-editorial-shop)">
+    <path d="M375 250 H625 L668 776 Q500 845 332 776 Z" fill="url(#glass-editorial-shop)"/>
+    <rect x="376" y="212" width="248" height="74" rx="24" fill="#2A1A24"/>
+    <rect x="405" y="414" width="190" height="220" rx="50" fill="#F1B9C7" opacity="0.58"/>
+    <line x1="405" y1="681" x2="595" y2="681" stroke="#C9A84C" stroke-width="13" stroke-linecap="round"/>
+    <text x="500" y="496" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="500" y="538" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#B4516D">Daily SPF</text>
+    <line x1="405.0" y1="584" x2="595.0" y2="584" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M621 312 C650 416 642 598 592 745" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" opacity="0.58"/>
+  </g></g>
+  <g transform="translate(756 426) scale(.48)"><g filter="url(#shadow-editorial-shop)">
+    <rect x="364" y="492" width="132" height="288" rx="32" fill="#2A1A24"/>
+    <rect x="387" y="438" width="88" height="106" rx="28" fill="#B4516D"/>
+    <path d="M388 438 C405 358 448 308 474 336 L474 448 Z" fill="#F1B9C7"/>
+    <rect x="544" y="384" width="142" height="396" rx="40" fill="url(#glass-editorial-shop)"/>
+    <rect x="566" y="318" width="98" height="95" rx="31" fill="#B4516D"/>
+    <text x="614" y="556" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO</text>
+    <text x="614" y="598" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#B4516D">Lip Tint</text>
+    <line x1="554.0" y1="644" x2="674.0" y2="644" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  </g></g>
+  <ellipse cx="605" cy="794" rx="378" ry="54" fill="#1A0A1E" opacity=".08"/>
+  <g opacity=".62">
+    <path d="M178 356 C134 330 134 265 196 250 C232 288 222 340 178 356Z" fill="#B4516D" opacity=".28"/>
+    <path d="M1000 560 C1046 530 1106 562 1098 620 C1044 632 1004 607 1000 560Z" fill="#C9A84C" opacity=".27"/>
+    <path d="M176 575 l20 36 40 9 -35 21 -5 41 -29 -30 -42 9 21 -38 -22 -36 42 8z" fill="#C9A84C" opacity=".40"/>
+  </g>
+</svg>

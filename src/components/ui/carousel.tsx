@@ -1,4 +1,5 @@
 "use client"
+// Client component required: uses browser-only interactivity, hooks, stores, or Radix primitives.
 
 import * as React from "react"
 import useEmblaCarousel, {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/config";
 import { absoluteUrl } from "@/lib/utils";
 import type { Product } from "@/store/useCartStore";
 
@@ -15,7 +15,7 @@ interface SeoInput {
   type?: "website" | "article";
 }
 
-export function createMetadata({ title, description, path = "/", image = "/images/product-placeholder-blush.svg", noIndex = false, keywords = [], type = "website" }: SeoInput): Metadata {
+export function createMetadata({ title, description, path = "/", image = "/images/editorial/hero-editorial.svg", noIndex = false, keywords = [], type = "website" }: SeoInput): Metadata {
   const url = absoluteUrl(path);
   const imageUrl = absoluteUrl(image);
 

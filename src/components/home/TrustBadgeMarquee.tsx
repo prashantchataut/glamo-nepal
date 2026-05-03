@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { Leaf, ShieldCheck, Heart, Sparkles, Award } from "lucide-react";
 import { TRUST_BADGES } from "@/lib/constants";

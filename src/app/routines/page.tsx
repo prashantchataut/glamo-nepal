@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { getBundles } from "@/lib/data/bundles";
 import { createMetadata } from "@/lib/seo";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 
 export const metadata = createMetadata({ title: "Beauty Routines", description: "Shop GLAMO NEPAL routine bundles for skincare, soft glam makeup and gifting.", path: "/routines" });
 
@@ -26,7 +26,7 @@ export default function RoutinesIndexPage() {
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-brand-textMuted">{bundle.description}</p>
                 <div className="mt-5 grid gap-2 text-sm text-brand-textMuted">
                   <span className="inline-flex items-center gap-2"><Sparkles size={15} className="text-brand-primary" /> {bundle.products.length} products</span>
-                  <span className="inline-flex items-center gap-2"><CheckCircle2 size={15} className="text-brand-primary" /> Bundle price {formatNpr(bundle.bundlePrice)}</span>
+                  <span className="inline-flex items-center gap-2"><CheckCircle2 size={15} className="text-brand-primary" /> Bundle price {formatNPR(bundle.bundlePrice)}</span>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">{[...bundle.skinTypes, ...bundle.concerns].slice(0, 4).map((tag) => <span key={tag} className="rounded-full bg-brand-bgLight px-3 py-1 text-xs font-bold text-brand-textMuted">{tag}</span>)}</div>
               </div>

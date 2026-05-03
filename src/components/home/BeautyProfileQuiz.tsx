@@ -1,10 +1,11 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { PRODUCTS } from "@/lib/data/products";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 
 const skinTypes = ["Oily", "Dry", "Combination", "Sensitive"];
 const concerns = ["Brightening", "Hydration", "Oil Control", "Acne Care", "Sun Protection", "Barrier Repair"];
@@ -46,7 +47,7 @@ export function BeautyProfileQuiz() {
                   <p className="font-serif text-lg font-semibold text-brand-textPrimary">{p.name}</p>
                   <p className="text-xs text-brand-textMuted">{p.brand} · {p.concernTags.slice(0, 2).join(", ")}</p>
                 </div>
-                <span className="font-semibold text-brand-textPrimary">{formatNpr(p.price)}</span>
+                <span className="font-semibold text-brand-textPrimary">{formatNPR(p.price)}</span>
               </Link>
             ))}
           </div>

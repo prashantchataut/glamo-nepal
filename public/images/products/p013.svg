@@ -1,1 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="1040" viewBox="0 0 420 520" role="img" aria-label="Amla Strength Hair Oil product photography"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F2E7DB"/><stop offset="0.55" stop-color="#FFF9F2"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient><filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#432134" flood-opacity="0.18"/></filter></defs><rect width="420" height="520" fill="url(#bg)"/><rect x="18" y="18" width="384" height="484" rx="36" fill="#fff" opacity="0.35"/><circle cx="104" cy="88" r="54" fill="#D2A66E" opacity="0.28"/><circle cx="282" cy="294" r="82" fill="#fff" opacity="0.52"/><path d="M60 304 C128 256 184 326 270 270 C320 238 356 262 382 300 L382 420 L60 420 Z" fill="#FFF9F2" opacity="0.82"/><ellipse cx="210" cy="346" rx="96" ry="20" fill="#3b2932" opacity="0.12"/><g filter="url(#s)"><g transform="translate(8 0) rotate(4.199999999999999 210 220)"><rect x="176" y="110" width="68" height="42" rx="10" fill="#5F473D"/><rect x="198" y="72" width="24" height="52" rx="10" fill="#fff"/><rect x="174" y="148" width="72" height="178" rx="28" fill="#fff"/><rect x="184" y="166" width="52" height="110" rx="18" fill="#F2E7DB"/><line x1="195" y1="205" x2="225" y2="205" stroke="#D2A66E" stroke-width="7" stroke-linecap="round"/><text x="210" y="240" text-anchor="middle" font-size="16" font-weight="700" fill="#5F473D">Amla Strength</text><text x="210" y="263" text-anchor="middle" font-size="10" letter-spacing="2" fill="#7c7074">Himalayan Botanics</text></g></g><circle cx="344" cy="126" r="48" fill="#fff" opacity="0.45"/><circle cx="80" cy="412" r="26" fill="#D2A66E" opacity="0.28"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-label="Amla Strength Hair Oil">
+  
+  <defs>
+    <linearGradient id="bg-p013" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FBF8EF"/>
+      <stop offset="0.58" stop-color="#E9E2D2"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-p013" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-p013" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-p013" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-p013" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs><rect width="1000" height="1000" rx="0" fill="url(#bg-p013)"/>
+  <circle cx="780" cy="178" r="142" fill="url(#halo-p013)"/>
+  <circle cx="154" cy="770" r="126" fill="#FFFFFF" opacity="0.48"/>
+  <circle cx="205" cy="206" r="72" fill="#D8CCB8" opacity="0.32"/>
+  <circle cx="842" cy="760" r="112" fill="#FFFFFF" opacity="0.30"/>
+  <path d="M0 724 C172 635 356 741 507 660 C671 571 802 627 1000 542 L1000 1000 L0 1000 Z" fill="#FFFDFC" opacity="0.76"/>
+  <ellipse cx="508" cy="810" rx="238" ry="52" fill="#1A0A1E" opacity="0.10"/>
+  <g opacity="0.72">
+    <path d="M154 646 C116 619 121 561 174 548 C209 582 198 628 154 646Z" fill="#7A6A55" opacity="0.22"/>
+    <path d="M815 428 C856 399 912 425 912 481 C860 497 823 474 815 428Z" fill="#C9A84C" opacity="0.20"/>
+    <path d="M785 644 l17 31 35 8 -31 18 -4 36 -25 -26 -37 8 18 -33 -19 -31 36 7z" fill="#C9A84C" opacity="0.40"/>
+  </g>
+  <g transform="translate(-90 -55) scale(1.18)"><g filter="url(#shadow-p013)">
+    <rect x="459.0" y="227" width="82" height="74" rx="22" fill="#3A2B22"/>
+    <rect x="375.0" y="285" width="250" height="470" rx="78" fill="url(#glass-p013)"/>
+    <rect x="420.0" y="393" width="160" height="196" rx="54" fill="#D8CCB8" opacity="0.60"/>
+    <rect x="412.0" y="525" width="176" height="16" rx="8" fill="#7A6A55" opacity="0.42"/>
+    <rect x="417.0" y="563" width="166" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="631" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">HIMALAYAN BOTANICS</text>
+    <text x="500" y="673" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#7A6A55">Amla Strength Hair</text>
+    <text x="500" y="711" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#7A6A55">Oil</text>
+    <line x1="402.0" y1="757" x2="598.0" y2="757" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M569.0 327 C599.0 391 597.0 601 567.0 705" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g></g>
+</svg>

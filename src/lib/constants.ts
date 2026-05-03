@@ -1,30 +1,13 @@
 import { Product } from "@/store/useCartStore";
+import { SITE_CONFIG } from "@/lib/config";
+import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
+import { formatNPR } from "@/lib/utils";
 import { PRODUCTS, CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/mock/products";
 
 export { CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES };
 export { PRODUCTS as MOCK_PRODUCTS } from "@/lib/mock/products";
 
-export const SITE_CONFIG = {
-  name: "GLAMO",
-  tagline: "Nepal",
-  fullTitle: "GLAMO NEPAL",
-  description: "Premium Nepali beauty, cosmetics and personal care curated from Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal.",
-  phone: "+977 9818212188",
-  whatsapp: "https://wa.me/9779818212188",
-  email: "hello@glamonepal.com",
-  website: "https://glamonepal.com",
-  address: "Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal",
-  currency: "NPR",
-  instagramHandle: "@glamo_nepal",
-  paymentMethods: ["Khalti", "eSewa", "Cash on Delivery", "Cards"],
-  social: {
-    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/glamo_nepal/",
-    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://www.facebook.com/glamonepal",
-  },
-  logo: "/images/logo.svg",
-  openingHours: "Su-Fr 10:00-19:00, Sa 10:00-17:00",
-  coordinates: { latitude: 27.6944, longitude: 85.3244 },
-};
+export { SITE_CONFIG };
 
 export const NAV_CATEGORIES = CATEGORIES.map((c) => ({ name: c.name, href: `/shop?category=${c.slug}`, description: c.description }));
 export const NAV_LINKS = [
@@ -36,10 +19,10 @@ export const NAV_LINKS = [
 ];
 
 export const ANNOUNCEMENT_MESSAGES = [
-  { icon: "truck" as const, text: "FREE DELIVERY ON ORDERS OVER NPR 2,500" },
+  { icon: "truck" as const, text: `FREE DELIVERY ON ORDERS OVER ${formatNPR(FREE_DELIVERY_THRESHOLD)}` },
   { icon: "shield" as const, text: "AUTHENTIC BEAUTY CURATION" },
   { icon: "leaf" as const, text: "MADE IN NEPAL PICKS AVAILABLE" },
-  { icon: "phone" as const, text: "+977 9818212188" },
+  { icon: "phone" as const, text: SITE_CONFIG.phone },
 ];
 
 export const HERO_SLIDES = [
@@ -107,12 +90,12 @@ export const GLOW_EDIT_PRODUCTS: Record<string, Product[]> = {
   "Made in Nepal": PRODUCTS.filter((p) => p.madeInNepal).slice(0, 4),
 };
 export const INSTAGRAM_POSTS = [
-  { id: "ig1", image: "/images/product-placeholder-haircare.svg", caption: "@glamo_nepal Festival glow essentials" },
-  { id: "ig2", image: "/images/product-placeholder-bodycare.svg", caption: "@glamo_nepal Daily skincare rituals" },
-  { id: "ig3", image: "/images/promo-store.svg", caption: "@glamo_nepal Beauty tools and more" },
-  { id: "ig4", image: "/images/product-placeholder-cream.svg", caption: "@glamo_nepal Serum season" },
-  { id: "ig5", image: "/images/promo-new-year.svg", caption: "@glamo_nepal Made for you" },
-  { id: "ig6", image: "/images/product-placeholder-serum-2.svg", caption: "@glamo_nepal Body care love" },
+  { id: "ig1", image: "/images/editorial/collection-festival-ready.svg", caption: "@glamo_nepal Festival glow essentials" },
+  { id: "ig2", image: "/images/products/p001-detail.svg", caption: "@glamo_nepal Daily skincare rituals" },
+  { id: "ig3", image: "/images/editorial/shop-collage.svg", caption: "@glamo_nepal Beauty shelf stories" },
+  { id: "ig4", image: "/images/products/p008-detail.svg", caption: "@glamo_nepal Soft glam color" },
+  { id: "ig5", image: "/images/editorial/new-year-editorial.svg", caption: "@glamo_nepal Made for gifting" },
+  { id: "ig6", image: "/images/products/p039-detail.svg", caption: "@glamo_nepal Body care love" },
 ];
 
 export const BRAND_LOGOS = BRANDS.slice(0, 8).map((name, index) => ({ id: index + 1, name, image: `/brands/brand-${index + 1}.svg` }));

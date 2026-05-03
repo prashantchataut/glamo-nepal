@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +7,7 @@ import { Gift, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import type { HydratedProductBundle } from "@/lib/data/bundles";
 import { trackEvent } from "@/lib/analytics";
-import { formatNpr } from "@/lib/utils";
+import { formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 
 export function ProductBundleCard({ bundle, compact = false }: { bundle: HydratedProductBundle; compact?: boolean }) {
@@ -48,8 +49,8 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
         ) : null}
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
           <div>
-            <div className="text-lg font-bold text-brand-gold">{formatNpr(bundle.bundlePrice)}</div>
-            <div className="text-xs text-brand-textMuted">Bundle saving {formatNpr(bundle.savings)}</div>
+            <div className="text-lg font-bold text-brand-gold">{formatNPR(bundle.bundlePrice)}</div>
+            <div className="text-xs text-brand-textMuted">Bundle saving {formatNPR(bundle.savings)}</div>
           </div>
           <button type="button" onClick={addBundle} aria-label="Add routine to cart" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40">
             <ShoppingBag size={16} /> Add routine

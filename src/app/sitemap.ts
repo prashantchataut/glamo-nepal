@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { PRODUCTS, CATEGORIES } from "@/lib/data/products";
 import { BLOG_POSTS_SYNC } from "@/lib/data/blog";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG } from "@/lib/config";
 import { PRODUCT_COLLECTIONS } from "@/lib/collections";
 import { getBrandProfiles } from "@/lib/brands";
 import { PRODUCT_BUNDLES } from "@/lib/data/bundles";

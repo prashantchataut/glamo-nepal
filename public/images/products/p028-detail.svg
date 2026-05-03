@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-label="Bioderma Sensibio Micellar Water 250 ml">
+  
+  <defs>
+    <linearGradient id="bg-p028-detail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF8F8"/>
+      <stop offset="0.58" stop-color="#F7E6EE"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-p028-detail" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-p028-detail" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-p028-detail" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-p028-detail" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs><rect width="1000" height="1000" rx="0" fill="url(#bg-p028-detail)"/>
+  <circle cx="780" cy="178" r="142" fill="url(#halo-p028-detail)"/>
+  <circle cx="154" cy="770" r="126" fill="#FFFFFF" opacity="0.48"/>
+  <circle cx="205" cy="206" r="72" fill="#F2CEDB" opacity="0.32"/>
+  <circle cx="842" cy="760" r="112" fill="#FFFFFF" opacity="0.30"/>
+  <path d="M0 724 C172 635 356 741 507 660 C671 571 802 627 1000 542 L1000 1000 L0 1000 Z" fill="#FFFDFC" opacity="0.76"/>
+  <ellipse cx="508" cy="810" rx="238" ry="52" fill="#1A0A1E" opacity="0.10"/>
+  <g opacity="0.72">
+    <path d="M154 646 C116 619 121 561 174 548 C209 582 198 628 154 646Z" fill="#9D5C7B" opacity="0.22"/>
+    <path d="M815 428 C856 399 912 425 912 481 C860 497 823 474 815 428Z" fill="#C9A84C" opacity="0.20"/>
+    <path d="M785 644 l17 31 35 8 -31 18 -4 36 -25 -26 -37 8 18 -33 -19 -31 36 7z" fill="#C9A84C" opacity="0.40"/>
+  </g>
+  <g transform="translate(112 -70) scale(1.12)"><g filter="url(#shadow-p028-detail)">
+    <rect x="459.0" y="162" width="82" height="74" rx="22" fill="#8B3A8F"/>
+    <rect x="390.0" y="220" width="220" height="560" rx="78" fill="url(#glass-p028-detail)"/>
+    <rect x="435.0" y="328" width="130" height="196" rx="54" fill="#F2CEDB" opacity="0.60"/>
+    <rect x="427.0" y="460" width="146" height="16" rx="8" fill="#9D5C7B" opacity="0.42"/>
+    <rect x="432.0" y="498" width="136" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="566" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">BIODERMA</text>
+    <text x="500" y="608" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Bioderma Sensibio</text>
+    <text x="500" y="646" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Micellar Water 250</text>
+    <line x1="417.0" y1="692" x2="583.0" y2="692" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M554.0 262 C584.0 326 582.0 536 552.0 640" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g></g>
+  <g transform="translate(-172 112) scale(.62)" opacity="0.98"><g filter="url(#shadow-p028-detail)">
+    <rect x="459.0" y="162" width="82" height="74" rx="22" fill="#8B3A8F"/>
+    <rect x="390.0" y="220" width="220" height="560" rx="78" fill="url(#glass-p028-detail)"/>
+    <rect x="435.0" y="328" width="130" height="196" rx="54" fill="#F2CEDB" opacity="0.60"/>
+    <rect x="427.0" y="460" width="146" height="16" rx="8" fill="#9D5C7B" opacity="0.42"/>
+    <rect x="432.0" y="498" width="136" height="14" rx="7" fill="#C9A84C" opacity="0.56"/>
+    <text x="500" y="566" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">BIODERMA</text>
+    <text x="500" y="608" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Bioderma Sensibio</text>
+    <text x="500" y="646" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Micellar Water 250</text>
+    <line x1="417.0" y1="692" x2="583.0" y2="692" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M554.0 262 C584.0 326 582.0 536 552.0 640" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity="0.62"/>
+  </g></g>
+  <rect x="78" y="78" width="260" height="70" rx="35" fill="#FFFFFF" opacity="0.82"/>
+  <text x="112" y="122" font-family="DM Sans, Arial" font-size="22" font-weight="700" letter-spacing="4" fill="#9D5C7B">SKINCARE</text>
+</svg>

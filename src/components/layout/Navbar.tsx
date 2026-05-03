@@ -1,6 +1,7 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, Leaf, Menu, Search, ShoppingBag, User, X } from "lucide-react";
@@ -44,6 +45,8 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [cartPulse, setCartPulse] = useState(false);
+  const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { getTotalItems: getCartTotal } = useCartStore();
   const { getTotalItems: getWishlistTotal } = useWishlistStore();
   const { openCart, openSearchModal } = useUIStore();
@@ -59,6 +62,19 @@ export function Navbar() {
   useEffect(() => setMobileMenuOpen(false), [pathname]);
 
   useEffect(() => {
+    const onPulse = () => {
+      setCartPulse(true);
+      if (pulseTimer.current) clearTimeout(pulseTimer.current);
+      pulseTimer.current = setTimeout(() => setCartPulse(false), 650);
+    };
+    window.addEventListener("glamo:cart-pulse", onPulse);
+    return () => {
+      window.removeEventListener("glamo:cart-pulse", onPulse);
+      if (pulseTimer.current) clearTimeout(pulseTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
     document.body.classList.toggle("scroll-locked", mobileMenuOpen);
     return () => document.body.classList.remove("scroll-locked");
   }, [mobileMenuOpen]);
@@ -66,8 +82,8 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-navbar border-b border-brand-border/75 transition-all duration-300",
-        isScrolled ? "bg-white/92 shadow-card backdrop-blur-2xl" : "bg-white/86 backdrop-blur-xl",
+        "sticky top-0 z-navbar border-b border-brand-border/75 shadow-sm transition-all duration-300",
+        isScrolled ? "bg-white/92 backdrop-blur-2xl" : "bg-white/86 backdrop-blur-xl",
       )}
     >
       <div className="container mx-auto grid h-[74px] grid-cols-[auto_1fr_auto] items-center gap-2 px-4 md:h-[78px] md:grid-cols-[1fr_auto_1fr] md:gap-6 md:px-6">
@@ -109,14 +125,14 @@ export function Navbar() {
           </button>
           <Link href="/account/wishlist" className="relative hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:inline-flex" aria-label="Wishlist">
             <Heart size={19} />
-            {mounted && getWishlistTotal() > 0 ? <span aria-live="polite" className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getWishlistTotal()}</span> : null}
+            {mounted && getWishlistTotal() > 0 ? <span aria-live="polite" className={cn("absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white transition-transform", cartPulse && "scale-125")}>{getWishlistTotal()}</span> : null}
           </Link>
           <Link href="/account" className="hidden h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:inline-flex" aria-label="Account">
             <User size={19} />
           </Link>
-          <button onClick={openCart} className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" aria-label="Cart">
+          <button onClick={openCart} className={cn("relative inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary", cartPulse && "animate-bounce text-brand-primary")} aria-label={`Shopping cart, ${mounted ? getCartTotal() : 0} items`}>
             <ShoppingBag size={19} />
-            {mounted && getCartTotal() > 0 ? <span aria-live="polite" className="absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white">{getCartTotal()}</span> : null}
+            {mounted && getCartTotal() > 0 ? <span aria-live="polite" className={cn("absolute right-0 top-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[9px] font-bold text-white transition-transform", cartPulse && "scale-125")}>{getCartTotal()}</span> : null}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 "use client";
+// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";

@@ -1,20 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="520" viewBox="0 0 420 520" role="img" aria-label="GLAMO product packshot p002">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-label="Daily Dew Gel Moisturizer">
+  
   <defs>
-    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="30" stdDeviation="22" flood-color="#241F22" flood-opacity="0.20"/></filter>
-    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="24"/></filter>
-    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF" stop-opacity="0.88"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0.18"/></linearGradient>
-  </defs><rect width="420" height="520" fill="#FFFDFC"/>
-  <rect width="420" height="520" fill="#F8EEF2" opacity="0.72"/>
-  <circle cx="327.6" cy="93.6" r="92.4" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="84" cy="436.8" r="84" fill="#B7748D" opacity="0.08"/>
-  <path d="M0 395.2 C 84 322.4, 159.6 447.2, 243.6 374.4 C 327.6 301.59999999999997, 378 353.6, 420 291.20000000000005 L 420 520 L 0 520Z" fill="#FFFFFF" opacity="0.42"/>
-  <ellipse cx="210" cy="384.8" rx="100.8" ry="20.8" fill="#241F22" opacity="0.13"/><circle cx="84" cy="112" r="10" fill="#fff" opacity="0.82"/><circle cx="104" cy="132" r="7" fill="#fff" opacity="0.76"/><circle cx="330" cy="404" r="9" fill="#fff" opacity="0.7"/><circle cx="360" cy="380" r="5" fill="#fff" opacity="0.68"/><g transform="translate(54 420) rotate(-35) scale(0.72)" opacity="0.8"><path d="M0 0 C 36 -26 70 -20 90 10 C 52 18 22 14 0 0Z" fill="#7F9B74"/><path d="M5 2 C 34 0 56 5 82 10" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="3"/></g><g transform="translate(324 118) rotate(150) scale(0.54)" opacity="0.8"><path d="M0 0 C 36 -26 70 -20 90 10 C 52 18 22 14 0 0Z" fill="#9CA978"/><path d="M5 2 C 34 0 56 5 82 10" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="3"/></g><g filter="url(#shadow)">
-    <ellipse cx="210" cy="206" rx="86" ry="26" fill="#B7748D"/>
-    <rect x="130" y="174" width="160" height="58" rx="22" fill="#B7748D"/>
-    <path d="M112 226 C 126 196 294 196 308 226 L286 382 C 276 420 144 420 134 382Z" fill="#FFFFFF"/>
-    <ellipse cx="210" cy="226" rx="98" ry="34" fill="#FFFDFC"/>
-    <path d="M142 256 C 172 276 242 276 278 256 L270 352 C 254 378 166 378 150 352Z" fill="#F8EEF2" opacity="0.95"/>
-    <rect x="166" y="314" width="88" height="8" rx="4" fill="#D8B36B" opacity="0.82"/>
-    <path d="M286 245 C 270 280 270 350 278 382" stroke="url(#shine)" stroke-width="9" stroke-linecap="round" opacity="0.55"/>
-  </g><text x="210" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="3" fill="#B7748D" opacity="0.82">GLAMO NEPAL</text>
+    <linearGradient id="bg-p002" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF8F8"/>
+      <stop offset="0.58" stop-color="#F7E6EE"/>
+      <stop offset="1" stop-color="#FFFDFC"/>
+    </linearGradient>
+    <radialGradient id="halo-p002" cx="63%" cy="26%" r="64%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.54" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass-p002" x1="0" x2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.84"/>
+      <stop offset="1" stop-color="#F9EAF2" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow-p002" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="26" flood-color="#1A0A1E" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softshadow-p002" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#8B3A8F" flood-opacity="0.16"/>
+    </filter>
+  </defs><rect width="1000" height="1000" rx="0" fill="url(#bg-p002)"/>
+  <circle cx="780" cy="178" r="142" fill="url(#halo-p002)"/>
+  <circle cx="154" cy="770" r="126" fill="#FFFFFF" opacity="0.48"/>
+  <circle cx="205" cy="206" r="72" fill="#F2CEDB" opacity="0.32"/>
+  <circle cx="842" cy="760" r="112" fill="#FFFFFF" opacity="0.30"/>
+  <path d="M0 724 C172 635 356 741 507 660 C671 571 802 627 1000 542 L1000 1000 L0 1000 Z" fill="#FFFDFC" opacity="0.76"/>
+  <ellipse cx="508" cy="810" rx="238" ry="52" fill="#1A0A1E" opacity="0.10"/>
+  <g opacity="0.72">
+    <path d="M154 646 C116 619 121 561 174 548 C209 582 198 628 154 646Z" fill="#9D5C7B" opacity="0.22"/>
+    <path d="M815 428 C856 399 912 425 912 481 C860 497 823 474 815 428Z" fill="#C9A84C" opacity="0.20"/>
+    <path d="M785 644 l17 31 35 8 -31 18 -4 36 -25 -26 -37 8 18 -33 -19 -31 36 7z" fill="#C9A84C" opacity="0.40"/>
+  </g>
+  <g transform="translate(-90 -55) scale(1.18)"><g filter="url(#shadow-p002)">
+    <ellipse cx="500" cy="334" rx="190" ry="56" fill="#8B3A8F"/>
+    <rect x="310" y="332" width="380" height="100" rx="34" fill="#8B3A8F"/>
+    <path d="M278 427 H722 L660 760 Q500 838 340 760 Z" fill="url(#glass-p002)"/>
+    <ellipse cx="500" cy="427" rx="222" ry="62" fill="#FFFFFF" opacity="0.88"/>
+    <rect x="382" y="537" width="236" height="102" rx="36" fill="#F2CEDB" opacity="0.60"/>
+    <text x="500" y="580" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#241F22">GLAMO EDIT</text>
+    <text x="500" y="622" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Daily Dew Gel</text>
+    <text x="500" y="660" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="33" font-weight="600" fill="#9D5C7B">Moisturizer</text>
+    <line x1="390.0" y1="706" x2="610.0" y2="706" stroke="#C9A84C" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <path d="M670 486 C702 565 674 688 618 757" stroke="#FFFFFF" stroke-width="21" stroke-linecap="round" opacity="0.52"/>
+  </g></g>
 </svg>

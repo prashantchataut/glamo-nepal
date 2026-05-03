@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 const config = {
   darkMode: ["class"],
@@ -44,16 +45,16 @@ const config = {
           'neutral-light': '#F4F4F5',
         },
         brand: {
-          primary: '#9A6B82',
-          'primary-hover': '#85576E',
-          'primary-light': '#F8EEF2',
-          'primary-border': 'rgba(154, 107, 130, 0.16)',
+          primary: '#8B3A8F',
+          'primary-hover': '#77317A',
+          'primary-light': '#F8EEF8',
+          'primary-border': 'rgba(139, 58, 143, 0.16)',
           secondary: '#E5C6D4',
-          gold: '#C3A067',
-          'gold-light': '#F8F0DD',
+          gold: '#C9A84C',
+          'gold-light': '#FBF4DD',
           bgLight: '#FCF7F5',
-          bgDark: '#241F22',
-          textPrimary: '#241F22',
+          bgDark: '#1A0A1E',
+          textPrimary: '#1A0A1E',
           textMuted: '#70656B',
           border: '#EEE3E6',
           error: '#E05252',
@@ -68,7 +69,7 @@ const config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#9A6B82',
+          DEFAULT: '#8B3A8F',
           foreground: 'hsl(var(--primary-foreground))'
         },
         secondary: {
@@ -114,9 +115,9 @@ const config = {
         '24': '96px',
       },
       boxShadow: {
-        card: '0 20px 70px -58px rgba(36,31,34,0.55)',
+        card: '0 20px 70px -58px rgba(26,10,30,0.55)',
         'card-hover': '0 30px 90px -60px rgba(154,107,130,0.75)',
-        editorial: '0 30px 90px -65px rgba(36,31,34,0.45)',
+        editorial: '0 30px 90px -65px rgba(26,10,30,0.45)',
         soft: '0 20px 60px -15px rgba(139,58,143,0.08)',
       },
       zIndex: {
@@ -180,7 +181,7 @@ const config = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;
 
 export default config
