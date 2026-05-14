@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 
-const icons = {
+const icons: Record<string, { label: string; path: string }> = {
   'cruelty-free': {
     label: 'Cruelty Free',
     path: 'M 16 28 C 10 28 6 24 6 20 C 6 16 9 14 11 13 L 9 6 C 8.8 5.5 9.2 5 9.7 5.2 L 13 8 C 13.5 6.5 14.5 5.5 16 5.5 C 17.5 5.5 18.5 6.5 19 8 L 22.3 5.2 C 22.8 5 23.2 5.5 23 6 L 21 13 C 23 14 26 16 26 20 C 26 24 22 28 16 28 Z',

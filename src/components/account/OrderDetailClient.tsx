@@ -41,7 +41,7 @@ export function OrderDetailClient() {
   const order = allOrders.find((o) => o.id === params.id);
   if (!order) notFound();
 
-  const activeIndex = Math.max(0, steps.indexOf(order.status));
+  const activeIndex = Math.max(0, steps.indexOf(order.status as typeof steps[number]));
   const isCancelled = order.status === "Cancelled";
 
   return (
