@@ -29,7 +29,7 @@ export function BlogPreview() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {BLOG_POSTS.map((post, i) => (
-            <article key={post.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-soft transition-all duration-500 border border-border/30 hover:-translate-y-1" style={{ animationDelay: `${i * 100}ms` }}>
+            <article key={post.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-soft transition-all duration-500 border border-border/30 hover:-translate-y-1 cursor-pointer" style={{ animationDelay: `${i * 100}ms` }}>
               <Link href={`/blog/${post.slug}`} className="block relative aspect-[3/2] overflow-hidden">
                 <Image
                   src={post.image}

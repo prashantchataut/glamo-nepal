@@ -994,4 +994,3 @@ export function isCodAvailable(district: District, province: Province): boolean 
   return getDeliveryRule(district, province).codAvailable;
 }
 
-import "./nepal-locations-assertions";

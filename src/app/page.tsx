@@ -20,7 +20,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "GLAMO NEPAL — Premium Beauty & Skincare",
-  description: "Curated beauty, skincare, makeup and haircare essentials with NPR pricing and Nepal delivery. Shop authentic products at GLAMO NEPAL.",
+  description: "Curated beauty, skincare, makeup and haircare essentials with रू pricing and Nepal delivery. Shop authentic products at GLAMO NEPAL.",
   path: "/",
 });
 

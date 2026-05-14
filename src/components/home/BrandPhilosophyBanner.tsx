@@ -14,7 +14,7 @@ export function BrandPhilosophyBanner() {
           <span className="inline-block px-4 py-1.5 bg-brand-primary/10 text-brand-primary text-[10px] font-bold uppercase tracking-[0.2em] rounded-full mb-8 border border-brand-primary/15">
             Our Philosophy
           </span>
-          <h2 className="font-serif text-[clamp(2rem,4vw,3.5rem)] font-medium leading-[1.1] mb-8 text-brand-textPrimary">
+          <h2 className="font-serif text-[clamp(2rem,4vw,3.5rem)] font-medium leading-[1.1] mb-8 text-brand-textPrimary tracking-tight">
             Beauty That Loves <span className="text-brand-primary italic">Your</span> Skin Back
           </h2>
           <p className="text-brand-textMuted text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">

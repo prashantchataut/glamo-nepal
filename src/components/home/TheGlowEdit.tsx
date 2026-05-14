@@ -16,7 +16,7 @@ export function TheGlowEdit() {
     <section className="py-16 md:py-20 lg:py-24 bg-brand-bgLight">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-8 text-brand-textPrimary">
+          <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-8 text-brand-textPrimary tracking-tight">
             The <span className="text-brand-primary italic">Glow Edit</span>
           </h2>
 

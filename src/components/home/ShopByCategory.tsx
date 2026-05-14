@@ -10,7 +10,7 @@ export function ShopByCategory() {
     <section className="py-16 md:py-20 lg:py-24 bg-white">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold text-brand-textPrimary">
+          <h2 className="font-serif text-4xl md:text-5xl font-semibold tracking-tight text-brand-textPrimary">
             Shop by <span className="text-brand-primary italic">Category</span>
           </h2>
         </div>
@@ -20,7 +20,7 @@ export function ShopByCategory() {
             <Link
               key={category.id}
               href={`/category/${category.slug}`}
-              className="group flex flex-col items-center gap-4"
+              className="group flex flex-col items-center gap-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-xl outline-none transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               <div className="relative aspect-square w-full rounded-full overflow-hidden p-1.5 border-2 border-transparent group-hover:border-brand-primary/30 transition-all duration-500 group-hover:scale-105">
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-brand-bgLight">

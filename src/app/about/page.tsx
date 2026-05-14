@@ -14,7 +14,7 @@ export const metadata = createMetadata({
 });
 
 const pillars = [
-  { icon: <Sparkles className="text-brand-primary" size={26} />, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with NPR-first shopping." },
+  { icon: <Sparkles className="text-brand-primary" size={26} />, title: "Premium Nepali beauty", body: "A curated beauty experience for skincare, makeup, haircare, fragrance and beauty tools with रू pricing." },
   { icon: <ShieldCheck className="text-brand-primary" size={26} />, title: "Authenticity-first curation", body: "Product pages highlight authentic ingredients, clear sourcing and honest beauty guidance." },
   { icon: <Store className="text-brand-primary" size={26} />, title: "Kathmandu-ready", body: `Visit us at ${SITE_CONFIG.address}, message us on WhatsApp or pick up in store.` },
 ];

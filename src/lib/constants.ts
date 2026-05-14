@@ -52,7 +52,7 @@ export const HERO_SLIDES = [
     id: 3,
     title1: "Made in",
     title2: "Nepal Favorites",
-    subtitle: "Celebrate local beauty with curated picks, thoughtful gifting ideas and easy NPR shopping.",
+    subtitle: "Celebrate local beauty with curated picks, thoughtful gifting ideas and easy रू shopping.",
     cta: "Shop Local Picks",
     ctaLink: "/collections/made-in-nepal",
     image: "/images/editorial/new-year-editorial.svg",

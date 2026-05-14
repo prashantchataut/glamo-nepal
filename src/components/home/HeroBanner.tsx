@@ -47,22 +47,22 @@ export function HeroBanner() {
                       <span className="inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10 backdrop-blur">
                         {slide.annotation}
                       </span>
-                      <h1 className="mt-6 font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-semibold leading-[0.95] text-brand-textPrimary">
+                      <h1 className="mt-6 font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-semibold leading-[0.92] text-brand-textPrimary">
                         <span className="block">{slide.title1}</span>
                         <span className="mt-2 block italic text-brand-primary">{slide.title2}</span>
                       </h1>
                       <p className="mt-6 max-w-lg text-base leading-7 text-brand-textMuted md:text-lg">{slide.subtitle}</p>
                       <div className="mt-8 flex flex-wrap items-center gap-4">
-                        <Link href={slide.ctaLink} className="inline-flex items-center justify-center rounded-full bg-brand-primary px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark">
+                        <Link href={slide.ctaLink} className="inline-flex items-center justify-center rounded-full bg-brand-primary px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark cursor-pointer">
                           {slide.cta}
                         </Link>
-                        <Link href="/shop" className="inline-flex items-center justify-center rounded-full border border-brand-textPrimary/15 bg-white/70 px-7 py-3.5 text-sm font-semibold text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary">
+                        <Link href="/shop" className="inline-flex items-center justify-center rounded-full border border-brand-textPrimary/15 bg-white/70 px-7 py-3.5 text-sm font-semibold text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary cursor-pointer">
                           Browse all products
                         </Link>
                       </div>
                       <div className="mt-8 grid max-w-lg grid-cols-3 gap-3 text-left">
                         {[
-                          ["NPR pricing", "Easy local shopping"],
+                          ["रू pricing", "Easy local shopping"],
                           ["Authentic picks", "Curated beauty edits"],
                           ["Delivery across Nepal", "Valley-friendly service"],
                         ].map(([title, body]) => (

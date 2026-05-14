@@ -101,7 +101,7 @@ export default function ShopPageContent() {
     filters.concerns.forEach((concern) => list.push({ key: `concern-${concern}`, label: concern, remove: () => ({ ...filters, concerns: filters.concerns.filter((value) => value !== concern) }) }));
     if (filters.madeInNepal) list.push({ key: "madeInNepal", label: "Made in Nepal", remove: () => ({ ...filters, madeInNepal: false }) });
     if (filters.inStock) list.push({ key: "inStock", label: "In stock", remove: () => ({ ...filters, inStock: false }) });
-    if (filters.minPrice > PRICE_RANGE.min || filters.maxPrice < PRICE_RANGE.max) list.push({ key: "price", label: `${filters.minPrice.toLocaleString()} - ${filters.maxPrice.toLocaleString()} NPR`, remove: () => ({ ...filters, minPrice: PRICE_RANGE.min, maxPrice: PRICE_RANGE.max }) });
+    if (filters.minPrice > PRICE_RANGE.min || filters.maxPrice < PRICE_RANGE.max) list.push({ key: "price", label: `रू ${filters.minPrice.toLocaleString()} - रू ${filters.maxPrice.toLocaleString()}`, remove: () => ({ ...filters, minPrice: PRICE_RANGE.min, maxPrice: PRICE_RANGE.max }) });
     return list;
   }, [filters]);
 
@@ -120,19 +120,19 @@ export default function ShopPageContent() {
         <div className="pointer-events-none absolute -right-20 top-0 h-80 w-80 rounded-full bg-brand-secondary/35 blur-3xl" />
         <div className="container relative mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">NPR pricing · Nepal delivery</p>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">रू pricing · Nepal delivery</p>
             <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">
               {categoryObj?.name || "All Products"}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-brand-textMuted">
-              {categoryObj?.description || "Browse skincare, soft-glam makeup and daily beauty essentials with NPR pricing and Nepal delivery."}
+              {categoryObj?.description || "Browse skincare, soft-glam makeup and daily beauty essentials with रू pricing and Nepal delivery."}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href="/collections/best-sellers" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary/15 transition hover:bg-brand-primary-hover">Best sellers</Link>
               <Link href="/collections/made-in-nepal" className="rounded-full border border-brand-primary/20 bg-white/70 px-6 py-3 text-sm font-bold text-brand-primary transition hover:bg-white">Made in Nepal</Link>
             </div>
             <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
-              {[{ icon: Truck, title: "Valley delivery", body: "Clear NPR checkout" }, { icon: ShieldCheck, title: "Curated catalog", body: "Authenticity-first" }, { icon: Sparkles, title: "Routine ready", body: "Shop by concern" }].map((item) => {
+              {[{ icon: Truck, title: "Valley delivery", body: "Clear रू checkout" }, { icon: ShieldCheck, title: "Curated catalog", body: "Authenticity-first" }, { icon: Sparkles, title: "Routine ready", body: "Shop by concern" }].map((item) => {
                 const Icon = item.icon;
                 return (
                   <div key={item.title} className="rounded-3xl border border-brand-border bg-white/75 p-4 shadow-sm backdrop-blur">

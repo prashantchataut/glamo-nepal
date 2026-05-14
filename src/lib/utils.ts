@@ -10,7 +10,7 @@ export function formatNPR(value: number) {
     style: "currency",
     currency: "NPR",
     maximumFractionDigits: 0,
-  }).format(value).replace("NPR", "NPR ");
+  }).format(value).replace("NPR", "रू ");
 }
 
 export function absoluteUrl(path = "") {

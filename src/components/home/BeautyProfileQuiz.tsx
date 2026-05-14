@@ -47,7 +47,7 @@ export function BeautyProfileQuiz() {
                   <p className="font-serif text-lg font-semibold text-brand-textPrimary">{p.name}</p>
                   <p className="text-xs text-brand-textMuted">{p.brand} · {p.concernTags.slice(0, 2).join(", ")}</p>
                 </div>
-                <span className="font-semibold text-brand-textPrimary">{formatNPR(p.price)}</span>
+                <span className="font-semibold tracking-tight text-brand-textPrimary">{formatNPR(p.price)}</span>
               </Link>
             ))}
           </div>

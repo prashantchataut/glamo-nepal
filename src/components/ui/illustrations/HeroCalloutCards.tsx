@@ -37,7 +37,7 @@ export function HeroCalloutCardC({ className = '' }: { className?: string }) {
     <div
       className={`inline-flex items-center rounded-full border-[1.5px] border-[#C9A84C] bg-white px-4 py-2 shadow-[0_0_16px_rgba(201,168,76,0.2)] ${className}`}
     >
-      <span className="text-sm font-semibold text-[#C9A84C]">NPR 1,299</span>
+      <span className="text-sm font-semibold text-[#C9A84C]">रू 1,299</span>
     </div>
   )
 }

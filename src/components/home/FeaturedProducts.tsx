@@ -13,7 +13,7 @@ export function FeaturedProducts() {
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Featured selection</p>
-            <h2 className="mt-3 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">Glow heroes worth adding to cart</h2>
+            <h2 className="mt-3 font-serif text-4xl font-semibold tracking-tight text-brand-textPrimary md:text-5xl">Glow heroes worth adding to cart</h2>
             <p className="mt-4 text-base leading-7 text-brand-textMuted">
               A refined edit of skincare, makeup and everyday beauty essentials chosen for gifting, daily use and special occasions.
             </p>
@@ -24,8 +24,10 @@ export function FeaturedProducts() {
         </div>
 
         <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {FEATURED_PRODUCTS.slice(0, 4).map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {FEATURED_PRODUCTS.slice(0, 4).map((product, i) => (
+            <div key={product.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${i * 80}ms` }}>
+              <ProductCard product={product} />
+            </div>
           ))}
         </div>
       </div>

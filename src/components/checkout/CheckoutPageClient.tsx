@@ -190,7 +190,7 @@ export function CheckoutPageClient() {
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-secondary/40 blur-3xl" />
           <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Secure checkout · NPR totals</p>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Secure checkout · रू totals</p>
               <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Complete your order</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-brand-textMuted">Confirm delivery details, payment preference and order summary.</p>
             </div>
@@ -326,7 +326,7 @@ export function CheckoutPageClient() {
               ) : null}
               <label className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-bgLight p-4 text-sm font-semibold text-brand-textPrimary">
                 <input type="checkbox" {...register("giftWrap")} className="h-4 w-4 rounded border-brand-border text-brand-primary accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
-                <Gift size={18} /> Add gift wrapping for NPR 100
+                <Gift size={18} /> Add gift wrapping for रू 100
               </label>
               <label className="mt-5 block space-y-2 text-sm font-semibold text-brand-textPrimary">
                 Order notes

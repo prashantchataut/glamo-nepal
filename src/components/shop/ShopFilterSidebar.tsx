@@ -28,9 +28,9 @@ interface Props {
 }
 
 const quickPriceRanges = [
-  { label: "Under NPR 1,000", min: 0, max: 1000 },
-  { label: "NPR 1,000 - 2,500", min: 1000, max: 2500 },
-  { label: "NPR 2,500+", min: 2500, max: 999999 },
+  { label: "Under रू 1,000", min: 0, max: 1000 },
+  { label: "रू 1,000 - 2,500", min: 1000, max: 2500 },
+  { label: "रू 2,500+", min: 2500, max: 999999 },
 ];
 
 function toggle(list: string[], value: string) {
@@ -148,7 +148,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
             <input type="number" min={filters.minPrice} max={priceRange.max} value={filters.maxPrice} onChange={(event) => onFilterChange({ ...filters, maxPrice: Number(event.target.value) })} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-3 py-2 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" />
           </label>
         </div>
-        <p className="mt-3 text-xs text-brand-textMuted">Showing NPR {filters.minPrice.toLocaleString()} - {filters.maxPrice.toLocaleString()}</p>
+        <p className="mt-3 text-xs text-brand-textMuted">Showing रू {filters.minPrice.toLocaleString()} - रू {filters.maxPrice.toLocaleString()}</p>
       </FilterSection>
     </aside>
   );
