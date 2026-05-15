@@ -9,3 +9,12 @@ export function getCsrfToken(): string {
 export function csrfHeaders(): Record<string, string> {
   return { "x-csrf-token": getCsrfToken() };
 }
+
+export function ensureCsrfToken(): string {
+  let token = getCsrfToken();
+  if (!token) {
+    token = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+  }
+  return token;
+}

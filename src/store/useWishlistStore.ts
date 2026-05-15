@@ -21,6 +21,6 @@ export const useWishlistStore = create<WishlistState>()(
       isInWishlist: (productId) => get().items.some((item) => item.id === productId),
       getTotalItems: () => get().items.length,
     }),
-    { name: "glamo-wishlist-storage" },
+    { name: "glamo-wishlist-storage", version: 1 },
   ),
 );

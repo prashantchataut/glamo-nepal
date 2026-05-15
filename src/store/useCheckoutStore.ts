@@ -99,6 +99,6 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
       reset: () => set({ status: "idle", error: null }),
     }),
-    { name: "glamo-checkout-storage" },
+    { name: "glamo-checkout-storage", version: 1 },
   ),
 );

@@ -25,6 +25,6 @@ export const useCompareStore = create<CompareState>()(
       clear: () => set({ items: [] }),
       isInCompare: (productId) => get().items.some((item) => item.id === productId),
     }),
-    { name: "glamo-compare-storage" },
+    { name: "glamo-compare-storage", version: 1 },
   ),
 );

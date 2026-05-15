@@ -1,25 +1,36 @@
 ﻿import Link from "next/link";
-import { ArrowRight, Home, Search, ShoppingBag } from "lucide-react";
-import { NotFoundIllustration } from "@/components/ui/illustrations/NotFoundIllustration";
+import { ShoppingBag, Search, Home, ArrowRight } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="min-h-[72vh] bg-brand-bgLight py-16 md:py-20">
-      <div className="container mx-auto max-w-3xl px-4 text-center md:px-6">
-        <div className="rounded-[2rem] border border-border/70 bg-white p-8 shadow-sm md:p-12">
-          <div className="mx-auto mb-8 max-w-[320px]">
-            <NotFoundIllustration />
-          </div>
-          <p className="font-label text-xs font-bold uppercase tracking-[0.28em] text-brand-gold">404 · GLAMO NEPAL</p>
-          <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl">
-            Oops! This page went <span className="italic text-brand-primary">bare-faced.</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-brand-textMuted md:text-base">The page you are looking for may have moved, sold out, or never existed. Continue shopping or search for skincare, SPF, lip tint or Made in Nepal picks.</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/shop" className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-7 py-3 font-semibold text-white transition hover:bg-brand-bgDark"><ShoppingBag size={17} /> Shop GLAMO</Link>
-            <Link href="/search" className="inline-flex items-center gap-2 rounded-full border border-brand-primary px-7 py-3 font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white"><Search size={17} /> Search</Link>
-            <Link href="/" className="inline-flex items-center gap-2 rounded-full border border-border px-7 py-3 font-semibold text-brand-textMuted transition hover:border-brand-primary hover:text-brand-primary"><Home size={17} /> Home <ArrowRight size={16} /></Link>
-          </div>
+    <main className="min-h-[60vh] bg-neutral-50 py-16 md:py-24">
+      <div className="mx-auto max-w-2xl px-4 text-center">
+        <p className="type-display-xl text-neutral-200 font-light">404</p>
+        <h1 className="type-display-lg text-neutral-900 -mt-4 italic">
+          Page not found
+        </h1>
+        <p className="type-body-md text-neutral-400 mt-4 max-w-md mx-auto">
+          The page you&apos;re looking for may have moved, sold out, or never existed. Continue shopping or search for what you need.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer"
+          >
+            <ShoppingBag size={16} /> Shop GLAMO
+          </Link>
+          <Link
+            href="/search"
+            className="inline-flex items-center gap-2 border border-neutral-200 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer"
+          >
+            <Search size={16} /> Search
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 border border-neutral-200 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer"
+          >
+            <Home size={16} /> Home <ArrowRight size={14} />
+          </Link>
         </div>
       </div>
     </main>

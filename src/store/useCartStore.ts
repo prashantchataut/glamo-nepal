@@ -43,4 +43,4 @@ export const useCartStore = create<CartState>()(persist((set, get) => ({
   getTotalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
   getSubtotal: () => get().items.reduce((total, item) => total + item.product.price * item.quantity, 0),
   getTotalPrice: () => get().items.reduce((total, item) => total + item.product.price * item.quantity, 0),
-}), { name: "glamo-cart-storage" }));
+}), { name: "glamo-cart-storage", version: 1 }));

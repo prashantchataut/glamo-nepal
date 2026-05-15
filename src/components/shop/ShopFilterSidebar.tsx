@@ -1,5 +1,4 @@
 ﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import type { ReactNode } from "react";
 import { Search } from "lucide-react";
@@ -27,74 +26,170 @@ interface Props {
   priceRange: { min: number; max: number };
 }
 
-const quickPriceRanges = [
-  { label: "Under रू 1,000", min: 0, max: 1000 },
-  { label: "रू 1,000 - 2,500", min: 1000, max: 2500 },
-  { label: "रू 2,500+", min: 2500, max: 999999 },
-];
-
 function toggle(list: string[], value: string) {
-  return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
+  return list.includes(value)
+    ? list.filter((item) => item !== value)
+    : [...list, value];
 }
 
-function FilterSection({ title, children }: { title: string; children: ReactNode }) {
+function FilterSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
-    <section className="rounded-[1.5rem] border border-brand-border bg-white p-4 shadow-sm">
-      <p className="font-label mb-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">{title}</p>
+    <div className="border-b border-neutral-200 pb-5 mb-5 last:border-b-0 last:pb-0 last:mb-0">
+      <p className="type-label text-[11px] text-neutral-400 mb-3">{title}</p>
       {children}
-    </section>
+    </div>
   );
 }
 
 export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props) {
   const category = CATEGORIES.find((item) => item.slug === filters.category);
-  const reset = () => onFilterChange({ category: "", subCategory: "", brands: [], skinType: [], concerns: [], madeInNepal: false, search: "", minPrice: priceRange.min, maxPrice: priceRange.max, rating: 0, inStock: false, sort: "featured" });
+  const reset = () =>
+    onFilterChange({
+      category: "",
+      subCategory: "",
+      brands: [],
+      skinType: [],
+      concerns: [],
+      madeInNepal: false,
+      search: "",
+      minPrice: priceRange.min,
+      maxPrice: priceRange.max,
+      rating: 0,
+      inStock: false,
+      sort: "featured",
+    });
 
   return (
-    <aside className="space-y-4 rounded-[2rem] border border-brand-border bg-brand-surfaceCream p-4 shadow-[0_24px_80px_-60px_rgba(36,31,34,0.45)] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
-      <div className="flex items-center justify-between px-1">
-        <div>
-          <p className="font-label text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Refine</p>
-          <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Filters</h2>
-        </div>
-        <button type="button" onClick={reset} className="font-label rounded-full bg-brand-primary-light px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary transition hover:bg-brand-primary hover:text-white">Reset</button>
+    <aside className="space-y-0 lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-4">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="type-heading-sm text-neutral-900">Filters</h2>
+        <button
+          type="button"
+          onClick={reset}
+          className="type-label text-[11px] text-primary hover:text-primary-dark transition-colors cursor-pointer"
+        >
+          Clear All
+        </button>
       </div>
 
       <FilterSection title="Search">
         <label className="relative block">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-textMuted" />
-          <input value={filters.search} onChange={(event) => onFilterChange({ ...filters, search: event.target.value })} placeholder="Serum, SPF, lipstick..." className="w-full rounded-2xl border border-brand-border bg-brand-bgLight py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-primary/30 focus:ring-2 focus:ring-brand-primary/20" />
+          <Search className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <input
+            value={filters.search}
+            onChange={(event) =>
+              onFilterChange({ ...filters, search: event.target.value })
+            }
+            placeholder="Serum, SPF, lipstick..."
+            className="w-full border-b border-neutral-300 bg-transparent py-3 pl-6 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+          />
         </label>
       </FilterSection>
 
       <FilterSection title="Category">
-        <div className="space-y-2">
+        <div className="space-y-1">
           {CATEGORIES.map((cat) => (
-            <button key={cat.slug} type="button" onClick={() => onFilterChange({ ...filters, category: filters.category === cat.slug ? "" : cat.slug, subCategory: "" })} className={cn("flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-bold transition", filters.category === cat.slug ? "bg-brand-primary text-white" : "bg-brand-bgLight text-brand-textPrimary hover:text-brand-primary")}>
-              {cat.name}<span className="text-xs opacity-60">{cat.subCategories.length}</span>
+            <button
+              key={cat.slug}
+              type="button"
+              onClick={() =>
+                onFilterChange({
+                  ...filters,
+                  category: filters.category === cat.slug ? "" : cat.slug,
+                  subCategory: "",
+                })
+              }
+              className={cn(
+                "flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors cursor-pointer",
+                filters.category === cat.slug
+                  ? "bg-primary text-white"
+                  : "text-neutral-700 hover:bg-neutral-100"
+              )}
+            >
+              {cat.name}
+              <span className="text-xs opacity-60">{cat.subCategories.length}</span>
             </button>
           ))}
         </div>
       </FilterSection>
 
-      {category ? (
-        <FilterSection title="Product type">
+      {category && (
+        <FilterSection title="Product Type">
           <div className="flex flex-wrap gap-2">
             {category.subCategories.map((subCategory) => (
-              <button key={subCategory} type="button" onClick={() => onFilterChange({ ...filters, subCategory: filters.subCategory === subCategory ? "" : subCategory })} className={cn("rounded-full px-3 py-1.5 text-xs font-bold", filters.subCategory === subCategory ? "bg-brand-primary text-white" : "bg-brand-bgLight text-brand-textMuted hover:text-brand-primary")}>
+              <button
+                key={subCategory}
+                type="button"
+                onClick={() =>
+                  onFilterChange({
+                    ...filters,
+                    subCategory:
+                      filters.subCategory === subCategory ? "" : subCategory,
+                  })
+                }
+                className={cn(
+                  "px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                  filters.subCategory === subCategory
+                    ? "bg-primary text-white"
+                    : "bg-neutral-100 text-neutral-600 hover:text-primary"
+                )}
+              >
                 {subCategory}
               </button>
             ))}
           </div>
         </FilterSection>
-      ) : null}
+      )}
 
       <FilterSection title="Brand">
-        <div className="max-h-56 space-y-2 overflow-auto pr-1">
+        <div className="max-h-48 space-y-1 overflow-auto">
           {BRANDS.map((brand) => (
-            <label key={brand} className="min-h-[44px] cursor-pointer flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary">
-              <input type="checkbox" checked={filters.brands.includes(brand)} onChange={() => onFilterChange({ ...filters, brands: toggle(filters.brands, brand) })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
+            <label
+              key={brand}
+              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
+            >
+              <input
+                type="checkbox"
+                checked={filters.brands.includes(brand)}
+                onChange={() =>
+                  onFilterChange({
+                    ...filters,
+                    brands: toggle(filters.brands, brand),
+                  })
+                }
+                className="h-4 w-4 accent-primary"
+              />
               {brand}
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Skin Type">
+        <div className="space-y-1">
+          {SKIN_TYPES.map((skinType) => (
+            <label
+              key={skinType}
+              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
+            >
+              <input
+                type="checkbox"
+                checked={filters.skinType.includes(skinType)}
+                onChange={() =>
+                  onFilterChange({
+                    ...filters,
+                    skinType: toggle(filters.skinType, skinType),
+                  })
+                }
+                className="h-4 w-4 accent-primary"
+              />
+              {skinType}
             </label>
           ))}
         </div>
@@ -103,52 +198,96 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
       <FilterSection title="Concern">
         <div className="flex flex-wrap gap-2">
           {CONCERNS.map((concern) => (
-            <button key={concern} type="button" onClick={() => onFilterChange({ ...filters, concerns: toggle(filters.concerns, concern) })} className={cn("rounded-full px-3 py-1.5 text-xs font-bold", filters.concerns.includes(concern) ? "bg-brand-primary text-white" : "bg-brand-bgLight text-brand-textMuted hover:text-brand-primary")}>
+            <button
+              key={concern}
+              type="button"
+              onClick={() =>
+                onFilterChange({
+                  ...filters,
+                  concerns: toggle(filters.concerns, concern),
+                })
+              }
+              className={cn(
+                "px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                filters.concerns.includes(concern)
+                  ? "bg-primary text-white"
+                  : "bg-neutral-100 text-neutral-600 hover:text-primary"
+              )}
+            >
               {concern}
             </button>
           ))}
         </div>
       </FilterSection>
 
-      <FilterSection title="Skin type">
-        <div className="space-y-2">
-          {SKIN_TYPES.map((skinType) => (
-            <label key={skinType} className="min-h-[44px] cursor-pointer flex items-center gap-2 rounded-xl px-2 py-2 text-sm text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary">
-              <input type="checkbox" checked={filters.skinType.includes(skinType)} onChange={() => onFilterChange({ ...filters, skinType: toggle(filters.skinType, skinType) })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" />
-              {skinType}
-            </label>
-          ))}
-        </div>
-      </FilterSection>
-
       <FilterSection title="Availability">
         <div className="space-y-3">
-          <label className="min-h-[44px] cursor-pointer flex items-center gap-2 text-sm font-bold text-brand-textPrimary"><input type="checkbox" checked={filters.madeInNepal} onChange={(event) => onFilterChange({ ...filters, madeInNepal: event.target.checked })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" /> Made in Nepal only</label>
-          <label className="min-h-[44px] cursor-pointer flex items-center gap-2 text-sm font-bold text-brand-textPrimary"><input type="checkbox" checked={filters.inStock} onChange={(event) => onFilterChange({ ...filters, inStock: event.target.checked })} className="h-4 w-4 rounded border-brand-border accent-brand-primary focus:ring-2 focus:ring-brand-primary/30" /> In stock only</label>
+          <label className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
+            <input
+              type="checkbox"
+              checked={filters.madeInNepal}
+              onChange={(event) =>
+                onFilterChange({ ...filters, madeInNepal: event.target.checked })
+              }
+              className="h-4 w-4 accent-primary"
+            />
+            Made in Nepal only
+          </label>
+          <label className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
+            <input
+              type="checkbox"
+              checked={filters.inStock}
+              onChange={(event) =>
+                onFilterChange({ ...filters, inStock: event.target.checked })
+              }
+              className="h-4 w-4 accent-primary"
+            />
+            In stock only
+          </label>
         </div>
       </FilterSection>
 
-      <FilterSection title="Price range">
-        <div className="mb-3 grid gap-2">
-          {quickPriceRanges.map((range) => {
-            const cappedMax = Math.min(range.max, priceRange.max);
-            const active = filters.minPrice === Math.max(priceRange.min, range.min) && filters.maxPrice === cappedMax;
-            return (
-              <button key={range.label} type="button" onClick={() => onFilterChange({ ...filters, minPrice: Math.max(priceRange.min, range.min), maxPrice: cappedMax })} className={cn("rounded-full px-3 py-2 text-left text-xs font-bold transition", active ? "bg-brand-primary text-white" : "bg-brand-bgLight text-brand-textMuted hover:text-brand-primary")}>
-                {range.label}
-              </button>
-            );
-          })}
+      <FilterSection title="Price Range">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-1">
+              <span className="type-label text-[10px] text-neutral-400">Min</span>
+              <input
+                type="number"
+                min={priceRange.min}
+                max={filters.maxPrice}
+                value={filters.minPrice}
+                onChange={(event) =>
+                  onFilterChange({
+                    ...filters,
+                    minPrice: Number(event.target.value),
+                  })
+                }
+                className="w-full border-b border-neutral-300 bg-transparent px-0 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="type-label text-[10px] text-neutral-400">Max</span>
+              <input
+                type="number"
+                min={filters.minPrice}
+                max={priceRange.max}
+                value={filters.maxPrice}
+                onChange={(event) =>
+                  onFilterChange({
+                    ...filters,
+                    maxPrice: Number(event.target.value),
+                  })
+                }
+                className="w-full border-b border-neutral-300 bg-transparent px-0 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
+              />
+            </label>
+          </div>
+          <p className="text-xs text-neutral-400">
+            Showing रू {filters.minPrice.toLocaleString()} – रू{" "}
+            {filters.maxPrice.toLocaleString()}
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 text-xs text-brand-textMuted">
-          <label className="space-y-1 font-bold">Min
-            <input type="number" min={priceRange.min} max={filters.maxPrice} value={filters.minPrice} onChange={(event) => onFilterChange({ ...filters, minPrice: Number(event.target.value) })} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-3 py-2 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" />
-          </label>
-          <label className="space-y-1 font-bold">Max
-            <input type="number" min={filters.minPrice} max={priceRange.max} value={filters.maxPrice} onChange={(event) => onFilterChange({ ...filters, maxPrice: Number(event.target.value) })} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-3 py-2 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30" />
-          </label>
-        </div>
-        <p className="mt-3 text-xs text-brand-textMuted">Showing रू {filters.minPrice.toLocaleString()} - रू {filters.maxPrice.toLocaleString()}</p>
       </FilterSection>
     </aside>
   );

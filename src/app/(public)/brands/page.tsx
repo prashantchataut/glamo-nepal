@@ -15,28 +15,30 @@ export default function BrandsPage() {
   const brands = getBrandProfiles();
 
   return (
-    <main className="min-h-screen bg-brand-bgLight">
+    <main className="min-h-screen bg-neutral-50">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Brands", path: "/brands" }])} />
 
-      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_48%,#F7F1EA_100%)] py-10 md:py-14">
-        <div className="container mx-auto px-4 md:px-6">
-          <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Brand directory</p>
-          <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">Our Brands</h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">
+      <section className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50 py-12 md:py-20">
+        <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-12 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="container relative mx-auto px-4 md:px-6">
+          <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Brand directory</p>
+          <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-neutral-900 md:text-7xl">Our Brands</h1>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">
             Authentic beauty brands curated for Nepal-market shoppers — skincare, haircare and cosmetics you can trust.
           </p>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-10 md:px-6 md:py-14">
+      <section className="container mx-auto px-4 py-12 md:px-6 md:py-16">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4">
           {brands.map((brand) => (
             <Link
               key={brand.slug}
               href={`/brands/${brand.slug}`}
-              className="group overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm transition-shadow hover:shadow-md"
+              className="group cursor-pointer overflow-hidden border border-neutral-200 bg-white transition-shadow hover:shadow-lg"
             >
-              <div className="relative aspect-square overflow-hidden bg-brand-bgLight">
+              <div className="relative aspect-square overflow-hidden bg-neutral-100">
                 <Image
                   src={brand.image}
                   alt={`${brand.name} brand`}
@@ -46,16 +48,16 @@ export default function BrandsPage() {
                 />
               </div>
               <div className="p-4 md:p-5">
-                <h2 className="font-display text-lg font-semibold text-brand-textPrimary">{brand.name}</h2>
-                <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-brand-textMuted">{brand.description}</p>
+                <h2 className="font-display text-lg font-semibold text-neutral-900">{brand.name}</h2>
+                <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-neutral-500">{brand.description}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {brand.concerns.slice(0, 3).map((concern) => (
-                    <span key={concern} className="rounded-full bg-brand-bgLight px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-primary ring-1 ring-brand-border">
+                    <span key={concern} className="border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
                       {concern}
                     </span>
                   ))}
                 </div>
-                <p className="mt-3 text-xs font-bold text-brand-textMuted">
+                <p className="mt-3 text-xs font-bold text-neutral-400">
                   {brand.productCount} product{brand.productCount !== 1 ? "s" : ""}
                 </p>
               </div>

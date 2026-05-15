@@ -11,9 +11,9 @@ export const metadata = createMetadata({
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="bg-brand-bgLight py-10 md:py-16">
+    <main className="bg-neutral-50 py-16 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
-        <Suspense fallback={<div className="rounded-[2rem] bg-white p-8 text-brand-textMuted shadow-sm">Loading recovery form...</div>}>
+        <Suspense fallback={<div className="mx-auto max-w-5xl bg-white p-8 text-neutral-400">Loading recovery form...</div>}>
           <AuthForm mode="forgot" />
         </Suspense>
       </div>

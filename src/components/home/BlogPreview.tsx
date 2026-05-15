@@ -28,8 +28,8 @@ export function BlogPreview() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {BLOG_POSTS.map((post, i) => (
-            <article key={post.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-soft transition-all duration-500 border border-border/30 hover:-translate-y-1 cursor-pointer" style={{ animationDelay: `${i * 100}ms` }}>
-              <Link href={`/blog/${post.slug}`} className="block relative aspect-[3/2] overflow-hidden">
+            <Link key={post.id} href={`/blog/${post.slug}`} className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-soft transition-all duration-500 border border-border/30 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2" style={{ animationDelay: `${i * 100}ms` }}>
+              <div className="relative aspect-[3/2] overflow-hidden">
                 <Image
                   src={post.image}
                   alt={post.title}
@@ -43,21 +43,19 @@ export function BlogPreview() {
                     {post.category}
                   </span>
                 </div>
-              </Link>
+              </div>
               <div className="p-6 md:p-8">
                 <h3 className="font-display text-xl md:text-2xl font-semibold text-brand-textPrimary mb-3 line-clamp-2 group-hover:text-brand-primary transition-colors duration-300 leading-tight">
-                  <Link href={`/blog/${post.slug}`}>
-                    {post.title}
-                  </Link>
+                  {post.title}
                 </h3>
                 <p className="text-brand-textMuted leading-relaxed mb-6 line-clamp-3 text-sm">
                   {post.excerpt}
                 </p>
-                <Link href={`/blog/${post.slug}`} className="font-label inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300">
+                <span className="font-label inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300">
                   Read More <MoveRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
+                </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </div>

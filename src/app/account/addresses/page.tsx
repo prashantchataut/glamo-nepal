@@ -1,4 +1,6 @@
-﻿import { Home, MapPinned, Plus, Star } from "lucide-react";
+﻿// TODO: Add auth guard redirect when Supabase auth is connected
+// Example: if (!user) redirect('/login')
+import { Home, MapPinned, Plus, Star } from "lucide-react";
 import { SAMPLE_ADDRESSES as SAMPLE_ADDRESSES } from "@/lib/data/users";
 import { createMetadata } from "@/lib/seo";
 

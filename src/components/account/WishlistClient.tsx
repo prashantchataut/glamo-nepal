@@ -1,5 +1,4 @@
 ﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -13,11 +12,13 @@ export function WishlistClient() {
     <div>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Wishlist</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary md:text-4xl lg:text-5xl">Saved products</h1>
-          <p className="mt-3 text-sm text-brand-textMuted">Wishlist products are saved on this device so you can return to favorites quickly.</p>
+          <p className="type-label text-xs font-bold uppercase tracking-[0.22em] text-secondary">Wishlist</p>
+          <h1 className="mt-2 font-display text-3xl font-semibold text-neutral-900 md:text-4xl lg:text-5xl">Saved products</h1>
+          <p className="mt-3 text-sm text-neutral-500">Wishlist products are saved on this device so you can return to favorites quickly.</p>
         </div>
-        <Link href="/shop" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark">Browse shop</Link>
+        <Link href="/shop" className="cursor-pointer bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark">
+          Browse shop
+        </Link>
       </div>
       {items.length ? (
         <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 md:gap-6">

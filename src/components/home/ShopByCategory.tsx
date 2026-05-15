@@ -1,44 +1,50 @@
 ﻿"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { SHOP_CATEGORIES } from "@/lib/constants";
+import { Section } from "@/components/common/Section";
 
 export function ShopByCategory() {
   return (
-    <section className="py-12 md:py-16 lg:py-20 bg-white" aria-labelledby="shop-category-heading">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-8 md:mb-12">
-          <h2 id="shop-category-heading" className="font-display text-4xl md:text-5xl font-semibold tracking-tight text-brand-textPrimary">
-            Shop by <span className="text-brand-primary italic">Category</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6 md:gap-6">
-          {SHOP_CATEGORIES.map((category) => (
-            <Link
-              key={category.id}
-              href={`/shop?category=${category.slug}`}
-              className="group flex flex-col items-center gap-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-xl outline-none transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <div className="relative aspect-square w-full rounded-full overflow-hidden p-1.5 border-2 border-transparent group-hover:border-brand-primary/30 transition-all duration-500 group-hover:scale-105">
-                <div className="relative w-full h-full rounded-full overflow-hidden bg-brand-bgLight">
-                  <Image
-                    src={category.image}
-                    alt=""
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16.666vw"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
-              <span className="font-medium text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300 text-xs sm:text-sm md:text-base text-center leading-tight">
+    <Section
+      label="Shop by Category"
+      heading="Find Your Ritual"
+      align="center"
+    >
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {SHOP_CATEGORIES.slice(0, 4).map((category) => (
+          <Link
+            key={category.id}
+            href={`/shop?category=${category.slug}`}
+            className="group relative aspect-[3/4] overflow-hidden bg-neutral-100 cursor-pointer"
+          >
+            <Image
+              src={category.image}
+              alt={category.name}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 50vw, 25vw"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-neutral-900/20 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6">
+              <span className="type-label text-[10px] text-white/70 mb-1">
                 {category.name}
               </span>
-            </Link>
-          ))}
-        </div>
+              <h3 className="font-display text-xl font-medium text-white leading-tight">
+                {category.name}
+              </h3>
+              <span className="mt-2 inline-flex items-center gap-1 text-[12px] text-white/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                Shop Now
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </div>
+          </Link>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

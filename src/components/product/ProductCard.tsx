@@ -1,50 +1,263 @@
 ﻿"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, Check, Eye, Heart, Loader2, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Check, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
-import { NotifyMeForm } from "@/components/product/NotifyMeForm";
-import { trackEvent } from "@/lib/analytics";
 import { cn, formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
-import type { Product } from "@/types/product";
 import { useWishlistStore } from "@/store/useWishlistStore";
-export type { Product } from "@/types/product";
+import { trackEvent } from "@/lib/analytics";
+import { Badge } from "@/components/ui/badge";
+import type { Product } from "@/types/product";
+
 type AddState = "idle" | "loading" | "added";
-interface ProductCardProps { product: Product; variant?: "default" | "compact" | "editorial"; }
-export function ProductCard({ product, variant = "default" }: ProductCardProps) {
-  const [mounted, setMounted] = useState(false); const [addState, setAddState] = useState<AddState>("idle"); const [quantityError, setQuantityError] = useState(""); const [showNotify, setShowNotify] = useState(false);
-  const addToCart = useCartStore((s) => s.addItem); const wishlist = useWishlistStore();
-  useEffect(() => setMounted(true), []);
-  const isWishlisted = mounted ? wishlist.isInWishlist(product.id) : false;
-  const isLowStock = product.inStock && product.stockCount > 0 && product.stockCount < 10;
-  const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
-  const cardBadge = useMemo(() => { if (!product.inStock) return "Out of Stock"; if (isLowStock) return `Only ${product.stockCount} left`; return product.badge || (product.isBestSeller ? "Best Seller" : product.isNewArrival ? "New" : ""); }, [isLowStock, product]);
-  function onCart(e: React.MouseEvent) {
-    e.preventDefault(); e.stopPropagation(); setQuantityError("");
-    if (!product.inStock) { setShowNotify(true); return; }
-    setAddState("loading"); window.setTimeout(() => { const result = addToCart(product); if (!result.ok) { setAddState("idle"); setQuantityError(result.message || "Unable to add this item."); toast.error(result.message || "Unable to add this item."); return; } setAddState("added"); window.dispatchEvent(new CustomEvent("glamo:cart-pulse")); toast.success(`${product.name} added to cart`); trackEvent("add_to_cart", { productId: product.id, productSlug: product.slug, sku: product.sku, value: product.price }); window.setTimeout(() => setAddState("idle"), 2000); }, 280);
-  }
-  function onWishlist(e: React.MouseEvent) { e.preventDefault(); e.stopPropagation(); wishlist.toggleItem(product); trackEvent("wishlist_toggle", { productId: product.id, productSlug: product.slug, sku: product.sku, action: isWishlisted ? "remove" : "add" }); }
-  return <article aria-label={product.name} className={cn("group grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-2xl border border-brand-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-card-hover focus-within:ring-2 focus-within:ring-brand-primary focus-within:ring-offset-2 cursor-pointer", variant === "compact" && "rounded-2xl")}>
-    <div className="relative p-2.5 pb-0 sm:p-3 sm:pb-0">
-      <div className="absolute left-5 top-5 z-10 flex max-w-[72%] flex-wrap gap-2">{cardBadge ? <span className={cn("rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm", !product.inStock ? "bg-brand-bgDark" : isLowStock ? "bg-amber-500 text-white" : "bg-brand-primary")}>{cardBadge}</span> : null}{discount > 0 && product.inStock ? <span className="rounded-full bg-brand-gold px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-bgDark shadow-sm">Save {discount}%</span> : null}</div>
-      <button type="button" onClick={onWishlist} className={cn("absolute right-5 top-5 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 active:scale-95", isWishlisted ? "scale-105 border-brand-primary bg-brand-primary text-white" : "border-white/70 bg-white/90 text-brand-textMuted hover:text-brand-primary")} aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}><Heart size={17} fill={isWishlisted ? "currentColor" : "none"} className={cn("transition-transform", isWishlisted && "animate-pulse")} /></button>
-      <Link href={`/product/${product.slug}`} className="relative block aspect-square overflow-hidden rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2" style={{ backgroundColor: '#FDF6F9' }}>
-        <Image src={product.image} alt={`${product.brand} ${product.name}`} fill className={cn("object-cover transition duration-700 group-hover:scale-[1.03]", !product.inStock && "grayscale opacity-70")} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw" />
-      </Link>
-      <span className="pointer-events-none absolute inset-x-4 bottom-4 hidden items-center justify-center gap-2 rounded-full bg-white/92 px-4 py-2 text-xs font-bold uppercase tracking-widest text-brand-primary opacity-0 shadow-md backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100 md:flex" aria-hidden="true"><Eye size={14} /> Quick view</span>
-    </div>
-    <div className="grid grid-rows-[auto_auto_auto_1fr_auto_auto] p-3 sm:p-4 md:p-5">
-      <div className="flex items-center justify-between gap-3"><p className="font-label truncate text-[11px] font-bold uppercase tracking-widest text-brand-primary">{product.brand}</p>{product.madeInNepal ? <span className="font-label shrink-0 rounded-full bg-brand-primary-light px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-primary">Nepal</span> : null}</div>
-      <Link href={`/product/${product.slug}`} className="mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"><h3 className="line-clamp-2 font-display text-xl font-semibold leading-[1.05] text-brand-textPrimary transition group-hover:text-brand-primary md:text-[1.35rem]">{product.name}</h3></Link>
-      <p className="mt-2 line-clamp-2 text-sm leading-6 text-brand-textMuted">{product.description}</p>
-      <div className="mt-3 space-y-3"><div className="flex items-center gap-1 text-brand-gold" aria-label={`${product.rating} out of 5 stars`}><Star size={14} fill="currentColor" className="text-brand-gold" /><span className="text-sm font-bold text-brand-textPrimary">{product.rating}</span><span className="text-sm text-brand-textMuted">({product.reviewsCount})</span></div>{product.shadeOptions?.length ? <div className="flex items-center gap-1.5" aria-label="Available shades">{product.shadeOptions.slice(0, 5).map((shade) => <span key={shade.name} title={shade.name} className="h-4 w-4 rounded-full border border-white ring-1 ring-brand-border" style={{ backgroundColor: shade.hex || "#F8EEF8" }} />)}{product.shadeOptions.length > 5 ? <span className="text-[10px] font-bold text-brand-textMuted">+{product.shadeOptions.length - 5}</span> : null}</div> : null}</div>
-      <div className="mt-4 border-t border-brand-border pt-4">{product.inStock ? <div className="min-w-0"><p className="text-lg font-semibold tracking-tight text-brand-gold">{formatNPR(product.price)}</p><div className="mt-0.5 flex flex-wrap items-center gap-2">{product.originalPrice ? <p className="text-sm text-brand-textMuted line-through">{formatNPR(product.originalPrice)}</p> : null}{product.mrp && product.mrp !== product.originalPrice ? <p className="text-xs text-brand-textMuted line-through">MRP {formatNPR(product.mrp)}</p> : null}<p className="text-xs font-semibold text-brand-textMuted">{product.size}</p></div></div> : <div className="rounded-xl bg-brand-bgLight p-3 text-center text-sm font-bold uppercase tracking-widest text-brand-bgDark">Out of Stock</div>}</div>
-      {quantityError ? <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700" role="alert">{quantityError}</p> : null}{showNotify && !product.inStock ? <div className="mt-3"><NotifyMeForm productName={product.name} /></div> : null}
-      <button type="button" onClick={onCart} disabled={addState === "loading"} className={cn("mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 active:scale-[0.98]", product.inStock ? addState === "added" ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20" : "bg-brand-primary text-white shadow-md shadow-brand-primary/15 hover:-translate-y-0.5 hover:bg-brand-primary-hover hover:shadow-lg" : "border border-brand-primary bg-white text-brand-primary hover:bg-brand-primary-light")} aria-label={product.inStock ? `Add ${product.name} to cart` : `Notify me when ${product.name} is available`}>{addState === "loading" ? <Loader2 size={17} className="animate-spin" /> : addState === "added" ? <Check size={17} /> : product.inStock ? <ShoppingBag size={17} /> : <Bell size={17} />}{addState === "loading" ? "Adding..." : addState === "added" ? "Added!" : product.inStock ? "Quick add" : "Notify Me When Available"}</button>
-    </div>
-  </article>;
+
+interface ProductCardProps {
+  product: Product;
 }
-export function ProductCardSkeleton() { return <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-2xl border border-brand-border bg-white shadow-sm"><div className="m-3 aspect-square rounded-xl skeleton-shimmer" /><div className="flex flex-1 flex-col gap-3 p-5"><div className="h-3 w-20 rounded skeleton-shimmer" /><div className="h-6 w-4/5 rounded skeleton-shimmer" /><div className="h-4 w-2/3 rounded skeleton-shimmer" /><div className="mt-auto h-11 w-full rounded-full skeleton-shimmer" /></div></div>; }
+
+export function ProductCard({ product }: ProductCardProps) {
+  const [mounted, setMounted] = useState(false);
+  const [addState, setAddState] = useState<AddState>("idle");
+  const [showNotify, setShowNotify] = useState(false);
+  const addToCart = useCartStore((s) => s.addItem);
+  const wishlist = useWishlistStore();
+
+  useEffect(() => setMounted(true), []);
+
+  const isWishlisted = mounted ? wishlist.isInWishlist(product.id) : false;
+  const discount = product.originalPrice
+    ? Math.round(
+        ((product.originalPrice - product.price) / product.originalPrice) *
+          100
+      )
+    : 0;
+
+  const cardBadge = useMemo(() => {
+    if (!product.inStock) return "soldOut" as const;
+    if (product.isNewArrival) return "new" as const;
+    if (product.badge === "Sale" || product.originalPrice) return "sale" as const;
+    return null;
+  }, [product]);
+
+  function onCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!product.inStock) {
+      setShowNotify(true);
+      return;
+    }
+    setAddState("loading");
+    window.setTimeout(() => {
+      const result = addToCart(product);
+      if (!result.ok) {
+        setAddState("idle");
+        toast.error(result.message || "Unable to add this item.");
+        return;
+      }
+      setAddState("added");
+      window.dispatchEvent(new CustomEvent("glamo:cart-pulse"));
+      toast.success(`${product.name} added to cart`);
+      trackEvent("add_to_cart", {
+        productId: product.id,
+        productSlug: product.slug,
+        sku: product.sku,
+        value: product.price,
+      });
+      window.setTimeout(() => setAddState("idle"), 2000);
+    }, 280);
+  }
+
+  function onWishlist(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    wishlist.toggleItem(product);
+    trackEvent("wishlist_toggle", {
+      productId: product.id,
+      productSlug: product.slug,
+      sku: product.sku,
+      action: isWishlisted ? "remove" : "add",
+    });
+  }
+
+  return (
+    <article
+      aria-label={product.name}
+      className="group flex h-full flex-col"
+    >
+      {/* Image container */}
+      <Link
+        href={`/product/${product.slug}`}
+        className="relative block aspect-[3/4] overflow-hidden bg-neutral-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <Image
+          src={product.image}
+          alt={`${product.brand} ${product.name}`}
+          fill
+          className={cn(
+            "object-cover transition-transform duration-500 group-hover:scale-[1.04]",
+            !product.inStock && "grayscale opacity-70"
+          )}
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+        />
+
+        {/* Badges */}
+        {(cardBadge || (discount > 0 && product.inStock)) && (
+          <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+            {cardBadge && (
+              <Badge variant={cardBadge}>
+                {cardBadge === "soldOut"
+                  ? "SOLD OUT"
+                  : cardBadge === "new"
+                  ? "NEW"
+                  : cardBadge === "sale"
+                  ? "SALE"
+                  : ""}
+              </Badge>
+            )}
+            {discount > 0 && product.inStock && (
+              <span className="bg-secondary text-white text-[10px] tracking-widest uppercase px-2 py-0.5 font-medium">
+                -{discount}%
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Wishlist button */}
+        <button
+          type="button"
+          onClick={onWishlist}
+          className={cn(
+            "absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center transition-all duration-200",
+            "opacity-0 group-hover:opacity-100",
+            isWishlisted && "opacity-100",
+            isWishlisted
+              ? "bg-primary text-white"
+              : "bg-surface/90 text-neutral-700 hover:text-primary"
+          )}
+          aria-label={
+            isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+          }
+        >
+          <Heart
+            size={16}
+            fill={isWishlisted ? "currentColor" : "none"}
+          />
+        </button>
+
+        {/* Quick Add overlay */}
+        {product.inStock && (
+          <div className="absolute inset-x-0 bottom-0 z-10 translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <button
+              type="button"
+              onClick={onCart}
+              disabled={addState === "loading"}
+              className="flex h-10 w-full items-center justify-center gap-2 bg-neutral-900/80 text-white text-[11px] tracking-[0.1em] uppercase font-medium backdrop-blur-sm transition-colors hover:bg-neutral-900/90 disabled:opacity-50"
+            >
+              {addState === "loading" ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : addState === "added" ? (
+                <>
+                  <Check size={14} /> Added
+                </>
+              ) : (
+                <>
+                  <ShoppingBag size={14} /> Quick Add
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </Link>
+
+      {/* Card body */}
+      <div className="pt-3 pb-4 px-0">
+        {/* Brand */}
+        <p className="type-label text-[10px] text-neutral-500 mb-1">
+          {product.brand}
+        </p>
+
+        {/* Name */}
+        <Link href={`/product/${product.slug}`}>
+          <h3 className="font-display text-base leading-snug text-neutral-900 transition-colors group-hover:text-primary md:text-[18px]">
+            {product.name}
+          </h3>
+        </Link>
+
+        {/* Shade swatches */}
+        {product.shadeOptions && product.shadeOptions.length > 0 && (
+          <div className="mt-2 flex items-center gap-1.5" aria-label="Available shades">
+            {product.shadeOptions.slice(0, 5).map((shade) => (
+              <span
+                key={shade.name}
+                title={shade.name}
+                className="h-2 w-2 rounded-full border border-neutral-200"
+                style={{ backgroundColor: shade.hex || "#E8E4DF" }}
+              />
+            ))}
+            {product.shadeOptions.length > 5 && (
+              <span className="text-[10px] text-neutral-400">
+                +{product.shadeOptions.length - 5}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Price row */}
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="type-price text-neutral-900">
+            {formatNPR(product.price)}
+          </span>
+          {product.originalPrice && (
+            <span className="font-body text-sm text-neutral-400 line-through">
+              {formatNPR(product.originalPrice)}
+            </span>
+          )}
+        </div>
+
+        {/* Rating */}
+        <div className="mt-1.5 flex items-center gap-1">
+          <div className="flex items-center" aria-label={`${product.rating} out of 5 stars`}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                size={12}
+                fill={i < Math.round(product.rating) ? "currentColor" : "none"}
+                className={
+                  i < Math.round(product.rating) ? "text-secondary" : "text-neutral-300"
+                }
+              />
+            ))}
+          </div>
+          <span className="font-body text-[11px] text-neutral-400">
+            ({product.reviewsCount})
+          </span>
+        </div>
+
+        {/* Notify form for out of stock */}
+        {showNotify && !product.inStock && (
+          <div className="mt-3">
+            <p className="type-body-sm text-neutral-400">
+              Notify me when available
+            </p>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="aspect-[3/4] skeleton-shimmer" />
+      <div className="pt-3 pb-4 px-0 space-y-2">
+        <div className="h-3 w-16 skeleton-shimmer" />
+        <div className="h-5 w-3/4 skeleton-shimmer" />
+        <div className="h-4 w-1/3 skeleton-shimmer" />
+      </div>
+    </div>
+  );
+}

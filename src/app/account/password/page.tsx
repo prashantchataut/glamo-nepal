@@ -1,3 +1,5 @@
+// TODO: Add auth guard redirect when Supabase auth is connected
+// Example: if (!user) redirect('/login')
 import { PasswordForm } from "@/components/account/PasswordForm";
 import { createMetadata } from "@/lib/seo";
 

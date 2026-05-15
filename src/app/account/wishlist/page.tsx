@@ -1,3 +1,5 @@
+// TODO: Add auth guard redirect when Supabase auth is connected
+// Example: if (!user) redirect('/login')
 import { WishlistClient } from "@/components/account/WishlistClient";
 import { createMetadata } from "@/lib/seo";
 

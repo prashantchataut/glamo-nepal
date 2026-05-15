@@ -1,34 +1,33 @@
 import Image from "next/image";
+import Link from "next/link";
 import { BRAND_LOGOS } from "@/lib/constants";
+import { Section } from "@/components/common/Section";
 
 export function BrandsMarquee() {
   return (
-    <section
-      className="py-10 md:py-16 bg-white border-y border-border/30"
-      aria-labelledby="brands-marquee-heading"
+    <Section
+      label="Featured Brands"
+      heading="Brands We Trust"
+      cta={{ label: "View All Brands", href: "/brands" }}
     >
-      <div className="container mx-auto px-4 md:px-6">
-        <p id="brands-marquee-heading" className="text-center font-label text-brand-textMuted text-xs md:text-sm uppercase tracking-[0.25em] font-bold mb-6 md:mb-8">
-          Trusted by the finest brands
-        </p>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 items-center">
-          {BRAND_LOGOS.map((brand) => (
-            <div
-              key={brand.id}
-              className="flex items-center justify-center opacity-60 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-300"
-            >
-              <Image
-                src={brand.image}
-                alt={brand.name}
-                width={120}
-                height={40}
-                loading="lazy"
-                className="h-8 md:h-10 w-auto object-contain"
-              />
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:gap-6 lg:grid-cols-6">
+        {BRAND_LOGOS.slice(0, 6).map((brand) => (
+          <Link
+            key={brand.id}
+            href={`/brands/${brand.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+            className="group flex aspect-square items-center justify-center border border-neutral-200 bg-surface p-6 transition-all duration-300 hover:border-primary hover:shadow-sm cursor-pointer"
+          >
+            <Image
+              src={brand.image}
+              alt={brand.name}
+              width={120}
+              height={40}
+              loading="lazy"
+              className="h-8 w-auto object-contain opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+            />
+          </Link>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

@@ -1,5 +1,4 @@
 ﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -9,6 +8,8 @@ import { Clock, Loader2, Mail, MapPin, Phone } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
 import { csrfHeaders } from "@/lib/csrf";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function ContactClient() {
   const [isSending, setIsSending] = useState(false);
@@ -48,47 +49,40 @@ export default function ContactClient() {
     }
   };
 
-  const fieldClasses = (hasError: boolean) =>
-    `w-full px-4 py-3 rounded-xl border bg-white text-brand-textPrimary placeholder:text-brand-textMuted/50 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all resize-none ${
-      hasError ? "border-red-500" : "border-border"
-    }`;
-
   return (
-    <div className="min-h-screen bg-brand-bgLight">
-      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-10 md:py-16">
-        <div className="container mx-auto px-4 text-center md:px-6">
-          <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Customer care</p>
-          <h1 className="mt-3 font-display text-3xl font-semibold text-brand-textPrimary md:text-5xl lg:text-6xl">Get in <span className="italic text-brand-primary">Touch</span></h1>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-brand-textMuted">Questions, feedback, WhatsApp support or store visit details — we would love to help.</p>
+    <div className="min-h-screen bg-neutral-50">
+      <section className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50 py-12 md:py-20">
+        <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-12 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="container relative mx-auto px-4 text-center md:px-6">
+          <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Customer care</p>
+          <h1 className="mt-3 font-display text-3xl font-semibold text-neutral-900 md:text-5xl lg:text-6xl">
+            Get in <span className="italic text-primary">Touch</span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-neutral-500">Questions, feedback, WhatsApp support or store visit details — we would love to help.</p>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+      <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
+        <div className="grid gap-8 md:grid-cols-2 md:gap-12">
           <div>
-            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary mb-6">Send Us a Message</h2>
+            <h2 className="font-display text-2xl font-semibold text-neutral-900 mb-6">Send Us a Message</h2>
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="contact-name" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Name</label>
-                  <input id="contact-name" type="text" {...register("name")} aria-invalid={errors.name ? "true" : undefined} aria-describedby={errors.name ? "contact-name-error" : undefined} className={fieldClasses(!!errors.name)} />
-                  {errors.name && <p id="contact-name-error" role="alert" className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="contact-email" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Email</label>
-                  <input id="contact-email" type="email" {...register("email")} aria-invalid={errors.email ? "true" : undefined} aria-describedby={errors.email ? "contact-email-error" : undefined} className={fieldClasses(!!errors.email)} />
-                  {errors.email && <p id="contact-email-error" role="alert" className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
-                </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Input label="Name" type="text" placeholder="Your name" {...register("name")} error={errors.name?.message} />
+                <Input label="Email" type="email" placeholder="you@example.com" {...register("email")} error={errors.email?.message} />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="contact-phone" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Phone</label>
-                  <input id="contact-phone" type="tel" {...register("phone")} aria-invalid={errors.phone ? "true" : undefined} aria-describedby={errors.phone ? "contact-phone-error" : undefined} className={fieldClasses(!!errors.phone)} />
-                  {errors.phone && <p id="contact-phone-error" role="alert" className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="contact-subject" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Subject</label>
-                  <select id="contact-subject" {...register("subject")} aria-invalid={errors.subject ? "true" : undefined} aria-describedby={errors.subject ? "contact-subject-error" : undefined} className={fieldClasses(!!errors.subject)}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Input label="Phone" type="tel" placeholder="+977 98XXXXXXXX" {...register("phone")} error={errors.phone?.message} />
+                <div className="w-full">
+                  <label htmlFor="contact-subject" className="type-label mb-2 block text-neutral-400">Subject</label>
+                  <select
+                    id="contact-subject"
+                    {...register("subject")}
+                    aria-invalid={errors.subject ? "true" : undefined}
+                    aria-describedby={errors.subject ? "contact-subject-error" : undefined}
+                    className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 focus:border-primary focus:outline-none"
+                  >
                     <option value="">Select a subject</option>
                     <option value="order">Order Inquiry</option>
                     <option value="product">Product Question</option>
@@ -96,58 +90,66 @@ export default function ContactClient() {
                     <option value="collaboration">Collaboration</option>
                     <option value="other">Other</option>
                   </select>
-                  {errors.subject && <p id="contact-subject-error" role="alert" className="mt-1 text-sm text-red-500">{errors.subject.message}</p>}
+                  {errors.subject && <p id="contact-subject-error" role="alert" className="mt-1 text-xs text-error">{errors.subject.message}</p>}
                 </div>
               </div>
-              <div>
-                <label htmlFor="contact-message" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Message</label>
-                <textarea id="contact-message" rows={5} {...register("message")} aria-invalid={errors.message ? "true" : undefined} aria-describedby={errors.message ? "contact-message-error" : undefined} className={fieldClasses(!!errors.message)} placeholder="Tell us how we can help..." />
-                {errors.message && <p id="contact-message-error" role="alert" className="mt-1 text-sm text-red-500">{errors.message.message}</p>}
+              <div className="w-full">
+                <label htmlFor="contact-message" className="type-label mb-2 block text-neutral-400">Message</label>
+                <textarea
+                  id="contact-message"
+                  rows={5}
+                  {...register("message")}
+                  aria-invalid={errors.message ? "true" : undefined}
+                  aria-describedby={errors.message ? "contact-message-error" : undefined}
+                  className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+                  placeholder="Tell us how we can help..."
+                />
+                {errors.message && <p id="contact-message-error" role="alert" className="mt-1 text-xs text-error">{errors.message.message}</p>}
               </div>
-              <button type="submit" disabled={isSending} className="w-full py-3.5 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-all duration-300 disabled:opacity-60 shadow-lg shadow-brand-primary/20">
+              <Button type="submit" disabled={isSending} className="w-full">
                 {isSending ? (<span className="inline-flex items-center justify-center gap-2"><Loader2 className="animate-spin" size={18} />Sending...</span>) : "Send Message"}
-              </button>
+              </Button>
             </form>
           </div>
 
           <div>
-            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary mb-6">Store Information</h2>
-            <div className="bg-white rounded-2xl border border-border/30 p-6 md:p-8 space-y-6">
+            <h2 className="font-display text-2xl font-semibold text-neutral-900 mb-6">Store Information</h2>
+            <div className="border border-neutral-200 bg-white p-6 md:p-8 space-y-6">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0"><MapPin size={18} className="text-brand-primary" strokeWidth={1.5} /></div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-primary/10"><MapPin size={18} className="text-primary" strokeWidth={1.5} /></div>
                 <div>
-                  <p className="font-semibold text-brand-textPrimary text-sm">Address</p>
-                  <p className="text-sm text-brand-textMuted mt-0.5" dangerouslySetInnerHTML={{ __html: SITE_CONFIG.address.replace(/,/g, ",<br />") }} />
+                  <p className="text-sm font-semibold text-neutral-900">Address</p>
+                  <p className="mt-0.5 text-sm text-neutral-500" dangerouslySetInnerHTML={{ __html: SITE_CONFIG.address.replace(/,/g, ",<br />") }} />
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0"><Phone size={18} className="text-brand-primary" strokeWidth={1.5} /></div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-primary/10"><Phone size={18} className="text-primary" strokeWidth={1.5} /></div>
                 <div>
-                  <p className="font-semibold text-brand-textPrimary text-sm">Phone</p>
-                  <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-textMuted hover:text-brand-primary transition-colors">{SITE_CONFIG.phone}</a>
+                  <p className="text-sm font-semibold text-neutral-900">Phone</p>
+                  <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="cursor-pointer text-sm text-neutral-500 transition-colors hover:text-primary">{SITE_CONFIG.phone}</a>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0"><Mail size={18} className="text-brand-primary" strokeWidth={1.5} /></div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-primary/10"><Mail size={18} className="text-primary" strokeWidth={1.5} /></div>
                 <div>
-                  <p className="font-semibold text-brand-textPrimary text-sm">Email</p>
-                  <a href={`mailto:${SITE_CONFIG.email}`} className="text-sm text-brand-textMuted hover:text-brand-primary transition-colors">{SITE_CONFIG.email}</a>
+                  <p className="text-sm font-semibold text-neutral-900">Email</p>
+                  <a href={`mailto:${SITE_CONFIG.email}`} className="cursor-pointer text-sm text-neutral-500 transition-colors hover:text-primary">{SITE_CONFIG.email}</a>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0"><Clock size={18} className="text-brand-primary" strokeWidth={1.5} /></div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-primary/10"><Clock size={18} className="text-primary" strokeWidth={1.5} /></div>
                 <div>
-                  <p className="font-semibold text-brand-textPrimary text-sm">Hours</p>
-                  <p className="text-sm text-brand-textMuted">Sun–Fri: 10AM–7PM</p>
-                  <p className="text-sm text-brand-textMuted">Sat: 10AM–5PM</p>
+                  <p className="text-sm font-semibold text-neutral-900">Hours</p>
+                  <p className="text-sm text-neutral-500">Sun–Fri: 10AM–7PM</p>
+                  <p className="text-sm text-neutral-500">Sat: 10AM–5PM</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-border/30">
+              <div className="flex items-center gap-3 border-t border-neutral-200 pt-4">
                 {[
                   { icon: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>, href: SITE_CONFIG.social.instagram },
                   { icon: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>, href: SITE_CONFIG.social.facebook },
                 ].map((s, i) => (
-                  <a key={i} href={s.href} className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all duration-300">{s.icon}</a>
+                  <a key={i} href={s.href} className="flex h-10 w-10 cursor-pointer items-center justify-center bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-white">{s.icon}</a>
                 ))}
               </div>
             </div>

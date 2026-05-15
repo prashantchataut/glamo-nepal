@@ -8,7 +8,15 @@ import { Clock, Copy, Share2 } from "lucide-react";
 import type { BlogPost } from "@/lib/data/blog";
 import { SITE_CONFIG } from "@/lib/config";
 
-function sanitizeBlogHtml(html: string) { return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "").replace(/\son\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/javascript:/gi, ""); }
+function sanitizeBlogHtml(html: string): string {
+  if (typeof window === "undefined") {
+    return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "").replace(/\son\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/javascript:/gi, "");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const createDOMPurify = require("dompurify");
+  const DOMPurify = createDOMPurify.default || createDOMPurify;
+  return DOMPurify.sanitize(html, { ALLOWED_TAGS: ["h1","h2","h3","h4","h5","h6","p","a","img","ul","ol","li","blockquote","strong","em","b","i","u","s","span","div","br","hr","table","thead","tbody","tr","th","td","figure","figcaption","pre","code","sup","sub"], ALLOWED_ATTR: ["href","src","alt","title","class","id","target","rel","loading","width","height"] });
+}
 function extractToc(html: string) { const headings: { id: string; text: string }[] = []; const matches = html.match(/<h2[^>]*>[\s\S]*?<\/h2>/gi) || []; matches.forEach((heading, index) => { const text = heading.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); if (text) headings.push({ id: `section-${index + 1}`, text }); }); return headings.slice(0, 6); }
 function withHeadingIds(html: string) { let index = 0; return sanitizeBlogHtml(html).replace(/<h2([^>]*)>/gi, (_match, attrs) => { index += 1; return `<h2 id="section-${index}"${attrs}>`; }); }
 

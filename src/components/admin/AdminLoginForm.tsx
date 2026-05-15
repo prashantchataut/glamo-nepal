@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, LockKeyhole, Sparkles } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -49,64 +49,65 @@ export function AdminLoginForm() {
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-primary text-white">
-          <Sparkles size={20} />
+        <div className="flex h-12 w-12 items-center justify-center bg-primary text-white">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
         <div>
-          <h2 className="font-display text-3xl font-semibold">Admin login</h2>
-          <p className="text-sm text-brand-textMuted">Use your GLAMO admin credentials.</p>
+          <h2 className="font-display text-3xl font-semibold text-neutral-900">Admin login</h2>
+          <p className="text-sm text-neutral-500">Use your GLAMO admin credentials.</p>
         </div>
       </div>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-6">
-        <label className="block text-sm font-semibold text-brand-textPrimary">
-          Admin email
+      <form onSubmit={onSubmit} className="mt-8 space-y-5">
+        <div className="w-full">
+          <label htmlFor="admin-email" className="type-label mb-2 block text-neutral-400">Admin email</label>
           <input
+            id="admin-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="admin@glamonepal.com"
             autoComplete="username"
-            className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-4 py-4 text-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10"
+            className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
             required
           />
-        </label>
+        </div>
 
-        <label className="block text-sm font-semibold text-brand-textPrimary">
-          Password
-          <span className="relative mt-2 block">
-            <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-textMuted" size={18} />
+        <div className="w-full">
+          <label htmlFor="admin-password" className="type-label mb-2 block text-neutral-400">Password</label>
+          <div className="relative">
             <input
+              id="admin-password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
-              className="w-full rounded-2xl border border-brand-border bg-white py-4 pl-12 pr-12 text-sm outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10"
+              className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 pr-10 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
               required
             />
             <button
               type="button"
-              onClick={() => setShowPassword((current) => !current)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center rounded-full text-brand-textMuted transition hover:text-brand-primary"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-400 transition-colors hover:text-primary"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-          </span>
-        </label>
+          </div>
+        </div>
 
-        {error ? <p role="alert" className="rounded-2xl border border-admin-error/20 bg-admin-error-light px-4 py-3 text-sm font-medium text-admin-error">{error}</p> : null}
+        {error ? <p role="alert" className="border border-error/30 bg-error/5 px-4 py-3 text-sm font-medium text-error">{error}</p> : null}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full min-h-[44px] rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary/20 transition hover:-translate-y-0.5 hover:bg-brand-bgDark disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-press w-full min-h-[44px] bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "Signing in..." : "Sign in to admin"}
         </button>
       </form>
 
-      <div className="mt-6 rounded-2xl bg-brand-bgLight p-4 text-xs leading-6 text-brand-textMuted">
+      <div className="mt-6 bg-neutral-50 p-4 text-xs leading-6 text-neutral-500">
         Access is protected by a signed, HTTP-only admin session cookie. For deployment, set <strong>ADMIN_EMAIL</strong>, <strong>ADMIN_PASSWORD</strong> and <strong>ADMIN_SESSION_SECRET</strong> in your environment.
       </div>
     </>

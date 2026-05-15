@@ -16,21 +16,23 @@ export const metadata = createMetadata({
 
 export default function FaqPage() {
   return (
-    <main className="bg-brand-bgLight">
+    <main className="bg-neutral-50">
       <JsonLd data={faqJsonLd(FAQ_ITEMS)} />
       <PageHeader eyebrow="FAQ" title="Frequently asked questions" description="Clear answers for shoppers about products, delivery, payments and customer care." />
       <section className="container mx-auto grid gap-8 px-4 py-12 md:px-6 lg:grid-cols-[0.8fr_1.2fr]">
-        <aside className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm lg:self-start">
-          <HelpCircle className="text-brand-primary" />
-          <h2 className="mt-4 font-display text-3xl font-semibold text-brand-textPrimary">Need a custom answer?</h2>
-          <p className="mt-3 text-sm leading-6 text-brand-textMuted">For order support, product confirmation or care guidance, contact GLAMO NEPAL directly.</p>
-          <Link href={SITE_CONFIG.whatsapp} rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-semibold text-white"><MessageCircle size={17} /> Chat on WhatsApp</Link>
+        <aside className="border border-neutral-200 bg-white p-6 lg:self-start">
+          <HelpCircle className="text-primary" strokeWidth={1.5} />
+          <h2 className="mt-4 font-display text-3xl font-semibold text-neutral-900">Need a custom answer?</h2>
+          <p className="mt-3 text-sm leading-6 text-neutral-500">For order support, product confirmation or care guidance, contact GLAMO NEPAL directly.</p>
+          <Link href={SITE_CONFIG.whatsapp} rel="noopener noreferrer" className="mt-6 inline-flex cursor-pointer items-center gap-2 bg-[#25D366] px-6 py-3 text-sm font-bold text-white transition-colors">
+            <MessageCircle size={17} strokeWidth={1.5} /> Chat on WhatsApp
+          </Link>
         </aside>
-        <Accordion type="single" collapsible className="rounded-[2rem] border border-border/70 bg-white p-4 shadow-sm md:p-6">
+        <Accordion type="single" collapsible className="border border-neutral-200 bg-white p-4 md:p-6">
           {FAQ_ITEMS.map(({ question, answer }, index) => (
             <AccordionItem key={question} value={`q${index}`}>
-              <AccordionTrigger className="text-left font-display text-xl font-semibold text-brand-textPrimary">{question}</AccordionTrigger>
-              <AccordionContent className="text-sm leading-7 text-brand-textMuted">{answer}</AccordionContent>
+              <AccordionTrigger className="text-left font-display text-xl font-semibold text-neutral-900">{question}</AccordionTrigger>
+              <AccordionContent className="text-sm leading-7 text-neutral-500">{answer}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

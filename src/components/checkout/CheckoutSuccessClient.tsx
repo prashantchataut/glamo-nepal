@@ -1,9 +1,8 @@
 ﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Copy, PackageCheck, ShoppingBag } from "lucide-react";
+import { CheckCircle2, Copy, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { formatNPR } from "@/lib/utils";
@@ -18,59 +17,89 @@ export function CheckoutSuccessClient() {
   }
 
   return (
-    <main className="bg-brand-bgLight py-16 md:py-24">
-      <div className="container mx-auto max-w-4xl px-4">
-        <div className="overflow-hidden rounded-[2.25rem] border border-brand-border bg-white shadow-[0_28px_90px_-65px_rgba(36,31,34,0.45)]">
-          <div className="bg-[linear-gradient(135deg,#FFFDFC_0%,#F8EEF2_52%,#F7F1EA_100%)] p-8 text-center md:p-12">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm ring-1 ring-brand-border">
-              <CheckCircle2 size={46} />
-            </div>
-            <p className="font-label mt-6 text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Checkout success</p>
-            <h1 className="mx-auto mt-3 max-w-2xl font-display text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Thank you for your order</h1>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-brand-textMuted">Your order has been recorded. GLAMO will confirm delivery and payment details with you shortly.</p>
+    <main className="bg-neutral-50 py-16 md:py-24">
+      <div className="mx-auto max-w-2xl px-4 md:px-6">
+        {/* Success header */}
+        <div className="text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center bg-primary text-white">
+            <CheckCircle2 size={32} />
           </div>
+          <p className="type-label text-[11px] text-secondary mt-4">Order Confirmed</p>
+          <h1 className="type-display-lg text-neutral-900 mt-2">Thank You for Your Order</h1>
+          <p className="type-body-md text-neutral-400 mt-3 max-w-md mx-auto">
+            Your order has been placed successfully. GLAMO will confirm delivery and payment details with you shortly.
+          </p>
+        </div>
 
-          {order ? (
-            <div className="grid gap-6 p-5 md:grid-cols-[1fr_0.8fr] md:p-8">
-              <section className="rounded-[1.75rem] border border-brand-border bg-brand-bgLight p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-label text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Order number</p>
-                    <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">{order.orderNumber}</h2>
-                  </div>
-                  <button type="button" onClick={copyOrderNumber} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand-primary shadow-sm ring-1 ring-brand-border" aria-label="Copy order number">
-                    <Copy size={17} />
-                  </button>
-                </div>
-                <div className="mt-5 grid gap-3 text-sm text-brand-textMuted">
-                  <p><span className="font-semibold text-brand-textPrimary">Total:</span> {formatNPR(order.total)}</p>
-                  <p><span className="font-semibold text-brand-textPrimary">Payment:</span> {order.paymentMethod}</p>
-                  <p><span className="font-semibold text-brand-textPrimary">Delivery:</span> {order.shippingAddress}</p>
-                </div>
-              </section>
+        {order ? (
+          <div className="mt-10 border border-neutral-200">
+            {/* Order number */}
+            <div className="p-6 flex items-start justify-between gap-4">
+              <div>
+                <p className="type-label text-[11px] text-neutral-400">Order Number</p>
+                <p className="type-display-md text-neutral-900 mt-1">{order.orderNumber}</p>
+              </div>
+              <button
+                type="button"
+                onClick={copyOrderNumber}
+                className="flex h-10 w-10 items-center justify-center border border-neutral-200 text-neutral-700 transition-colors hover:text-primary cursor-pointer"
+                aria-label="Copy order number"
+              >
+                <Copy size={16} />
+              </button>
+            </div>
 
-              <section className="rounded-[1.75rem] border border-brand-border bg-white p-5 shadow-sm">
-                <div className="flex items-center gap-2 text-brand-primary"><PackageCheck size={18} /><p className="font-label text-xs font-bold uppercase tracking-[0.18em]">Items</p></div>
-                <div className="mt-4 space-y-3">
-                  {order.items.slice(0, 3).map((item) => (
-                    <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 rounded-2xl bg-brand-bgLight p-3">
-                      <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-xl bg-white"><Image src={item.image} alt={item.name} fill className="object-cover" sizes="48px" /></div>
-                      <div className="min-w-0 flex-1"><p className="line-clamp-1 text-sm font-semibold text-brand-textPrimary">{item.name}</p><p className="text-xs text-brand-textMuted">Qty {item.quantity}</p></div>
+            {/* Order details */}
+            <div className="border-t border-neutral-200 p-6 type-body-sm text-neutral-400 space-y-2">
+              <p><span className="text-neutral-900 font-medium">Total:</span> {formatNPR(order.total)}</p>
+              <p><span className="text-neutral-900 font-medium">Payment:</span> {order.paymentMethod}</p>
+              <p><span className="text-neutral-900 font-medium">Delivery:</span> {order.shippingAddress}</p>
+            </div>
+
+            {/* Items */}
+            <div className="border-t border-neutral-200 p-6">
+              <div className="flex items-center gap-2 text-primary mb-4">
+                <PackageCheck size={16} />
+                <p className="type-label text-[11px]">Items</p>
+              </div>
+              <div className="space-y-3">
+                {order.items.slice(0, 3).map((item) => (
+                  <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 bg-neutral-50 p-3">
+                    <div className="relative h-14 w-12 shrink-0 overflow-hidden bg-neutral-100">
+                      <Image src={item.image} alt={item.name} fill className="object-cover" sizes="48px" />
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-neutral-900 truncate">{item.name}</p>
+                      <p className="type-body-sm text-neutral-400">Qty {item.quantity}</p>
+                    </div>
+                  </div>
+                ))}
+                {order.items.length > 3 && (
+                  <p className="type-body-sm text-neutral-400 text-center">+ {order.items.length - 3} more items</p>
+                )}
+              </div>
             </div>
-          ) : (
-            <div className="p-8 text-center">
-              <p className="text-brand-textMuted">No recent order was found in this browser session.</p>
-            </div>
-          )}
-
-          <div className="flex flex-wrap justify-center gap-3 border-t border-brand-border bg-[#FFFDFC] p-6">
-            <Link href="/account/orders" className="rounded-full bg-brand-primary px-7 py-3 font-semibold text-white transition hover:bg-brand-primary-hover">View orders</Link>
-            <Link href="/shop" className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 px-7 py-3 font-semibold text-brand-primary transition hover:bg-brand-primary-light"><ShoppingBag size={17} /> Continue shopping</Link>
           </div>
+        ) : (
+          <div className="mt-10 border border-neutral-200 p-8 text-center">
+            <p className="type-body-md text-neutral-400">No recent order found in this browser session.</p>
+          </div>
+        )}
+
+        {/* CTAs */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            href="/account/orders"
+            className="bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer"
+          >
+            View Orders
+          </Link>
+          <Link
+            href="/shop"
+            className="border border-neutral-200 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer"
+          >
+            Continue Shopping
+          </Link>
         </div>
       </div>
     </main>

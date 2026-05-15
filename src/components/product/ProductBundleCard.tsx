@@ -17,10 +17,10 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
     stocked.forEach((product) => addItem(product));
     trackEvent("bundle_add_to_cart", {
       bundleSlug: bundle.slug,
-      value: stocked.reduce((sum, product) => sum + product.price, 0),
+      value: bundle.bundlePrice,
       productCount: stocked.length,
     });
-    toast.success(`${stocked.length} routine item${stocked.length === 1 ? "" : "s"} added to cart`);
+    toast.success(`${bundle.title} items added to cart`);
   };
 
   return (

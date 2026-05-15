@@ -2,17 +2,19 @@ import { BLOG_POSTS, getBlogBySlug as getBlogBySlugMock, getRelatedPosts as getR
 import { fetchBlogPosts, fetchBlogPost, fetchRelatedPosts } from "@/lib/api/blog";
 
 let apiAvailable: boolean | null = null;
+let apiCheckExpiry = 0;
+const API_CHECK_TTL = 5 * 60 * 1000; // 5 minutes
 
 async function checkApiAvailable(): Promise<boolean> {
-  if (apiAvailable !== null) return apiAvailable;
+  if (apiAvailable !== null && Date.now() < apiCheckExpiry) return apiAvailable;
   try {
     await fetchBlogPosts({ limit: 1 });
     apiAvailable = true;
-    return true;
   } catch {
     apiAvailable = false;
-    return false;
   }
+  apiCheckExpiry = Date.now() + API_CHECK_TTL;
+  return apiAvailable;
 }
 
 export type { BlogPost };
@@ -24,6 +26,7 @@ export async function getBlogPosts(params?: { page?: number; limit?: number; cat
       return await fetchBlogPosts(params);
     } catch {
       apiAvailable = false;
+      apiCheckExpiry = Date.now() + API_CHECK_TTL;
     }
   }
   let posts = [...BLOG_POSTS];
@@ -40,6 +43,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
       return await fetchBlogPost(slug);
     } catch {
       apiAvailable = false;
+      apiCheckExpiry = Date.now() + API_CHECK_TTL;
     }
   }
   return getBlogBySlugMock(slug) ?? null;
@@ -51,6 +55,7 @@ export async function getRelatedPosts(slug: string, limit = 3): Promise<BlogPost
       return await fetchRelatedPosts(slug, limit);
     } catch {
       apiAvailable = false;
+      apiCheckExpiry = Date.now() + API_CHECK_TTL;
     }
   }
   return getRelatedPostsMock(slug, limit);

@@ -224,9 +224,10 @@ export function CartDrawer() {
                   <span className="font-semibold text-brand-textPrimary">Calculated at checkout</span>
                 </div>
                 <div className="flex justify-between border-t border-brand-border pt-3 text-lg font-semibold text-brand-textPrimary">
-                  <span>Total</span>
+                  <span>Estimated total</span>
                   <span className="text-brand-gold tracking-tight">{formatNPR(totalPrice)}</span>
                 </div>
+                <p className="text-xs text-brand-textMuted">Final total calculated at checkout with delivery</p>
               </div>
               <Link
                 href="/checkout"

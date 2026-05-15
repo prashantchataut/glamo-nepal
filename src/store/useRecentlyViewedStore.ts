@@ -15,6 +15,6 @@ export const useRecentlyViewedStore = create<RecentlyViewedState>()(
       addItem: (product) => set((state) => ({ items: [product, ...state.items.filter((item) => item.id !== product.id)].slice(0, 8) })),
       clear: () => set({ items: [] }),
     }),
-    { name: "glamo-recently-viewed-storage" },
+    { name: "glamo-recently-viewed-storage", version: 1 },
   ),
 );
