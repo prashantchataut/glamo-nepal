@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
@@ -118,11 +118,36 @@ const bannerStorageKey = "glamo-admin-managed-banners";
 const allowedBannerTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
 function sanitizeSvg(svgString: string): string {
-  return svgString
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/\s+on\w+\s*=\s*"[^"]*"/gi, "")
-    .replace(/\s+on\w+\s*=\s*'[^']*'/gi, "")
-    .replace(/javascript:/gi, "");
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgString, "image/svg+xml");
+  const parseError = doc.querySelector("parsererror");
+  if (parseError) return "";
+  const svg = doc.documentElement;
+  if (svg.tagName.toLowerCase() !== "svg") return "";
+  const dangerousTags = ["script", "iframe", "object", "embed", "applet", "form", "input", "button", "textarea", "select", "meta", "link", "base"];
+  dangerousTags.forEach((tag) => {
+    svg.querySelectorAll(tag).forEach((el) => el.remove());
+  });
+  svg.querySelectorAll("[onload],[onerror],[onclick],[onmouseover],[onmouseout],[onfocus],[onblur],[onsubmit]").forEach((el) => {
+    el.removeAttribute("onload");
+    el.removeAttribute("onerror");
+    el.removeAttribute("onclick");
+    el.removeAttribute("onmouseover");
+    el.removeAttribute("onmouseout");
+    el.removeAttribute("onfocus");
+    el.removeAttribute("onblur");
+    el.removeAttribute("onsubmit");
+  });
+  svg.querySelectorAll("[href]").forEach((el) => {
+    const href = el.getAttribute("href") || "";
+    if (href.startsWith("javascript:") || href.startsWith("data:") || href.startsWith("vbscript:")) {
+      el.removeAttribute("href");
+    }
+  });
+  svg.removeAttribute("onload");
+  svg.removeAttribute("onerror");
+  const serializer = new XMLSerializer();
+  return serializer.serializeToString(svg);
 }
 
 function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number | string; className?: string }> }) {
@@ -132,10 +157,10 @@ function StatCard({ label, value, note, icon: Icon }: { label: string; value: st
         <div className="rounded-xl bg-brand-primary-light p-3 text-brand-primary">
           <Icon size={18} />
         </div>
-        <span className="rounded-full bg-brand-bgLight px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">Live</span>
+        <span className="font-label rounded-full bg-brand-bgLight px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">Live</span>
       </div>
       <p className="mt-4 text-xs font-medium text-brand-textMuted">{label}</p>
-      <p className="mt-1 font-serif text-2xl font-semibold text-brand-textPrimary">{value}</p>
+      <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">{value}</p>
       <p className="mt-2 text-xs leading-4 text-brand-textMuted">{note}</p>
     </div>
   );
@@ -165,8 +190,8 @@ function BannerPreview({ banner }: { banner: ManagedBanner }) {
     <div className="overflow-hidden rounded-2xl border border-white/20 bg-brand-bgDark text-white shadow-lg">
       <div className="grid min-h-[180px] md:grid-cols-[1.1fr_0.9fr]">
         <div className="flex flex-col justify-center p-5 md:p-6">
-          <span className="w-fit rounded-full bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-white/75">{banner.status}</span>
-          <h3 className="mt-3 font-serif text-2xl font-semibold leading-tight md:text-3xl">{banner.title}</h3>
+          <span className="font-label w-fit rounded-full bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-white/75">{banner.status}</span>
+          <h3 className="mt-3 font-display text-2xl font-semibold leading-tight md:text-3xl">{banner.title}</h3>
           <p className="mt-2 text-sm leading-6 text-white/70">{banner.subtitle}</p>
           <Link href={banner.href} className="mt-4 w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-brand-primary">
             {banner.cta}
@@ -300,8 +325,8 @@ export function AdminDashboard() {
                 <SparklesIcon />
               </div>
               <div>
-                <p className="font-serif text-xl font-semibold leading-none">GLAMO</p>
-                <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">Admin panel</p>
+                <p className="font-display text-xl font-semibold leading-none">GLAMO</p>
+                <p className="font-label mt-1 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">Admin panel</p>
               </div>
             </Link>
             <button onClick={() => setIsSidebarOpen(false)} className="flex h-11 w-11 items-center justify-center rounded-xl text-brand-textMuted hover:bg-brand-bgLight lg:hidden" aria-label="Close admin menu">
@@ -351,8 +376,8 @@ export function AdminDashboard() {
                 <Menu size={18} />
               </button>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-primary">Store operations</p>
-                <h1 className="font-serif text-xl font-semibold md:text-2xl">{sections.find((item) => item.id === activeSection)?.label}</h1>
+                <p className="font-label text-xs font-bold uppercase tracking-[0.18em] text-brand-primary">Store operations</p>
+                <h1 className="font-display text-xl font-semibold md:text-2xl">{sections.find((item) => item.id === activeSection)?.label}</h1>
               </div>
             </div>
             <div className="hidden flex-1 items-center justify-center md:flex">
@@ -385,8 +410,8 @@ export function AdminDashboard() {
               <section className="overflow-hidden rounded-2xl bg-brand-bgDark text-white shadow-lg">
                 <div className="grid gap-6 p-5 md:p-6 xl:grid-cols-[1fr_0.78fr] xl:items-center">
                   <div>
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/75"><ShieldCheck size={14} /> Protected workspace</span>
-                    <h2 className="mt-4 font-serif text-2xl font-semibold leading-tight md:text-4xl">Welcome to GLAMO NEPAL admin.</h2>
+                    <span className="font-label inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/75"><ShieldCheck size={14} /> Protected workspace</span>
+                    <h2 className="mt-4 font-display text-2xl font-semibold leading-tight md:text-4xl">Welcome to GLAMO NEPAL admin.</h2>
                     <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">Manage catalog quality, order flow, inventory risks and homepage banners from one operating panel.</p>
                     <div className="mt-5 flex flex-wrap gap-3">
                       <button onClick={() => setActiveSection("products")} className="btn-press rounded-full bg-white px-4 py-3 text-sm font-bold text-brand-primary">Manage products</button>
@@ -408,7 +433,7 @@ export function AdminDashboard() {
                 <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div>
-                      <h3 className="font-serif text-xl font-semibold">Order history</h3>
+                      <h3 className="font-display text-xl font-semibold">Order history</h3>
                       <p className="mt-1 text-sm text-brand-textMuted">Track payment, status and fulfillment.</p>
                     </div>
                     <button onClick={() => setActiveSection("orders")} className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary min-h-[44px]">View all</button>
@@ -417,7 +442,7 @@ export function AdminDashboard() {
                     <table className="w-full min-w-[700px] text-sm">
                       <caption className="sr-only">Recent orders</caption>
                       <thead>
-                        <tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
+                        <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
                           <th scope="col" className="px-4 py-3">Order</th><th scope="col" className="px-4 py-3">Customer</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3">Total</th><th scope="col" className="px-4 py-3">Status</th><th scope="col" className="px-4 py-3">Action</th>
                         </tr>
                       </thead>
@@ -439,13 +464,13 @@ export function AdminDashboard() {
 
                 <div className="space-y-6">
                   <div className="card-hover rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
-                    <h3 className="font-serif text-xl font-semibold">Top categories</h3>
+                    <h3 className="font-display text-xl font-semibold">Top categories</h3>
                     <div className="mt-4 space-y-4">
                       {Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}
                     </div>
                   </div>
                   <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
-                    <h3 className="font-serif text-xl font-semibold">Low-stock alerts</h3>
+                    <h3 className="font-display text-xl font-semibold">Low-stock alerts</h3>
                     <div className="mt-4 space-y-3">
                       {LOW_STOCK_SNAPSHOT.slice(0, 4).map((item) => (
                         <div key={item.productId} className="flex items-center justify-between gap-3 rounded-xl bg-brand-bgLight p-3 text-sm">
@@ -467,7 +492,7 @@ export function AdminDashboard() {
             <section className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl font-semibold">Product management</h2>
+                  <h2 className="font-display text-2xl font-semibold">Product management</h2>
                   <p className="mt-1 text-sm text-brand-textMuted">Search, review and prepare SKUs for catalog APIs.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -484,7 +509,7 @@ export function AdminDashboard() {
                 <table className="w-full min-w-[900px] text-sm">
                   <caption className="sr-only">Product catalog</caption>
                   <thead>
-                    <tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
+                    <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
                       <th scope="col" className="px-4 py-3">Product</th><th scope="col" className="px-4 py-3">SKU</th><th scope="col" className="px-4 py-3">Category</th><th scope="col" className="px-4 py-3">Price</th><th scope="col" className="px-4 py-3">Stock</th><th scope="col" className="px-4 py-3">Status</th><th scope="col" className="px-4 py-3">Actions</th>
                     </tr>
                   </thead>
@@ -527,13 +552,13 @@ export function AdminDashboard() {
           {activeSection === "orders" ? (
             <section className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div><h2 className="font-serif text-2xl font-semibold">Orders</h2><p className="mt-1 text-sm text-brand-textMuted">Update statuses for COD, Khalti, eSewa and card orders.</p></div>
+                <div><h2 className="font-display text-2xl font-semibold">Orders</h2><p className="mt-1 text-sm text-brand-textMuted">Update statuses for COD, Khalti, eSewa and card orders.</p></div>
                 <div className="flex flex-wrap gap-2"><ComingSoonTooltip><button disabled className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">Today</button></ComingSoonTooltip><ComingSoonTooltip><button disabled className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">This week</button></ComingSoonTooltip><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Create manual order</button></ComingSoonTooltip></div>
               </div>
               <div className="mt-4 overflow-x-auto -mx-6 px-6">
                 <table className="w-full min-w-[900px] text-sm">
                   <caption className="sr-only">Order management</caption>
-                  <thead><tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted"><th scope="col" className="px-4 py-3">Order</th><th scope="col" className="px-4 py-3">Date</th><th scope="col" className="px-4 py-3">Items</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3">Address</th><th scope="col" className="px-4 py-3">Total</th><th scope="col" className="px-4 py-3">Status</th></tr></thead>
+                  <thead><tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted"><th scope="col" className="px-4 py-3">Order</th><th scope="col" className="px-4 py-3">Date</th><th scope="col" className="px-4 py-3">Items</th><th scope="col" className="px-4 py-3">Payment</th><th scope="col" className="px-4 py-3">Address</th><th scope="col" className="px-4 py-3">Total</th><th scope="col" className="px-4 py-3">Status</th></tr></thead>
                   <tbody>{orderRows.map((order) => (
                     <tr key={order.id} className="border-b border-brand-border/70 last:border-0">
 <td className="px-4 py-4 font-mono text-xs font-semibold">{order.orderNumber}</td><td className="px-4 py-4">{order.date}</td><td className="px-4 py-4">{order.items.length}</td><td className="px-4 py-4">{order.paymentMethod}</td><td className="px-4 py-4 max-w-[200px] truncate">{order.shippingAddress}</td><td className="px-4 py-4 font-semibold">{formatNPR(order.total)}</td>
@@ -548,14 +573,14 @@ export function AdminDashboard() {
           {activeSection === "inventory" ? (
             <section className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
               <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
-                <h2 className="font-serif text-2xl font-semibold">Stock control</h2>
+                <h2 className="font-display text-2xl font-semibold">Stock control</h2>
                 <p className="mt-0.5 text-sm text-brand-textMuted">Monitor stock, reorder points and estimated cover.</p>
                 <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNPR(inventoryValue)} note="Current retail value" /></div>
                 <div className="mt-5 space-y-2">
                   {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{item.name}</p><p className="text-xs text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><div className="flex items-center gap-2"><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Restock</button></ComingSoonTooltip></div></div>)}
                 </div>
               </div>
-              <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-serif text-xl font-semibold">Inventory rules</h3><div className="mt-4 space-y-4 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-admin-warning" size={16} /> Connect inventory ledger before accepting real orders.</p></div></div>
+              <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-display text-xl font-semibold">Inventory rules</h3><div className="mt-4 space-y-4 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-admin-warning" size={16} /> Connect inventory ledger before accepting real orders.</p></div></div>
             </section>
           ) : null}
 
@@ -563,12 +588,12 @@ export function AdminDashboard() {
             <section className="grid gap-6 lg:grid-cols-[1fr_0.76fr]">
               <div className="space-y-6">
                 <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-serif text-2xl font-semibold">Banner manager</h2><p className="mt-0.5 text-sm text-brand-textMuted">Replace homepage and campaign banners with adaptive desktop and mobile assets.</p></div><button onClick={() => setBannerMessage("Banner settings saved in this browser. Connect the admin API to publish across devices.")} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white"><Save size={15} /> Save banner</button></div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-display text-2xl font-semibold">Banner manager</h2><p className="mt-0.5 text-sm text-brand-textMuted">Replace homepage and campaign banners with adaptive desktop and mobile assets.</p></div><button onClick={() => setBannerMessage("Banner settings saved in this browser. Connect the admin API to publish across devices.")} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white"><Save size={15} /> Save banner</button></div>
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">{banners.map((banner) => <button key={banner.id} onClick={() => setSelectedBannerId(banner.id)} className={cn("rounded-xl border p-3 text-left transition", selectedBanner.id === banner.id ? "border-brand-primary bg-brand-primary-light" : "border-brand-border bg-white hover:bg-brand-bgLight")}><p className="font-semibold">{banner.title}</p><p className="mt-0.5 text-[11px] text-brand-textMuted">{banner.status} · Updated {banner.updatedAt}</p></button>)}</div>
                 </div>
                 <BannerPreview banner={selectedBanner} />
                 <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
-                  <h3 className="font-serif text-xl font-semibold">Edit selected banner</h3>
+                  <h3 className="font-display text-xl font-semibold">Edit selected banner</h3>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
 <label htmlFor="banner-title" className="space-y-2 text-sm font-medium">Title<input id="banner-title" value={selectedBanner.title} onChange={(event) => updateBannerField("title", event.target.value)} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
                      <label htmlFor="banner-cta" className="space-y-2 text-sm font-medium">CTA text<input id="banner-cta" value={selectedBanner.cta} onChange={(event) => updateBannerField("cta", event.target.value)} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
@@ -579,22 +604,22 @@ export function AdminDashboard() {
                 </div>
               </div>
               <aside className="space-y-6">
-                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><Upload className="text-brand-primary" size={20} /><h3 className="mt-2 font-serif text-xl font-semibold">Upload assets</h3><p className="mt-2 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio (1920 x 840). Mobile: 4:5 ratio (1080 x 1350). PNG, JPG, WebP, SVG under 3 MB.</p><div className="mt-4 space-y-3"><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "desktop")} className="hidden" />Upload desktop banner</label><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "mobile")} className="hidden" />Upload mobile banner</label></div><div aria-live="polite">{uploadError ? <p className="mt-4 rounded-xl bg-admin-error-light p-3 text-sm font-medium text-admin-error">{uploadError}</p> : null}{bannerMessage ? <p className="mt-4 rounded-xl bg-admin-success-light p-3 text-sm font-medium text-admin-success">{bannerMessage}</p> : null}</div></div>
-                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><Smartphone className="text-brand-primary" size={20} /><h3 className="mt-2 font-serif text-xl font-semibold">Responsive rules</h3><ul className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted"><li>Keep text inside the center safe area.</li><li>Use separate desktop and mobile crops.</li><li>Avoid tiny text inside image files.</li><li>Test at mobile, tablet and desktop widths before publishing.</li></ul></div>
+                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><Upload className="text-brand-primary" size={20} /><h3 className="mt-2 font-display text-xl font-semibold">Upload assets</h3><p className="mt-2 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio (1920 x 840). Mobile: 4:5 ratio (1080 x 1350). PNG, JPG, WebP, SVG under 3 MB.</p><div className="mt-4 space-y-3"><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "desktop")} className="hidden" />Upload desktop banner</label><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "mobile")} className="hidden" />Upload mobile banner</label></div><div aria-live="polite">{uploadError ? <p className="mt-4 rounded-xl bg-admin-error-light p-3 text-sm font-medium text-admin-error">{uploadError}</p> : null}{bannerMessage ? <p className="mt-4 rounded-xl bg-admin-success-light p-3 text-sm font-medium text-admin-success">{bannerMessage}</p> : null}</div></div>
+                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><Smartphone className="text-brand-primary" size={20} /><h3 className="mt-2 font-display text-xl font-semibold">Responsive rules</h3><ul className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted"><li>Keep text inside the center safe area.</li><li>Use separate desktop and mobile crops.</li><li>Avoid tiny text inside image files.</li><li>Test at mobile, tablet and desktop widths before publishing.</li></ul></div>
               </aside>
             </section>
           ) : null}
 
           {activeSection === "customers" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the live user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the live user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
           ) : null}
 
           {activeSection === "analytics" ? (
-            <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]"><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Analytics</h2><p className="mt-0.5 text-sm text-brand-textMuted">Operational view of categories and product attention.</p><div className="mt-5 space-y-4">{Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}</div></div><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h3 className="font-serif text-xl font-semibold">Top viewed products</h3><div className="mt-4 space-y-3">{topProducts.map((product) => <MiniBar key={product.id} label={product.name} value={product.reviewsCount} max={topProducts[0]?.reviewsCount || 1} />)}</div></div></section>
+            <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]"><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Analytics</h2><p className="mt-0.5 text-sm text-brand-textMuted">Operational view of categories and product attention.</p><div className="mt-5 space-y-4">{Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}</div></div><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h3 className="font-display text-xl font-semibold">Top viewed products</h3><div className="mt-4 space-y-3">{topProducts.map((product) => <MiniBar key={product.id} label={product.name} value={product.reviewsCount} max={topProducts[0]?.reviewsCount || 1} />)}</div></div></section>
           ) : null}
 
           {activeSection === "settings" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-serif text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value={`रू ${FREE_DELIVERY_THRESHOLD.toLocaleString()}`} /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
+            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value={`रू ${FREE_DELIVERY_THRESHOLD.toLocaleString()}`} /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
           ) : null}
         </main>
       </div>
@@ -603,9 +628,9 @@ export function AdminDashboard() {
 }
 
 function SettingItem({ icon: Icon, label, value }: { icon: ComponentType<{ size?: number | string; className?: string }>; label: string; value: string }) {
-  return <div className="rounded-xl border border-brand-border bg-brand-bgLight p-4"><div className="flex items-start gap-3"><Icon className="mt-0.5 text-brand-primary" size={16} /><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</p><p className="mt-1 text-sm font-medium text-brand-textPrimary">{value}</p></div></div></div>;
+  return <div className="rounded-xl border border-brand-border bg-brand-bgLight p-4"><div className="flex items-start gap-3"><Icon className="mt-0.5 text-brand-primary" size={16} /><div><p className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</p><p className="mt-1 text-sm font-medium text-brand-textPrimary">{value}</p></div></div></div>;
 }
 
 function SparklesIcon() {
-  return <span className="font-serif text-xl font-bold">G</span>;
+  return <span className="font-display text-xl font-bold">G</span>;
 }

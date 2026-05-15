@@ -1,4 +1,4 @@
-
+﻿
 
 export function StatusCard({ icon, label, value, note }: { icon: React.ReactNode; label: string; value: string | number; note?: string }) {
   return (
@@ -6,8 +6,8 @@ export function StatusCard({ icon, label, value, note }: { icon: React.ReactNode
       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
         {icon}
       </div>
-      <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">{label}</p>
-      <p className="mt-1 font-serif text-3xl font-semibold text-brand-textPrimary">{value}</p>
+      <p className="font-label mt-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">{label}</p>
+      <p className="mt-1 font-display text-3xl font-semibold text-brand-textPrimary">{value}</p>
       {note ? <p className="mt-2 text-sm text-brand-textMuted">{note}</p> : null}
     </div>
   );

@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 
 export function EditorialBanner() {
@@ -8,12 +8,12 @@ export function EditorialBanner() {
         <div className="relative overflow-hidden rounded-[2.25rem] border border-brand-border bg-[var(--gradient-editorial)] px-6 py-8 shadow-editorial md:px-10 md:py-12 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
           <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-brand-secondary/35 blur-3xl" />
           <div className="relative z-10 max-w-2xl">
-            <span className="inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10">Curated Beauty Edit</span>
-            <h2 className="mt-5 font-serif text-4xl font-semibold leading-[0.92] text-brand-textPrimary md:text-5xl lg:text-6xl">Celebrate with a <span className="italic text-brand-primary">fresh beauty edit</span></h2>
+            <span className="font-label inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10">Curated Beauty Edit</span>
+            <h2 className="mt-5 font-display text-4xl font-semibold leading-[0.92] text-brand-textPrimary md:text-5xl lg:text-6xl">Celebrate with a <span className="italic text-brand-primary">fresh beauty edit</span></h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-brand-textMuted md:text-base">Gift-ready skincare, soft glam makeup and daily glow essentials curated for celebrations across Nepal.</p>
             <div className="mt-6 grid max-w-xl gap-3 sm:grid-cols-2">
-              <div className="rounded-[1.5rem] bg-white px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Best Sellers</p><p className="mt-1 text-sm text-brand-textMuted">Customer favorites that deliver results</p></div>
-              <div className="rounded-[1.5rem] bg-white/70 px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Highlights</p><p className="mt-1 text-sm text-brand-textMuted">Gift sets · Best sellers · New arrivals</p></div>
+              <div className="rounded-[1.5rem] bg-white px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="font-label text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Best Sellers</p><p className="mt-1 text-sm text-brand-textMuted">Customer favorites that deliver results</p></div>
+              <div className="rounded-[1.5rem] bg-white/70 px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="font-label text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Highlights</p><p className="mt-1 text-sm text-brand-textMuted">Gift sets · Best sellers · New arrivals</p></div>
             </div>
             <div className="mt-7 flex flex-wrap gap-3"><Link href="/collections/festival-ready" className="rounded-full bg-brand-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-brand-primary-hover cursor-pointer">Shop Festival Edit</Link><Link href="/collections/new-arrivals" className="rounded-full border border-brand-primary/20 bg-white/70 px-6 py-3 text-sm font-bold text-brand-primary transition hover:bg-white cursor-pointer">Explore new arrivals</Link></div>
           </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useEffect, useMemo, useState } from "react";
@@ -100,7 +100,7 @@ export function CheckoutPageClient() {
   }
 
   async function onSubmit(data: CheckoutFormData) {
-    const orderNumber = `GLM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const orderNumber = `GLM-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
       value: total,
@@ -171,8 +171,8 @@ export function CheckoutPageClient() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-sm md:p-12">
             <ShoppingBag className="mx-auto mb-5 text-brand-primary/45" size={70} />
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-primary">Checkout</p>
-            <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl">Your beauty bag is empty</h1>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-primary">Checkout</p>
+            <h1 className="mt-3 font-display text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl">Your beauty bag is empty</h1>
             <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-brand-textMuted">Add skincare, makeup or routine picks before opening checkout.</p>
             <Link href="/shop" className="mt-8 inline-flex rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-primary-hover">
               Return to shop
@@ -190,15 +190,15 @@ export function CheckoutPageClient() {
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-secondary/40 blur-3xl" />
           <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Secure checkout · रू totals</p>
-              <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Complete your order</h1>
+              <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Secure checkout · रू totals</p>
+              <h1 className="mt-3 font-display text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Complete your order</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-brand-textMuted">Confirm delivery details, payment preference and order summary.</p>
             </div>
             <div className="grid grid-cols-2 gap-3 rounded-[1.5rem] border border-white/80 bg-white/75 p-4 backdrop-blur">
               {checkoutSteps.map((step, index) => (
                 <div key={step} className="rounded-2xl bg-brand-bgLight p-3">
                   <div className={completedSteps[index] ? "h-1.5 rounded-full bg-brand-primary" : "h-1.5 rounded-full bg-brand-secondary/35"} />
-                  <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{index + 1}. {step}</p>
+                  <p className="font-label mt-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{index + 1}. {step}</p>
                 </div>
               ))}
             </div>
@@ -211,7 +211,7 @@ export function CheckoutPageClient() {
               <div className="flex items-start gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary"><ShieldCheck size={20} /></span>
                 <div>
-                  <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Customer details</h2>
+                  <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Customer details</h2>
                   <p className="mt-1 text-sm leading-6 text-brand-textMuted">Use a reachable Nepal mobile number for delivery confirmation.</p>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export function CheckoutPageClient() {
             </div>
 
             <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-7">
-              <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Payment</h2>
+              <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Payment</h2>
               <p className="mt-1 text-sm leading-6 text-brand-textMuted">Select your preferred payment method.</p>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {paymentMethods.map((method) => {
@@ -336,7 +336,7 @@ export function CheckoutPageClient() {
           </section>
 
           <aside className="h-fit rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm md:p-6 lg:sticky lg:top-[calc(var(--total-header-height)+24px)]">
-            <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Order summary</h2>
+            <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Order summary</h2>
             <div className="mt-5 space-y-4">
               {items.map((item) => (
                 <div key={`${item.product.id}-${item.selectedShade || "default"}`} className="flex gap-3 rounded-2xl bg-brand-bgLight p-3">

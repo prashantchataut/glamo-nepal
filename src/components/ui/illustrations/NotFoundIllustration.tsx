@@ -42,7 +42,7 @@ export function NotFoundIllustration({ className = '' }: { className?: string })
       <g transform="translate(300, 100) rotate(20)">
         <rect x="28" y="70" width="8" height="40" rx="4" fill="#C9A84C" opacity="0.8" />
         <ellipse cx="32" cy="45" rx="35" ry="40" fill="url(#mirrorGrad)" stroke="#C9A84C" strokeWidth="1.5" />
-        <text x="32" y="50" textAnchor="middle" fontFamily="Cormorant Garamond, Georgia, serif" fontSize="22" fontWeight="700" fontStyle="italic" fill="#8B3A8F" opacity="0.8">404</text>
+        <text x="32" y="50" textAnchor="middle" fontFamily="Prata, Georgia, serif" fontSize="22" fontWeight="700" fontStyle="italic" fill="#8B3A8F" opacity="0.8">404</text>
       </g>
       {/* Makeup puff */}
       <g transform="translate(100, 260)">

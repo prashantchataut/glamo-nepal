@@ -38,7 +38,7 @@ export default function CategoryPageContent() {
     return (
       <div className="min-h-screen bg-brand-bgLight flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-serif text-4xl font-semibold mb-4">Category Not Found</h1>
+          <h1 className="font-display text-4xl font-semibold mb-4">Category Not Found</h1>
           <p className="text-brand-textMuted mb-6">The category you are looking for does not exist.</p>
           <Link href="/shop" className="px-8 py-3 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-colors">
             Browse All Products
@@ -54,8 +54,8 @@ export default function CategoryPageContent() {
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-brand-textMuted"><Link href="/" className="hover:text-brand-primary">Home</Link><span>/</span><Link href="/shop" className="hover:text-brand-primary">Shop</Link><span>/</span><span className="text-brand-textPrimary">{category.name}</span></nav>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
-            <h1 className="mt-3 font-serif text-5xl font-semibold text-brand-textPrimary md:text-7xl">{category.name}</h1>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
+            <h1 className="mt-3 font-display text-5xl font-semibold text-brand-textPrimary md:text-7xl">{category.name}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-brand-textMuted">{category.description}</p>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm"><Image src={category.image} alt={category.name} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 420px" /></div>
@@ -100,7 +100,7 @@ export default function CategoryPageContent() {
 
         {products.length === 0 ? (
           <div className="text-center py-20">
-            <h3 className="font-serif text-2xl font-semibold text-brand-textPrimary mb-2">No products found</h3>
+            <h3 className="font-display text-2xl font-semibold text-brand-textPrimary mb-2">No products found</h3>
             <p className="text-brand-textMuted mb-6">Try selecting a different sub-category.</p>
             <button onClick={() => setActiveSub("")} className="px-8 py-3 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-colors">
               View All {category.name}

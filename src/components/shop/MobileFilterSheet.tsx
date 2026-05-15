@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -8,7 +8,7 @@ export function MobileFilterSheet({ open, onOpenChange, filters, onFilterChange,
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[94vw] overflow-y-auto border-brand-border bg-brand-bgLight p-4 sm:max-w-md">
-        <SheetHeader className="px-1 pt-2"><SheetTitle className="font-serif text-3xl text-brand-textPrimary">Refine GLAMO picks</SheetTitle></SheetHeader>
+        <SheetHeader className="px-1 pt-2"><SheetTitle className="font-display text-3xl text-brand-textPrimary">Refine GLAMO picks</SheetTitle></SheetHeader>
         <div className="mt-6"><ShopFilterSidebar filters={filters} onFilterChange={onFilterChange} priceRange={priceRange} /></div>
       </SheetContent>
     </Sheet>

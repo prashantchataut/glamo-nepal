@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -12,7 +12,7 @@ export function BlogPreview() {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="max-w-2xl">
-            <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-brand-textPrimary">
+            <h2 className="font-display text-4xl md:text-5xl font-semibold mb-4 text-brand-textPrimary">
               Glow Tips & <span className="text-brand-primary italic">Beauty Secrets</span>
             </h2>
             <p className="text-brand-textMuted text-lg leading-relaxed">
@@ -39,13 +39,13 @@ export function BlogPreview() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="bg-white/90 backdrop-blur-sm text-brand-primary text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="font-label bg-white/90 backdrop-blur-sm text-brand-primary text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-full shadow-sm">
                     {post.category}
                   </span>
                 </div>
               </Link>
               <div className="p-6 md:p-8">
-                <h3 className="font-serif text-xl md:text-2xl font-semibold text-brand-textPrimary mb-3 line-clamp-2 group-hover:text-brand-primary transition-colors duration-300 leading-tight">
+                <h3 className="font-display text-xl md:text-2xl font-semibold text-brand-textPrimary mb-3 line-clamp-2 group-hover:text-brand-primary transition-colors duration-300 leading-tight">
                   <Link href={`/blog/${post.slug}`}>
                     {post.title}
                   </Link>
@@ -53,7 +53,7 @@ export function BlogPreview() {
                 <p className="text-brand-textMuted leading-relaxed mb-6 line-clamp-3 text-sm">
                   {post.excerpt}
                 </p>
-                <Link href={`/blog/${post.slug}`} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300">
+                <Link href={`/blog/${post.slug}`} className="font-label inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300">
                   Read More <MoveRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
               </div>

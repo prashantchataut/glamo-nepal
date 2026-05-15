@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -37,8 +37,8 @@ export default function SearchPageContent() {
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-brand-textMuted"><Link href="/" className="hover:text-brand-primary">Home</Link><span>/</span><span className="text-brand-textPrimary">Search</span></nav>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Find your glow</p>
-            <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.98] text-brand-textPrimary md:text-7xl">{q ? <>Results for <span className="italic text-brand-primary">“{q}”</span></> : "Search GLAMO"}</h1>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Find your glow</p>
+            <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.98] text-brand-textPrimary md:text-7xl">{q ? <>Results for <span className="italic text-brand-primary">“{q}”</span></> : "Search GLAMO"}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{q ? `${results.length} product${results.length !== 1 ? "s" : ""} found across skincare, makeup and routine-ready picks.` : "Try sunscreen, vitamin C, lip tint, Korean skincare or Made in Nepal to jump into curated product results."}</p>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm"><Image src="/images/editorial/newsletter-vanity.svg" alt="GLAMO search visual" fill className="object-cover" /></div>
@@ -49,7 +49,7 @@ export default function SearchPageContent() {
         {!q ? (
           <div className="rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-sm md:p-12">
             <Search size={46} className="mx-auto mb-4 text-brand-primary/45" />
-            <p className="font-serif text-3xl text-brand-textPrimary">Search by product, brand or concern</p>
+            <p className="font-display text-3xl text-brand-textPrimary">Search by product, brand or concern</p>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-brand-textMuted">Use quick searches below or open the search icon in the navbar for instant suggestions.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-2">
               {TRENDING_SEARCHES.slice(0, 10).map((term) => <Link key={term} href={`/search?q=${encodeURIComponent(term)}`} className="rounded-full bg-brand-primary-light px-4 py-2 text-sm font-bold text-brand-primary shadow-sm transition hover:bg-brand-primary hover:text-white">{term}</Link>)}

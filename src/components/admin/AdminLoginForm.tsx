@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { FormEvent, useMemo, useState } from "react";
@@ -49,10 +49,10 @@ export function AdminLoginForm() {
               <div className="absolute bottom-0 left-0 h-1/2 w-1/2 rounded-full bg-brand-gold/24 blur-3xl" />
             </div>
           <div className="relative z-10">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+            <span className="font-label inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
               <ShieldCheck size={15} /> GLAMO NEPAL Admin
             </span>
-            <h1 className="mt-8 max-w-xl font-serif text-5xl font-semibold leading-tight md:text-7xl">
+            <h1 className="mt-8 max-w-xl font-display text-5xl font-semibold leading-tight md:text-7xl">
               Manage beauty commerce with confidence.
             </h1>
             <p className="mt-6 max-w-2xl text-sm leading-7 text-white/70 md:text-base">
@@ -65,8 +65,8 @@ export function AdminLoginForm() {
                 ["Banners", "Adaptive uploads"],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur">
-                  <p className="text-xs uppercase tracking-[0.16em] text-white/60">{label}</p>
-                  <p className="mt-2 font-serif text-2xl font-semibold">{value}</p>
+                  <p className="font-label text-xs uppercase tracking-[0.16em] text-white/60">{label}</p>
+                  <p className="mt-2 font-display text-2xl font-semibold">{value}</p>
                 </div>
               ))}
             </div>
@@ -79,7 +79,7 @@ export function AdminLoginForm() {
               <Sparkles size={20} />
             </div>
             <div>
-              <h2 className="font-serif text-3xl font-semibold">Admin login</h2>
+              <h2 className="font-display text-3xl font-semibold">Admin login</h2>
               <p className="text-sm text-brand-textMuted">Use your GLAMO admin credentials.</p>
             </div>
           </div>

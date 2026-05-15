@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -33,8 +33,8 @@ export function ComparePageClient() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Product comparison</p>
-            <h1 className="mt-2 font-serif text-5xl font-semibold text-brand-textPrimary">Compare GLAMO picks</h1>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Product comparison</p>
+            <h1 className="mt-2 font-display text-5xl font-semibold text-brand-textPrimary">Compare GLAMO picks</h1>
             <p className="mt-2 text-brand-textMuted">Compare up to 3 products across price, brand, concern, size, origin, stock and features.</p>
           </div>
           {items.length > 0 ? (
@@ -46,7 +46,7 @@ export function ComparePageClient() {
 
         {items.length === 0 ? (
           <div className="mt-10 rounded-[2rem] bg-white p-12 text-center shadow-sm">
-            <h2 className="font-serif text-3xl font-semibold">No products selected</h2>
+            <h2 className="font-display text-3xl font-semibold">No products selected</h2>
             <p className="mt-2 text-brand-textMuted">Use compare buttons on product cards to add up to 3 products.</p>
             <Link href="/shop" className="mt-6 inline-flex rounded-full bg-brand-primary px-7 py-3 font-semibold text-white">
               Browse products
@@ -66,7 +66,7 @@ export function ComparePageClient() {
                           <X size={14} />
                         </button>
                       </div>
-                      <Link href={`/product/${product.slug}`} className="font-serif text-xl font-semibold text-brand-textPrimary hover:text-brand-primary">
+                      <Link href={`/product/${product.slug}`} className="font-display text-xl font-semibold text-brand-textPrimary hover:text-brand-primary">
                         {product.name}
                       </Link>
                     </th>
@@ -76,7 +76,7 @@ export function ComparePageClient() {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.label} className="border-t border-border">
-                    <td className="border-t border-border p-4 text-sm font-bold uppercase tracking-[0.16em] text-brand-textMuted">{row.label}</td>
+                    <td className="font-label border-t border-border p-4 text-sm font-bold uppercase tracking-[0.16em] text-brand-textMuted">{row.label}</td>
                     {items.map((product) => (
                       <td key={`${product.id}-${row.label}`} className="border-t border-border p-4 text-sm text-brand-textPrimary">
                         {row.render(product)}

@@ -1,8 +1,7 @@
 "use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
-
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { clearAuthCookies } from "@/lib/auth-cookies";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -10,15 +9,14 @@ export function LogoutButton() {
 
   function handleLogout() {
     logout();
-    document.cookie = "glamo-auth-token=; path=/; max-age=0; SameSite=Lax";
-    document.cookie = "glamo-user-role=; path=/; max-age=0; SameSite=Lax";
+    clearAuthCookies();
     router.push("/login");
     router.refresh();
   }
 
   return (
     <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all duration-200 w-full text-left">
-      <span className="text-base">🚪</span>
+      <span className="text-base">&#x1F6AA;</span>
       Logout
     </button>
   );

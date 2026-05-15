@@ -1,4 +1,4 @@
-import { Home, MapPinned, Plus, Star } from "lucide-react";
+﻿import { Home, MapPinned, Plus, Star } from "lucide-react";
 import { SAMPLE_ADDRESSES as SAMPLE_ADDRESSES } from "@/lib/data/users";
 import { createMetadata } from "@/lib/seo";
 
@@ -14,11 +14,11 @@ export default function AddressesPage() {
     <div>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Addresses</p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">Saved delivery addresses</h1>
+          <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Addresses</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-brand-textPrimary md:text-5xl">Saved delivery addresses</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-brand-textMuted">Save Nepal delivery details for faster checkout.</p>
         </div>
-        <button disabled className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full bg-brand-primary/50 px-6 py-3 text-sm font-semibold text-white/80"><Plus size={16} /> Add address <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wider">Coming soon</span></button>
+        <button disabled className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full bg-brand-primary/50 px-6 py-3 text-sm font-semibold text-white/80"><Plus size={16} /> Add address <span className="font-label rounded-full bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wider">Coming soon</span></button>
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2">
@@ -30,7 +30,7 @@ export default function AddressesPage() {
                   {address.label.toLowerCase().includes("home") ? <Home size={19} /> : <MapPinned size={19} />}
                 </div>
                 <div>
-                  <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">{address.label}</h2>
+                  <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">{address.label}</h2>
                   <p className="text-sm text-brand-textMuted">{address.name}</p>
                 </div>
               </div>
@@ -42,8 +42,8 @@ export default function AddressesPage() {
               <p>{address.city}, {address.district}, {address.province}</p>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <button disabled className="cursor-not-allowed rounded-full border border-brand-primary/40 px-5 py-2 text-sm font-semibold text-brand-primary/50">Edit <span className="text-[10px] uppercase tracking-wider">Soon</span></button>
-              {!address.isDefault ? <button disabled className="cursor-not-allowed rounded-full border border-border px-5 py-2 text-sm font-semibold text-brand-textMuted/50">Make default <span className="text-[10px] uppercase tracking-wider">Soon</span></button> : null}
+              <button disabled className="cursor-not-allowed rounded-full border border-brand-primary/40 px-5 py-2 text-sm font-semibold text-brand-primary/50">Edit <span className="font-label text-[10px] uppercase tracking-wider">Soon</span></button>
+              {!address.isDefault ? <button disabled className="cursor-not-allowed rounded-full border border-border px-5 py-2 text-sm font-semibold text-brand-textMuted/50">Make default <span className="font-label text-[10px] uppercase tracking-wider">Soon</span></button> : null}
             </div>
           </article>
         ))}

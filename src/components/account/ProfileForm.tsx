@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useState } from "react";
@@ -24,11 +24,11 @@ export function ProfileForm() {
   return (
     <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
       <div className="flex flex-col gap-5 border-b border-border/70 pb-6 sm:flex-row sm:items-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-primary/10 font-serif text-2xl font-semibold text-brand-primary">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-primary/10 font-display text-2xl font-semibold text-brand-primary">
           {name.split(" ").map((part) => part[0]).join("").slice(0, 2)}
         </div>
         <div>
-          <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Profile details</h2>
+          <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Profile details</h2>
           <p className="mt-1 text-sm text-brand-textMuted">Keep your contact details and beauty profile up to date.</p>
         </div>
       </div>

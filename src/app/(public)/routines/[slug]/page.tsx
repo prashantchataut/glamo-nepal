@@ -36,8 +36,8 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
         <div className="container mx-auto grid gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_0.9fr] lg:py-14">
           <div className="self-center">
             <Link href="/routines" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-brand-primary transition hover:text-brand-primary-hover"><ArrowLeft size={16} /> Back to routines</Link>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">{bundle.eyebrow}</p>
-            <h1 className="mt-3 font-serif text-5xl font-semibold leading-tight text-brand-textPrimary md:text-7xl">{bundle.title}</h1>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">{bundle.eyebrow}</p>
+            <h1 className="mt-3 font-display text-5xl font-semibold leading-tight text-brand-textPrimary md:text-7xl">{bundle.title}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{bundle.description}</p>
             <div className="mt-7 flex flex-wrap gap-2">
               {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-primary shadow-sm ring-1 ring-brand-border">{tag}</span>)}
@@ -52,8 +52,8 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
       <section className="container mx-auto grid gap-8 px-4 py-10 md:px-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
           <div className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Routine steps</p>
-            <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">How this routine works</h2>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Routine steps</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">How this routine works</h2>
             <div className="mt-6 grid gap-4">
               {bundle.steps.map((step, index) => {
                 const product = bundle.products.find((item) => item.slug === step.productSlug);
@@ -61,7 +61,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
                   <div key={step.productSlug} className="flex gap-4 rounded-3xl border border-border/70 bg-brand-bgLight p-4">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-primary font-bold text-white">{index + 1}</span>
                     <div>
-                      <h3 className="font-serif text-2xl font-semibold text-brand-textPrimary">{step.label}</h3>
+                      <h3 className="font-display text-2xl font-semibold text-brand-textPrimary">{step.label}</h3>
                       <p className="mt-1 text-sm leading-6 text-brand-textMuted">{step.note}</p>
                       {product ? <Link href={`/product/${product.slug}`} className="mt-2 inline-flex text-sm font-semibold text-brand-primary">View {product.name}</Link> : null}
                     </div>
@@ -74,8 +74,8 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
           <div>
             <div className="mb-5 flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Included products</p>
-                <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{bundle.products.length} routine items</h2>
+                <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Included products</p>
+                <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">{bundle.products.length} routine items</h2>
               </div>
               <p className="text-sm font-semibold text-brand-gold">Bundle price {formatNPR(bundle.bundlePrice)}</p>
             </div>
@@ -88,7 +88,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
         <aside className="space-y-5 lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-[2rem] bg-white p-6 shadow-sm">
             <PackageCheck className="mb-3 text-brand-primary" />
-            <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Routine summary</h2>
+            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Routine summary</h2>
             <div className="mt-4 space-y-3 text-sm text-brand-textMuted">
               <div className="flex justify-between"><span>Subtotal</span><strong className="text-brand-textPrimary">{formatNPR(bundle.subtotal)}</strong></div>
               <div className="flex justify-between"><span>Bundle price</span><strong className="text-brand-gold">{formatNPR(bundle.bundlePrice)}</strong></div>
@@ -106,8 +106,8 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
 
       <section className="container mx-auto px-4 pb-14 md:px-6">
         <div className="mb-5">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">More routines</p>
-          <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">Recommended next</h2>
+          <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">More routines</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">Recommended next</h2>
         </div>
         <div className="grid gap-6 md:grid-cols-2">
           {otherBundles.map((item) => <ProductBundleCard key={item.slug} bundle={item} compact />)}

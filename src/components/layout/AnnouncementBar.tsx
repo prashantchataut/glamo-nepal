@@ -1,6 +1,4 @@
 "use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
-
 import { useEffect, useState } from "react";
 import { Leaf, Phone, ShieldCheck, Truck, X } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
@@ -24,9 +22,9 @@ export function AnnouncementBar() {
   if (!isVisible) return null;
 
   return (
-    <div className="sticky top-0 z-[40] overflow-hidden border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs">
+    <div className="font-label sticky top-0 z-[40] overflow-hidden border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs" role="marquee" aria-label="Announcements">
       <div className="flex whitespace-nowrap overflow-hidden py-3">
-        <div className="animate-marquee-scroll flex items-center gap-8 px-6">
+        <div className="animate-marquee-scroll flex items-center gap-8 px-6" aria-hidden="true">
           {[...ANNOUNCEMENT_MESSAGES, ...ANNOUNCEMENT_MESSAGES].map((msg, i) => {
             const Icon = iconMap[msg.icon];
             const content = (

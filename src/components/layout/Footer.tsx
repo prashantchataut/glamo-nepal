@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
 import { Leaf, Mail, MapPin, Phone, ShieldCheck, MessageCircle } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
+import { InstagramIcon, FacebookIcon } from "@/components/ui/illustrations/SocialIcons";
 
 const shopLinks = [
   ["Shop All", "/shop"],
@@ -34,22 +35,22 @@ export function Footer() {
                 <Leaf className="h-5 w-5" strokeWidth={1.6} />
               </span>
               <span>
-                <span className="block font-serif text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
-                <span className="block text-[10px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
+                <span className="block font-display text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
+                <span className="font-label block text-[10px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
               </span>
             </Link>
             <p className="mt-5 max-w-md text-sm leading-7">
               Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu and across Nepal.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
-              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white cursor-pointer"><InstagramIcon size={16} /></a>
+              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white cursor-pointer"><FacebookIcon size={16} /></a>
               <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-[#25D366] hover:text-white cursor-pointer"><MessageCircle size={16} /></a>
             </div>
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h4 className="font-serif text-2xl font-semibold text-brand-textPrimary">Shop</h4>
+            <h4 className="font-display text-2xl font-semibold text-brand-textPrimary">Shop</h4>
             <ul className="mt-5 space-y-3 text-sm">
               {shopLinks.map(([label, href]) => (
                 <li key={label}><Link href={href} className="transition hover:text-brand-primary hover:underline underline-offset-4">{label}</Link></li>
@@ -58,7 +59,7 @@ export function Footer() {
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h4 className="font-serif text-2xl font-semibold text-brand-textPrimary">Support</h4>
+            <h4 className="font-display text-2xl font-semibold text-brand-textPrimary">Support</h4>
             <ul className="mt-5 space-y-3 text-sm">
               {supportLinks.map(([label, href]) => (
                 <li key={label}><Link href={href} className="transition hover:text-brand-primary hover:underline underline-offset-4">{label}</Link></li>
@@ -67,13 +68,13 @@ export function Footer() {
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h4 className="font-serif text-2xl font-semibold text-brand-textPrimary">Customer care</h4>
+            <h4 className="font-display text-2xl font-semibold text-brand-textPrimary">Customer care</h4>
             <div className="mt-5 space-y-4 text-sm">
               <div className="flex items-start gap-3"><MapPin size={18} className="mt-0.5 shrink-0 text-brand-primary" /><span>{SITE_CONFIG.address}</span></div>
               <div className="flex items-center gap-3"><Phone size={18} className="shrink-0 text-brand-primary" /><a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="transition hover:text-brand-primary hover:underline underline-offset-4">{SITE_CONFIG.phone}</a></div>
               <div className="flex items-center gap-3"><Mail size={18} className="shrink-0 text-brand-primary" /><a href={`mailto:${SITE_CONFIG.email}`} className="transition hover:text-brand-primary hover:underline underline-offset-4">{SITE_CONFIG.email}</a></div>
               <div className="rounded-2xl bg-brand-bgLight p-4">
-                <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-primary"><ShieldCheck size={15} /> Payment options</div>
+                <div className="font-label mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-primary"><ShieldCheck size={15} /> Payment options</div>
                 <div className="flex flex-wrap gap-2">
                   {SITE_CONFIG.paymentMethods.map((method) => <span key={method} className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-brand-textPrimary shadow-sm ring-1 ring-brand-border">{method}</span>)}
                 </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -120,8 +120,8 @@ export default function ShopPageContent() {
         <div className="pointer-events-none absolute -right-20 top-0 h-80 w-80 rounded-full bg-brand-secondary/35 blur-3xl" />
         <div className="container relative mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">रू pricing · Nepal delivery</p>
-            <h1 className="mt-3 font-serif text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">
+            <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">रू pricing · Nepal delivery</p>
+            <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">
               {categoryObj?.name || "All Products"}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-brand-textMuted">
@@ -156,8 +156,8 @@ export default function ShopPageContent() {
                     <Image src={product.image} alt={product.name} fill className="object-cover transition group-hover:scale-105" sizes="80px" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary">{product.badge || "Glow pick"}</span>
-                    <span className="mt-1 line-clamp-2 block font-serif text-lg font-semibold leading-tight text-brand-textPrimary">{product.name}</span>
+                    <span className="font-label block text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary">{product.badge || "Glow pick"}</span>
+                    <span className="mt-1 line-clamp-2 block font-display text-lg font-semibold leading-tight text-brand-textPrimary">{product.name}</span>
                     <span className="mt-1 block text-sm font-bold text-brand-gold">{formatNPR(product.price)}</span>
                   </span>
                 </Link>
@@ -191,7 +191,7 @@ export default function ShopPageContent() {
                     <SlidersHorizontal size={16} /> Filters {chips.length > 0 ? <span className="rounded-full bg-brand-primary px-2 py-0.5 text-xs text-white">{chips.length}</span> : null}
                   </button>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Catalog results</p>
+                    <p className="font-label text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Catalog results</p>
                     <p className="mt-1 text-sm text-brand-textMuted">{products.length} product{products.length === 1 ? "" : "s"} available</p>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ export default function ShopPageContent() {
             {products.length === 0 ? (
               <div className="rounded-[2rem] border border-dashed border-brand-secondary/50 bg-white p-12 text-center shadow-sm">
                 <Search className="mx-auto mb-3 h-10 w-10 text-brand-primary/45" />
-                <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">No GLAMO picks found</h2>
+                <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">No GLAMO picks found</h2>
                 <p className="mt-2 text-brand-textMuted">Try clearing filters or searching for serum, SPF, lipstick or Made in Nepal.</p>
                 <button type="button" onClick={() => handleFilterChange(DEFAULT_FILTERS)} className="mt-6 rounded-full bg-brand-primary px-6 py-3 font-bold text-white">Reset filters</button>
               </div>

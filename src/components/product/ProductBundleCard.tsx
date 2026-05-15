@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -27,14 +27,14 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
     <article className="group overflow-hidden rounded-[2rem] border border-brand-secondary/20 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-soft">
       <Link href={`/routines/${bundle.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-brand-bgLight">
         <Image src={bundle.image} alt={bundle.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 33vw" />
-        <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary backdrop-blur">{bundle.eyebrow}</div>
+        <div className="font-label absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary backdrop-blur">{bundle.eyebrow}</div>
       </Link>
       <div className="p-5 md:p-6">
-        <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
+        <div className="font-label mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
           <Sparkles size={14} /> Routine bundle
         </div>
         <Link href={`/routines/${bundle.slug}`}>
-          <h3 className="font-serif text-2xl font-semibold leading-tight text-brand-textPrimary transition-colors group-hover:text-brand-primary">{bundle.title}</h3>
+          <h3 className="font-display text-2xl font-semibold leading-tight text-brand-textPrimary transition-colors group-hover:text-brand-primary">{bundle.title}</h3>
         </Link>
         <p className="mt-2 line-clamp-2 text-sm leading-6 text-brand-textMuted">{bundle.description}</p>
         {!compact ? (

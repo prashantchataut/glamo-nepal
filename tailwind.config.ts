@@ -20,13 +20,28 @@ const config = {
     },
     extend: {
       fontFamily: {
+        display: [
+          'var(--font-display)',
+          'Georgia',
+          'serif'
+        ],
+        body: [
+          'var(--font-body)',
+          'system-ui',
+          'sans-serif'
+        ],
+        label: [
+          'var(--font-label)',
+          'system-ui',
+          'sans-serif'
+        ],
         serif: [
-          'var(--font-cormorant)',
+          'var(--font-display)',
           'Georgia',
           'serif'
         ],
         sans: [
-          'var(--font-dm-sans)',
+          'var(--font-body)',
           'system-ui',
           'sans-serif'
         ]

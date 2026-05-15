@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useState } from "react";
@@ -40,7 +40,7 @@ export function CartPageClient() {
   return (
     <main className="bg-brand-bgLight py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <h1 className="font-serif text-3xl font-semibold text-brand-textPrimary md:text-4xl">Shopping cart</h1>
+        <h1 className="font-display text-3xl font-semibold text-brand-textPrimary md:text-4xl">Shopping cart</h1>
         <p className="mt-1 text-sm text-brand-textMuted">Free delivery on orders over {formatNPR(FREE_DELIVERY_THRESHOLD)}.</p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -54,8 +54,8 @@ export function CartPageClient() {
                   <div className="min-w-0 flex-1">
                     <div className="flex justify-between gap-3">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-textMuted">{item.product.brand}</p>
-                        <h2 className="font-serif text-lg font-semibold text-brand-textPrimary">{item.product.name}</h2>
+                        <p className="font-label text-[11px] font-bold uppercase tracking-[0.18em] text-brand-textMuted">{item.product.brand}</p>
+                        <h2 className="font-display text-lg font-semibold text-brand-textPrimary">{item.product.name}</h2>
                         {item.selectedShade && <p className="text-sm text-brand-textMuted">Shade: {item.selectedShade}</p>}
                       </div>
                       <button onClick={() => removeItem(item.product.id, item.selectedShade)} className="h-11 w-11 shrink-0 rounded-full text-brand-textMuted hover:bg-brand-bgLight hover:text-red-600" aria-label="Remove item">
@@ -82,7 +82,7 @@ export function CartPageClient() {
           </section>
 
           <aside className="rounded-2xl bg-white p-6 shadow-sm h-fit lg:sticky lg:top-28">
-            <h2 className="font-serif text-xl font-semibold text-brand-textPrimary">Order summary</h2>
+            <h2 className="font-display text-xl font-semibold text-brand-textPrimary">Order summary</h2>
             <div className="mt-5 space-y-3 text-sm">
               <div className="flex justify-between text-brand-textMuted">
                 <span>Subtotal</span>

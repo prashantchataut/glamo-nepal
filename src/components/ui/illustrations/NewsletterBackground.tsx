@@ -43,7 +43,7 @@ export function NewsletterDark({ className = '' }: { className?: string }) {
           <line x1="1400" y1="360" x2="1400" y2="280" />
         </g>
         {/* GLAMO watermark */}
-        <text x="720" y="220" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="160" fontWeight="700" fill="white" opacity="0.03" letterSpacing="40">GLAMO</text>
+        <text x="720" y="220" textAnchor="middle" fontFamily="Outfit, sans-serif" fontSize="160" fontWeight="700" fill="white" opacity="0.03" letterSpacing="40">GLAMO</text>
         {/* Sparkling dots with animation */}
         <g fill="white">
           <circle cx="350" cy="100" r="2" opacity="0.3"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="2s" repeatCount="indefinite" /></circle>

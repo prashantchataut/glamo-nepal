@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
@@ -11,8 +11,8 @@ export function QuickCategoryPills() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
-            <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary md:text-4xl">Find your beauty favorites</h2>
+            <p className="font-label text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary md:text-4xl">Find your beauty favorites</h2>
           </div>
           <Link href="/shop" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary transition hover:text-brand-bgDark">
             View all products <ArrowRight size={16} />

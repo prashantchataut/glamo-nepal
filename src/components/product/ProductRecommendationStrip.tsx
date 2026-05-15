@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useEffect, useState } from "react";
@@ -61,11 +61,11 @@ export function ProductRecommendationStrip({
         <div className="mb-6 flex items-end justify-between">
           <div>
             {subtitle && (
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
+              <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
                 {subtitle}
               </p>
             )}
-            <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">
+            <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">
               {title}
             </h2>
           </div>

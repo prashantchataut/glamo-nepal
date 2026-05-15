@@ -65,7 +65,7 @@ export const CATEGORY_PILLS = CATEGORIES.slice(0, 6).map((category) => ({
   id: category.slug,
   name: category.name,
   image: category.image,
-  link: `/category/${category.slug}`,
+  link: `/shop?category=${category.slug}`,
 }));
 
 export const TRUST_BADGES = [

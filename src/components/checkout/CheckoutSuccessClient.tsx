@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -25,8 +25,8 @@ export function CheckoutSuccessClient() {
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm ring-1 ring-brand-border">
               <CheckCircle2 size={46} />
             </div>
-            <p className="mt-6 text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Checkout success</p>
-            <h1 className="mx-auto mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Thank you for your order</h1>
+            <p className="font-label mt-6 text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Checkout success</p>
+            <h1 className="mx-auto mt-3 max-w-2xl font-display text-3xl font-semibold leading-tight text-brand-textPrimary md:text-4xl">Thank you for your order</h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-brand-textMuted">Your order has been recorded. GLAMO will confirm delivery and payment details with you shortly.</p>
           </div>
 
@@ -35,8 +35,8 @@ export function CheckoutSuccessClient() {
               <section className="rounded-[1.75rem] border border-brand-border bg-brand-bgLight p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Order number</p>
-                    <h2 className="mt-2 font-serif text-3xl font-semibold text-brand-textPrimary">{order.orderNumber}</h2>
+                    <p className="font-label text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Order number</p>
+                    <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">{order.orderNumber}</h2>
                   </div>
                   <button type="button" onClick={copyOrderNumber} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand-primary shadow-sm ring-1 ring-brand-border" aria-label="Copy order number">
                     <Copy size={17} />
@@ -50,7 +50,7 @@ export function CheckoutSuccessClient() {
               </section>
 
               <section className="rounded-[1.75rem] border border-brand-border bg-white p-5 shadow-sm">
-                <div className="flex items-center gap-2 text-brand-primary"><PackageCheck size={18} /><p className="text-xs font-bold uppercase tracking-[0.18em]">Items</p></div>
+                <div className="flex items-center gap-2 text-brand-primary"><PackageCheck size={18} /><p className="font-label text-xs font-bold uppercase tracking-[0.18em]">Items</p></div>
                 <div className="mt-4 space-y-3">
                   {order.items.slice(0, 3).map((item) => (
                     <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 rounded-2xl bg-brand-bgLight p-3">

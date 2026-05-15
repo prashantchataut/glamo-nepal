@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -51,16 +51,16 @@ export function OrderDetailClient() {
       </Link>
       <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Order detail</p>
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-brand-textPrimary md:text-5xl">{order.orderNumber}</h1>
+          <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Order detail</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-brand-textPrimary md:text-5xl">{order.orderNumber}</h1>
           <p className="mt-2 text-sm text-brand-textMuted">Placed on {order.date} · Paid by {order.paymentMethod}</p>
         </div>
-        <span className={cn("w-fit rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.16em]", isCancelled ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700")}>{order.status}</span>
+        <span className={cn("font-label w-fit rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.16em]", isCancelled ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700")}>{order.status}</span>
       </div>
 
       {!isCancelled ? (
         <section className="mt-8 rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">
-          <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Tracking timeline</h2>
+          <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Tracking timeline</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-5">
             {steps.map((step, index) => {
               const Icon = stepIcons[index];
@@ -80,7 +80,7 @@ export function OrderDetailClient() {
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">
-          <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Items</h2>
+          <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Items</h2>
           <div className="mt-5 space-y-4">
             {order.items.map((item) => (
               <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-2xl bg-brand-bgLight p-3">
@@ -99,14 +99,14 @@ export function OrderDetailClient() {
 
         <aside className="space-y-6">
           <section className="rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">
-            <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Delivery & payment</h2>
+            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Delivery & payment</h2>
             <div className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted">
               <p><span className="font-semibold text-brand-textPrimary">Address:</span> {order.shippingAddress}</p>
               <p><span className="font-semibold text-brand-textPrimary">Payment:</span> {order.paymentMethod}</p>
             </div>
           </section>
           <section className="rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:p-6">
-            <h2 className="font-serif text-2xl font-semibold text-brand-textPrimary">Summary</h2>
+            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Summary</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNPR(order.total)}</span></div>
               <div className="flex justify-between"><span className="text-brand-textMuted">Delivery</span><span className="text-emerald-600">Free</span></div>

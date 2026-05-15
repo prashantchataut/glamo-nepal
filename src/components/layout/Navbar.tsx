@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useEffect, useRef, useState } from "react";
@@ -33,8 +33,8 @@ function Logo({ onClick }: { onClick?: () => void }) {
         <Leaf className="h-5 w-5" strokeWidth={1.6} />
       </span>
       <span className="leading-none">
-        <span className="block font-serif text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
-        <span className="block text-[10px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
+        <span className="block font-display text-3xl font-semibold tracking-[0.08em] text-brand-textPrimary">GLAMO</span>
+        <span className="font-label block text-[10px] uppercase tracking-[0.34em] text-brand-textMuted">Nepal</span>
       </span>
     </Link>
   );

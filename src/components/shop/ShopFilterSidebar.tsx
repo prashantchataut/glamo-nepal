@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import type { ReactNode } from "react";
@@ -40,7 +40,7 @@ function toggle(list: string[], value: string) {
 function FilterSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-[1.5rem] border border-brand-border bg-white p-4 shadow-sm">
-      <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">{title}</p>
+      <p className="font-label mb-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">{title}</p>
       {children}
     </section>
   );
@@ -54,10 +54,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
     <aside className="space-y-4 rounded-[2rem] border border-brand-border bg-brand-surfaceCream p-4 shadow-[0_24px_80px_-60px_rgba(36,31,34,0.45)] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <div className="flex items-center justify-between px-1">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Refine</p>
-          <h2 className="font-serif text-3xl font-semibold text-brand-textPrimary">Filters</h2>
+          <p className="font-label text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">Refine</p>
+          <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Filters</h2>
         </div>
-        <button type="button" onClick={reset} className="rounded-full bg-brand-primary-light px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary transition hover:bg-brand-primary hover:text-white">Reset</button>
+        <button type="button" onClick={reset} className="font-label rounded-full bg-brand-primary-light px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary transition hover:bg-brand-primary hover:text-white">Reset</button>
       </div>
 
       <FilterSection title="Search">

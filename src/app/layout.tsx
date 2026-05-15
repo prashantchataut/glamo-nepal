@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Prata, Outfit, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -12,28 +12,36 @@ import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButt
 import { BackToTopButton } from "@/components/common/BackToTopButton";
 import { CompareTray } from "@/components/common/CompareTray";
 import { SkipToContent } from "@/components/common/SkipToContent";
+import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { defaultMetadata, organizationJsonLd } from "@/lib/seo";
 
-const cormorant = Cormorant_Garamond({
+const prata = Prata({
   subsets: ["latin"],
-  variable: "--font-cormorant",
+  variable: "--font-display",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "400",
 });
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-body",
   display: "swap",
   weight: ["400", "500", "600", "700"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-label",
+  display: "swap",
+  weight: ["500", "700"],
 });
 
 export const metadata = defaultMetadata;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${cormorant.variable} ${dmSans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${prata.variable} ${outfit.variable} ${spaceGrotesk.variable}`}>
       <body className="min-h-screen bg-brand-bgLight font-sans text-brand-textPrimary antialiased">
         <SkipToContent />
         <JsonLd data={organizationJsonLd()} />
@@ -43,9 +51,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <Footer />
-        <CartDrawer />
-        <SearchModal />
-        <CompareTray />
+        <ComponentErrorBoundary name="CartDrawer">
+          <CartDrawer />
+        </ComponentErrorBoundary>
+        <ComponentErrorBoundary name="SearchModal">
+          <SearchModal />
+        </ComponentErrorBoundary>
+        <ComponentErrorBoundary name="CompareTray">
+          <CompareTray />
+        </ComponentErrorBoundary>
         <WhatsAppFloatingButton />
         <BackToTopButton />
         <MobileBottomNav />
