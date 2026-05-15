@@ -57,20 +57,20 @@ export function HeroBanner() {
             <HeroBackground />
           </div>
           <div ref={emblaRef} className="overflow-hidden" onKeyDown={handleKeyDown} tabIndex={0} role="group" aria-roledescription="slide container" aria-label="Hero carousel slides">
-            <div className="flex" aria-live={reduceMotion ? "assertive" : "off"}>
+            <div className="flex" aria-live={reduceMotion ? "polite" : "off"}>
               {HERO_SLIDES.map((slide, index) => (
                 <div key={slide.id} className="min-w-0 flex-[0_0_100%]" role="group" aria-roledescription="slide" aria-label={`${slide.title1} ${slide.title2} - ${slide.annotation}`} aria-current={index === selectedIndex ? "true" : undefined}>
-                  <div className={cn("grid min-h-[560px] items-center gap-10 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-12 md:py-12 lg:min-h-[620px] lg:px-16", slide.bgColor)}>
+                  <div className={cn("grid min-h-[340px] items-center gap-6 px-5 py-8 sm:min-h-[440px] sm:gap-8 sm:px-8 sm:py-10 md:grid-cols-[1.05fr_0.95fr] md:min-h-[520px] md:px-12 md:py-12 lg:min-h-[600px] lg:px-16", slide.bgColor)}>
                     <div className="relative z-10 order-2 md:order-1 max-w-xl">
                       <span className="font-label inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10 backdrop-blur">
                         {slide.annotation}
                       </span>
-                      <h1 className="mt-6 font-display text-[clamp(2.5rem,6vw,5.5rem)] font-semibold leading-[0.92] text-brand-textPrimary">
+                      <h1 className="mt-3 font-display text-[clamp(2rem,6vw,5.5rem)] font-semibold leading-[0.92] text-brand-textPrimary">
                         <span className="block">{slide.title1}</span>
                         <span className="mt-2 block italic text-brand-primary">{slide.title2}</span>
                       </h1>
                       <p className="mt-6 max-w-lg text-base leading-7 text-brand-textMuted md:text-lg">{slide.subtitle}</p>
-                      <div className="mt-8 flex flex-wrap items-center gap-4">
+                      <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
                         <Link href={slide.ctaLink} className="inline-flex items-center justify-center rounded-full bg-brand-primary px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark cursor-pointer">
                           {slide.cta}
                         </Link>
@@ -78,7 +78,7 @@ export function HeroBanner() {
                           Browse all products
                         </Link>
                       </div>
-                      <div className="mt-8 grid max-w-lg grid-cols-3 gap-3 text-left">
+                      <div className="mt-6 grid max-w-lg grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3 text-left">
                         {[
                           ["रू pricing", "Easy local shopping"],
                           ["Authentic picks", "Curated beauty edits"],
@@ -92,7 +92,7 @@ export function HeroBanner() {
                       </div>
                     </div>
 
-                    <div className="relative z-10 order-1 md:order-2 flex items-center justify-center">
+                    <div className="relative z-10 order-1 md:order-2 hidden md:flex items-center justify-center">
                       <div className="pointer-events-none absolute inset-x-10 top-8 h-20 rounded-full bg-white/50 blur-2xl" />
                       <HeroCalloutCardA className="absolute -right-2 top-12 z-20 hidden lg:block" />
                       <HeroCalloutCardB className="absolute -left-4 bottom-16 z-20 hidden lg:block" />

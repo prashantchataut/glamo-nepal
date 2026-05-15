@@ -223,7 +223,7 @@ export function CheckoutPageClient() {
                   <p className="mt-1 text-sm leading-6 text-brand-textMuted">Use a reachable Nepal mobile number for delivery confirmation.</p>
                 </div>
               </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <Field label="Full name" register={register("name")} error={errors.name?.message} autoComplete="name" />
                 <Field label="Email" type="email" register={register("email")} error={errors.email?.message} autoComplete="email" required={false} />
                 <Field label="Nepal phone" register={register("phone")} placeholder="+977 9818212188" error={errors.phone?.message} autoComplete="tel" />

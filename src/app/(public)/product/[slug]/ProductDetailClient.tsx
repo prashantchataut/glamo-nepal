@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Copy, Gift, RotateCcw, Share2, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
+import { CheckCircle2, Copy, Gift, Minus, Plus, RotateCcw, Share2, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -24,6 +24,7 @@ import { cn, formatNPR } from "@/lib/utils";
 
 export default function ProductDetailClient({ product, related }: { product: Product; related: Product[] }) {
   const [shade, setShade] = useState(product.shadeOptions?.[0]?.name || "");
+  const [quantity, setQuantity] = useState(1);
   const [showSticky, setShowSticky] = useState(false);
   const [quantityError, setQuantityError] = useState("");
   const [currentImage, setCurrentImage] = useState(product.image);
@@ -49,11 +50,12 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const addToCart = () => {
     setQuantityError("");
     if (!product.inStock) { toast.error("This product is currently sold out."); return; }
-    const result = addItem(product, 1, shade || undefined);
+    const result = addItem(product, quantity, shade || undefined);
     if (!result.ok) { setQuantityError(result.message || "Unable to add this item."); toast.error(result.message || "Unable to add this item."); return; }
     window.dispatchEvent(new CustomEvent("glamo:cart-pulse"));
-    trackEvent("add_to_cart", { productId: product.id, productSlug: product.slug, sku: product.sku, value: product.price, shade });
-    toast.success(`${product.name} added to cart`);
+    trackEvent("add_to_cart", { productId: product.id, productSlug: product.slug, sku: product.sku, value: product.price, shade, quantity });
+    toast.success(`${quantity > 1 ? `${quantity} × ` : ""}${product.name} added to cart`);
+    setQuantity(1);
   };
   const copySku = async () => { await navigator.clipboard?.writeText(product.sku); toast.success("SKU copied"); };
   const share = async () => {
@@ -86,7 +88,19 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 {isLowStock ? <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-sm font-bold text-amber-700"><CheckCircle2 size={16} /> Only {product.stockCount} left</p> : null}
                 {!product.inStock ? <div className="mt-7"><NotifyMeForm productName={product.name} /></div> : null}
                 {quantityError ? <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700">{quantityError}</p> : null}
-                <div ref={ctaRef} className="mt-7 flex flex-col gap-3 sm:flex-row"><button onClick={addToCart} disabled={!product.inStock} aria-label="Add to cart" className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-primary px-7 py-4 font-bold text-white shadow-lg shadow-brand-primary/20 transition hover:-translate-y-0.5 hover:bg-brand-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-brand-textMuted"><ShoppingBag size={18} /> {product.inStock ? "Add to cart" : "Out of stock"}</button><button onClick={share} aria-label="Share product" className="flex items-center justify-center gap-2 rounded-full border border-brand-primary px-7 py-4 font-bold text-brand-primary transition hover:bg-brand-primary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 active:scale-[0.98]"><Share2 size={18} /> Share</button></div>
+                <div ref={ctaRef} className="mt-7 flex flex-col gap-3 sm:flex-row">
+                {product.inStock && (
+                  <div className="flex items-center rounded-full border border-brand-border bg-brand-bgLight">
+                    <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1} className="inline-flex h-12 w-12 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-white hover:text-brand-primary disabled:opacity-40" aria-label="Decrease quantity">
+                      <Minus size={16} />
+                    </button>
+                    <span className="w-10 text-center text-sm font-semibold">{quantity}</span>
+                    <button type="button" onClick={() => setQuantity(quantity + 1)} className="inline-flex h-12 w-12 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-white hover:text-brand-primary" aria-label="Increase quantity">
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                )}
+                <button onClick={addToCart} disabled={!product.inStock} aria-label="Add to cart" className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-primary px-7 py-4 font-bold text-white shadow-lg shadow-brand-primary/20 transition hover:-translate-y-0.5 hover:bg-brand-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-brand-textMuted"><ShoppingBag size={18} /> {product.inStock ? "Add to cart" : "Out of stock"}</button><button onClick={share} aria-label="Share product" className="flex items-center justify-center gap-2 rounded-full border border-brand-primary px-7 py-4 font-bold text-brand-primary transition hover:bg-brand-primary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 active:scale-[0.98]"><Share2 size={18} /> Share</button></div>
                 <Dialog><DialogTrigger asChild><button aria-label="Open size guide" className="mt-3 text-sm font-bold text-brand-primary underline underline-offset-4">Open size guide</button></DialogTrigger><DialogContent><DialogHeader><DialogTitle className="font-display text-2xl">GLAMO size guide</DialogTitle></DialogHeader><div className="space-y-3 text-sm text-brand-textMuted"><p>Use this guide for product-specific size, shade and usage guidance.</p><p>Skincare sizes are listed in ml/g. Makeup shade availability is shown per variant when data is connected.</p></div></DialogContent></Dialog>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-3"><SupportCard icon={<Truck />} title="Delivery" body={product.deliveryNote || "Valley estimate 1-2 days"} /><SupportCard icon={<RotateCcw />} title="Returns" body={getReturnEligibility(product)} /><SupportCard icon={<ShieldCheck />} title="Authenticity" body={getAuthenticityNote(product)} /></div>
@@ -105,7 +119,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
         <ProductRecommendationStrip title="Customers also viewed" subtitle="You might like" context="product" productId={product.id} showReasonLabels />
       </div>
       <RecentlyViewedStrip excludeSlug={product.slug} />
-      <AnimatePresence>{showSticky ? <motion.div initial={{ y: reduceMotion ? 0 : 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: reduceMotion ? 0 : 80, opacity: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="fixed inset-x-0 bottom-[var(--mobile-nav-height)] z-30 border-t border-brand-border bg-white/95 p-3 shadow-2xl backdrop-blur md:bottom-0"><div className="mx-auto flex max-w-[1400px] items-center gap-3 px-1 md:px-8"><div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight md:h-14 md:w-14"><Image src={product.image} alt={`${product.brand} ${product.name}`} fill className="object-cover" sizes="56px" /></div><div className="min-w-0 flex-1"><p className="line-clamp-1 font-display text-lg font-semibold leading-tight text-brand-textPrimary">{product.name}</p><p className="text-sm font-semibold text-brand-gold md:text-base">{product.inStock ? formatNPR(product.price) : "Out of stock"}</p></div><button onClick={addToCart} disabled={!product.inStock} aria-label="Add to cart" className="rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white shadow-md shadow-brand-primary/15 transition hover:bg-brand-primary-hover disabled:bg-brand-textMuted md:px-8">{product.inStock ? "Add to Cart" : "Sold out"}</button></div></motion.div> : null}</AnimatePresence>
+      <AnimatePresence>{showSticky ? <motion.div initial={{ y: reduceMotion ? 0 : 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: reduceMotion ? 0 : 80, opacity: 0 }} transition={{ duration: 0.22, ease: "easeOut" }} className="fixed inset-x-0 bottom-[calc(var(--mobile-nav-height)+8px)] z-30 border-t border-brand-border bg-white/95 p-3 shadow-2xl backdrop-blur md:bottom-4 md:left-auto md:right-4 md:max-w-md md:rounded-2xl"><div className="mx-auto flex max-w-[1400px] items-center gap-3 px-1 md:px-8"><div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight md:h-14 md:w-14"><Image src={product.image} alt={`${product.brand} ${product.name}`} fill className="object-cover" sizes="56px" /></div><div className="min-w-0 flex-1"><p className="line-clamp-1 font-display text-lg font-semibold leading-tight text-brand-textPrimary">{product.name}</p><p className="text-sm font-semibold text-brand-gold md:text-base">{product.inStock ? formatNPR(product.price) : "Out of stock"}</p></div><button onClick={addToCart} disabled={!product.inStock} aria-label="Add to cart" className="rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white shadow-md shadow-brand-primary/15 transition hover:bg-brand-primary-hover disabled:bg-brand-textMuted md:px-8">{product.inStock ? "Add to Cart" : "Sold out"}</button></div></motion.div> : null}</AnimatePresence>
     </div>
   );
 }

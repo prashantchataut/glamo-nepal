@@ -8,11 +8,11 @@ import { BLOG_POSTS_SYNC as BLOG_POSTS } from "@/lib/data/blog";
 
 export function BlogPreview() {
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-brand-bgLight">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+    <section className="py-12 md:py-16 lg:py-20 bg-brand-bgLight">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4 md:gap-6">
           <div className="max-w-2xl">
-            <h2 className="font-display text-4xl md:text-5xl font-semibold mb-4 text-brand-textPrimary">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold mb-3 md:mb-4 text-brand-textPrimary">
               Glow Tips & <span className="text-brand-primary italic">Beauty Secrets</span>
             </h2>
             <p className="text-brand-textMuted text-lg leading-relaxed">

@@ -28,7 +28,7 @@ export function Footer() {
   return (
     <footer className="border-t border-brand-border bg-brand-surfaceWarm pb-24 pt-14 text-brand-textMuted md:pb-10 md:pt-20">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid gap-5 lg:grid-cols-[1.05fr_0.8fr_0.8fr_1.1fr]">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-[1.05fr_0.8fr_0.8fr_1.1fr]">
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-card">
             <Link href="/" className="flex items-center gap-2.5">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary ring-1 ring-brand-primary/10">
@@ -43,8 +43,8 @@ export function Footer() {
               Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu and across Nepal.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white cursor-pointer"><InstagramIcon size={16} /></a>
-              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-brand-primary hover:text-white cursor-pointer"><FacebookIcon size={16} /></a>
+              <a href={SITE_CONFIG.social.instagram} aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:scale-105 hover:bg-brand-primary hover:text-white cursor-pointer"><InstagramIcon size={16} /></a>
+              <a href={SITE_CONFIG.social.facebook} aria-label="Facebook" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:scale-105 hover:bg-brand-primary hover:text-white cursor-pointer"><FacebookIcon size={16} /></a>
               <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-brand-bgLight text-brand-primary transition hover:-translate-y-0.5 hover:bg-[#25D366] hover:text-white cursor-pointer"><MessageCircle size={16} /></a>
             </div>
           </div>

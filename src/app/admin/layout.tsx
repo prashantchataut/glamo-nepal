@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
-import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <AdminAuthGuard>{children}</AdminAuthGuard>;
+  return (
+    <div className="min-h-screen bg-brand-bgLight">
+      {children}
+    </div>
+  );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Prata, Outfit, Space_Grotesk } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -16,38 +16,31 @@ import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBounda
 import { JsonLd } from "@/components/seo/JsonLd";
 import { defaultMetadata, organizationJsonLd } from "@/lib/seo";
 
-const prata = Prata({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  weight: "400",
-});
-
-const outfit = Outfit({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
   weight: ["400", "500", "600", "700"],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-label",
+  variable: "--font-display",
   display: "swap",
-  weight: ["500", "700"],
+  weight: ["400", "700"],
 });
 
 export const metadata = defaultMetadata;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${prata.variable} ${outfit.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen bg-brand-bgLight font-sans text-brand-textPrimary antialiased">
         <SkipToContent />
         <JsonLd data={organizationJsonLd()} />
         <AnnouncementBar />
         <Navbar />
-        <main id="main-content" className="min-h-screen pt-[var(--total-header-height)] pb-16 md:pb-0">
+        <main id="main-content" className="min-h-screen pt-[var(--total-header-height)] pb-20 md:pb-0">
           {children}
         </main>
         <Footer />

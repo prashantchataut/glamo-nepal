@@ -68,7 +68,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                   </div>
                 </div>
                 <p className="font-label mt-4 rounded-full bg-white px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
-                  {user.loyaltyPoints.toLocaleString()} glow points
+                  {"loyaltyPoints" in user ? user.loyaltyPoints.toLocaleString() : "0"} glow points
                 </p>
               </div>
               <nav className="grid gap-1 p-3" aria-label="Account navigation">

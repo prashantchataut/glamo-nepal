@@ -5,15 +5,15 @@ import { SHOP_CATEGORIES } from "@/lib/constants";
 
 export function ShopByCategory() {
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-white" aria-labelledby="shop-category-heading">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+    <section className="py-12 md:py-16 lg:py-20 bg-white" aria-labelledby="shop-category-heading">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="text-center mb-8 md:mb-12">
           <h2 id="shop-category-heading" className="font-display text-4xl md:text-5xl font-semibold tracking-tight text-brand-textPrimary">
             Shop by <span className="text-brand-primary italic">Category</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 md:gap-6">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6 md:gap-6">
           {SHOP_CATEGORIES.map((category) => (
             <Link
               key={category.id}
@@ -32,7 +32,7 @@ export function ShopByCategory() {
                   />
                 </div>
               </div>
-              <span className="font-medium text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300 text-sm md:text-base text-center">
+              <span className="font-medium text-brand-textPrimary group-hover:text-brand-primary transition-colors duration-300 text-xs sm:text-sm md:text-base text-center leading-tight">
                 {category.name}
               </span>
             </Link>

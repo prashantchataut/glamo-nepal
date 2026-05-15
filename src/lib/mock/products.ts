@@ -108,9 +108,17 @@ export function getRelatedProducts(product: Product, limit = 4): Product[] {
 }
 
 export function searchProducts(query: string): Product[] {
-  const q = query.toLowerCase().trim();
-  if (!q) return PRODUCTS;
-  return PRODUCTS.filter((p) => [p.name, p.brand, p.category, p.subCategory, p.description, p.sku, ...p.concernTags, ...p.skinType].join(" ").toLowerCase().includes(q));
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter((t) => t.length > 0);
+  if (tokens.length === 0) return PRODUCTS;
+  const scored = PRODUCTS.map((p) => {
+    const combined = [p.name, p.brand, p.category, p.subCategory, p.description, p.sku, ...p.concernTags, ...p.skinType, ...p.benefits].join(" ").toLowerCase();
+    let score = 0;
+    for (const token of tokens) {
+      if (combined.includes(token)) score += 1;
+    }
+    return { product: p, score };
+  });
+  return scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score).map((s) => s.product);
 }
 
 export function getAllBrands(): string[] {

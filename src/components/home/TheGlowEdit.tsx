@@ -11,10 +11,10 @@ export function TheGlowEdit() {
   const products = GLOW_EDIT_PRODUCTS[activeTab] || GLOW_EDIT_PRODUCTS["Best Sellers"];
 
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-brand-bgLight" aria-labelledby="glow-edit-heading">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <h2 id="glow-edit-heading" className="font-display text-4xl md:text-5xl font-semibold mb-8 text-brand-textPrimary tracking-tight">
+    <section className="py-12 md:py-16 lg:py-20 bg-brand-bgLight" aria-labelledby="glow-edit-heading">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="text-center mb-8 md:mb-10">
+          <h2 id="glow-edit-heading" className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold mb-6 md:mb-8 text-brand-textPrimary tracking-tight">
             The <span className="text-brand-primary italic">Glow Edit</span>
           </h2>
 

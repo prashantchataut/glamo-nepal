@@ -291,7 +291,7 @@ export function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight text-brand-textPrimary">
-      <aside role="navigation" aria-label="Admin navigation" className={cn("fixed inset-y-0 left-0 z-navbar w-[280px] border-r border-brand-border bg-white/95 shadow-xl backdrop-blur transition-transform lg:translate-x-0", isSidebarOpen ? "translate-x-0" : "-translate-x-full")}>
+      <aside role="navigation" aria-label="Admin navigation" className={cn("fixed inset-y-0 left-0 z-menu w-[280px] border-r border-brand-border bg-white/95 shadow-xl backdrop-blur transition-transform duration-300 lg:translate-x-0", isSidebarOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-brand-border px-6 py-6">
             <Link href="/admin" className="flex items-center gap-4">
@@ -345,13 +345,13 @@ export function AdminDashboard() {
       <div className="lg:pl-[280px]">
         <header role="banner" className="sticky top-0 z-admin-header border-b border-brand-border bg-white/95 px-4 py-4 backdrop-blur-lg md:px-6">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <button onClick={() => setIsSidebarOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-textPrimary shadow-sm lg:hidden" aria-label="Open admin menu">
                 <Menu size={18} />
               </button>
               <div>
-                <p className="font-label text-xs font-bold uppercase tracking-[0.18em] text-brand-primary">Store operations</p>
-                <h1 className="font-display text-xl font-semibold md:text-2xl">{sections.find((item) => item.id === activeSection)?.label}</h1>
+                <p className="font-label text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary sm:text-xs">Store operations</p>
+                <h1 className="font-display text-lg font-semibold md:text-2xl">{sections.find((item) => item.id === activeSection)?.label}</h1>
               </div>
             </div>
             <div className="hidden flex-1 items-center justify-center md:flex">
@@ -378,7 +378,7 @@ export function AdminDashboard() {
           </div>
         </header>
 
-        <main id="admin-content" aria-label="Admin dashboard" className="p-4 md:p-6 space-y-6">
+        <main id="admin-content" aria-label="Admin dashboard" className="p-4 pb-24 md:p-6 md:pb-6 space-y-6">
           {activeSection === "dashboard" ? (
             <div className="space-y-6">
               <section className="overflow-hidden rounded-2xl bg-brand-bgDark text-white shadow-lg">

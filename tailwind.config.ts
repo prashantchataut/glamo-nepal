@@ -31,7 +31,7 @@ const config = {
           'sans-serif'
         ],
         label: [
-          'var(--font-label)',
+          'var(--font-body)',
           'system-ui',
           'sans-serif'
         ],
@@ -169,10 +169,7 @@ const config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' }
         },
-        marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-100%)' }
-        },
+        
         'slide-in-right': {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0)' }
@@ -189,7 +186,7 @@ const config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        marquee: 'marquee 20s linear infinite',
+        
         'slide-in-right': 'slide-in-right 0.3s ease-out',
         'slide-in-left': 'slide-in-left 0.3s ease-out',
         'fade-in-up': 'fade-in-up 0.5s ease-out',

@@ -8,19 +8,21 @@ import { Heart, Home, Search, ShoppingBag, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/useUIStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
+import { useCartStore } from "@/store/useCartStore";
 
 const navItems = [
-  { icon: Home, label: "Home", href: "/" },
-  { icon: ShoppingBag, label: "Shop", href: "/shop" },
+  { icon: Home, label: "Home", href: "/", action: undefined as string | undefined },
+  { icon: ShoppingBag, label: "Cart", href: "/cart", action: undefined as string | undefined },
   { icon: Search, label: "Search", href: "#", action: "search" as const },
-  { icon: Heart, label: "Wishlist", href: "/account/wishlist" },
-  { icon: User, label: "Account", href: "/account" },
+  { icon: Heart, label: "Wishlist", href: "/account/wishlist", action: undefined as string | undefined },
+  { icon: User, label: "Account", href: "/account", action: undefined as string | undefined },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { getTotalItems: getWishlistTotal } = useWishlistStore();
+  const { getTotalItems: getCartTotal } = useCartStore();
   const { openSearchModal } = useUIStore();
 
   useEffect(() => {
@@ -33,7 +35,13 @@ export function MobileBottomNav() {
         {navItems.map((item) => {
           const isActive = item.href !== "#" && (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)));
           const Icon = item.icon;
-          const count = mounted && item.label === "Wishlist" ? getWishlistTotal() : 0;
+          const count = mounted
+            ? item.label === "Wishlist"
+              ? getWishlistTotal()
+              : item.label === "Cart"
+                ? getCartTotal()
+                : 0
+            : 0;
 
           if (item.action === "search") {
             return (

@@ -1,37 +1,154 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-export type MockUserRole = "customer" | "admin";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-interface MockUser {
-  name: string;
+const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+let supabase: SupabaseClient | null = null;
+
+if (isSupabaseConfigured) {
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+export interface AuthUser {
+  id: string;
   email: string;
-  phone: string;
-  loyaltyPoints: number;
-  role: MockUserRole;
+  name: string;
+  phone?: string;
+  role: "customer" | "admin";
 }
 
 interface AuthState {
-  user: MockUser | null;
-  login: (email: string, role?: MockUserRole) => void;
-  logout: () => void;
+  user: AuthUser | null;
+  isLoading: boolean;
+  error: string | null;
+  isConfigured: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (password: string) => Promise<void>;
+  clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      login: (email, role = "customer") => set({
-        user: {
-          name: role === "admin" ? "GLAMO Admin" : "GLAMO Member",
-          email,
-          phone: "+977 9818212188",
-          loyaltyPoints: role === "admin" ? 0 : 1280,
-          role,
+export const useAuthStore = create<AuthState>()((set) => ({
+  user: null,
+  isLoading: false,
+  error: null,
+  isConfigured: isSupabaseConfigured,
+
+  login: async (email, password) => {
+    if (!supabase) {
+      set({ error: "Authentication is not available yet. Please try again later or contact us on WhatsApp." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) throw authError;
+      if (data.user) {
+        set({
+          user: {
+            id: data.user.id,
+            email: data.user.email || email,
+            name: data.user.user_metadata?.name || data.user.email?.split("@")[0] || "",
+            phone: data.user.user_metadata?.phone || "",
+            role: "customer" as const,
+          },
+          isLoading: false,
+          error: null,
+        });
+      }
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Login failed. Please try again.",
+        isLoading: false,
+      });
+    }
+  },
+
+  register: async (name, email, phone, password) => {
+    if (!supabase) {
+      set({ error: "Authentication is not available yet. Please try again later." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, phone },
         },
-      }),
-      logout: () => set({ user: null }),
-    }),
-    { name: "glamo-auth-session" },
-  ),
-);
+      });
+      if (authError) throw authError;
+      if (data.user) {
+        set({
+          user: {
+            id: data.user.id,
+            email: data.user.email || email,
+            name,
+            phone,
+            role: "customer" as const,
+          },
+          isLoading: false,
+          error: null,
+        });
+      }
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Registration failed. Please try again.",
+        isLoading: false,
+      });
+    }
+  },
+
+  logout: async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    set({ user: null, error: null });
+  },
+
+  forgotPassword: async (email) => {
+    if (!supabase) {
+      set({ error: "Authentication is not available yet." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (authError) throw authError;
+      set({ isLoading: false });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Password reset failed.",
+        isLoading: false,
+      });
+    }
+  },
+
+  resetPassword: async (password) => {
+    if (!supabase) {
+      set({ error: "Authentication is not available yet." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const { error: authError } = await supabase.auth.updateUser({ password });
+      if (authError) throw authError;
+      set({ isLoading: false });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Password update failed.",
+        isLoading: false,
+      });
+    }
+  },
+
+  clearError: () => set({ error: null }),
+}));

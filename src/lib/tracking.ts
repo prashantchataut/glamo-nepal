@@ -1,5 +1,6 @@
 const FLUSH_INTERVAL_MS = 5000;
 const MAX_BATCH_SIZE = 50;
+const MAX_RETRIES = 3;
 const STORAGE_KEY = "glamo_session_id";
 const API_ENDPOINT = "/api/v1/events";
 
@@ -20,6 +21,7 @@ interface TrackingEvent {
   entity_id?: string | null;
   metadata?: Record<string, unknown>;
   timestamp: string;
+  _retryCount?: number;
 }
 
 interface PendingBatch {
@@ -102,9 +104,11 @@ export async function flush(): Promise<void> {
 
   try {
     const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-    const url = apiBase
-      ? `${apiBase.replace(/\/$/, "")}/${API_ENDPOINT.replace(/^\//, "")}`
-      : API_ENDPOINT;
+    if (!apiBase) {
+      isFlushing = false;
+      return;
+    }
+    const url = `${apiBase.replace(/\/$/, "")}/${API_ENDPOINT.replace(/^\//, "")}`;
 
     const res = await fetch(url, {
       method: "POST",
@@ -117,7 +121,11 @@ export async function flush(): Promise<void> {
       throw new Error(`Tracking failed: ${res.status}`);
     }
   } catch {
-    buffer.unshift(...batch.events);
+    const retryableEvents = batch.events.map((e) => ({ ...e, _retryCount: (e._retryCount || 0) + 1 }));
+    const eventsToRequeue = retryableEvents.filter((e) => e._retryCount <= MAX_RETRIES);
+    if (eventsToRequeue.length > 0) {
+      buffer.unshift(...eventsToRequeue);
+    }
   } finally {
     isFlushing = false;
   }

@@ -83,7 +83,7 @@ export function Navbar() {
     <header
       className={cn(
         "sticky top-0 z-navbar border-b border-brand-border/75 shadow-sm transition-all duration-300",
-        isScrolled ? "bg-white/92 backdrop-blur-2xl" : "bg-white/86 backdrop-blur-xl",
+        isScrolled ? "bg-white/92 backdrop-blur-2xl" : "bg-white/95 backdrop-blur-xl",
       )}
     >
       <div className="container mx-auto grid h-[74px] grid-cols-[auto_1fr_auto] items-center gap-2 px-4 md:h-[78px] md:grid-cols-[1fr_auto_1fr] md:gap-6 md:px-6">

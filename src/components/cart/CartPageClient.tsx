@@ -62,13 +62,13 @@ export function CartPageClient() {
                         <Trash2 className="mx-auto" size={16} />
                       </button>
                     </div>
-                    <div className="mt-4 flex items-end justify-between">
-                      <div className="flex items-center gap-3 rounded-full border border-brand-border bg-brand-bgLight px-3 py-2">
-                        <button disabled={item.quantity <= 1} onClick={() => changeQuantity(item.product.id, item.quantity - 1, item.selectedShade)} aria-label="Decrease quantity" className="disabled:opacity-40">
+                    <div className="mt-4 flex items-end justify-between gap-2">
+                      <div className="flex items-center gap-1 rounded-full border border-brand-border bg-brand-bgLight p-1">
+                        <button disabled={item.quantity <= 1} onClick={() => changeQuantity(item.product.id, item.quantity - 1, item.selectedShade)} aria-label="Decrease quantity" className="inline-flex h-10 w-10 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-white hover:text-brand-primary disabled:opacity-40">
                           <Minus size={14} />
                         </button>
-                        <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                        <button onClick={() => changeQuantity(item.product.id, item.quantity + 1, item.selectedShade)} aria-label="Increase quantity">
+                        <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
+                        <button onClick={() => changeQuantity(item.product.id, item.quantity + 1, item.selectedShade)} aria-label="Increase quantity" className="inline-flex h-10 w-10 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-white hover:text-brand-primary">
                           <Plus size={14} />
                         </button>
                       </div>

@@ -4,17 +4,17 @@ import { createMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export const metadata = createMetadata({
-  title: "Checkout Success",
-  description: "GLAMO NEPAL order confirmation screen.",
-  path: "/checkout/success",
+  title: "Checkout",
+  description: "Complete your GLAMO NEPAL order.",
+  path: "/checkout",
   noIndex: true,
 });
 
-const CheckoutSuccessClient = dynamicImport(
-  () => import("@/components/checkout/CheckoutSuccessClient").then((mod) => mod.CheckoutSuccessClient),
+const CheckoutPageClient = dynamicImport(
+  () => import("@/components/checkout/CheckoutPageClient").then((mod) => mod.CheckoutPageClient),
   { ssr: false }
 );
 
-export default function CheckoutSuccessPage() {
-  return <CheckoutSuccessClient />;
+export default function CheckoutPage() {
+  return <CheckoutPageClient />;
 }

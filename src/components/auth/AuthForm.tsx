@@ -8,7 +8,7 @@ import { Eye, EyeOff, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { SITE_CONFIG } from "@/lib/config";
 import { useAuthStore } from "@/store/useAuthStore";
-import { setAuthCookies, sanitizeRedirect } from "@/lib/auth-cookies";
+import { setAuthCookies, clearAuthCookies, sanitizeRedirect } from "@/lib/auth-cookies";
 import {
   loginSchema,
   registerSchema,
@@ -154,9 +154,8 @@ function getDefaultValues(mode: AuthMode) {
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const params = useSearchParams();
-  const login = useAuthStore((state) => state.login);
+  const { login, register: registerUser, forgotPassword, resetPassword, isLoading, error: authError, isConfigured, clearError } = useAuthStore();
   const copy = labels[mode];
-  const [isSubmitting, setSubmitting] = useState(false);
 
   const {
     register,
@@ -167,28 +166,52 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     defaultValues: getDefaultValues(mode) as Partial<FormData>,
   });
 
-const onSubmit = (data: FormData) => {
-    setSubmitting(true);
-    window.setTimeout(() => {
-      setSubmitting(false);
-      if (mode === "forgot") {
-        toast.success("If an account exists for that email, a password reset link has been sent.");
-        return;
+  const onSubmit = async (data: FormData) => {
+    clearError();
+
+    try {
+      if (mode === "login") {
+        const loginData = data as LoginFormData;
+        await login(loginData.email, loginData.password);
+        const user = useAuthStore.getState().user;
+        if (user) {
+          setAuthCookies(user.email, user.role);
+          toast.success("Signed in successfully.");
+          const redirect = sanitizeRedirect(params.get("redirect"));
+          router.push(redirect);
+          router.refresh();
+        }
+      } else if (mode === "register") {
+        const regData = data as RegisterFormData;
+        await registerUser(regData.name, regData.email, regData.phone, regData.password);
+        const user = useAuthStore.getState().user;
+        if (user) {
+          setAuthCookies(user.email, user.role);
+          toast.success("Account created.");
+          const redirect = sanitizeRedirect(params.get("redirect"));
+          router.push(redirect);
+          router.refresh();
+        }
+      } else if (mode === "forgot") {
+        const forgotData = data as ForgotPasswordFormData;
+        await forgotPassword(forgotData.email);
+        const currentError = useAuthStore.getState().error;
+        if (!currentError) {
+          toast.success("If an account exists for that email, a password reset link has been sent.");
+        }
+      } else if (mode === "reset") {
+        const resetData = data as ResetPasswordFormData;
+        await resetPassword(resetData.password);
+        const currentError = useAuthStore.getState().error;
+        if (!currentError) {
+          toast.success("Password updated. Please sign in again.");
+          clearAuthCookies();
+          router.push("/login");
+        }
       }
-      if (mode === "reset") {
-        toast.success("Password updated. Please sign in again.");
-        router.push("/login");
-        return;
-      }
-      const normalizedEmail = (data as LoginFormData).email || "";
-      const role = normalizedEmail.toLowerCase().includes("admin") ? "admin" : "customer";
-      setAuthCookies(normalizedEmail, role);
-      login(normalizedEmail, role);
-      toast.success(mode === "register" ? "Account created." : "Signed in successfully.");
-      const redirect = sanitizeRedirect(params.get("redirect"));
-      router.push(role === "admin" ? "/admin" : redirect);
-      router.refresh();
-    }, 500);
+    } catch {
+      // Errors are handled in the store
+    }
   };
 
   const formErrors = errors as Record<string, { message?: string }>;
@@ -201,8 +224,8 @@ const onSubmit = (data: FormData) => {
   ];
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-8 rounded-[2rem] border border-border/70 bg-white p-5 shadow-sm md:grid-cols-[0.9fr_1.1fr] md:p-8">
-      <aside className="rounded-[1.6rem] bg-brand-bgDark p-7 text-white">
+    <div className="mx-auto grid max-w-5xl gap-0 overflow-hidden rounded-[2rem] border border-border/70 bg-white shadow-sm md:gap-8 md:p-0 md:grid-cols-[0.9fr_1.1fr]">
+      <aside className="rounded-b-[2rem] md:rounded-b-none md:rounded-l-[2rem] md:rounded-r-none rounded-t-[2rem] bg-brand-bgDark p-6 text-white md:p-7">
         <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">{copy.eyebrow}</p>
         <h1 className="mt-4 font-display text-4xl font-semibold md:text-5xl">{copy.title}</h1>
         <p className="mt-4 text-sm leading-6 text-white/72">{copy.description}</p>
@@ -212,7 +235,22 @@ const onSubmit = (data: FormData) => {
         </div>
       </aside>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-2 md:p-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-5 md:p-4">
+        {!isConfigured && (mode === "login" || mode === "register") && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <strong>Coming soon:</strong> Authentication is not yet connected. Account features will be available once Supabase is configured.
+          </div>
+        )}
+        {isConfigured && (mode === "login" || mode === "register") && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            <strong>Secure auth:</strong> Your credentials are handled by Supabase. We never store your password.
+          </div>
+        )}
+        {authError && (
+          <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            {authError}
+          </div>
+        )}
         {mode === "register" ? (
           <Field label="Full name" icon={<UserRound size={18} />} register={register("name")} error={formErrors.name} placeholder="Your full name" />
         ) : null}
@@ -230,8 +268,8 @@ const onSubmit = (data: FormData) => {
             <PasswordField label="Confirm new password" register={register("confirmPassword")} error={formErrors.confirmPassword} minLength={8} id="auth-confirm-password" />
           </div>
         ) : null}
-        <button type="submit" disabled={isSubmitting || isPasswordMismatch} className="w-full rounded-full bg-brand-primary px-6 py-3.5 font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60">
-          {isSubmitting ? "Please wait..." : copy.button}
+        <button type="submit" disabled={isLoading || isPasswordMismatch} className="w-full rounded-full bg-brand-primary px-6 py-3.5 font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60">
+          {isLoading ? "Please wait..." : copy.button}
         </button>
         <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-brand-primary">
           {authLinks.filter((l) => l.show).map((l) => (

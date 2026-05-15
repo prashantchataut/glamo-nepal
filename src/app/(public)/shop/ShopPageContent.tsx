@@ -167,8 +167,8 @@ export default function ShopPageContent() {
         </div>
       </section>
 
-      <section className="border-b border-brand-border bg-white/55 py-5">
-        <div className="container mx-auto flex gap-3 overflow-x-auto px-4 md:px-6">
+      <section className="border-b border-brand-border bg-white/55 py-4 md:py-5">
+        <div className="container mx-auto flex gap-2.5 overflow-x-auto px-4 pb-2 md:px-6 md:pb-0 no-scrollbar">
           {CATEGORIES.map((category) => (
             <button key={category.slug} type="button" onClick={() => handleFilterChange({ ...filters, category: category.slug, subCategory: "" })} className={cn("flex shrink-0 items-center gap-3 rounded-full border px-3 py-2 pr-5 text-sm font-bold transition", filters.category === category.slug ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-white text-brand-textPrimary hover:border-brand-primary/30 hover:text-brand-primary")}>
               <span className="relative h-10 w-10 overflow-hidden rounded-full bg-brand-bgLight"><Image src={category.image} alt="" fill className="object-cover" sizes="40px" /></span>
@@ -225,7 +225,7 @@ export default function ShopPageContent() {
                 <button type="button" onClick={() => handleFilterChange(DEFAULT_FILTERS)} className="mt-6 rounded-full bg-brand-primary px-6 py-3 font-bold text-white">Reset filters</button>
               </div>
             ) : (
-              <div className={cn("grid grid-cols-2 gap-4 md:gap-6", gridCols === 3 ? "xl:grid-cols-3" : "lg:grid-cols-3 2xl:grid-cols-4")}>
+              <div className={cn("grid grid-cols-2 gap-3 sm:gap-4 md:gap-6", gridCols === 3 ? "lg:grid-cols-3" : "lg:grid-cols-3 xl:grid-cols-4")}>
                 {products.map((product) => <ProductCard key={product.id} product={product} />)}
               </div>
             )}

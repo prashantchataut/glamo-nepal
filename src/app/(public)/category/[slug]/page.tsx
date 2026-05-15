@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import CategoryPageContent from "./CategoryPageContent";
 import { CATEGORIES } from "@/lib/data/products";
 import { createMetadata, breadcrumbJsonLd } from "@/lib/seo";
@@ -21,15 +22,14 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const category = CATEGORIES.find((item) => item.slug === params.slug);
+  if (!category) notFound();
   return (
     <Suspense fallback={<div className="min-h-screen bg-brand-bgLight" />}>
-      {category && (
-        <JsonLd data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Shop", path: "/shop" },
-          { name: category.name, path: `/category/${category.slug}` },
-        ])} />
-      )}
+      <JsonLd data={breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Shop", path: "/shop" },
+        { name: category.name, path: `/category/${category.slug}` },
+      ])} />
       <CategoryPageContent />
     </Suspense>
   );

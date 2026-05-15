@@ -6,6 +6,7 @@ export const metadata = createMetadata({
   title: "Search",
   description: "Search GLAMO NEPAL beauty products, brands, categories and Nepal-market picks.",
   path: "/search",
+  noIndex: true,
 });
 
 export default function SearchPage() {

@@ -52,7 +52,7 @@ export function AnnouncementBar() {
 
   return (
     <div
-      className="font-label sticky top-0 z-[40] border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs"
+      className="font-label sticky top-0 z-announcement border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs"
       aria-label="Announcements"
       aria-live="polite"
       aria-atomic="true"

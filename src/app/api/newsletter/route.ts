@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       return NextResponse.json(
-        { status: "success", message: "Thank you for your interest! We will be in touch." },
-        { status: 200 },
+        { status: "error", message: "Newsletter subscription is not yet available. Please try again later.", code: "SERVICE_UNAVAILABLE" },
+        { status: 503 },
       );
     }
 

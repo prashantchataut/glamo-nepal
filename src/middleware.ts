@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { ADMIN_SESSION_COOKIE, LEGACY_AUTH_COOKIE, LEGACY_ROLE_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
+import { ADMIN_SESSION_COOKIE, LEGACY_AUTH_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const protectedPrefixes = ["/account"];
@@ -87,8 +87,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const token = request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
-  const role = request.cookies.get(LEGACY_ROLE_COOKIE)?.value;
   const adminToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
   const isProtected = protectedPrefixes.some((prefix) => isPathOrChild(pathname, prefix));
   const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
@@ -138,14 +136,18 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  if (isProtected && !token) {
+  const supabaseAuthCookie = request.cookies.getAll().find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
+  const legacyAuthCookie = request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
+  const hasAuthSession = Boolean(supabaseAuthCookie) || Boolean(legacyAuthCookie);
+
+  if (isProtected && !hasAuthSession) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
   }
 
-  if (isAuthPage && token) {
-    return addSecurityHeaders(NextResponse.redirect(new URL(role === "admin" ? "/admin" : "/account", request.url)), nonce);
+  if (isAuthPage && hasAuthSession) {
+    return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)), nonce);
   }
 
   const response = addSecurityHeaders(NextResponse.next(), nonce);

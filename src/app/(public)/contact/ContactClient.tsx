@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Clock, Loader2, Mail, MapPin, Phone } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
+import { csrfHeaders } from "@/lib/csrf";
 
 export default function ContactClient() {
   const [isSending, setIsSending] = useState(false);
@@ -27,7 +28,7 @@ export default function ContactClient() {
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...csrfHeaders() },
         body: JSON.stringify(data),
       });
       if (!res.ok) {
@@ -54,10 +55,10 @@ export default function ContactClient() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-14 md:py-20">
+      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-10 md:py-16">
         <div className="container mx-auto px-4 text-center md:px-6">
           <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Customer care</p>
-          <h1 className="mt-3 font-display text-4xl font-semibold text-brand-textPrimary md:text-6xl">Get in <span className="italic text-brand-primary">Touch</span></h1>
+          <h1 className="mt-3 font-display text-3xl font-semibold text-brand-textPrimary md:text-5xl lg:text-6xl">Get in <span className="italic text-brand-primary">Touch</span></h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-brand-textMuted">Questions, feedback, WhatsApp support or store visit details — we would love to help.</p>
         </div>
       </div>
@@ -67,7 +68,7 @@ export default function ContactClient() {
           <div>
             <h2 className="font-display text-2xl font-semibold text-brand-textPrimary mb-6">Send Us a Message</h2>
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="contact-name" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Name</label>
                   <input id="contact-name" type="text" {...register("name")} aria-invalid={errors.name ? "true" : undefined} aria-describedby={errors.name ? "contact-name-error" : undefined} className={fieldClasses(!!errors.name)} />
@@ -79,7 +80,7 @@ export default function ContactClient() {
                   {errors.email && <p id="contact-email-error" role="alert" className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="contact-phone" className="block text-sm font-medium text-brand-textPrimary mb-1.5">Phone</label>
                   <input id="contact-phone" type="tel" {...register("phone")} aria-invalid={errors.phone ? "true" : undefined} aria-describedby={errors.phone ? "contact-phone-error" : undefined} className={fieldClasses(!!errors.phone)} />
