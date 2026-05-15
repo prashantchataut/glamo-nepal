@@ -1,20 +1,7 @@
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
-import { Toaster } from "sonner";
 import "./globals.css";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { SearchModal } from "@/components/search/SearchModal";
-import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButton";
-import { BackToTopButton } from "@/components/common/BackToTopButton";
-import { CompareTray } from "@/components/common/CompareTray";
-import { SkipToContent } from "@/components/common/SkipToContent";
-import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
-import { JsonLd } from "@/components/seo/JsonLd";
-import { defaultMetadata, organizationJsonLd } from "@/lib/seo";
+import { AppShell } from "@/components/layout/AppShell";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,33 +17,19 @@ const playfair = Playfair_Display({
   weight: ["400", "700"],
 });
 
-export const metadata = defaultMetadata;
+export const metadata = {
+  title: "GLAMO NEPAL — Premium Beauty & Cosmetics",
+  description: "Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu and across Nepal.",
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com; connect-src 'self' https://api.glamonepal.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+      </head>
       <body className="min-h-screen bg-brand-bgLight font-sans text-brand-textPrimary antialiased">
-        <SkipToContent />
-        <JsonLd data={organizationJsonLd()} />
-        <AnnouncementBar />
-        <Navbar />
-        <main id="main-content" className="min-h-screen pt-[var(--total-header-height)] pb-20 md:pb-0">
-          {children}
-        </main>
-        <Footer />
-        <ComponentErrorBoundary name="CartDrawer">
-          <CartDrawer />
-        </ComponentErrorBoundary>
-        <ComponentErrorBoundary name="SearchModal">
-          <SearchModal />
-        </ComponentErrorBoundary>
-        <ComponentErrorBoundary name="CompareTray">
-          <CompareTray />
-        </ComponentErrorBoundary>
-        <WhatsAppFloatingButton />
-        <BackToTopButton />
-        <MobileBottomNav />
-        <Toaster richColors position="top-center" />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

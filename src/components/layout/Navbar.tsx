@@ -92,6 +92,8 @@ export function Navbar() {
             className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary md:hidden"
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
           >
             <Menu size={21} />
           </button>
@@ -138,7 +140,7 @@ export function Navbar() {
       </div>
 
       <div className={cn("fixed inset-0 z-menu-backdrop bg-brand-bgDark/35 backdrop-blur-sm transition-opacity duration-300 md:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
-      <aside role="dialog" aria-modal="true" aria-label="Navigation menu" className={cn("fixed inset-y-0 left-0 z-menu w-[90%] max-w-sm overflow-y-auto bg-brand-surfaceCream p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
+      <aside role="dialog" aria-modal="true" aria-label="Navigation menu" id="mobile-nav-menu" className={cn("fixed inset-y-0 left-0 z-menu w-[90%] max-w-sm overflow-y-auto bg-brand-surfaceCream p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between">
           <Logo onClick={() => setMobileMenuOpen(false)} />
           <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textPrimary transition hover:bg-brand-primary-light hover:text-brand-primary" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">

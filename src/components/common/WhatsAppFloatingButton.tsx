@@ -20,7 +20,7 @@ export function WhatsAppFloatingButton() {
     >
       <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-35 motion-safe:animate-ping" aria-hidden="true" />
       <MessageCircle className="relative z-10" size={24} />
-      <span className="pointer-events-none absolute bottom-full right-0 mb-3 hidden whitespace-nowrap rounded-full bg-brand-bgDark px-4 py-2 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 md:block">
+      <span className="pointer-events-none absolute bottom-full right-0 mb-3 hidden whitespace-nowrap rounded-full bg-brand-bgDark px-4 py-2 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 md:block" aria-hidden="true">
         {label}
       </span>
     </a>
