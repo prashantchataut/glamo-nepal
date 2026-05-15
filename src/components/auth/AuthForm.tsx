@@ -8,7 +8,7 @@ import { Eye, EyeOff, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { SITE_CONFIG } from "@/lib/config";
 import { useAuthStore } from "@/store/useAuthStore";
-import { setAuthCookies, sanitizeRedirect, checkLoginRateLimit, recordLoginAttempt } from "@/lib/auth-cookies";
+import { setAuthCookies, sanitizeRedirect } from "@/lib/auth-cookies";
 import {
   loginSchema,
   registerSchema,
@@ -168,14 +168,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   });
 
 const onSubmit = (data: FormData) => {
-    if (mode === "login" || mode === "register") {
-      const rateCheck = checkLoginRateLimit();
-      if (!rateCheck.allowed) {
-        const minsLeft = Math.ceil(((rateCheck.lockedUntil || 0) - Date.now()) / 60000);
-        toast.error(`Too many attempts. Please try again in ${minsLeft} minute${minsLeft !== 1 ? "s" : ""}.`);
-        return;
-      }
-    }
     setSubmitting(true);
     window.setTimeout(() => {
       setSubmitting(false);
@@ -191,7 +183,6 @@ const onSubmit = (data: FormData) => {
       const normalizedEmail = (data as LoginFormData).email || "";
       const role = normalizedEmail.toLowerCase().includes("admin") ? "admin" : "customer";
       setAuthCookies(normalizedEmail, role);
-      recordLoginAttempt(true);
       login(normalizedEmail, role);
       toast.success(mode === "register" ? "Account created." : "Signed in successfully.");
       const redirect = sanitizeRedirect(params.get("redirect"));

@@ -2,13 +2,15 @@
 import { useState } from "react";
 import { Mail } from "lucide-react";
 import { NewsletterDark } from "@/components/ui/illustrations/NewsletterBackground";
+import { csrfHeaders } from "@/lib/csrf";
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!email) {
@@ -20,8 +22,24 @@ export function NewsletterSignup() {
       setError("Please enter a valid email address.");
       return;
     }
-    localStorage.setItem("glamo-newsletter-interest", email);
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setSubmitted(true);
+      } else {
+        setError(data.message || "Something went wrong. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -52,10 +70,11 @@ export function NewsletterSignup() {
                     required
                     aria-invalid={error ? "true" : undefined}
                     aria-describedby={error ? "newsletter-email-error" : undefined}
-                    className="w-full rounded-full border border-white/15 bg-white/10 py-4 pl-12 pr-6 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-[#C9A84C]/40 focus:ring-2 focus:ring-[#C9A84C]/20"
+                    disabled={submitting}
+                    className="w-full rounded-full border border-white/15 bg-white/10 py-4 pl-12 pr-6 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-[#C9A84C]/40 focus:ring-2 focus:ring-[#C9A84C]/20 disabled:opacity-60"
                   />
                 </div>
-                <button type="submit" className="btn-press whitespace-nowrap rounded-full bg-[#C9A84C] px-8 py-4 font-bold text-[#1A0A1E] shadow-lg shadow-[#C9A84C]/20 transition hover:bg-[#b8973f] cursor-pointer">Join waitlist</button>
+                <button type="submit" disabled={submitting} className="btn-press whitespace-nowrap rounded-full bg-[#C9A84C] px-8 py-4 font-bold text-[#1A0A1E] shadow-lg shadow-[#C9A84C]/20 transition hover:bg-[#b8973f] cursor-pointer disabled:opacity-60">{submitting ? "Submitting..." : "Join waitlist"}</button>
               </form>
             )}
             {error && <p id="newsletter-email-error" role="alert" className="mt-2 text-sm text-red-300">{error}</p>}

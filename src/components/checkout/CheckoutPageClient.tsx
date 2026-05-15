@@ -11,6 +11,7 @@ import { AlertCircle, CheckCircle2, Gift, LockKeyhole, ShieldCheck, ShoppingBag,
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 
 import type { PaymentMethodCode } from "@/lib/api/contracts";
+import { csrfHeaders } from "@/lib/csrf";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-locations";
@@ -100,7 +101,14 @@ export function CheckoutPageClient() {
   }
 
   async function onSubmit(data: CheckoutFormData) {
-    const orderNumber = `GLM-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    let orderNumber: string;
+    try {
+      const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({}) });
+      const data_ = await res.json();
+      orderNumber = data_.orderNumber || `GLM-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    } catch {
+      orderNumber = `GLM-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    }
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
       value: total,

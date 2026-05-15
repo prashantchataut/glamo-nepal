@@ -4,7 +4,14 @@ import { ADMIN_SESSION_COOKIE, LEGACY_AUTH_COOKIE, LEGACY_ROLE_COOKIE } from "@/
 export async function POST() {
   const response = NextResponse.json({ ok: true, redirectTo: "/admin/login" });
   for (const name of [ADMIN_SESSION_COOKIE, LEGACY_AUTH_COOKIE, LEGACY_ROLE_COOKIE]) {
-    response.cookies.set(name, "", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 });
+    const isHostCookie = name.startsWith("__Host-");
+    response.cookies.set(name, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: isHostCookie ? true : process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 0,
+    });
   }
   return response;
 }

@@ -1,12 +1,12 @@
-# GLAMO Nepal — Security Implementation Guide & Threat Model
+# GLAMO NEPAL — Security Implementation & Threat Model
 
 ## 1. Security Headers (IMPLEMENTED)
 
-All responses now include the following security headers via `src/middleware.ts`:
+All responses include the following security headers via `src/middleware.ts`:
 
 | Header | Value | Purpose |
 |--------|-------|---------|
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com; connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests` | Prevents XSS, clickjacking, data exfiltration |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'nonce-<per-request>' https://cdn.vercel-insights.com; style-src 'self' 'nonce-<per-request>' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com; connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests` | Prevents XSS, clickjacking, data exfiltration. No `unsafe-inline` in script-src. No `unsafe-eval`. |
 | `X-Frame-Options` | `DENY` | Prevents clickjacking |
 | `X-Content-Type-Options` | `nosniff` | Prevents MIME sniffing |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage |
@@ -17,31 +17,50 @@ All responses now include the following security headers via `src/middleware.ts`
 ## 2. Authentication Security (IMPLEMENTED)
 
 ### 2.1 Cookie Security
-- Auth cookies now include `Secure` flag (HTTPS-only)
-- `SameSite=Lax` prevents CSRF for non-GET requests
+- Admin session cookie uses `__Host-` prefix (`__Host-glamo-admin-session`) — locked to exact domain, Secure-only, no path override
+- All auth cookies are `HttpOnly; Secure; SameSite=Lax`
 - Role cookie is URL-encoded to prevent injection
-- Shared `auth-cookies.ts` utility eliminates duplication across LogoutButton, AccountShell, AuthForm
+- Shared `auth-cookies.ts` utility eliminates duplication
 
-### 2.2 Login Rate Limiting (CLIENT-SIDE)
-- `checkLoginRateLimit()` enforces max 5 attempts before 15-minute lockout
-- `recordLoginAttempt(success)` clears count on success, increments on failure
-- Stored in `localStorage` with key `glamo-login-attempts`
-- **NOTE**: This is client-side throttling only. Backend rate limiting MUST be implemented before production.
+### 2.2 Login Rate Limiting (SERVER-SIDE)
+- In-memory rate limiting via `src/lib/rate-limit.ts`
+- `/api/admin/login`: 5 attempts per IP per 15 minutes
+- `/api/contact`: 3 submissions per IP per hour
+- All other API routes: 60 requests per IP per minute (default)
+- Periodic garbage collection of expired entries
+- Returns `429` with `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers
 
-### 2.3 Open Redirect Prevention
+### 2.3 Timing-Safe Admin Authentication
+- Admin login uses byte-by-byte constant-time comparison for both email and password
+- Eliminates timing side-channel attacks on admin credentials
+
+### 2.4 Open Redirect Prevention
 - `sanitizeRedirect()` in `auth-cookies.ts` validates redirect URLs:
   - Must start with `/`
   - Rejects `//` (protocol-relative URLs)
   - Falls back to `/account` for invalid redirects
 
-### 2.4 Hardcoded Credentials Removed
-- AuthForm default values now use empty strings instead of `customer@glamonepal.com` / `glamo-beauty-2026`
+### 2.5 Hardcoded Credentials Removed
+- AuthForm default values use empty strings
 - Password fields use `autoComplete="new-password"` for new passwords
 
-## 3. Input Validation (IMPLEMENTED)
+## 3. CSRF Protection (IMPLEMENTED)
 
-### 3.1 Zod Schema Max-Length Constraints
-All validation schemas now include `max()` constraints:
+### 3.1 Double-Submit Cookie Pattern
+- `glamo-csrf-token` cookie set by middleware on every response (non-HttpOnly, readable by JS)
+- Client-side utility `csrfHeaders()` in `src/lib/csrf.ts` reads cookie and sends as `x-csrf-token` header
+- Validated on every POST/PUT/DELETE to:
+  - `/api/admin/login`
+  - `/api/admin/logout`
+  - `/api/contact`
+  - `/api/newsletter`
+  - `/api/checkout`
+- Returns `403 CSRF_INVALID` on mismatch
+
+## 4. Input Validation (IMPLEMENTED)
+
+### 4.1 Zod Schema Max-Length Constraints
+All validation schemas include `max()` constraints:
 
 | Schema | Field | Max Length |
 |--------|-------|-----------|
@@ -60,143 +79,114 @@ All validation schemas now include `max()` constraints:
 | `contactSchema` | subject | 200 |
 | `contactSchema` | message | 2000 |
 
-## 4. Accessibility Fixes (IMPLEMENTED)
+## 5. SVG Sanitisation (IMPLEMENTED)
 
-### 4.1 Marquee Components
-- `AnnouncementBar.tsx`: Added `role="marquee"` and `aria-label="Announcements"`, `aria-hidden="true"` on scrolling content
-- `TrustBadgeMarquee.tsx`: Added `role="marquee"` and `aria-label="Trust badges"`, `aria-hidden="true"` on scrolling content
-- `BrandsMarquee.tsx`: Added `aria-label="Trusted brands"`, `aria-hidden="true"` on scrolling content
+- `sanitizeSvg()` in `AdminDashboard.tsx` uses `DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } })`
+- Replaces previous regex/DOMParser approach which was bypassable
+- Package: `dompurify` + `@types/dompurify`
 
-### 4.2 Carousel (HeroBanner)
-- Added `aria-roledescription="carousel"` and `aria-label` on section
-- Added `role="tablist"` and `aria-selected` on pagination dots
-- Added `role="group"` and `aria-roledescription="slide"` on each slide
-- Added `aria-live` region for slide changes (respects reduced motion)
-- Added keyboard navigation (ArrowLeft/ArrowRight) via `onKeyDown`
-- Added Pause/Play button for autoplay control (WCAG requirement)
+## 6. Server-Side Order Numbers (IMPLEMENTED)
+
+- `POST /api/checkout` generates order numbers server-side using `crypto.randomUUID()`
+- Format: `GLM-{year}-{uuid8}` (e.g., `GLM-2026-A1B2C3D4`)
+- Client-side `Math.random()` removed from checkout flow
+- Fallback to client-side `crypto.randomUUID()` only if server unreachable
+
+## 7. Newsletter Server Submission (IMPLEMENTED)
+
+- `POST /api/newsletter` endpoint created
+- Validates email with Zod schema
+- Persists to Supabase `newsletter_subscribers` table with merge-duplicates
+- `NewsletterSignup` component now calls server endpoint with CSRF header
+- Removes localStorage-only saving
+
+## 8. Accessibility Fixes (IMPLEMENTED)
+
+### 8.1 Marquee Components
+- **AnnouncementBar**: Replaced `role="marquee"` with paused-by-default auto-rotating region. Play/Pause toggle with `aria-pressed`. `aria-live="polite"`, `aria-atomic="true"`, `role="region"`. Respects `prefers-reduced-motion` (10s interval when reduced).
+- **TrustBadgeMarquee**: Same pattern — paused-by-default, Play/Pause, `aria-live="polite"`, `prefers-reduced-motion`.
+- **BrandsMarquee**: Same pattern — paused-by-default, Play/Pause, `aria-live="polite"`, `prefers-reduced-motion`.
+
+### 8.2 Carousel (HeroBanner)
+- `aria-roledescription="carousel"` and `aria-label` on section
+- `role="tablist"` and `aria-selected` on pagination dots
+- `role="group"` and `aria-roledescription="slide"` on each slide
+- `aria-live` region for slide changes (respects reduced motion)
+- Keyboard navigation (ArrowLeft/ArrowRight) via `onKeyDown`
+- Pause/Play button for autoplay control (WCAG requirement)
 - `useReducedMotion()` check adjusts autoplay delay
 
-### 4.3 ProductCard Quick View
-- Changed `<span>` with `pointer-events-none` to `aria-hidden="true"` — decorative text is now properly hidden from screen readers
-- The product card itself is already keyboard-accessible via the `<Link>` wrapper
+### 8.3 ProductCard Quick View
+- `aria-hidden="true"` on decorative text
 
-### 4.4 NewsletterSignup
-- Added `<label htmlFor="newsletter-email">` with `sr-only` class
-- Added `aria-live="polite"` region for success/error state
-- Added `role="alert"` for error messages
-- Added `aria-invalid` and `aria-describedby` for validation
-- Added `noValidate` to form for custom validation
-- Added client-side email format validation
+### 8.4 NewsletterSignup
+- `<label htmlFor>` with `sr-only` class
+- `aria-live="polite"` region for success/error state
+- `role="alert"` for error messages
+- `aria-invalid` and `aria-describedby` for validation
+- `noValidate` on form
+- Client-side email format validation
+- Server-side submission with loading state
 
-### 4.5 NotifyMeForm
-- Added `<label>` element with `sr-only` class
-- Added `aria-live="polite"` region for success state
-- Added `role="status"` on success message
+### 8.5 NotifyMeForm
+- `<label>` element with `sr-only` class
+- `aria-live="polite"` region for success state
+- `role="status"` on success message
 
-### 4.6 BeautyProfileQuiz
-- Changed filter logic from OR (`||`) to AND (`&&`) for skin type + concern matching
-- Added fallback: if AND yields 0 results, falls back to OR
-- Added `aria-labelledby="beauty-quiz-heading"` on section
-- Added `aria-live="polite"` on results container
-- Added `htmlFor`/`id` associations on select labels
-- Added `aria-hidden="true"` on decorative Sparkles icon
+### 8.6 BeautyProfileQuiz
+- AND logic with OR fallback for skin type + concern matching
+- `aria-labelledby` on section
+- `aria-live="polite"` on results container
+- `htmlFor`/`id` associations on select labels
+- `aria-hidden="true"` on decorative Sparkles icon
 
-### 4.7 ShopByCategory
-- Fixed links from `/category/${slug}` to `/shop?category=${slug}` (matches the actual route)
-- Changed image `alt` to empty string with `aria-hidden="true"` (decorative, link text is the label)
-- Added `aria-labelledby="shop-category-heading"` on section
+### 8.7 ShopByCategory
+- Links fixed to `/shop?category=${slug}`
+- `aria-hidden="true"` on decorative images
+- `aria-labelledby` on section
 
-### 4.8 TheGlowEdit
-- Added `role="tablist"` on tab container
-- Added `role="tab"` and `aria-selected` on tab buttons
-- Added `role="tabpanel"` and `id="glow-edit-panel"` on product grid
-- Added `aria-labelledby="glow-edit-heading"` on section
+### 8.8 TheGlowEdit
+- `role="tablist"` on tab container
+- `role="tab"` and `aria-selected` on tab buttons
+- `role="tabpanel"` and `id` on product grid
+- `aria-labelledby` on section
 
-### 4.9 WhatsAppFloatingButton
-- Added `aria-hidden="true"` on ping animation span
+### 8.9 WhatsAppFloatingButton
+- `aria-hidden="true"` on ping animation span
 
-## 5. Functional Bug Fixes (IMPLEMENTED)
-
-### 5.1 Collections Page
-- Replaced duplicate detail page with proper listing page showing all collections with card grid
-
-### 5.2 Routines Page
-- Replaced duplicate detail page with proper listing page showing all bundles with card grid
-
-### 5.3 CATEGORY_PILLS Links
-- Fixed from `/category/${slug}` to `/shop?category=${slug}` in constants.ts
-
-### 5.4 Product SubCategories
-- Changed p022 "Kajal Definer Pencil" from `subCategory: "Concealer"` to `subCategory: "Kajal"`
-- Changed p033 "SUGAR Cosmetics Kohl of Honour Kajal" from `subCategory: "Mascara"` to `subCategory: "Kajal"`
-- Added "Kajal" to Makeup subCategories in CATEGORIES array
-
-### 5.5 CONCERNS Array
-- Added 7 missing concern tags: "Natural Finish", "Dewy Finish", "Humidity Resistant", "Smooth Skin", "Damage Care", "Dry Skin", "Shine"
-- Removed unused "Color Care" (not used by any product)
-
-## 6. Component Error Boundaries (IMPLEMENTED)
+## 9. Component Error Boundaries (IMPLEMENTED)
 
 Created `ComponentErrorBoundary` component wrapping:
 - CartDrawer
 - SearchModal
 - CompareTray
 
-## 7. Missing Route Error/Loading Pages (IMPLEMENTED)
+## 10. Missing Route Error/Loading Pages (IMPLEMENTED)
 
 Added error.tsx and loading.tsx for:
-- `/collections/error.tsx`
-- `/collections/loading.tsx`
-- `/routines/error.tsx`
-- `/routines/loading.tsx`
+- `/collections/error.tsx` and `/collections/loading.tsx`
+- `/routines/error.tsx` and `/routines/loading.tsx`
 
-## 8. Remaining Security Recommendations
+## 11. QA Sign-Off Checklist
 
-### 8.1 CRITICAL — Backend Rate Limiting (NOT YET IMPLEMENTED)
-The client-side rate limiting in `auth-cookies.ts` is trivially bypassed. Production MUST implement:
-- Rate limiting on `/api/admin/login` (e.g., 5 attempts per IP per 15 minutes)
-- Rate limiting on `/api/contact` (e.g., 3 submissions per IP per hour)
-- Use Vercel Edge Middleware or server-side rate limiting
-
-### 8.2 CRITICAL — CSRF Protection (NOT YET IMPLEMENTED)
-All state-changing POST endpoints need CSRF tokens:
-- Generate a random token per session
-- Include as `<meta>` tag or custom header
-- Validate on every POST/PUT/DELETE request
-
-### 8.3 HIGH — SVG Sanitization (NOT YET IMPLEMENTED)
-The `sanitizeSvg()` function in `AdminDashboard.tsx` uses regex which is bypassable.
-- Install `dompurify` package: `npm install dompurify @types/dompurify`
-- Replace regex sanitization with `DOMPurify.sanitize(svgString, { USE_PROFILES: { svg: true, svgFilters: true } })`
-
-### 8.4 HIGH — Admin Auth Hardening (PARTIAL)
-- Admin auth uses HMAC-SHA256 for token verification (good)
-- BUT: admin login compares password with `!==` (timing attack vector)
-- Recommendation: Use `crypto.timingSafeEqual` for password comparison in the admin login API route
-
-### 8.5 MEDIUM — Checkout Order Number
-- Currently generated client-side with `Math.random()`
-- Recommendation: Generate server-side with a sequential counter or UUID
-
-### 8.6 MEDIUM — Newsletter Server Submission
-- Currently saves to localStorage only
-- Recommendation: Connect to `/api/contact` or a newsletter API endpoint
-
-## 9. QA Sign-Off Checklist
-
-- [x] Security headers (CSP, HSTS, X-Frame-Options, etc.) added to all responses
-- [x] Auth cookies use Secure flag and proper SameSite
+- [x] Security headers (CSP with nonces, HSTS, X-Frame-Options, etc.) added to all responses
+- [x] Auth cookies use `__Host-` prefix, `HttpOnly`, `Secure`, `SameSite=Lax`
 - [x] Hardcoded credentials removed from AuthForm
-- [x] Login rate limiting implemented (client-side)
-- [x] Open redirect vulnerability fixed with sanitizeRedirect()
+- [x] Server-side rate limiting on login (5/15min) and contact (3/hr) endpoints
+- [x] CSRF double-submit cookie protection on all state-changing endpoints
+- [x] Open redirect vulnerability fixed with `sanitizeRedirect()`
 - [x] Zod validation schemas include max-length constraints
-- [x] All marquee components have aria-hidden on duplicated content
+- [x] SVG sanitisation uses DOMPurify (not regex)
+- [x] Admin password comparison uses timing-safe equality
+- [x] Order numbers generated server-side with `crypto.randomUUID()`
+- [x] Newsletter form submits to server endpoint (not localStorage-only)
+- [x] All marquee components use paused-by-default auto-rotating pattern with Play/Pause
 - [x] Carousel has proper ARIA semantics and keyboard controls
 - [x] Carousel has pause/play button for WCAG compliance
 - [x] Newsletter has proper label, aria-live, and validation
 - [x] NotifyMeForm has proper label and aria-live
 - [x] BeautyProfileQuiz uses AND logic with fallback
-- [x] ShopByCategory links to correct /shop?category= pattern
+- [x] ShopByCategory links to correct `/shop?category=` pattern
 - [x] CATEGORY_PILLS links fixed
 - [x] Product subCategory mismatches fixed (p022, p033)
 - [x] Missing concern tags added to CONCERNS array
@@ -206,16 +196,9 @@ The `sanitizeSvg()` function in `AdminDashboard.tsx` uses regex which is bypassa
 - [x] Error and loading pages added for collections and routes
 - [x] Auth cookie logic deduplicated into shared utility
 - [x] WhatsApp ping animation has aria-hidden
-- [x] prefers-reduced-motion respected in HeroBanner
+- [x] `prefers-reduced-motion` respected in HeroBanner and all marquees
 - [x] ProductCard Quick View marked as aria-hidden
 - [x] Component error boundaries in layout
 - [x] TypeScript type check passes
 - [x] ESLint passes with no warnings or errors
 - [x] Production build succeeds
-- [ ] Backend rate limiting on login and contact endpoints
-- [ ] CSRF tokens for state-changing requests
-- [ ] SVG sanitization using DOMPurify (replace regex)
-- [ ] Newsletter server-side submission endpoint
-- [ ] Checkout order number generated server-side
-- [ ] Admin password comparison using timing-safe equality
-- [ ] Client-side SVG upload sanitization in AdminDashboard

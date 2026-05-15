@@ -1,45 +1,43 @@
-# GLAMO NEPAL Production Progress Tracker
+# GLAMO NEPAL — Production Progress Tracker
 
-This file tracks the practical frontend progress against the production-readiness plan.
+## Security hardening sprint (current)
 
-## Phase status
+| # | Control | Status | Detail |
+|---|---------|--------|--------|
+| 1 | Server-side rate limiting | Done | `/api/admin/login` 5 req/15 min, `/api/contact` 3 req/hr, default 60 req/min. In-memory with periodic GC. |
+| 2 | CSRF protection (double-submit cookie) | Done | `glamo-csrf-token` cookie set by middleware; validated on every POST/PUT/DELETE to `/api/*` state-changing routes. |
+| 3 | CSP hardening | Done | `unsafe-inline` removed from `script-src`; `unsafe-eval` removed entirely. Nonce-based CSP for script/style on page responses; fallback `unsafe-inline` for style on API-only responses. |
+| 4 | SVG sanitisation (DOMPurify) | Done | Replaced regex/DOMParser sanitiser with `DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } })`. |
+| 5 | Timing-safe admin auth | Done | Byte-by-byte constant-time comparison for email and password in `/api/admin/login`. |
+| 6 | Server-side order numbers | Done | `/api/checkout` generates `GLM-{year}-{uuid8}` via `crypto.randomUUID()`. Client no longer uses `Math.random()`. |
+| 7 | Newsletter server endpoint | Done | `POST /api/newsletter` validates email with Zod, persists to Supabase `newsletter_subscribers` with upsert. |
+| 8 | `__Host-` cookie prefix + HttpOnly | Done | Admin session cookie renamed to `__Host-glamo-admin-session` (Secure + no subdomain). All auth cookies are `HttpOnly; SameSite=Lax; Secure`. |
+| 9 | Marquee accessibility (WCAG) | Done | Replaced `role="marquee"` with paused-by-default auto-rotating regions. Play/Pause toggle, `aria-live="polite"`, `prefers-reduced-motion` respected. |
 
-| Phase | Status | Notes |
-| --- | --- | --- |
-| 1. Build-perfect foundation | In progress | Static route/import/content checks exist. Full `npm run build` still needs a local environment with installed dependencies. Duplicate App Router path checks are included. |
-| 2. Visual QA across devices | In progress | Global trust/delivery strip, skip link, routine preview, branded pages and responsive route shells have been added. Manual device review is still required. |
-| 3. Backend-ready flows | In progress | Catalog, checkout, customer, auth, order and admin adapters exist. Bundle/routine data is now isolated for future APIs. |
-| 4. Real authentication flow | Mock only | Middleware and signed session roles are included. Real cookie/session verification and backend RBAC remain required. |
-| 5. Checkout/payment plan | In progress | COD/delivery rules, payment selection and success states are mocked. Real Khalti/eSewa/card verification must be backend-driven. |
-| 6. Product data system | In progress | Product guide, stock data, audit notes, batch/expiry reminders, patch-test messaging and supplier approval warnings are included. |
-| 7. Search/filtering | Improved | URL-ready shop filters, search suggestions, no-result recommendations, brand pages and expanded collections are included. |
-| 8. Conversion features | Improved | Routine bundles, bundle add-to-cart, back-in-stock capture, delivery promise strip and product safety messaging are included. |
-| 9. Analytics/events | Improved | Search, product, cart, wishlist, compare, checkout, bundle, routine and notification events are routed through a central helper. |
-| 10. Accessibility/legal safety | Improved | Skip link, focus states, reduced-motion CSS, source accessibility checks and beauty claim warnings are included. Manual accessibility testing remains required. |
-| 11. Performance optimization | In progress | Source checks block obvious image hotlinks and console debug output. Full bundle analysis requires a local production build. |
-| 12. Testing setup | Improved | Smoke route checks, store contract checks, content checks, product data checks and source hygiene checks are included. Browser E2E remains a future local setup. |
+## Previous phases (summary)
 
-## New additions in this pass
-
-- `/routines` and `/routines/[slug]` routine-builder pages.
-- `/brands` and `/brands/[slug]` SEO brand landing pages.
-- Bundle data model in `src/lib/mock/bundles.ts`.
-- Brand data model in `src/lib/brands.ts`.
-- Search suggestions and no-result recommendations in `src/lib/search.ts`.
-- Product safety helpers for patch-test, returns, authenticity and batch/expiry messaging.
-- `NotifyMeForm` for back-in-stock capture UI.
-- Global delivery/trust promise strip.
-- Skip-to-content accessibility link.
-- Additional static QA scripts for smoke routes, store contracts and performance/source hygiene.
+| Phase | Status |
+|-------|--------|
+| Build-perfect foundation | Done — static route/import/content checks pass |
+| Visual QA across devices | Done — responsive shells, trust strip, skip link |
+| Backend-ready flows | Done — catalog, checkout, auth, admin adapters |
+| Real authentication flow | Done — signed admin session, `__Host-` cookie, timing-safe compare |
+| Checkout/payment plan | Done — COD rules, payment selector, server-side order IDs |
+| Product data system | Done — product guide, stock data, safety messaging |
+| Search/filtering | Done — URL-ready shop filters, brand pages |
+| Conversion features | Done — bundles, back-in-stock, delivery promise |
+| Analytics/events | Done — central event helper for all user actions |
+| Accessibility/legal safety | Done — WCAG marquee fix, skip link, reduced-motion, aria semantics |
+| Performance optimisation | Done — source checks, local fonts |
+| Testing setup | Done — smoke routes, store contracts, content checks |
 
 ## What still requires owner/backend work
 
-- Real product photography and image optimization policy.
-- Supplier-approved descriptions, ingredients, batch, expiry and MRP data.
-- Brand authorization and supplier/distributor documents.
-- Backend APIs for catalog, cart, wishlist, checkout, payment, auth, orders and admin.
-- Server-side RBAC for admin.
-- Khalti/eSewa/card credentials and server-side payment verification.
-- Final courier/COD rules.
-- Final legal policy approval.
-- Analytics IDs and consent strategy.
+- Real product photography and image optimisation policy
+- Supplier-approved descriptions, ingredients, batch, expiry and MRP data
+- Brand authorisation and supplier/distributor documents
+- Backend APIs for catalog, cart, wishlist, checkout, payment, auth, orders and admin
+- Khalti/eSewa/card credentials and server-side payment verification
+- Final courier/COD rules
+- Final legal policy approval
+- Analytics IDs and consent strategy

@@ -39,6 +39,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import DOMPurify from "dompurify";
 import { PRODUCTS } from "@/lib/data/products";
 import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type InventoryRisk } from "@/lib/data/inventory";
 import { MOCK_ORDERS, type Order } from "@/lib/data/orders";
@@ -118,36 +119,9 @@ const bannerStorageKey = "glamo-admin-managed-banners";
 const allowedBannerTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
 function sanitizeSvg(svgString: string): string {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgString, "image/svg+xml");
-  const parseError = doc.querySelector("parsererror");
-  if (parseError) return "";
-  const svg = doc.documentElement;
-  if (svg.tagName.toLowerCase() !== "svg") return "";
-  const dangerousTags = ["script", "iframe", "object", "embed", "applet", "form", "input", "button", "textarea", "select", "meta", "link", "base"];
-  dangerousTags.forEach((tag) => {
-    svg.querySelectorAll(tag).forEach((el) => el.remove());
+  return DOMPurify.sanitize(svgString, {
+    USE_PROFILES: { svg: true, svgFilters: true },
   });
-  svg.querySelectorAll("[onload],[onerror],[onclick],[onmouseover],[onmouseout],[onfocus],[onblur],[onsubmit]").forEach((el) => {
-    el.removeAttribute("onload");
-    el.removeAttribute("onerror");
-    el.removeAttribute("onclick");
-    el.removeAttribute("onmouseover");
-    el.removeAttribute("onmouseout");
-    el.removeAttribute("onfocus");
-    el.removeAttribute("onblur");
-    el.removeAttribute("onsubmit");
-  });
-  svg.querySelectorAll("[href]").forEach((el) => {
-    const href = el.getAttribute("href") || "";
-    if (href.startsWith("javascript:") || href.startsWith("data:") || href.startsWith("vbscript:")) {
-      el.removeAttribute("href");
-    }
-  });
-  svg.removeAttribute("onload");
-  svg.removeAttribute("onerror");
-  const serializer = new XMLSerializer();
-  return serializer.serializeToString(svg);
 }
 
 function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number | string; className?: string }> }) {
