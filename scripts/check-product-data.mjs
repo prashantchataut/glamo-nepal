@@ -4,7 +4,7 @@ import path from "node:path";
 const file = path.join(process.cwd(), "src/lib/mock/products.ts");
 const text = fs.readFileSync(file, "utf8");
 const productBlocks = [...text.matchAll(/product\(\{([\s\S]*?)\}\),/g)].map((match) => match[1]);
-const requiredFields = ["id", "name", "slug", "sku", "brand", "category", "subCategory", "price", "image", "rating", "reviewsCount", "skinType", "concernTags", "benefits", "howToUse", "ingredients", "size", "origin", "madeInNepal", "stockCount", "sourceAuditNote", "description"];
+const requiredFields = ["id", "name", "slug", "sku", "brand", "category", "subCategory", "price", "image", "rating", "reviewsCount", "skinType", "concernTags", "benefits", "howToUse", "ingredients", "size", "origin", "madeInNepal", "stockCount", "description"];
 const issues = [];
 const seenSlugs = new Set();
 const seenSkus = new Set();

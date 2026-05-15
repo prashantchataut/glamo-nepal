@@ -1,4 +1,4 @@
-import type { Product, CartItem } from "@/store/useCartStore";
+import type { Product, CartItem } from "@/types/product";
 
 export type ApiStatus = "success" | "error";
 export type PaymentMethodCode = "khalti" | "esewa" | "cod" | "card";

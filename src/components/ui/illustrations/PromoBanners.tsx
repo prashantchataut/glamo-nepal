@@ -24,13 +24,13 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
       </svg>
       <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
         <div className="flex items-center gap-2 mb-4">
-          <span className="h-px w-5 bg-[#C9A84C]" />
-          <span className="font-label text-[10px] uppercase tracking-[0.2em] text-[#C9A84C] font-medium">Limited Time</span>
+          <span className="h-px w-5 bg-brand-gold" />
+          <span className="font-label text-[10px] uppercase tracking-[0.2em] text-brand-gold font-medium">Limited Time</span>
         </div>
-        <p className="font-display italic text-white text-6xl md:text-8xl leading-none mb-2" style={{ fontFamily: 'Prata, Georgia, serif' }}>50%</p>
-        <p className="text-[#D4A0D7] text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
-        <p className="text-[#6B6B6B] text-[13px] mb-6">Clean. Vegan. Powerful.</p>
-        <a href="/shop" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full border border-[#C9A84C] text-[#C9A84C] text-[13px] font-medium hover:bg-[#C9A84C] hover:text-[#1A0A1E] transition-colors">
+        <p className="font-display italic text-white text-6xl md:text-8xl leading-none mb-2">50%</p>
+        <p className="text-brand-primary-light text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
+        <p className="text-brand-textMuted text-[13px] mb-6">Clean. Vegan. Powerful.</p>
+        <a href="/shop" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full border border-brand-gold text-brand-gold text-[13px] font-medium hover:bg-brand-gold hover:text-brand-bgDark transition-colors">
           Shop Now →
         </a>
       </div>
@@ -68,13 +68,13 @@ export function PromoBannerNewArrivals({ className = '' }: { className?: string 
       </div>
       <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
         <div className="flex items-center gap-2 mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#8B3A8F]" />
-          <span className="font-label text-[10px] uppercase tracking-[0.2em] text-[#8B3A8F] font-medium">Just Arrived</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+          <span className="font-label text-[10px] uppercase tracking-[0.2em] text-brand-primary font-medium">Just Arrived</span>
         </div>
-        <p className="text-[#1C1C1C] text-4xl md:text-5xl leading-tight" style={{ fontFamily: 'Prata, Georgia, serif' }}>New Glow</p>
-        <p className="text-[#8B3A8F] text-4xl md:text-5xl leading-tight italic" style={{ fontFamily: 'Prata, Georgia, serif' }}>Collection</p>
-        <p className="text-[#6B6B6B] text-sm mt-2 mb-6">Discover our latest additions</p>
-        <a href="/collections/new-arrivals" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full bg-[#8B3A8F] text-white text-[13px] font-medium hover:bg-[#7A3380] transition-colors">
+        <p className="text-white text-4xl md:text-5xl leading-tight font-display">New Glow</p>
+        <p className="text-brand-primary text-4xl md:text-5xl leading-tight italic font-display">Collection</p>
+        <p className="text-brand-textMuted text-sm mt-2 mb-6">Discover our latest additions</p>
+        <a href="/collections/new-arrivals" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full bg-brand-primary text-white text-[13px] font-medium hover:bg-brand-primary-hover transition-colors">
           Explore →
         </a>
       </div>

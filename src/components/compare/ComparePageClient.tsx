@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { useCompareStore } from "@/store/useCompareStore";
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { formatNPR } from "@/lib/utils";
 
 type CompareRow = {

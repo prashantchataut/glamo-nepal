@@ -114,8 +114,8 @@ export function OrderDetailClient() {
             </div>
           </section>
           <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
-            <button className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-primary px-5 py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white"><Download size={16} /> Invoice</button>
-            {order.status === "Delivered" ? <button className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold text-brand-textMuted transition hover:border-brand-primary hover:text-brand-primary"><RotateCcw size={16} /> Return request</button> : null}
+            <button disabled aria-disabled="true" title="Coming soon" className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-primary px-5 py-3 text-sm font-semibold text-brand-primary transition cursor-not-allowed opacity-50"><Download size={16} /> Invoice</button>
+            {order.status === "Delivered" ? <button disabled aria-disabled="true" title="Coming soon" className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold text-brand-textMuted transition cursor-not-allowed opacity-50"><RotateCcw size={16} /> Return request</button> : null}
           </div>
         </aside>
       </div>

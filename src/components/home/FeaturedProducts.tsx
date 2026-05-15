@@ -1,5 +1,4 @@
-﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
+﻿
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -8,12 +7,12 @@ import { FEATURED_PRODUCTS } from "@/lib/constants";
 
 export function FeaturedProducts() {
   return (
-    <section className="bg-white py-12 md:py-16 lg:py-20">
+    <section aria-labelledby="featured-products-heading" className="bg-white py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <p className="font-label text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Featured selection</p>
-            <h2 className="mt-3 font-display text-4xl font-semibold tracking-tight text-brand-textPrimary md:text-5xl">Glow heroes worth adding to cart</h2>
+            <h2 id="featured-products-heading" className="mt-3 font-display text-4xl font-semibold tracking-tight text-brand-textPrimary md:text-5xl">Glow heroes worth adding to cart</h2>
             <p className="mt-4 text-base leading-7 text-brand-textMuted">
               A refined edit of skincare, makeup and everyday beauty essentials chosen for gifting, daily use and special occasions.
             </p>

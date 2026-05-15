@@ -1,7 +1,4 @@
-﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
-
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Leaf, Mail, MapPin, Phone, ShieldCheck, MessageCircle } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
 import { InstagramIcon, FacebookIcon } from "@/components/ui/illustrations/SocialIcons";
@@ -50,7 +47,7 @@ export function Footer() {
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h4 className="font-display text-2xl font-semibold text-brand-textPrimary">Shop</h4>
+            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Shop</h2>
             <ul className="mt-5 space-y-3 text-sm">
               {shopLinks.map(([label, href]) => (
                 <li key={label}><Link href={href} className="transition hover:text-brand-primary hover:underline underline-offset-4">{label}</Link></li>
@@ -59,7 +56,7 @@ export function Footer() {
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h4 className="font-display text-2xl font-semibold text-brand-textPrimary">Support</h4>
+            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Support</h2>
             <ul className="mt-5 space-y-3 text-sm">
               {supportLinks.map(([label, href]) => (
                 <li key={label}><Link href={href} className="transition hover:text-brand-primary hover:underline underline-offset-4">{label}</Link></li>
@@ -68,7 +65,7 @@ export function Footer() {
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h4 className="font-display text-2xl font-semibold text-brand-textPrimary">Customer care</h4>
+            <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Customer care</h2>
             <div className="mt-5 space-y-4 text-sm">
               <div className="flex items-start gap-3"><MapPin size={18} className="mt-0.5 shrink-0 text-brand-primary" /><span>{SITE_CONFIG.address}</span></div>
               <div className="flex items-center gap-3"><Phone size={18} className="shrink-0 text-brand-primary" /><a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="transition hover:text-brand-primary hover:underline underline-offset-4">{SITE_CONFIG.phone}</a></div>

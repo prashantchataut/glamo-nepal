@@ -7,9 +7,10 @@ import { toast } from "sonner";
 import { NotifyMeForm } from "@/components/product/NotifyMeForm";
 import { trackEvent } from "@/lib/analytics";
 import { cn, formatNPR } from "@/lib/utils";
-import { useCartStore, type Product } from "@/store/useCartStore";
+import { useCartStore } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { useWishlistStore } from "@/store/useWishlistStore";
-export type { Product } from "@/store/useCartStore";
+export type { Product } from "@/types/product";
 type AddState = "idle" | "loading" | "added";
 interface ProductCardProps { product: Product; variant?: "default" | "compact" | "editorial"; }
 export function ProductCard({ product, variant = "default" }: ProductCardProps) {
@@ -22,7 +23,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
   const cardBadge = useMemo(() => { if (!product.inStock) return "Out of Stock"; if (isLowStock) return `Only ${product.stockCount} left`; return product.badge || (product.isBestSeller ? "Best Seller" : product.isNewArrival ? "New" : ""); }, [isLowStock, product]);
   function onCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation(); setQuantityError("");
-    if (!product.inStock) { setShowNotify((current) => !current); return; }
+    if (!product.inStock) { setShowNotify(true); return; }
     setAddState("loading"); window.setTimeout(() => { const result = addToCart(product); if (!result.ok) { setAddState("idle"); setQuantityError(result.message || "Unable to add this item."); toast.error(result.message || "Unable to add this item."); return; } setAddState("added"); window.dispatchEvent(new CustomEvent("glamo:cart-pulse")); toast.success(`${product.name} added to cart`); trackEvent("add_to_cart", { productId: product.id, productSlug: product.slug, sku: product.sku, value: product.price }); window.setTimeout(() => setAddState("idle"), 2000); }, 280);
   }
   function onWishlist(e: React.MouseEvent) { e.preventDefault(); e.stopPropagation(); wishlist.toggleItem(product); trackEvent("wishlist_toggle", { productId: product.id, productSlug: product.slug, sku: product.sku, action: isWishlisted ? "remove" : "add" }); }

@@ -26,7 +26,7 @@ export const metadata = createMetadata({
 
 export default function HomePage() {
   return (
-    <>
+    <main>
       <HeroBanner />
       <TrustBadgeMarquee />
       <QuickCategoryPills />
@@ -51,6 +51,6 @@ export default function HomePage() {
       <BlogPreview />
       <InstagramGallery />
       <NewsletterSignup />
-    </>
+    </main>
   );
 }

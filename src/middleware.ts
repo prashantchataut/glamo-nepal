@@ -23,15 +23,11 @@ function generateCsrfToken(): string {
   return Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function addSecurityHeaders(response: NextResponse, nonce?: string) {
+function addSecurityHeaders(response: NextResponse) {
   const cspDirectives = [
     "default-src 'self'",
-    nonce
-      ? `script-src 'self' 'nonce-${nonce}' https://cdn.vercel-insights.com`
-      : "script-src 'self' https://cdn.vercel-insights.com",
-    nonce
-      ? `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`
-      : "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "script-src 'self' https://cdn.vercel-insights.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com",
     "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
@@ -40,7 +36,6 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
   ];
   response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
   response.headers.set("X-Frame-Options", "DENY");
@@ -94,14 +89,13 @@ export async function middleware(request: NextRequest) {
   const isAdminLogin = isPathOrChild(pathname, "/admin/login");
 
   const csrfToken = generateCsrfToken();
-  const nonce = generateCsrfToken();
 
   if (isAdminPath && !isAdminLogin) {
     const adminSession = await verifyAdminSessionToken(adminToken);
     if (!adminSession) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
       response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
         httpOnly: false,
         sameSite: "lax",
@@ -111,7 +105,7 @@ export async function middleware(request: NextRequest) {
       });
       return response;
     }
-    const response = addSecurityHeaders(NextResponse.next(), nonce);
+    const response = addSecurityHeaders(NextResponse.next());
     response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
       httpOnly: false,
       sameSite: "lax",
@@ -124,8 +118,8 @@ export async function middleware(request: NextRequest) {
 
   if (isAdminLogin) {
     const adminSession = await verifyAdminSessionToken(adminToken);
-    if (adminSession) return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)), nonce);
-    const response = addSecurityHeaders(NextResponse.next(), nonce);
+    if (adminSession) return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
+    const response = addSecurityHeaders(NextResponse.next());
     response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
       httpOnly: false,
       sameSite: "lax",
@@ -143,14 +137,14 @@ export async function middleware(request: NextRequest) {
   if (isProtected && !hasAuthSession) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
-    return addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
+    return addSecurityHeaders(NextResponse.redirect(loginUrl));
   }
 
   if (isAuthPage && hasAuthSession) {
-    return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)), nonce);
+    return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
   }
 
-  const response = addSecurityHeaders(NextResponse.next(), nonce);
+  const response = addSecurityHeaders(NextResponse.next());
   if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
     response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
       httpOnly: false,

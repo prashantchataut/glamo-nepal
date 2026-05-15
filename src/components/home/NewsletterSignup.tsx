@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mail } from "lucide-react";
 import { NewsletterDark } from "@/components/ui/illustrations/NewsletterBackground";
 import { csrfHeaders } from "@/lib/csrf";
@@ -9,6 +9,13 @@ export function NewsletterSignup() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (submitted && successRef.current) {
+      successRef.current.focus();
+    }
+  }, [submitted]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +59,7 @@ export function NewsletterSignup() {
           <p className="mx-auto mt-5 mb-8 max-w-lg text-base leading-7 text-white/70">New arrivals, routine tips and Nepal-only beauty edits without inbox clutter.</p>
           <div aria-live="polite">
             {submitted ? (
-              <div className="mx-auto max-w-md rounded-full border border-brand-primary/30 bg-brand-primary/20 px-8 py-4 text-center">
+              <div ref={successRef} tabIndex={-1} className="mx-auto max-w-md rounded-full border border-brand-primary/30 bg-brand-primary/20 px-8 py-4 text-center outline-none">
                 <p className="font-bold text-brand-gold">You are on the list!</p>
                 <p className="mt-1 text-sm text-white/60">We will reach out when our newsletter launches. Thank you for your interest.</p>
               </div>

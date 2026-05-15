@@ -19,7 +19,9 @@ walk("src");
 const issues = [];
 for (const file of sourceFiles) {
   const text = readFileSync(file, "utf8");
-  if (/https:\/\/(images\.unsplash\.com|plus\.unsplash\.com|static-01\.daraz\.com|cdn\.shopify\.com)/i.test(text)) issues.push(`${file}: external product image/source hotlink`);
+  const rel = file.replace(/\\/g, "/");
+  const isConfigFile = rel.endsWith("src/middleware.ts") || rel.endsWith("next.config.mjs") || rel.endsWith("src/app/layout.tsx");
+  if (!isConfigFile && /https:\/\/(images\.unsplash\.com|plus\.unsplash\.com|static-01\.daraz\.com|cdn\.shopify\.com)/i.test(text)) issues.push(`${file}: external product image/source hotlink`);
   if (/console\.(log|debug)\(/.test(text)) issues.push(`${file}: console logging left in source`);
 }
 if (issues.length) {

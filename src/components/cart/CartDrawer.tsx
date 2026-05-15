@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -14,11 +14,18 @@ import { useUIStore } from "@/store/useUIStore";
 export function CartDrawer() {
   const [mounted, setMounted] = useState(false);
   const [lineErrors, setLineErrors] = useState<Record<string, string>>({});
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
   const { isCartOpen, closeCart } = useUIStore();
   const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore();
   const reduceMotion = useReducedMotion();
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (isCartOpen && closeBtnRef.current) {
+      closeBtnRef.current.focus();
+    }
+  }, [isCartOpen]);
 
   useEffect(() => {
     if (isCartOpen) {
@@ -96,6 +103,7 @@ export function CartDrawer() {
                 <span className="font-sans text-sm font-normal text-brand-textMuted">({itemCount})</span>
               </h2>
               <button
+                ref={closeBtnRef}
                 type="button"
                 aria-label="Close cart"
                 onClick={closeCart}

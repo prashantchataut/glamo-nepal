@@ -1,6 +1,6 @@
 import { PRODUCTS, CATEGORIES, getProductBySlug, getRelatedProducts, searchProducts } from "@/lib/mock/products";
 import type { ApiResponse, Category, PaymentMethod } from "./contracts";
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 
 const ok = <T>(data: T, meta?: ApiResponse<T>["meta"]): ApiResponse<T> => ({ status: "success", data, meta });
 

@@ -1,7 +1,7 @@
 ﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -13,6 +13,8 @@ import { FREE_DELIVERY_THRESHOLD, calculateDeliveryFee } from "@/lib/delivery";
 import { formatNPR } from "@/lib/utils";
 
 export function CartPageClient() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
   const [lineErrors, setLineErrors] = useState<Record<string, string>>({});
   const subtotal = getSubtotal();
@@ -27,6 +29,24 @@ export function CartPageClient() {
     const result = updateQuantity(productId, quantity, selectedShade);
     const key = lineKey(productId, selectedShade);
     setLineErrors((current) => ({ ...current, [key]: result.ok ? "" : result.message || "Unable to update quantity" }));
+  }
+
+  if (!mounted) {
+    return (
+      <main className="bg-brand-bgLight py-12">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="h-10 w-48 animate-pulse rounded bg-brand-bgLight" />
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
+            <div className="space-y-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-36 animate-pulse rounded-2xl bg-brand-bgLight" />
+              ))}
+            </div>
+            <div className="h-64 animate-pulse rounded-2xl bg-brand-bgLight" />
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (!items.length) {

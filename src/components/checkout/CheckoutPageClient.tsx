@@ -103,7 +103,7 @@ export function CheckoutPageClient() {
   async function onSubmit(data: CheckoutFormData) {
     let orderNumber: string;
     try {
-      const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({}) });
+      const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({ items: items.map((item) => ({ productId: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity, selectedShade: item.selectedShade, image: item.product.image, brand: item.product.brand })), subtotal, deliveryFee, giftWrapFee, grandTotal: total, customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone }, shippingAddress: { fullName: data.name, phone: data.phone, province: data.province, district: data.district, city: data.city, ward: data.ward, addressLine1: data.address }, paymentMethod: paymentCodeMap[data.payment] || "cod", giftWrap: data.giftWrap, orderNotes: data.notes, currency: "NPR" }) });
       const data_ = await res.json();
       orderNumber = data_.orderNumber || `GLM-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
     } catch {
@@ -232,12 +232,14 @@ export function CheckoutPageClient() {
                   <select {...register("province")} onChange={(e) => updateProvince(e.target.value)} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {PROVINCES.map((province) => <option key={province}>{province}</option>)}
                   </select>
+                  {errors.province && <p role="alert" className="text-xs text-red-600">{errors.province.message}</p>}
                 </label>
                 <label className="space-y-2 text-sm font-semibold text-brand-textPrimary">
                   District
                   <select {...register("district")} onChange={(e) => updateDistrict(e.target.value)} className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-base font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                     {districtOptions.map((district) => <option key={district}>{district}</option>)}
                   </select>
+                  {errors.district && <p role="alert" className="text-xs text-red-600">{errors.district.message}</p>}
                 </label>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-brand-textPrimary">City / Municipality</label>

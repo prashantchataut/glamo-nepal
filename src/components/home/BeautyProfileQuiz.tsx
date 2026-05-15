@@ -29,7 +29,7 @@ export function BeautyProfileQuiz() {
             Choose your skin type and current concern to discover a few polished product suggestions from the GLAMO edit.
           </p>
         </div>
-        <div className="rounded-[2rem] border border-black/6 bg-white p-6 shadow-sm md:p-7">
+        <div className="rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm md:p-7">
           <div className="grid gap-5 md:grid-cols-2">
             <label className="space-y-2 text-sm font-semibold text-brand-textPrimary" htmlFor="quiz-skin-type">
               Skin type

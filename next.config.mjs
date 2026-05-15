@@ -3,7 +3,8 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: "https",

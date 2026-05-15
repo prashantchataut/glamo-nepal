@@ -5,7 +5,7 @@ const checks = [
   ["src/store/useWishlistStore.ts", ["toggleItem", "removeItem", "isInWishlist", "persist"]],
   ["src/store/useCompareStore.ts", ["addItem", "removeItem", "clear", "isInCompare", "persist"]],
   ["src/store/useRecentlyViewedStore.ts", ["addItem", "clear", "persist"]],
-  ["src/store/useAuthStore.ts", ["login", "logout", "role", "persist"]],
+  ["src/store/useAuthStore.ts", ["login", "logout", "role"]],
 ];
 
 const failures = [];

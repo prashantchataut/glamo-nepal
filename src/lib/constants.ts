@@ -1,4 +1,4 @@
-import { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { SITE_CONFIG } from "@/lib/config";
 import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { formatNPR } from "@/lib/utils";

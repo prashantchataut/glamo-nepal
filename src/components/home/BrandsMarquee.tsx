@@ -5,10 +5,10 @@ export function BrandsMarquee() {
   return (
     <section
       className="py-10 md:py-16 bg-white border-y border-border/30"
-      aria-label="Trusted brands"
+      aria-labelledby="brands-marquee-heading"
     >
       <div className="container mx-auto px-4 md:px-6">
-        <p className="text-center font-label text-brand-textMuted text-xs md:text-sm uppercase tracking-[0.25em] font-bold mb-6 md:mb-8">
+        <p id="brands-marquee-heading" className="text-center font-label text-brand-textMuted text-xs md:text-sm uppercase tracking-[0.25em] font-bold mb-6 md:mb-8">
           Trusted by the finest brands
         </p>
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 items-center">
@@ -22,6 +22,7 @@ export function BrandsMarquee() {
                 alt={brand.name}
                 width={120}
                 height={40}
+                loading="lazy"
                 className="h-8 md:h-10 w-auto object-contain"
               />
             </div>

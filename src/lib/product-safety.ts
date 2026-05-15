@@ -1,4 +1,4 @@
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 
 export function getReturnEligibility(product: Product) {
   if (["makeup", "fragrance"].includes(product.category)) {

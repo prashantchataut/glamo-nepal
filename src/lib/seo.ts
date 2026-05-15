@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/lib/config";
 import { absoluteUrl } from "@/lib/utils";
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 
 const siteName = SITE_CONFIG.fullTitle;
 

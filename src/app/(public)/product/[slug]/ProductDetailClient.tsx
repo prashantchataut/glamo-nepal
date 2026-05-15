@@ -15,7 +15,8 @@ import { ProductBundleCard } from "@/components/product/ProductBundleCard";
 import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 import { NotifyMeForm } from "@/components/product/NotifyMeForm";
 import { RecentlyViewedStrip } from "@/components/product/RecentlyViewedStrip";
-import { useCartStore, type Product } from "@/store/useCartStore";
+import { useCartStore } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import { trackEvent } from "@/lib/analytics";
 import { getRecommendedBundles } from "@/lib/data/bundles";
@@ -72,7 +73,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="space-y-4">
               <div className="group relative aspect-square overflow-hidden rounded-3xl border border-white/80 bg-white shadow-[0_30px_90px_-60px_rgba(26,10,30,0.45)]"><Image src={currentImage} alt={`${product.brand} ${product.name}`} fill priority className={`object-cover transition-transform duration-700 group-hover:scale-105 ${!product.inStock ? "grayscale opacity-75" : ""}`} sizes="(max-width: 1024px) 100vw, 50vw" /></div>
-              <div className="grid grid-flow-col auto-cols-[28%] gap-3 overflow-x-auto pb-2 md:grid-flow-row md:grid-cols-5 md:overflow-visible" aria-label="Product image thumbnails">{galleryImages.map((img, i) => <button type="button" key={`${img}-${i}`} onClick={() => setCurrentImage(img)} aria-label={`View ${product.name} image ${i + 1}`} aria-current={currentImage === img ? "true" : undefined} className={`relative aspect-square overflow-hidden rounded-xl border bg-white shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${currentImage === img ? "border-brand-primary" : "border-white/80"}`}><Image src={img} alt={`${product.name} view ${i + 1}`} fill className="object-cover" /></button>)}</div>
+              <div className="flex gap-3 overflow-x-auto pb-2 md:grid md:grid-flow-row md:grid-cols-5 md:overflow-visible" aria-label="Product image thumbnails">{galleryImages.map((img, i) => <button type="button" key={`${img}-${i}`} onClick={() => setCurrentImage(img)} aria-label={`View ${product.name} image ${i + 1}`} aria-current={currentImage === img ? "true" : undefined} className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border bg-white shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 md:w-auto ${currentImage === img ? "border-brand-primary" : "border-white/80"}`}><Image src={img} alt={`${product.name} view ${i + 1}`} fill className="object-cover" /></button>)}</div>
             </div>
 
             <div className="lg:sticky lg:top-24 lg:self-start">

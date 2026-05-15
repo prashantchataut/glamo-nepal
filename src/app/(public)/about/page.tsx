@@ -56,7 +56,7 @@ export default function AboutPage() {
         <p className="mt-2 text-sm text-brand-textMuted">Browse our curated selection across every beauty category.</p>
         <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
           {CATEGORIES.map((category) => (
-            <Link key={category.slug} href={`/category/${category.slug}`} className="group rounded-2xl border border-border/70 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+            <Link key={category.slug} href={`/shop?category=${category.slug}`} className="group rounded-2xl border border-border/70 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md">
               <p className="font-semibold text-brand-textPrimary group-hover:text-brand-primary">{category.name}</p>
               <p className="mt-1 text-xs text-brand-textMuted">{category.subCategories.slice(0, 2).join(", ")}</p>
             </Link>

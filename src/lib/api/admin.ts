@@ -1,5 +1,5 @@
 import type { Order } from "@/lib/api/contracts";
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { apiRequest } from "@/lib/api/client";
 
 export interface AdminDashboardSummary {

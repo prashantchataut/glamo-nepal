@@ -24,7 +24,7 @@ export default function FaqPage() {
           <HelpCircle className="text-brand-primary" />
           <h2 className="mt-4 font-display text-3xl font-semibold text-brand-textPrimary">Need a custom answer?</h2>
           <p className="mt-3 text-sm leading-6 text-brand-textMuted">For order support, product confirmation or care guidance, contact GLAMO NEPAL directly.</p>
-          <Link href={SITE_CONFIG.whatsapp} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-semibold text-white"><MessageCircle size={17} /> Chat on WhatsApp</Link>
+          <Link href={SITE_CONFIG.whatsapp} rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-semibold text-white"><MessageCircle size={17} /> Chat on WhatsApp</Link>
         </aside>
         <Accordion type="single" collapsible className="rounded-[2rem] border border-border/70 bg-white p-4 shadow-sm md:p-6">
           {FAQ_ITEMS.map(({ question, answer }, index) => (

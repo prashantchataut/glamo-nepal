@@ -4,7 +4,8 @@
 import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { fetchRecommendations, getSessionId } from "@/lib/api/recommendations";
-import type { Product } from "@/store/useCartStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import type { Product } from "@/types/product";
 
 interface ProductRecommendationStripProps {
   title: string;
@@ -24,7 +25,7 @@ export function ProductRecommendationStrip({
 }: ProductRecommendationStripProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const userId: string | undefined = undefined;
+  const userId = useAuthStore.getState().user?.id;
 
   useEffect(() => {
     let cancelled = false;

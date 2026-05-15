@@ -1,5 +1,5 @@
-import dynamicImport from "next/dynamic";
 import { createMetadata } from "@/lib/seo";
+import { CheckoutPageClient } from "@/components/checkout/CheckoutPageClient";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +9,6 @@ export const metadata = createMetadata({
   path: "/checkout",
   noIndex: true,
 });
-
-const CheckoutPageClient = dynamicImport(
-  () => import("@/components/checkout/CheckoutPageClient").then((mod) => mod.CheckoutPageClient),
-  { ssr: false }
-);
 
 export default function CheckoutPage() {
   return <CheckoutPageClient />;

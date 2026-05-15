@@ -13,7 +13,7 @@ export function ShopByCategory() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6 md:gap-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6 md:gap-6">
           {SHOP_CATEGORIES.map((category) => (
             <Link
               key={category.id}

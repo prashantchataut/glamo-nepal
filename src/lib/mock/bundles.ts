@@ -1,4 +1,4 @@
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { PRODUCTS, getProductBySlug } from "@/lib/mock/products";
 
 export interface RoutineStep {

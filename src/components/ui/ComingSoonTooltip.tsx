@@ -1,5 +1,4 @@
 "use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useState, type ReactNode } from "react";
 
@@ -14,9 +13,17 @@ export function ComingSoonTooltip({ children }: { children: ReactNode }) {
       onFocus={() => setShow(true)}
       onBlur={() => setShow(false)}
     >
-      {children}
+      <span
+        tabIndex={0}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        aria-describedby="coming-soon-tooltip"
+      >
+        {children}
+      </span>
       {show && (
         <span
+          id="coming-soon-tooltip"
           role="tooltip"
           className="pointer-events-none absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-brand-bgDark px-3 py-1.5 text-xs font-medium text-white shadow-lg"
         >

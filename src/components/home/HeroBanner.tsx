@@ -98,9 +98,6 @@ export function HeroBanner() {
                       <HeroCalloutCardB className="absolute -left-4 bottom-16 z-20 hidden lg:block" />
                       <HeroCalloutCardC className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 hidden lg:block" />
                       <div className="relative aspect-[4/4.8] w-full max-w-[460px] overflow-hidden rounded-[2rem] bg-white/60 p-3 ring-1 ring-black/5">
-                        <div className="absolute left-6 top-6 z-10 rounded-full bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-bgDark shadow-sm">
-                          {slide.annotation}
-                        </div>
                         <div className="absolute bottom-6 left-6 z-10 max-w-[220px] rounded-[1.5rem] bg-white/92 px-5 py-4 shadow-lg ring-1 ring-black/5 backdrop-blur">
                           <p className="font-label text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-primary">GLAMO edit</p>
                           <p className="mt-2 font-display text-2xl font-semibold text-brand-textPrimary">{slide.title1} {slide.title2}</p>
@@ -144,13 +141,13 @@ export function HeroBanner() {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={toggleAutoplay} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary" aria-label={isPlaying ? "Pause carousel" : "Play carousel"}>
+              <button onClick={toggleAutoplay} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary focus-visible:outline-offset-2" aria-label={isPlaying ? "Pause carousel" : "Play carousel"}>
                 {isPlaying ? <Pause size={16} /> : <Play size={16} />}
               </button>
-              <button onClick={scrollPrev} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary" aria-label="Previous slide">
+              <button onClick={scrollPrev} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary focus-visible:outline-offset-2" aria-label="Previous slide">
                 <ChevronLeft size={18} />
               </button>
-              <button onClick={scrollNext} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary" aria-label="Next slide">
+              <button onClick={scrollNext} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-textPrimary/10 text-brand-textPrimary transition hover:border-brand-primary hover:text-brand-primary focus-visible:outline-2 focus-visible:outline-brand-primary focus-visible:outline-offset-2" aria-label="Next slide">
                 <ChevronRight size={18} />
               </button>
             </div>

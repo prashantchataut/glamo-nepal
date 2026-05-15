@@ -228,7 +228,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       <aside className="rounded-b-[2rem] md:rounded-b-none md:rounded-l-[2rem] md:rounded-r-none rounded-t-[2rem] bg-brand-bgDark p-6 text-white md:p-7">
         <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-gold">{copy.eyebrow}</p>
         <h1 className="mt-4 font-display text-4xl font-semibold md:text-5xl">{copy.title}</h1>
-        <p className="mt-4 text-sm leading-6 text-white/72">{copy.description}</p>
+        <p className="mt-4 text-sm leading-6 text-white/70">{copy.description}</p>
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-white/75">
           <strong className="block text-white">Need help signing in?</strong>
           Contact GLAMO customer care at {SITE_CONFIG.phone}, or continue with your email to view your account area.

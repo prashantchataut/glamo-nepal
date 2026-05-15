@@ -3,13 +3,13 @@ import Link from "next/link";
 
 export function EditorialBanner() {
   return (
-    <section className="bg-brand-bgLight py-12 md:py-16 lg:py-20">
+    <section aria-labelledby="editorial-banner-heading" className="bg-brand-bgLight py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2.25rem] border border-brand-border bg-[var(--gradient-editorial)] px-5 py-8 shadow-editorial sm:px-8 md:py-12 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
           <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-brand-secondary/35 blur-3xl" />
           <div className="relative z-10 max-w-2xl">
             <span className="font-label inline-flex rounded-full bg-white/80 px-4 py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary ring-1 ring-brand-primary/10">Curated Beauty Edit</span>
-            <h2 className="mt-4 sm:mt-5 font-display text-3xl font-semibold leading-[0.92] text-brand-textPrimary md:text-4xl lg:text-5xl">Celebrate with a <span className="italic text-brand-primary">fresh beauty edit</span></h2>
+            <h2 id="editorial-banner-heading" className="mt-4 sm:mt-5 font-display text-3xl font-semibold leading-[0.92] text-brand-textPrimary md:text-4xl lg:text-5xl">Celebrate with a <span className="italic text-brand-primary">fresh beauty edit</span></h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-brand-textMuted md:text-base">Gift-ready skincare, soft glam makeup and daily glow essentials curated for celebrations across Nepal.</p>
             <div className="mt-6 grid max-w-xl gap-3 sm:grid-cols-2">
               <div className="rounded-[1.5rem] bg-white px-5 py-4 shadow-sm ring-1 ring-brand-border"><p className="font-label text-[11px] font-bold uppercase tracking-[0.18em] text-brand-primary">Best Sellers</p><p className="mt-1 text-sm text-brand-textMuted">Customer favorites that deliver results</p></div>

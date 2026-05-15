@@ -31,7 +31,7 @@ const config = {
           'sans-serif'
         ],
         label: [
-          'var(--font-body)',
+          'var(--font-label)',
           'system-ui',
           'sans-serif'
         ],
@@ -151,8 +151,8 @@ const config = {
         modal: '80',
         toast: '90',
         tooltip: '95',
-        whatsapp: '45',
-        'back-to-top': '45',
+        whatsapp: '56',
+        'back-to-top': '55',
         'skip-link': '100',
       },
       borderRadius: {

@@ -9,7 +9,7 @@ const WHATSAPP_URL = SITE_CONFIG.whatsapp;
 
 export function AnnouncementBar() {
   const [isVisible, setIsVisible] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -52,7 +52,7 @@ export function AnnouncementBar() {
 
   return (
     <div
-      className="font-label sticky top-0 z-announcement border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs"
+      className="font-label relative z-announcement border-b border-brand-border/70 bg-brand-surfaceWarm/95 text-xs font-bold uppercase tracking-[0.16em] text-brand-textPrimary backdrop-blur-xl md:text-xs"
       aria-label="Announcements"
       aria-live="polite"
       aria-atomic="true"

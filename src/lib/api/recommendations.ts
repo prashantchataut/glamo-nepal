@@ -1,5 +1,5 @@
 import { PRODUCTS, getRelatedProducts } from "@/lib/mock/products";
-import type { Product } from "@/store/useCartStore";
+import type { Product } from "@/types/product";
 import { apiRequest } from "./client";
 
 export interface RecommendedProduct {
