@@ -3,6 +3,7 @@ import type { Viewport } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
+import { Analytics } from "@vercel/analytics/next";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -58,6 +59,7 @@ export default function RootLayout({
         <ComponentErrorBoundary name="RootLayout">
           <AppShell>{children}</AppShell>
         </ComponentErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );
