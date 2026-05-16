@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
@@ -58,6 +59,7 @@ export default function RootLayout({
         <ComponentErrorBoundary name="RootLayout">
           <AppShell>{children}</AppShell>
         </ComponentErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );
