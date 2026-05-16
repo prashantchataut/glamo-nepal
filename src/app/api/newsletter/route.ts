@@ -15,14 +15,14 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { status: "error", message: "Please provide a valid email address.", code: "VALIDATION_ERROR" },
+        { success: false, status: "error", message: "Please provide a valid email address.", code: "VALIDATION_ERROR" },
         { status: 400 },
       );
     }
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       return NextResponse.json(
-        { status: "error", message: "Newsletter subscription is not yet available. Please try again later.", code: "SERVICE_UNAVAILABLE" },
+        { success: false, status: "error", message: "Newsletter subscription is not yet available. Please try again later.", code: "SERVICE_UNAVAILABLE" },
         { status: 503 },
       );
     }
@@ -43,19 +43,19 @@ export async function POST(request: NextRequest) {
     if (!supabaseResponse.ok) {
       const status = supabaseResponse.status;
       if (status === 409) {
-        return NextResponse.json({ status: "success", message: "You are already on the list!" });
+        return NextResponse.json({ success: true, status: "success", message: "You are already on the list!" });
       }
       await supabaseResponse.text();
       return NextResponse.json(
-        { status: "error", message: "Failed to subscribe. Please try again.", code: "UPSTREAM_ERROR" },
+        { success: false, status: "error", message: "Failed to subscribe. Please try again.", code: "UPSTREAM_ERROR" },
         { status: 502 },
       );
     }
 
-    return NextResponse.json({ status: "success", message: "You are on the list! We will reach out when our newsletter launches." });
+    return NextResponse.json({ success: true, status: "success", message: "You are on the list! We will reach out when our newsletter launches." });
   } catch {
     return NextResponse.json(
-      { status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
+      { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
       { status: 500 },
     );
   }

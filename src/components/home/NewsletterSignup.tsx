@@ -22,7 +22,7 @@ export function NewsletterSignup() {
     try {
       const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({ email }) });
       const data = await res.json();
-      if (data.status === "success") setSubmitted(true);
+      if (data.success || data.status === "success") setSubmitted(true);
       else setError(data.message || "Something went wrong. Please try again.");
     } catch {
       setError("Network error. Please check your connection and try again.");

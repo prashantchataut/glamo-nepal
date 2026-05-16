@@ -112,7 +112,7 @@ const riskStyles: Record<InventoryRisk, string> = {
 const orderStatusStyles: Record<Order["status"], string> = {
   Pending: "bg-admin-warning-light text-admin-warning ring-admin-warning/20",
   Confirmed: "bg-admin-info-light text-admin-info ring-admin-info/20",
-  Processing: "bg-violet-50 text-violet-700 ring-violet-100",
+  Processing: "bg-rose-50 text-rose-700 ring-rose-100",
   Shipped: "bg-admin-info-light text-admin-info ring-admin-info/20",
   Delivered: "bg-admin-success-light text-admin-success ring-admin-success/20",
   Cancelled: "bg-admin-error-light text-admin-error ring-admin-error/20",

@@ -23,7 +23,7 @@ export function PhilosophyBackground({ className = '' }: { className?: string })
         <rect width="1440" height="400" fill="url(#philBg)" />
         <ellipse cx="720" cy="200" rx="300" ry="300" fill="url(#philGlow)" />
         {/* Left botanical */}
-        <g transform="translate(-60, 50)" opacity="0.08" fill="none" stroke="#8B3A8F" strokeWidth="1.2">
+        <g transform="translate(-60, 50)" opacity="0.08" fill="none" stroke="#D97898" strokeWidth="1.2">
           <path d="M 150 200 Q 130 140 150 80 Q 170 140 150 200 Z" />
           <path d="M 150 200 Q 90 160 50 110 Q 110 150 150 200 Z" />
           <path d="M 150 200 Q 80 200 20 200 Q 80 200 150 200 Z" />
@@ -36,7 +36,7 @@ export function PhilosophyBackground({ className = '' }: { className?: string })
           <circle cx="150" cy="200" r="8" strokeWidth="0.5" />
         </g>
         {/* Right botanical (mirror) */}
-        <g transform="translate(1290, 50) scale(-1,1) translate(-300,0)" opacity="0.08" fill="none" stroke="#8B3A8F" strokeWidth="1.2">
+        <g transform="translate(1290, 50) scale(-1,1) translate(-300,0)" opacity="0.08" fill="none" stroke="#D97898" strokeWidth="1.2">
           <path d="M 150 200 Q 130 140 150 80 Q 170 140 150 200 Z" />
           <path d="M 150 200 Q 90 160 50 110 Q 110 150 150 200 Z" />
           <path d="M 150 200 Q 80 200 20 200 Q 80 200 150 200 Z" />

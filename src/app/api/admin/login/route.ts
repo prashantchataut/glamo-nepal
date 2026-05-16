@@ -47,19 +47,19 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
     const limit = checkRateLimit("/api/admin/login", ip);
     if (!limit.allowed) {
-      return NextResponse.json({ ok: false, message: "Too many login attempts. Please try again later." }, { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } });
+      return NextResponse.json({ success: false, ok: false, message: "Too many login attempts. Please try again later." }, { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } });
     }
 
     const parsed = loginSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) {
-      return NextResponse.json({ ok: false, message: "Enter a valid admin email and password." }, { status: 400 });
+      return NextResponse.json({ success: false, ok: false, message: "Enter a valid admin email and password." }, { status: 400 });
     }
 
     let credentials: ReturnType<typeof getAdminCredentials>;
     try {
       credentials = getAdminCredentials();
     } catch {
-      return NextResponse.json({ ok: false, message: "Admin login is not configured." }, { status: 503 });
+      return NextResponse.json({ success: false, ok: false, message: "Admin login is not configured." }, { status: 503 });
     }
 
     const emailBuffer = new TextEncoder().encode(parsed.data.email.trim().toLowerCase());
@@ -71,16 +71,16 @@ export async function POST(request: NextRequest) {
     const passwordMatch = timingSafeEqual(passwordBuffer, expectedPasswordBuffer);
 
     if (!emailMatch || !passwordMatch) {
-      return NextResponse.json({ ok: false, message: "Invalid admin email or password." }, { status: 401 });
+      return NextResponse.json({ success: false, ok: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 
     const token = await createAdminSessionToken(credentials.email, credentials.name);
-    const response = NextResponse.json({ ok: true, redirectTo: "/admin" });
+    const response = NextResponse.json({ success: true, ok: true, redirectTo: "/admin" });
     response.cookies.set(ADMIN_SESSION_COOKIE, token, hostCookieOptions);
     response.cookies.set(LEGACY_AUTH_COOKIE, token, cookieOptions);
     response.cookies.set(LEGACY_ROLE_COOKIE, "admin", { ...cookieOptions, httpOnly: true });
     return response;
   } catch {
-    return NextResponse.json({ ok: false, message: "Unable to complete admin login." }, { status: 500 });
+    return NextResponse.json({ success: false, ok: false, message: "Unable to complete admin login." }, { status: 500 });
   }
 }

@@ -10,7 +10,7 @@ export function NotFoundIllustration({ className = '' }: { className?: string })
     >
       <defs>
         <linearGradient id="pouchGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#8B3A8F" />
+          <stop offset="0%" stopColor="#D97898" />
           <stop offset="100%" stopColor="#6B2A6F" />
         </linearGradient>
         <linearGradient id="mirrorGrad" x1="0" y1="0" x2="1" y2="1">
@@ -24,7 +24,7 @@ export function NotFoundIllustration({ className = '' }: { className?: string })
       </defs>
       {/* Cosmetic pouch */}
       <path d="M 160 280 Q 160 160 180 140 L 280 140 Q 300 160 300 280 Q 300 310 230 320 Q 160 310 160 280 Z" fill="url(#pouchGrad)" />
-      <path d="M 180 140 Q 230 120 280 140" fill="#7A3380" stroke="#9B4D9F" strokeWidth="0.5" />
+      <path d="M 180 140 Q 230 120 280 140" fill="#AD4B64" stroke="#E496AF" strokeWidth="0.5" />
       <ellipse cx="230" cy="145" rx="12" ry="5" fill="#C9A84C" opacity="0.7" />
       {/* Tall bottle */}
       <g transform="translate(80, 160) rotate(-15)">
@@ -42,7 +42,7 @@ export function NotFoundIllustration({ className = '' }: { className?: string })
       <g transform="translate(300, 100) rotate(20)">
         <rect x="28" y="70" width="8" height="40" rx="4" fill="#C9A84C" opacity="0.8" />
         <ellipse cx="32" cy="45" rx="35" ry="40" fill="url(#mirrorGrad)" stroke="#C9A84C" strokeWidth="1.5" />
-        <text x="32" y="50" textAnchor="middle" fontFamily="Prata, Georgia, serif" fontSize="22" fontWeight="700" fontStyle="italic" fill="#8B3A8F" opacity="0.8">404</text>
+        <text x="32" y="50" textAnchor="middle" fontFamily="Prata, Georgia, serif" fontSize="22" fontWeight="700" fontStyle="italic" fill="#D97898" opacity="0.8">404</text>
       </g>
       {/* Makeup puff */}
       <g transform="translate(100, 260)">
@@ -51,7 +51,7 @@ export function NotFoundIllustration({ className = '' }: { className?: string })
       </g>
       {/* Lipstick */}
       <g transform="translate(140, 230) rotate(-25)">
-        <rect x="0" y="0" width="14" height="50" rx="2" fill="#8B3A8F" opacity="0.6" />
+        <rect x="0" y="0" width="14" height="50" rx="2" fill="#D97898" opacity="0.6" />
         <path d="M 2 0 Q 7 -15 12 0" fill="#C9A84C" opacity="0.7" />
       </g>
       {/* Sparkle dots */}

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const limit = checkRateLimit("/api/contact", ip);
     if (!limit.allowed) {
       return NextResponse.json(
-        { status: "error", message: "Too many contact requests. Please try again later.", code: "RATE_LIMITED" },
+        { success: false, status: "error", message: "Too many contact requests. Please try again later.", code: "RATE_LIMITED" },
         { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
       );
     }
@@ -27,14 +27,14 @@ export async function POST(request: NextRequest) {
         fieldErrors[field].push(issue.message);
       }
       return NextResponse.json(
-        { status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors },
+        { success: false, status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors },
         { status: 400 },
       );
     }
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       return NextResponse.json(
-        { status: "error", message: "Contact form is not configured. Please try again later.", code: "SERVICE_UNAVAILABLE" },
+        { success: false, status: "error", message: "Contact form is not configured. Please try again later.", code: "SERVICE_UNAVAILABLE" },
         { status: 503 },
       );
     }
@@ -59,15 +59,15 @@ export async function POST(request: NextRequest) {
     if (!supabaseResponse.ok) {
       await supabaseResponse.text();
       return NextResponse.json(
-        { status: "error", message: "Failed to submit contact form. Please try again.", code: "UPSTREAM_ERROR" },
+        { success: false, status: "error", message: "Failed to submit contact form. Please try again.", code: "UPSTREAM_ERROR" },
         { status: 502 },
       );
     }
 
-    return NextResponse.json({ status: "success", message: "Message sent successfully! We will get back to you soon." });
+    return NextResponse.json({ success: true, status: "success", message: "Message sent successfully! We will get back to you soon." });
   } catch {
     return NextResponse.json(
-      { status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
+      { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
       { status: 500 },
     );
   }

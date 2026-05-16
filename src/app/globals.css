@@ -9,7 +9,7 @@
     --total-header-height: var(--navbar-height);
     --mobile-nav-height: 56px;
     --font-display: "Cormorant Garamond";
-    --font-body: "Inter";
+    --font-body: "Manrope";
 
     --background: 40 10% 98%;
     --foreground: 20 20% 9%;
@@ -17,7 +17,7 @@
     --card-foreground: 20 20% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 20% 9%;
-    --primary: 268 44% 44%;
+    --primary: 340 57% 66%;
     --primary-foreground: 40 10% 98%;
     --secondary: 39 42% 56%;
     --secondary-foreground: 20 20% 9%;
@@ -29,12 +29,12 @@
     --destructive-foreground: 0 0% 100%;
     --border: 30 10% 90%;
     --input: 30 10% 90%;
-    --ring: 268 44% 44%;
+    --ring: 340 57% 66%;
     --radius: 18px;
 
-    --color-primary: #8A4E92;
-    --color-primary-light: #D8A7DC;
-    --color-primary-dark: #5B2D61;
+    --color-primary: #D97898;
+    --color-primary-light: #EFB4C5;
+    --color-primary-dark: #AD4B64;
     --color-secondary: #C9A46B;
     --color-secondary-light: #DFC2AF;
     --color-neutral-50: #FAFAF9;
@@ -59,7 +59,7 @@
   }
   body {
     @apply font-sans antialiased;
-    background: #fffaf7;
+    background: #fff7f9;
     color: var(--color-neutral-900);
     overflow-x: clip;
   }
@@ -172,4 +172,20 @@ body.scroll-locked {
   .soft-card { @apply rounded-[28px] border border-neutral-200 bg-white shadow-[0_18px_60px_-42px_rgba(26,21,18,0.35)]; }
   .pill-button { @apply rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors; }
   .editorial-curve { border-radius: 46px; }
+}
+
+
+@layer components {
+  .editorial-grid {
+    background-image: linear-gradient(rgba(217,120,152,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(217,120,152,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .luxury-container {
+    @apply mx-auto w-full max-w-[1440px] px-4 md:px-8;
+  }
+
+  .editorial-heading {
+    @apply font-display text-5xl md:text-7xl lg:text-[88px] leading-[0.95] tracking-[-0.04em] text-neutral-900;
+  }
 }

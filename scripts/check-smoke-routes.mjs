@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 const requiredRoutes = [
   "src/app/page.tsx",
   "src/app/(public)/shop/page.tsx",
-  "src/app/(public)/product/[slug]/page.tsx",
+  "src/app/(public)/products/[slug]/page.tsx",
   "src/app/(public)/cart/page.tsx",
   "src/app/(public)/checkout/page.tsx",
   "src/app/(public)/order-confirmation/[orderId]/page.tsx",
@@ -24,7 +24,7 @@ const requiredRoutes = [
 const publicMetadataRoutes = [
   "src/app/page.tsx",
   "src/app/(public)/shop/page.tsx",
-  "src/app/(public)/product/[slug]/page.tsx",
+  "src/app/(public)/products/[slug]/page.tsx",
   "src/app/(public)/collections/page.tsx",
   "src/app/(public)/collections/[slug]/page.tsx",
   "src/app/(public)/routines/page.tsx",

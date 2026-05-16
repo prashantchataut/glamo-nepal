@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PRODUCTS, getProductBySlug, getRelatedProducts } from "@/lib/data/products";
 import { breadcrumbJsonLd, createMetadata, productJsonLd } from "@/lib/seo";
-import ProductDetailClient from "../../product/[slug]/ProductDetailClient";
+import ProductDetailClient from "@/components/product/detail/ProductDetailClient";
 
 export function generateStaticParams() {
   return PRODUCTS.map((product) => ({ slug: product.slug }));

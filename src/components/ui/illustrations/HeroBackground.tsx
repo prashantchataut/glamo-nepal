@@ -13,7 +13,7 @@ export function HeroBackground({ className = '', mobile = false }: { className?:
         <defs>
           <linearGradient id="heroBgM" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#FDF6F9" />
-            <stop offset="50%" stopColor="#F0E5F5" />
+            <stop offset="50%" stopColor="#FDECEF" />
             <stop offset="100%" stopColor="#FDF6F9" />
           </linearGradient>
           <radialGradient id="blobRightM" cx="0.5" cy="0.5" r="0.5">
@@ -21,8 +21,8 @@ export function HeroBackground({ className = '', mobile = false }: { className?:
             <stop offset="100%" stopColor="#D4A0D7" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="blobLeftM" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#8B3A8F" stopOpacity="0.1" />
-            <stop offset="100%" stopColor="#8B3A8F" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D97898" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="#D97898" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="pearlGradM" cx="0.35" cy="0.35" r="0.65">
             <stop offset="0%" stopColor="#FFFFFF" />
@@ -48,7 +48,7 @@ export function HeroBackground({ className = '', mobile = false }: { className?:
           <path d="M 340 40 A 90 90 0 1 1 340 220" />
           <path d="M 340 0 A 130 130 0 1 1 340 310" />
         </g>
-        <g fill="#8B3A8F">
+        <g fill="#D97898">
           <path d="M 80 50 Q 95 25 110 50 Q 95 75 80 50 Z" opacity="0.10" />
           <path d="M 220 30 Q 238 0 256 30 Q 238 60 220 30 Z" opacity="0.08" />
           <path d="M 50 120 Q 70 95 90 120 Q 70 145 50 120 Z" opacity="0.12" />
@@ -76,7 +76,7 @@ export function HeroBackground({ className = '', mobile = false }: { className?:
       <defs>
         <linearGradient id="heroBg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#FDF6F9" />
-          <stop offset="50%" stopColor="#F0E5F5" />
+          <stop offset="50%" stopColor="#FDECEF" />
           <stop offset="100%" stopColor="#FDF6F9" />
         </linearGradient>
         <radialGradient id="blobRight" cx="0.5" cy="0.5" r="0.5">
@@ -84,8 +84,8 @@ export function HeroBackground({ className = '', mobile = false }: { className?:
           <stop offset="100%" stopColor="#D4A0D7" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="blobLeft" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stopColor="#8B3A8F" stopOpacity="0.12" />
-          <stop offset="100%" stopColor="#8B3A8F" stopOpacity="0" />
+          <stop offset="0%" stopColor="#D97898" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="#D97898" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="pearlGrad" cx="0.35" cy="0.35" r="0.65">
           <stop offset="0%" stopColor="#FFFFFF" />
@@ -111,7 +111,7 @@ export function HeroBackground({ className = '', mobile = false }: { className?:
         <path d="M 1200 140 A 140 140 0 1 1 1200 340" />
         <path d="M 1200 80 A 200 200 0 1 1 1200 400" />
       </g>
-      <g fill="#8B3A8F">
+      <g fill="#D97898">
         <path d="M 320 95 Q 335 70 350 95 Q 335 120 320 95 Z" opacity="0.10" />
         <path d="M 580 55 Q 598 25 616 55 Q 598 85 580 55 Z" opacity="0.08" />
         <path d="M 180 180 Q 200 155 220 180 Q 200 205 180 180 Z" opacity="0.12" />

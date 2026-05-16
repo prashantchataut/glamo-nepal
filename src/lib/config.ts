@@ -1,3 +1,5 @@
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const SITE_CONFIG = {
   name: "GLAMO",
   tagline: "Nepal",
@@ -6,7 +8,7 @@ export const SITE_CONFIG = {
   phone: "+977 9818212188",
   whatsapp: "https://wa.me/9779818212188",
   email: "hello@glamonepal.com",
-  website: "https://glamonepal.com",
+  website: SITE_URL,
   address: "Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal",
   currency: "NPR",
   instagramHandle: "@glamo_nepal",

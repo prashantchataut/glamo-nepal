@@ -66,7 +66,7 @@ export function AdminLoginForm() {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="admin@glamonepal.com"
+            placeholder="Enter admin email"
             autoComplete="username"
             className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
             required

@@ -11,8 +11,8 @@ export function NewsletterDark({ className = '' }: { className?: string }) {
       >
         <defs>
           <radialGradient id="nlGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#8B3A8F" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#8B3A8F" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D97898" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#D97898" stopOpacity="0" />
           </radialGradient>
         </defs>
         <rect width="1440" height="400" fill="#1A0A1E" />
@@ -72,7 +72,7 @@ export function NewsletterLight({ className = '' }: { className?: string }) {
         <defs>
           <linearGradient id="nlLightBg" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#FDF6F9" />
-            <stop offset="50%" stopColor="#F0E5F5" />
+            <stop offset="50%" stopColor="#FDECEF" />
             <stop offset="100%" stopColor="#FDF6F9" />
           </linearGradient>
           <radialGradient id="nlBlob" cx="0.5" cy="0.5" r="0.5">
@@ -86,7 +86,7 @@ export function NewsletterLight({ className = '' }: { className?: string }) {
         <rect width="1440" height="400" fill="url(#nlLightBg)" />
         <ellipse cx="1000" cy="200" rx="500" ry="300" fill="url(#nlBlob)" filter="url(#nlBlur)" />
         {/* Botanical line art */}
-        <g fill="none" stroke="#8B3A8F" strokeWidth="0.8" opacity="0.06">
+        <g fill="none" stroke="#D97898" strokeWidth="0.8" opacity="0.06">
           <path d="M 80 320 Q 95 300 110 320 Q 95 340 80 320 Z" />
           <path d="M 200 280 Q 218 255 236 280 Q 218 305 200 280 Z" />
           <path d="M 120 180 Q 135 160 150 180 Q 135 200 120 180 Z" />

@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     const parsed = checkoutOrderSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(
-        { status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors: fieldErrors(parsed.error) },
+        { success: false, status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors: fieldErrors(parsed.error) },
         { status: 400 },
       );
     }
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     }
     if (inventoryIssues.length > 0) {
       return NextResponse.json(
-        { status: "error", message: "Some cart items need review before checkout.", code: "INVENTORY_VALIDATION_FAILED", issues: inventoryIssues },
+        { success: false, status: "error", message: "Some cart items need review before checkout.", code: "INVENTORY_VALIDATION_FAILED", issues: inventoryIssues },
         { status: 409 },
       );
     }
@@ -119,14 +119,14 @@ export async function POST(request: NextRequest) {
     const computedTotal = computedSubtotal + data.deliveryFee + (data.giftWrap ? 100 : 0);
     if (Math.abs(computedSubtotal - data.subtotal) > 1 || Math.abs(computedTotal - data.grandTotal) > 1) {
       return NextResponse.json(
-        { status: "error", message: "Order totals do not match the cart contents.", code: "TOTAL_MISMATCH" },
+        { success: false, status: "error", message: "Order totals do not match the cart contents.", code: "TOTAL_MISMATCH" },
         { status: 400 },
       );
     }
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       return NextResponse.json(
-        { status: "error", message: "Checkout is not configured yet. Please contact GLAMO Nepal to place this order.", code: "CHECKOUT_NOT_CONFIGURED" },
+        { success: false, status: "error", message: "Checkout is not configured yet. Please contact GLAMO Nepal to place this order.", code: "CHECKOUT_NOT_CONFIGURED" },
         { status: 503 },
       );
     }
@@ -170,15 +170,15 @@ export async function POST(request: NextRequest) {
 
     if (!supabaseResponse.ok) {
       return NextResponse.json(
-        { status: "error", message: "Failed to create order. Please try again.", code: "ORDER_CREATION_FAILED" },
+        { success: false, status: "error", message: "Failed to create order. Please try again.", code: "ORDER_CREATION_FAILED" },
         { status: 502 },
       );
     }
 
-    return NextResponse.json({ status: "success", data: buildOrder(id, orderNumber, createdAt, data) });
+    return NextResponse.json({ success: true, status: "success", data: buildOrder(id, orderNumber, createdAt, data) });
   } catch {
     return NextResponse.json(
-      { status: "error", message: "An unexpected error occurred.", code: "INTERNAL_ERROR" },
+      { success: false, status: "error", message: "An unexpected error occurred.", code: "INTERNAL_ERROR" },
       { status: 500 },
     );
   }

@@ -30,7 +30,7 @@ function addSecurityHeaders(response: NextResponse) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com",
-    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
+    "connect-src 'self' https://khalti.com https://esewa.com.np https://pay.khalti.com",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -67,7 +67,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
-      if (pathname === "/api/contact" || pathname === "/api/admin/login" || pathname === "/api/admin/logout" || pathname === "/api/newsletter" || pathname === "/api/checkout") {
+      if (pathname === "/api/contact" || pathname === "/api/admin/login" || pathname === "/api/admin/logout" || pathname === "/api/newsletter" || pathname === "/api/checkout" || pathname === "/api/orders/create") {
         const csrfCookie = request.cookies.get(CSRF_TOKEN_COOKIE)?.value;
         const csrfHeader = request.headers.get("x-csrf-token");
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {

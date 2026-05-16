@@ -11,8 +11,8 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
             <stop offset="100%" stopColor="#1A0A1E" />
           </radialGradient>
           <radialGradient id="promoGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#8B3A8F" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#8B3A8F" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D97898" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#D97898" stopOpacity="0" />
           </radialGradient>
         </defs>
         <rect width="680" height="420" fill="url(#promoDarkBg)" />
@@ -54,16 +54,16 @@ export function PromoBannerNewArrivals({ className = '' }: { className?: string 
           </radialGradient>
         </defs>
         <rect width="680" height="420" fill="url(#promoLightBg)" />
-        <circle cx="580" cy="100" r="150" fill="none" stroke="#8B3A8F" strokeWidth="0.75" opacity="0.08" />
+        <circle cx="580" cy="100" r="150" fill="none" stroke="#D97898" strokeWidth="0.75" opacity="0.08" />
         <circle cx="580" cy="100" r="100" fill="url(#promoCircle)" />
       </svg>
       <div className="absolute bottom-0 right-0 w-[200px] h-[150px] opacity-[0.08]" aria-hidden="true">
         <svg viewBox="0 0 100 120" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 10 60 Q 25 20 40 60 Q 25 100 10 60 Z" fill="none" stroke="#8B3A8F" strokeWidth="0.8" />
-          <path d="M 30 60 Q 45 15 60 60 Q 45 105 30 60 Z" fill="none" stroke="#8B3A8F" strokeWidth="0.8" />
-          <path d="M 50 60 Q 65 25 80 60 Q 65 95 50 60 Z" fill="none" stroke="#8B3A8F" strokeWidth="0.8" />
-          <circle cx="45" cy="60" r="6" fill="none" stroke="#8B3A8F" strokeWidth="0.6" />
-          <circle cx="45" cy="60" r="3" fill="none" stroke="#8B3A8F" strokeWidth="0.4" />
+          <path d="M 10 60 Q 25 20 40 60 Q 25 100 10 60 Z" fill="none" stroke="#D97898" strokeWidth="0.8" />
+          <path d="M 30 60 Q 45 15 60 60 Q 45 105 30 60 Z" fill="none" stroke="#D97898" strokeWidth="0.8" />
+          <path d="M 50 60 Q 65 25 80 60 Q 65 95 50 60 Z" fill="none" stroke="#D97898" strokeWidth="0.8" />
+          <circle cx="45" cy="60" r="6" fill="none" stroke="#D97898" strokeWidth="0.6" />
+          <circle cx="45" cy="60" r="3" fill="none" stroke="#D97898" strokeWidth="0.4" />
         </svg>
       </div>
       <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">

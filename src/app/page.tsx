@@ -5,7 +5,6 @@ import { BrandPhilosophyBanner } from "@/components/home/BrandPhilosophyBanner";
 import { BrandShowcase } from "@/components/home/BrandShowcase";
 import { BestSellers } from "@/components/home/BestSellers";
 import { EditorialStrip } from "@/components/home/EditorialStrip";
-import { Testimonials } from "@/components/home/Testimonials";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { createMetadata } from "@/lib/seo";
 
@@ -18,7 +17,7 @@ export const metadata = createMetadata({
 
 export default function HomePage() {
   return (
-    <main>
+    <main className="bg-[#fff7f9]">
       <HeroBanner />
       <ShopByCategory />
       <FeaturedProducts />
@@ -26,7 +25,6 @@ export default function HomePage() {
       <BrandShowcase />
       <BestSellers />
       <EditorialStrip />
-      <Testimonials />
       <NewsletterSignup />
     </main>
   );
