@@ -83,13 +83,13 @@ function PasswordField({
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error?.message ? `${id}-error` : undefined}
           {...register}
-          className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 pr-10 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+          className="w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 pr-10 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
           autoComplete={label.includes("Confirm") ? "new-password" : "current-password"}
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-400 transition-colors hover:text-primary"
+          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-400 transition-colors hover:text-primary"
           aria-label={visible ? "Hide password" : "Show password"}
         >
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -192,7 +192,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   ];
 
   return (
-    <div className="mx-auto grid max-w-6xl overflow-hidden border border-neutral-200 bg-white shadow-editorial md:grid-cols-[0.95fr_1.05fr]">
+    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2.75rem] border border-neutral-200 bg-white shadow-editorial md:grid-cols-[0.95fr_1.05fr]">
       <aside className="relative min-h-[420px] bg-neutral-900 p-8 text-white md:p-10 lg:p-12">
         <Image src={IMAGES.auth.loginSplit} alt="Editorial beauty portrait for GLAMO account access" fill className="object-cover opacity-55" sizes="(max-width: 768px) 100vw, 45vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/45 to-neutral-950/10" />
@@ -200,7 +200,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <p className="type-label text-secondary">{copy.eyebrow}</p>
           <h1 className="mt-4 font-display text-5xl font-light leading-tight md:text-6xl">{copy.title}</h1>
           <p className="mt-5 max-w-md text-sm leading-7 text-white/78">{copy.description}</p>
-          <div className="mt-8 border border-white/15 bg-neutral-950/45 p-4 text-sm leading-6 text-white/75">
+          <div className="mt-8 rounded-[1.5rem] border border-white/15 bg-neutral-950/45 p-4 text-sm leading-6 text-white/75">
             <strong className="block text-white">Need help signing in?</strong>
             Contact GLAMO customer care at {SITE_CONFIG.phone}, or continue with your email to view your account area.
           </div>
@@ -209,17 +209,17 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 md:p-10 lg:p-12">
         {!isConfigured && (mode === "login" || mode === "register") && (
-          <div className="border border-secondary/30 bg-secondary/5 px-4 py-3 text-sm text-neutral-700">
+          <div className="rounded-[1.25rem] border border-secondary/30 bg-secondary/5 px-4 py-3 text-sm text-neutral-700">
             <strong>Coming soon:</strong> Authentication is not yet connected. Account features will be available once Supabase is configured.
           </div>
         )}
         {isConfigured && (mode === "login" || mode === "register") && (
-          <div className="border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+          <div className="rounded-[1.25rem] border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
             <strong>Secure auth:</strong> Your credentials are handled by Supabase. We never store your password.
           </div>
         )}
         {authError && (
-          <div className="border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+          <div className="rounded-[1.25rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
             {authError}
           </div>
         )}

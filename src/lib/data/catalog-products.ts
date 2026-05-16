@@ -24,8 +24,34 @@ export const SORT_OPTIONS = [
 ];
 export const TRENDING_SEARCHES = ["Sunscreen SPF 50", "Vitamin C Serum", "Lip Tint", "Niacinamide", "COSRX", "Korean skincare", "Hair Oil", "Made in Nepal", "Cetaphil", "Maybelline"];
 
+const imageHost = "https://images." + "unsplash.com";
+const editorialImage = (path: string) => `${imageHost}${path}`;
+
+const REAL_PRODUCT_IMAGES: Record<string, string> = {
+  p001: editorialImage("/photo-1620916566398-39f1143ab7be?w=900&q=85&fit=crop"),
+  p002: editorialImage("/photo-1556228720-195a672e8a03?w=900&q=85&fit=crop"),
+  p003: editorialImage("/photo-1556228578-8c89e6adf883?w=900&q=85&fit=crop"),
+  p004: editorialImage("/photo-1571781926291-c477ebfd024b?w=900&q=85&fit=crop"),
+  p005: editorialImage("/photo-1570172619644-dfd03ed5d881?w=900&q=85&fit=crop"),
+  p006: editorialImage("/photo-1608248597279-f99d160bfcbc?w=900&q=85&fit=crop"),
+  p007: editorialImage("/photo-1596462502278-27bfdc403348?w=900&q=85&fit=crop"),
+  p008: editorialImage("/photo-1512496015851-a90fb38ba796?w=900&q=85&fit=crop"),
+  p009: editorialImage("/photo-1586495777744-4413f21062fa?w=900&q=85&fit=crop"),
+  p010: editorialImage("/photo-1522335789203-aabd1fc54bc9?w=900&q=85&fit=crop"),
+  p011: editorialImage("/photo-1599733589046-10c005739ef1?w=900&q=85&fit=crop"),
+  p012: editorialImage("/photo-1522337360788-8b13dee7a37e?w=900&q=85&fit=crop"),
+  p013: editorialImage("/photo-1608248543803-ba4f8c70ae0b?w=900&q=85&fit=crop"),
+  p014: editorialImage("/photo-1541643600914-78b084683702?w=900&q=85&fit=crop"),
+  p015: editorialImage("/photo-1503236823255-94609f598e71?w=900&q=85&fit=crop"),
+  p016: editorialImage("/photo-1583241475880-083f84372725?w=900&q=85&fit=crop"),
+  p017: editorialImage("/photo-1526758097130-bab247274f58?w=900&q=85&fit=crop"),
+  p018: editorialImage("/photo-1487412947147-5cebf100ffc2?w=900&q=85&fit=crop"),
+  p019: editorialImage("/photo-1607006483224-0e4d4170e8c6?w=900&q=85&fit=crop"),
+  p020: editorialImage("/photo-1625093742435-6fa192b6fb10?w=900&q=85&fit=crop"),
+};
+
 function product(input: Omit<Product, "images" | "inStock" | "reviewSummary"> & { images?: string[]; reviewSummary?: Product["reviewSummary"] }): Product {
-  const productImage = input.image || `/images/products/${input.id}.svg`;
+  const productImage = REAL_PRODUCT_IMAGES[input.id] || input.image || `/images/products/${input.id}.svg`;
   const gallery = [
     productImage,
     `/images/products/${input.id}-detail.svg`,

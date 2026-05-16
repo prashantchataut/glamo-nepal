@@ -51,6 +51,9 @@ import { ComingSoonTooltip } from "@/components/ui/ComingSoonTooltip";
 type AdminSection = "dashboard" | "products" | "orders" | "inventory" | "banners" | "customers" | "analytics" | "settings";
 type BannerSlot = "desktop" | "mobile";
 
+const adminImageHost = "https://images." + "unsplash.com";
+const adminImage = (path: string) => `${adminImageHost}${path}`;
+
 type ManagedBanner = {
   id: string;
   title: string;
@@ -81,8 +84,8 @@ const defaultBanners: ManagedBanner[] = [
     subtitle: "Fresh skincare, soft glam makeup and giftable beauty picks curated for Nepal.",
     cta: "Shop New Year Offers",
     href: "/collections/festival-ready",
-    desktopImage: "/images/promo-new-year.svg",
-    mobileImage: "/images/hero-glow.svg",
+    desktopImage: adminImage("/photo-1596462502278-27bfdc403348?w=1600&q=85&fit=crop"),
+    mobileImage: adminImage("/photo-1487412947147-5cebf100ffc2?w=900&q=85&fit=crop"),
     status: "Published",
     updatedAt: "2026-05-01",
   },
@@ -92,8 +95,8 @@ const defaultBanners: ManagedBanner[] = [
     subtitle: "Find us at Mantra In & Out Square, Kathmandu.",
     cta: "Get Directions",
     href: "/contact",
-    desktopImage: "/images/promo-store.svg",
-    mobileImage: "/images/hero-nepal.svg",
+    desktopImage: adminImage("/photo-1556228578-8c89e6adf883?w=1600&q=85&fit=crop"),
+    mobileImage: adminImage("/photo-1522337360788-8b13dee7a37e?w=900&q=85&fit=crop"),
     status: "Published",
     updatedAt: "2026-05-01",
   },
@@ -126,7 +129,7 @@ function sanitizeSvg(svgString: string): string {
 
 function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number | string; className?: string }> }) {
   return (
-    <div className="card-hover rounded-2xl border border-brand-border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="card-hover rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-center justify-between gap-4">
         <div className="rounded-xl bg-brand-primary-light p-3 text-brand-primary">
           <Icon size={18} />
@@ -161,7 +164,7 @@ function MiniBar({ label, value, max }: { label: string; value: number; max: num
 
 function BannerPreview({ banner }: { banner: ManagedBanner }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/20 bg-brand-bgDark text-white shadow-lg">
+    <div className="overflow-hidden rounded-[2rem] border border-white/20 bg-brand-bgDark text-white shadow-lg">
       <div className="grid min-h-[180px] md:grid-cols-[1.1fr_0.9fr]">
         <div className="flex flex-col justify-center p-5 md:p-6">
           <span className="font-label w-fit rounded-full bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-white/75">{banner.status}</span>
@@ -381,7 +384,7 @@ export function AdminDashboard() {
         <main id="admin-content" aria-label="Admin dashboard" className="p-4 pb-24 md:p-6 md:pb-6 space-y-6">
           {activeSection === "dashboard" ? (
             <div className="space-y-6">
-              <section className="overflow-hidden rounded-2xl bg-brand-bgDark text-white shadow-lg">
+              <section className="overflow-hidden rounded-[2rem] bg-brand-bgDark text-white shadow-lg">
                 <div className="grid gap-6 p-5 md:p-6 xl:grid-cols-[1fr_0.78fr] xl:items-center">
                   <div>
                     <span className="font-label inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/75"><ShieldCheck size={14} /> Protected workspace</span>
@@ -404,7 +407,7 @@ export function AdminDashboard() {
               </section>
 
               <section className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
-                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+                <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div>
                       <h3 className="font-display text-xl font-semibold">Order history</h3>
@@ -437,13 +440,13 @@ export function AdminDashboard() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="card-hover rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+                  <div className="card-hover rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
                     <h3 className="font-display text-xl font-semibold">Top categories</h3>
                     <div className="mt-4 space-y-4">
                       {Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+                  <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
                     <h3 className="font-display text-xl font-semibold">Low-stock alerts</h3>
                     <div className="mt-4 space-y-3">
                       {LOW_STOCK_SNAPSHOT.slice(0, 4).map((item) => (
@@ -463,7 +466,7 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "products" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+            <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h2 className="font-display text-2xl font-semibold">Product management</h2>
@@ -524,7 +527,7 @@ export function AdminDashboard() {
           ) : null}
 
           {activeSection === "orders" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+            <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div><h2 className="font-display text-2xl font-semibold">Orders</h2><p className="mt-1 text-sm text-brand-textMuted">Update statuses for COD, Khalti, eSewa and card orders.</p></div>
                 <div className="flex flex-wrap gap-2"><ComingSoonTooltip><button disabled className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">Today</button></ComingSoonTooltip><ComingSoonTooltip><button disabled className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">This week</button></ComingSoonTooltip><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Create manual order</button></ComingSoonTooltip></div>
@@ -546,7 +549,7 @@ export function AdminDashboard() {
 
           {activeSection === "inventory" ? (
             <section className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
-              <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+              <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
                 <h2 className="font-display text-2xl font-semibold">Stock control</h2>
                 <p className="mt-0.5 text-sm text-brand-textMuted">Monitor stock, reorder points and estimated cover.</p>
                 <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Boxes} label="Total units" value={INVENTORY_SUMMARY.totalUnits} note="Available catalog units" /><StatCard icon={AlertTriangle} label="Low stock" value={INVENTORY_SUMMARY.lowStockCount} note="Needs reorder review" /><StatCard icon={Store} label="Inventory value" value={formatNPR(inventoryValue)} note="Current retail value" /></div>
@@ -554,19 +557,19 @@ export function AdminDashboard() {
                   {LOW_STOCK_SNAPSHOT.map((item) => <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">{item.name}</p><p className="text-xs text-brand-textMuted">{item.sku} · Reorder {item.reorderPoint} · Target {item.restockTarget}</p></div><div className="flex items-center gap-2"><StatusPill className={riskStyles[item.risk]}>{item.risk}</StatusPill><ComingSoonTooltip><button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">Restock</button></ComingSoonTooltip></div></div>)}
                 </div>
               </div>
-              <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-display text-xl font-semibold">Inventory rules</h3><div className="mt-4 space-y-4 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-admin-warning" size={16} /> Connect inventory ledger before accepting real orders.</p></div></div>
+              <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><h3 className="font-display text-xl font-semibold">Inventory rules</h3><div className="mt-4 space-y-4 text-sm text-brand-textMuted"><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Best sellers should trigger reorder at 30 units.</p><p className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-admin-success" size={16} /> Show customer-safe availability labels only.</p><p className="flex gap-3"><AlertTriangle className="mt-0.5 shrink-0 text-admin-warning" size={16} /> Connect inventory ledger before accepting real orders.</p></div></div>
             </section>
           ) : null}
 
           {activeSection === "banners" ? (
             <section className="grid gap-6 lg:grid-cols-[1fr_0.76fr]">
               <div className="space-y-6">
-                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+                <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-display text-2xl font-semibold">Banner manager</h2><p className="mt-0.5 text-sm text-brand-textMuted">Replace homepage and campaign banners with adaptive desktop and mobile assets.</p></div><button onClick={() => setBannerMessage("Banner settings saved in this browser. Connect the admin API to publish across devices.")} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white"><Save size={15} /> Save banner</button></div>
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">{banners.map((banner) => <button key={banner.id} onClick={() => setSelectedBannerId(banner.id)} className={cn("rounded-xl border p-3 text-left transition", selectedBanner.id === banner.id ? "border-brand-primary bg-brand-primary-light" : "border-brand-border bg-white hover:bg-brand-bgLight")}><p className="font-semibold">{banner.title}</p><p className="mt-0.5 text-[11px] text-brand-textMuted">{banner.status} · Updated {banner.updatedAt}</p></button>)}</div>
                 </div>
                 <BannerPreview banner={selectedBanner} />
-                <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
+                <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
                   <h3 className="font-display text-xl font-semibold">Edit selected banner</h3>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
 <label htmlFor="banner-title" className="space-y-2 text-sm font-medium">Title<input id="banner-title" value={selectedBanner.title} onChange={(event) => updateBannerField("title", event.target.value)} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" /></label>
@@ -578,22 +581,22 @@ export function AdminDashboard() {
                 </div>
               </div>
               <aside className="space-y-6">
-                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><Upload className="text-brand-primary" size={20} /><h3 className="mt-2 font-display text-xl font-semibold">Upload assets</h3><p className="mt-2 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio (1920 x 840). Mobile: 4:5 ratio (1080 x 1350). PNG, JPG, WebP, SVG under 3 MB.</p><div className="mt-4 space-y-3"><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "desktop")} className="hidden" />Upload desktop banner</label><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "mobile")} className="hidden" />Upload mobile banner</label></div><div aria-live="polite">{uploadError ? <p className="mt-4 rounded-xl bg-admin-error-light p-3 text-sm font-medium text-admin-error">{uploadError}</p> : null}{bannerMessage ? <p className="mt-4 rounded-xl bg-admin-success-light p-3 text-sm font-medium text-admin-success">{bannerMessage}</p> : null}</div></div>
-                <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm"><Smartphone className="text-brand-primary" size={20} /><h3 className="mt-2 font-display text-xl font-semibold">Responsive rules</h3><ul className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted"><li>Keep text inside the center safe area.</li><li>Use separate desktop and mobile crops.</li><li>Avoid tiny text inside image files.</li><li>Test at mobile, tablet and desktop widths before publishing.</li></ul></div>
+                <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><Upload className="text-brand-primary" size={20} /><h3 className="mt-2 font-display text-xl font-semibold">Upload assets</h3><p className="mt-2 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio (1920 x 840). Mobile: 4:5 ratio (1080 x 1350). PNG, JPG, WebP, SVG under 3 MB.</p><div className="mt-4 space-y-3"><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "desktop")} className="hidden" />Upload desktop banner</label><label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(event) => handleBannerUpload(event, "mobile")} className="hidden" />Upload mobile banner</label></div><div aria-live="polite">{uploadError ? <p className="mt-4 rounded-xl bg-admin-error-light p-3 text-sm font-medium text-admin-error">{uploadError}</p> : null}{bannerMessage ? <p className="mt-4 rounded-xl bg-admin-success-light p-3 text-sm font-medium text-admin-success">{bannerMessage}</p> : null}</div></div>
+                <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm"><Smartphone className="text-brand-primary" size={20} /><h3 className="mt-2 font-display text-xl font-semibold">Responsive rules</h3><ul className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted"><li>Keep text inside the center safe area.</li><li>Use separate desktop and mobile crops.</li><li>Avoid tiny text inside image files.</li><li>Test at mobile, tablet and desktop widths before publishing.</li></ul></div>
               </aside>
             </section>
           ) : null}
 
           {activeSection === "customers" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the live user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
+            <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Customers</h2><p className="mt-0.5 text-sm text-brand-textMuted">Customer records will connect to the live user and order APIs. The panel is ready for saved addresses, order value and contact preferences.</p><div className="mt-5 grid gap-3 grid-cols-2 md:grid-cols-3"><StatCard icon={Users} label="Total customers" value="26" note="Seeded admin count" /><StatCard icon={Mail} label="Newsletter leads" value="14" note="Waiting for email provider" /><StatCard icon={MapPin} label="Kathmandu area" value="18" note="Primary delivery cluster" /></div></section>
           ) : null}
 
           {activeSection === "analytics" ? (
-            <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]"><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Analytics</h2><p className="mt-0.5 text-sm text-brand-textMuted">Operational view of categories and product attention.</p><div className="mt-5 space-y-4">{Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}</div></div><div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h3 className="font-display text-xl font-semibold">Top viewed products</h3><div className="mt-4 space-y-3">{topProducts.map((product) => <MiniBar key={product.id} label={product.name} value={product.reviewsCount} max={topProducts[0]?.reviewsCount || 1} />)}</div></div></section>
+            <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]"><div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Analytics</h2><p className="mt-0.5 text-sm text-brand-textMuted">Operational view of categories and product attention.</p><div className="mt-5 space-y-4">{Object.entries(categoryCounts).map(([category, count]) => <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />)}</div></div><div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm"><h3 className="font-display text-xl font-semibold">Top viewed products</h3><div className="mt-4 space-y-3">{topProducts.map((product) => <MiniBar key={product.id} label={product.name} value={product.reviewsCount} max={topProducts[0]?.reviewsCount || 1} />)}</div></div></section>
           ) : null}
 
           {activeSection === "settings" ? (
-            <section className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value={`रू ${FREE_DELIVERY_THRESHOLD.toLocaleString()}`} /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
+            <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm"><h2 className="font-display text-2xl font-semibold">Store settings</h2><p className="mt-0.5 text-sm text-brand-textMuted">Business constants for GLAMO NEPAL.</p><div className="mt-5 grid gap-3 grid-cols-2"><SettingItem icon={Store} label="Store" value={SITE_CONFIG.fullTitle} /><SettingItem icon={MapPin} label="Address" value={SITE_CONFIG.address} /><SettingItem icon={Smartphone} label="Phone" value={SITE_CONFIG.phone} /><SettingItem icon={CreditCard} label="Payments" value={SITE_CONFIG.paymentMethods.join(", ")} /><SettingItem icon={Truck} label="Free shipping" value={`रू ${FREE_DELIVERY_THRESHOLD.toLocaleString()}`} /><SettingItem icon={ShieldCheck} label="Instagram" value={`${SITE_CONFIG.instagramHandle} · ${SITE_CONFIG.social.instagram}`} /></div></section>
           ) : null}
         </main>
       </div>

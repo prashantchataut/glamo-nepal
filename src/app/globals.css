@@ -8,6 +8,8 @@
     --bar-height: 36px;
     --total-header-height: var(--navbar-height);
     --mobile-nav-height: 56px;
+    --font-display: "Cormorant Garamond";
+    --font-body: "Inter";
 
     --background: 40 10% 98%;
     --foreground: 20 20% 9%;

@@ -31,8 +31,8 @@ export default function SearchPageContent() {
   }, [q, sort]);
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <section className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50 py-12 md:py-20">
+    <div className="min-h-screen bg-[#fffaf7]">
+      <section className="relative overflow-hidden bg-[#f6e6f4] py-12 md:py-20">
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-400">
@@ -48,7 +48,7 @@ export default function SearchPageContent() {
               {q ? `${results.length} product${results.length !== 1 ? "s" : ""} found across skincare, makeup and routine-ready picks.` : "Try sunscreen, vitamin C, lip tint, Korean skincare or Made in Nepal to jump into curated product results."}
             </p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-white">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-neutral-200 bg-white">
             <Image src="/images/editorial/newsletter-vanity.svg" alt="GLAMO search visual" fill className="object-cover" />
           </div>
         </div>
@@ -56,13 +56,13 @@ export default function SearchPageContent() {
 
       <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         {!q ? (
-          <div className="border border-neutral-200 bg-white p-8 text-center md:p-12">
+          <div className="rounded-[2.5rem] border border-neutral-200 bg-white p-8 text-center shadow-editorial md:p-12">
             <Search size={46} className="mx-auto mb-4 text-primary/40" strokeWidth={1.5} />
             <p className="font-display text-3xl text-neutral-900">Search by product, brand or concern</p>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-neutral-500">Use quick searches below or open the search icon in the navbar for instant suggestions.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-2">
               {TRENDING_SEARCHES.slice(0, 10).map((term) => (
-                <Link key={term} href={`/search?q=${encodeURIComponent(term)}`} className="cursor-pointer border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white">
+                <Link key={term} href={`/search?q=${encodeURIComponent(term)}`} className="cursor-pointer rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white">
                   {term}
                 </Link>
               ))}
@@ -73,7 +73,7 @@ export default function SearchPageContent() {
             <div className="mx-auto max-w-3xl"><EmptyState variant="search" query={q} /></div>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {suggestions.slice(0, 6).map((suggestion) => (
-                <Link key={`${suggestion.type}-${suggestion.href}`} href={suggestion.href} className="cursor-pointer border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white">
+                <Link key={`${suggestion.type}-${suggestion.href}`} href={suggestion.href} className="cursor-pointer rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white">
                   {suggestion.label}
                 </Link>
               ))}
@@ -81,13 +81,13 @@ export default function SearchPageContent() {
             <div className="mx-auto mt-8 grid max-w-6xl grid-cols-2 gap-4 text-left md:grid-cols-4 md:gap-6">
               {noResultRecommendations.map((product) => <ProductCard key={product.id} product={product} />)}
             </div>
-            <Link href="/shop" className="mt-8 inline-block cursor-pointer bg-primary px-8 py-3 text-sm font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark">
+            <Link href="/shop" className="mt-8 inline-flex cursor-pointer rounded-full bg-neutral-950 px-8 py-3 text-sm font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary">
               Browse All Products
             </Link>
           </div>
         ) : (
           <>
-            <div className="mb-6 flex items-center justify-between border border-neutral-200 bg-white p-4">
+            <div className="mb-6 flex items-center justify-between rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-soft">
               <span className="text-sm font-semibold text-neutral-500">{results.length} product{results.length !== 1 ? "s" : ""}</span>
               <select value={sort} onChange={(e) => setSort(e.target.value)} className="cursor-pointer border-b border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none focus:border-primary">
                 {SORT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}

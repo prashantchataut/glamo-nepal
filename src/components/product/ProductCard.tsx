@@ -3,13 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, Check, Loader2, Star } from "lucide-react";
+import { Check, Heart, Loader2, ShoppingBag, Star } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { trackEvent } from "@/lib/analytics";
 import { cn, formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
-import { trackEvent } from "@/lib/analytics";
-import { Badge } from "@/components/ui/badge";
 import type { Product } from "@/types/product";
 
 type AddState = "idle" | "loading" | "added";
@@ -30,15 +30,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const isWishlisted = mounted ? wishlist.isInWishlist(product.id) : false;
   const discount = product.originalPrice
     ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) *
-          100
+        ((product.originalPrice - product.price) / product.originalPrice) * 100,
       )
     : 0;
 
   const cardBadge = useMemo(() => {
     if (!product.inStock) return "soldOut" as const;
     if (product.isNewArrival) return "new" as const;
-    if (product.badge === "Sale" || product.originalPrice) return "sale" as const;
+    if (product.badge === "Sale" || product.originalPrice)
+      return "sale" as const;
     return null;
   }, [product]);
 
@@ -58,14 +58,14 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     setAddState("added");
     window.dispatchEvent(new CustomEvent("glamo:cart-pulse"));
-    toast.success(`${product.name} added to cart`);
+    toast.success(`${product.name} added to bag`);
     trackEvent("add_to_cart", {
       productId: product.id,
       productSlug: product.slug,
       sku: product.sku,
       value: product.price,
     });
-    window.requestAnimationFrame(() => setAddState("idle"));
+    window.setTimeout(() => setAddState("idle"), 650);
   }
 
   function onWishlist(e: React.MouseEvent) {
@@ -83,76 +83,67 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <article
       aria-label={product.name}
-      className="group flex h-full flex-col rounded-[26px] border border-neutral-200 bg-white shadow-[0_18px_60px_-46px_rgba(26,21,18,0.5)] transition-all hover:-translate-y-0.5 hover:border-primary/25"
+      className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-[0_18px_60px_-48px_rgba(26,21,18,0.55)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-editorial"
     >
-      {/* Image container */}
       <Link
         href={`/products/${product.slug}`}
-        className="relative block aspect-[4/5] overflow-hidden rounded-t-[26px] bg-[#f7f1ec] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="relative block aspect-[4/5] overflow-hidden bg-[#f8f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <Image
           src={product.image}
           alt={`${product.brand} ${product.name}`}
           fill
           className={cn(
-            "object-cover transition-transform duration-500 group-hover:scale-[1.04]",
-            !product.inStock && "grayscale opacity-70"
+            "object-cover transition-transform duration-700 group-hover:scale-[1.045]",
+            !product.inStock && "grayscale opacity-70",
           )}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
         />
+        <div
+          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-neutral-950/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          aria-hidden="true"
+        />
 
-        {/* Badges */}
         {(cardBadge || (discount > 0 && product.inStock)) && (
-          <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+          <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2">
             {cardBadge && (
               <Badge variant={cardBadge}>
                 {cardBadge === "soldOut"
-                  ? "SOLD OUT"
+                  ? "Sold out"
                   : cardBadge === "new"
-                  ? "NEW"
-                  : cardBadge === "sale"
-                  ? "SALE"
-                  : ""}
+                    ? "New"
+                    : "Sale"}
               </Badge>
             )}
             {discount > 0 && product.inStock && (
-              <span className="bg-secondary text-white text-[10px] tracking-widest uppercase px-2 py-0.5 font-medium">
+              <span className="rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-950 ring-1 ring-white/80">
                 -{discount}%
               </span>
             )}
           </div>
         )}
 
-        {/* Wishlist button */}
         <button
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-all duration-200",
-            "bg-white/95 opacity-100 md:opacity-0 md:group-hover:opacity-100",
-            isWishlisted && "opacity-100",
-            isWishlisted
-              ? "bg-primary text-white"
-              : "bg-surface/90 text-neutral-700 hover:text-primary"
+            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-neutral-700 shadow-soft transition-all duration-200 hover:text-primary",
+            "opacity-100 md:opacity-0 md:group-hover:opacity-100",
+            isWishlisted &&
+              "bg-primary text-white opacity-100 hover:text-white",
           )}
-          aria-label={
-            isWishlisted ? "Remove from wishlist" : "Add to wishlist"
-          }
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart
-            size={16}
-            fill={isWishlisted ? "currentColor" : "none"}
-          />
+          <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
         </button>
 
-        {/* Quick Add overlay */}
         {product.inStock && (
-          <div className="absolute inset-x-0 bottom-0 z-10 translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <button
               type="button"
               onClick={onCart}
               disabled={addState === "loading"}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-t-[22px] bg-neutral-900 text-white text-[11px] tracking-[0.16em] uppercase font-semibold transition-colors hover:bg-primary disabled:opacity-50"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary disabled:opacity-60"
             >
               {addState === "loading" ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -162,7 +153,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </>
               ) : (
                 <>
-                  <ShoppingBag size={14} /> Quick Add
+                  <ShoppingBag size={14} /> Quick add
                 </>
               )}
             </button>
@@ -170,78 +161,75 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      {/* Card body */}
-      <div className="flex flex-1 flex-col px-4 pb-5 pt-4">
-        {/* Brand */}
-        <p className="type-label text-[10px] text-neutral-500 mb-1">
-          {product.brand}
-        </p>
+      <div className="flex flex-1 flex-col px-4 pb-5 pt-4 sm:px-5">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+            {product.brand}
+          </p>
+          <div
+            className="flex items-center gap-1 text-[11px] text-neutral-500"
+            aria-label={`${product.rating} out of 5 stars`}
+          >
+            <Star size={12} fill="currentColor" className="text-secondary" />
+            <span>{product.rating.toFixed(1)}</span>
+          </div>
+        </div>
 
-        {/* Name */}
-        <Link href={`/products/${product.slug}`}>
-          <h3 className="min-h-[2.65rem] font-display text-lg leading-tight text-neutral-900 transition-colors group-hover:text-primary">
+        <Link href={`/products/${product.slug}`} className="mt-2 block">
+          <h3 className="min-h-[2.8rem] font-display text-[1.35rem] font-semibold leading-[1.02] tracking-[-0.025em] text-neutral-950 transition-colors group-hover:text-primary">
             {product.name}
           </h3>
         </Link>
 
-        {/* Shade swatches */}
+        {product.concernTags.length > 0 && (
+          <p className="mt-2 line-clamp-1 text-xs text-neutral-500">
+            {product.concernTags.slice(0, 3).join(" · ")}
+          </p>
+        )}
+
         {product.shadeOptions && product.shadeOptions.length > 0 && (
-          <div className="mt-2 flex items-center gap-1.5" aria-label="Available shades">
-            {product.shadeOptions.slice(0, 5).map((shade) => (
+          <div
+            className="mt-3 flex items-center gap-1.5"
+            aria-label="Available shades"
+          >
+            {product.shadeOptions.slice(0, 6).map((shade) => (
               <span
                 key={shade.name}
                 title={shade.name}
-                className="h-2 w-2 rounded-full border border-neutral-200"
+                className="h-3 w-3 rounded-full border border-neutral-200"
                 style={{ backgroundColor: shade.hex || "#E8E4DF" }}
               />
             ))}
-            {product.shadeOptions.length > 5 && (
+            {product.shadeOptions.length > 6 && (
               <span className="text-[10px] text-neutral-400">
-                +{product.shadeOptions.length - 5}
+                +{product.shadeOptions.length - 6}
               </span>
             )}
           </div>
         )}
 
-        {/* Price row */}
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="type-price text-neutral-900">
-            {formatNPR(product.price)}
-          </span>
-          {product.originalPrice && (
-            <span className="font-body text-sm text-neutral-400 line-through">
-              {formatNPR(product.originalPrice)}
+        <div className="mt-auto pt-4">
+          <div className="flex items-end justify-between gap-3">
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-2xl font-semibold leading-none text-neutral-950">
+                {formatNPR(product.price)}
+              </span>
+              {product.originalPrice && (
+                <span className="text-xs text-neutral-400 line-through">
+                  {formatNPR(product.originalPrice)}
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] text-neutral-400">
+              {product.reviewsCount} reviews
             </span>
+          </div>
+          {showNotify && !product.inStock && (
+            <p className="mt-3 text-xs text-neutral-500">
+              Notify request can be added from the product page.
+            </p>
           )}
         </div>
-
-        {/* Rating */}
-        <div className="mt-1.5 flex items-center gap-1">
-          <div className="flex items-center" aria-label={`${product.rating} out of 5 stars`}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                size={12}
-                fill={i < Math.round(product.rating) ? "currentColor" : "none"}
-                className={
-                  i < Math.round(product.rating) ? "text-secondary" : "text-neutral-300"
-                }
-              />
-            ))}
-          </div>
-          <span className="font-body text-[11px] text-neutral-400">
-            ({product.reviewsCount})
-          </span>
-        </div>
-
-        {/* Notify form for out of stock */}
-        {showNotify && !product.inStock && (
-          <div className="mt-3">
-            <p className="type-body-sm text-neutral-400">
-              Notify me when available
-            </p>
-          </div>
-        )}
       </div>
     </article>
   );
@@ -249,12 +237,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col">
-      <div className="aspect-[3/4] skeleton-shimmer" />
-      <div className="pt-3 pb-4 px-0 space-y-2">
-        <div className="h-3 w-16 skeleton-shimmer" />
-        <div className="h-5 w-3/4 skeleton-shimmer" />
-        <div className="h-4 w-1/3 skeleton-shimmer" />
+    <div className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white">
+      <div className="aspect-[4/5] skeleton-shimmer" />
+      <div className="space-y-3 px-5 py-5">
+        <div className="h-3 w-16 skeleton-shimmer rounded-full" />
+        <div className="h-5 w-4/5 skeleton-shimmer rounded-full" />
+        <div className="h-4 w-1/3 skeleton-shimmer rounded-full" />
       </div>
     </div>
   );

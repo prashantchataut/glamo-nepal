@@ -6,18 +6,41 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Truck, CreditCard, ClipboardCheck, ShoppingBag } from "lucide-react";
+import {
+  CheckCircle2,
+  ClipboardCheck,
+  CreditCard,
+  Gift,
+  LockKeyhole,
+  MapPin,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 import type { PaymentMethodCode } from "@/lib/api/contracts";
+import { trackEvent } from "@/lib/analytics";
+import { calculateDeliveryFee, getDeliveryRule } from "@/lib/delivery";
+import {
+  PROVINCES,
+  getDistrictsForProvince,
+  getMunicipalitiesForDistrict,
+  type District,
+  type Province,
+} from "@/lib/nepal-locations";
+import { formatNPR } from "@/lib/utils";
+import {
+  checkoutSchema,
+  type CheckoutFormData,
+} from "@/lib/validations/checkout";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-locations";
-import { calculateDeliveryFee, getDeliveryRule } from "@/lib/delivery";
-import { formatNPR } from "@/lib/utils";
-import { trackEvent } from "@/lib/analytics";
-import { checkoutSchema, type CheckoutFormData } from "@/lib/validations/checkout";
 
-const paymentMethods = ["Cash on Delivery", "Khalti", "eSewa", "Cards"] as const;
+const paymentMethods = [
+  "Cash on Delivery",
+  "Khalti",
+  "eSewa",
+  "Cards",
+] as const;
 const comingSoonMethods = new Set(["Khalti", "eSewa", "Cards"]);
 const paymentCodeMap: Record<string, PaymentMethodCode> = {
   "Cash on Delivery": "cod",
@@ -27,11 +50,50 @@ const paymentCodeMap: Record<string, PaymentMethodCode> = {
 };
 
 const steps = [
-  { label: "Contact & Shipping", icon: Truck },
+  { label: "Address", icon: MapPin },
   { label: "Delivery", icon: Truck },
   { label: "Payment", icon: CreditCard },
   { label: "Review", icon: ClipboardCheck },
 ];
+
+function OrderSummary({
+  subtotal,
+  deliveryFee,
+  giftWrapFee,
+  total,
+}: {
+  subtotal: number;
+  deliveryFee: number;
+  giftWrapFee: number;
+  total: number;
+}) {
+  return (
+    <div className="space-y-3 text-sm">
+      <div className="flex justify-between text-neutral-500">
+        <span>Subtotal</span>
+        <span className="text-neutral-950">{formatNPR(subtotal)}</span>
+      </div>
+      <div className="flex justify-between text-neutral-500">
+        <span>Delivery</span>
+        <span className="text-neutral-950">
+          {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
+        </span>
+      </div>
+      {giftWrapFee > 0 && (
+        <div className="flex justify-between text-neutral-500">
+          <span>Gift wrap</span>
+          <span className="text-neutral-950">{formatNPR(giftWrapFee)}</span>
+        </div>
+      )}
+      <div className="flex justify-between border-t border-neutral-200 pt-4 text-neutral-950">
+        <span className="font-semibold">Total</span>
+        <span className="font-display text-3xl font-semibold leading-none">
+          {formatNPR(total)}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export function CheckoutPageClient() {
   const router = useRouter();
@@ -65,21 +127,39 @@ export function CheckoutPageClient() {
   });
 
   const form = watch();
-  const municipalityNames = useMemo(() => getMunicipalitiesForDistrict(form.district as District).map((m) => m.name), [form.district]);
   const subtotal = getSubtotal();
   const deliveryRule = getDeliveryRule(form.district, form.province);
-  const deliveryFee = calculateDeliveryFee(subtotal, form.district, form.province);
+  const deliveryFee = calculateDeliveryFee(
+    subtotal,
+    form.district,
+    form.province,
+  );
   const giftWrapFee = form.giftWrap ? 100 : 0;
   const total = subtotal + deliveryFee + giftWrapFee;
-  const districtOptions = useMemo(() => getDistrictsForProvince(form.province as Province), [form.province]);
+  const districtOptions = useMemo(
+    () => getDistrictsForProvince(form.province as Province),
+    [form.province],
+  );
+  const municipalityNames = useMemo(
+    () =>
+      getMunicipalitiesForDistrict(form.district as District).map(
+        (m) => m.name,
+      ),
+    [form.district],
+  );
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const canSubmit = Boolean(
-    isValid && items.length > 0 && (form.payment !== "Cash on Delivery" || deliveryRule.codAvailable)
+    isValid &&
+    items.length > 0 &&
+    (form.payment !== "Cash on Delivery" || deliveryRule.codAvailable),
   );
 
-  const inputClass = "w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:outline-none";
-  const labelClass = "type-label text-[11px] text-neutral-400 mb-2 block";
-  const errorClass = "mt-1 text-xs text-error";
+  const inputClass =
+    "w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15";
+  const labelClass =
+    "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500";
+  const errorClass = "mt-1.5 text-xs text-error";
 
   function updateProvince(province: string) {
     const districts = getDistrictsForProvince(province as Province);
@@ -93,21 +173,78 @@ export function CheckoutPageClient() {
     setValue("city", "", { shouldValidate: true });
   }
 
+  function stepButton(step: number) {
+    return currentStep === step
+      ? "bg-neutral-950 text-white"
+      : currentStep > step
+        ? "bg-primary text-white"
+        : "bg-white text-neutral-400";
+  }
+
   async function onSubmit(data: CheckoutFormData) {
     setIsSubmitting(true);
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
-    trackEvent("order_placed", { value: total, method: data.payment, district: data.district, province: data.province, deliveryFee, giftWrap: data.giftWrap });
+    trackEvent("order_placed", {
+      value: total,
+      method: data.payment,
+      district: data.district,
+      province: data.province,
+      deliveryFee,
+      giftWrap: data.giftWrap,
+    });
 
     let order: Awaited<ReturnType<typeof placeOrder>>;
     try {
       order = await placeOrder(
-        { orderNumber: "", total, paymentMethod: data.payment, shippingAddress, customerName: data.name, customerPhone: data.phone,
-          items: items.map((item) => ({ name: item.product.name, brand: item.product.brand, image: item.product.image, price: item.product.price, quantity: item.quantity, selectedShade: item.selectedShade })),
+        {
+          orderNumber: "",
+          total,
+          paymentMethod: data.payment,
+          shippingAddress,
+          customerName: data.name,
+          customerPhone: data.phone,
+          items: items.map((item) => ({
+            name: item.product.name,
+            brand: item.product.brand,
+            image: item.product.image,
+            price: item.product.price,
+            quantity: item.quantity,
+            selectedShade: item.selectedShade,
+          })),
         },
-        { customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone },
-          shippingAddress: { fullName: data.name, phone: data.phone, province: data.province, district: data.district, city: data.city, ward: data.ward, addressLine1: data.address },
-          items: items.map((item) => ({ productId: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity, selectedShade: item.selectedShade, image: item.product.image, brand: item.product.brand })),
-          paymentMethod: paymentCodeMap[data.payment] || "cod", giftWrap: data.giftWrap, orderNotes: data.notes, deliveryFee, subtotal, grandTotal: total, currency: "NPR" as const,
+        {
+          customer: {
+            name: data.name,
+            email:
+              data.email ||
+              `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`,
+            phone: data.phone,
+          },
+          shippingAddress: {
+            fullName: data.name,
+            phone: data.phone,
+            province: data.province,
+            district: data.district,
+            city: data.city,
+            ward: data.ward,
+            addressLine1: data.address,
+          },
+          items: items.map((item) => ({
+            productId: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            selectedShade: item.selectedShade,
+            image: item.product.image,
+            brand: item.product.brand,
+          })),
+          paymentMethod: paymentCodeMap[data.payment] || "cod",
+          giftWrap: data.giftWrap,
+          orderNotes: data.notes,
+          deliveryFee,
+          subtotal,
+          grandTotal: total,
+          currency: "NPR" as const,
         },
       );
     } catch {
@@ -121,13 +258,22 @@ export function CheckoutPageClient() {
 
   if (!items.length) {
     return (
-      <main className="bg-neutral-50 py-16 md:py-24">
-        <div className="mx-auto max-w-lg text-center px-4">
-          <ShoppingBag size={48} className="mx-auto text-neutral-300" />
-          <h1 className="type-display-md text-neutral-900 mt-6">Your bag is empty</h1>
-          <p className="type-body-md text-neutral-400 mt-3">Add items before checking out.</p>
-          <Link href="/shop" className="mt-8 inline-flex items-center justify-center bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer">
-            Start Shopping
+      <main className="bg-[#fffaf7] py-16 md:py-24">
+        <div className="mx-auto max-w-lg px-4 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f6e6f4] text-primary">
+            <ShoppingBag size={30} />
+          </div>
+          <h1 className="mt-6 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-neutral-950">
+            Your bag is empty
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-neutral-500">
+            Add items before checking out.
+          </p>
+          <Link
+            href="/shop"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+          >
+            Start shopping
           </Link>
         </div>
       </main>
@@ -135,206 +281,466 @@ export function CheckoutPageClient() {
   }
 
   return (
-    <main className="bg-neutral-50 py-8 md:py-12 page-padding">
-      <div className="mx-auto max-w-3xl">
-        {/* Step indicator */}
-        <div className="flex items-center justify-between mb-10">
-          {steps.map((step, i) => (
-            <div key={step.label} className="flex items-center">
-              <div className={`flex h-8 w-8 items-center justify-center text-[12px] font-medium transition-colors ${
-                i <= currentStep ? "bg-primary text-white" : "bg-neutral-200 text-neutral-400"
-              }`}>
-                {i < currentStep ? <CheckCircle2 size={16} /> : i + 1}
-              </div>
-              <span className={`ml-2 hidden sm:inline text-[12px] tracking-wide ${
-                i <= currentStep ? "text-neutral-900 font-medium" : "text-neutral-400"
-              }`}>
-                {step.label}
-              </span>
-              {i < steps.length - 1 && (
-                <div className={`mx-3 h-px w-8 sm:w-16 ${i < currentStep ? "bg-primary" : "bg-neutral-200"}`} />
-              )}
-            </div>
-          ))}
+    <main className="bg-[#fffaf7] px-4 py-8 md:px-6 md:py-12 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-[2.5rem] bg-[#f6e6f4] px-5 py-6 md:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+            Secure checkout
+          </p>
+          <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-neutral-950 md:text-7xl">
+              Confirm your beauty bag.
+            </h1>
+            <p className="max-w-sm text-sm leading-7 text-neutral-600">
+              Delivery rules are Nepal-aware. Digital payments stay marked
+              coming soon until the gateway is ready.
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Step 0: Contact & Shipping */}
-          {currentStep === 0 && (
-            <div className="space-y-6">
-              <h2 className="type-heading-sm text-neutral-900">Contact & Shipping</h2>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className={labelClass}>Full Name</label>
-                  <input id="name" {...register("name")} className={inputClass} placeholder="Your full name" />
-                  {errors.name && <p className={errorClass}>{errors.name.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="phone" className={labelClass}>Phone Number</label>
-                  <input id="phone" {...register("phone")} className={inputClass} placeholder="98XXXXXXXX" />
-                  {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
-                </div>
-              </div>
-              <div>
-                <label htmlFor="email" className={labelClass}>Email (optional)</label>
-                <input id="email" type="email" {...register("email")} className={inputClass} placeholder="your@email.com" />
-                {errors.email && <p className={errorClass}>{errors.email.message}</p>}
-              </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="province" className={labelClass}>Province</label>
-                  <select id="province" {...register("province")} onChange={(e) => updateProvince(e.target.value)} className={inputClass}>
-                    {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="district" className={labelClass}>District</label>
-                  <select id="district" {...register("district")} onChange={(e) => updateDistrict(e.target.value)} className={inputClass}>
-                    {districtOptions.map((d) => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                  {errors.district && <p className={errorClass}>{errors.district.message}</p>}
-                </div>
-              </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="city" className={labelClass}>City / Municipality</label>
-                  <select id="city" {...register("city")} className={inputClass}>
-                    {municipalityNames.map((m) => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                  {errors.city && <p className={errorClass}>{errors.city.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="ward" className={labelClass}>Ward</label>
-                  <input id="ward" {...register("ward")} className={inputClass} placeholder="Ward number" />
-                  {errors.ward && <p className={errorClass}>{errors.ward.message}</p>}
-                </div>
-              </div>
-              <div>
-                <label htmlFor="address" className={labelClass}>Street Address</label>
-                <input id="address" {...register("address")} className={inputClass} placeholder="House no., street, locality" />
-                {errors.address && <p className={errorClass}>{errors.address.message}</p>}
-              </div>
-              <button type="button" onClick={() => setCurrentStep(1)} disabled={!form.name || !form.phone || !form.address || !form.ward} className="bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark disabled:bg-neutral-400 disabled:cursor-not-allowed cursor-pointer">
-                Continue to Delivery
-              </button>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px] lg:items-start">
+          <section className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-7">
+            <div className="mb-8 grid grid-cols-4 gap-2">
+              {steps.map((step, i) => {
+                const Icon = step.icon;
+                return (
+                  <button
+                    key={step.label}
+                    type="button"
+                    onClick={() => setCurrentStep(i)}
+                    className="text-left"
+                    aria-current={currentStep === i ? "step" : undefined}
+                  >
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full transition ${stepButton(i)}`}
+                    >
+                      {i < currentStep ? (
+                        <CheckCircle2 size={17} />
+                      ) : (
+                        <Icon size={17} />
+                      )}
+                    </div>
+                    <span
+                      className={`mt-2 hidden text-xs font-semibold uppercase tracking-[0.12em] sm:block ${i <= currentStep ? "text-neutral-950" : "text-neutral-400"}`}
+                    >
+                      {step.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          {/* Step 1: Delivery */}
-          {currentStep === 1 && (
-            <div className="space-y-6">
-              <h2 className="type-heading-sm text-neutral-900">Delivery Method</h2>
-              <div className="space-y-3">
-                <label className="flex items-center gap-4 border border-neutral-200 p-4 cursor-pointer hover:border-primary transition-colors">
-                  <input type="radio" name="delivery" defaultChecked className="accent-primary" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-neutral-900">Standard Delivery</p>
-                    <p className="type-body-sm text-neutral-400">3-5 business days</p>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {currentStep === 0 && (
+                <div className="space-y-5">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                    Contact & shipping
+                  </h2>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="name" className={labelClass}>
+                        Full name
+                      </label>
+                      <input
+                        id="name"
+                        {...register("name")}
+                        className={inputClass}
+                        placeholder="Your full name"
+                      />
+                      {errors.name && (
+                        <p className={errorClass}>{errors.name.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="phone" className={labelClass}>
+                        Phone number
+                      </label>
+                      <input
+                        id="phone"
+                        {...register("phone")}
+                        className={inputClass}
+                        placeholder="98XXXXXXXX"
+                      />
+                      {errors.phone && (
+                        <p className={errorClass}>{errors.phone.message}</p>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-sm font-medium text-neutral-900">{deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}</span>
-                </label>
-                {deliveryFee > 0 && subtotal < 2000 && (
-                  <p className="type-body-sm text-neutral-400">Free delivery on orders over {formatNPR(2000)}</p>
-                )}
-              </div>
-              <CodAvailabilityChecker district={form.district} province={form.province} />
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setCurrentStep(0)} className="border border-neutral-200 px-6 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer">
-                  Back
-                </button>
-                <button type="button" onClick={() => setCurrentStep(2)} className="bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer">
-                  Continue to Payment
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Payment */}
-          {currentStep === 2 && (
-            <div className="space-y-6">
-              <h2 className="type-heading-sm text-neutral-900">Payment Method</h2>
-              <div className="space-y-3">
-                {paymentMethods.map((method) => {
-                  const isComingSoon = comingSoonMethods.has(method);
-                  return (
-                    <label key={method} className={`flex items-center gap-4 border p-4 cursor-pointer transition-colors ${form.payment === method ? "border-primary" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-50" : ""}`}>
-                      <input type="radio" {...register("payment")} value={method} disabled={isComingSoon} className="accent-primary" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-neutral-900">{method}</p>
-                        {isComingSoon && <p className="type-body-sm text-neutral-400">Coming soon</p>}
-                      </div>
+                  <div>
+                    <label htmlFor="email" className={labelClass}>
+                      Email optional
                     </label>
-                  );
-                })}
-              </div>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setCurrentStep(1)} className="border border-neutral-200 px-6 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer">
-                  Back
-                </button>
-                <button type="button" onClick={() => setCurrentStep(3)} className="bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer">
-                  Review Order
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Review & Place Order */}
-          {currentStep === 3 && (
-            <div className="space-y-6">
-              <h2 className="type-heading-sm text-neutral-900">Review Your Order</h2>
-
-              {/* Order items */}
-              <div className="border border-neutral-200 divide-y divide-neutral-200">
-                {items.map((item) => (
-                  <div key={`${item.product.id}-${item.selectedShade}`} className="flex gap-4 p-4">
-                    <div className="relative h-16 w-14 shrink-0 overflow-hidden bg-neutral-100">
-                      <Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="56px" />
+                    <input
+                      id="email"
+                      type="email"
+                      {...register("email")}
+                      className={inputClass}
+                      placeholder="your@email.com"
+                    />
+                    {errors.email && (
+                      <p className={errorClass}>{errors.email.message}</p>
+                    )}
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="province" className={labelClass}>
+                        Province
+                      </label>
+                      <select
+                        id="province"
+                        {...register("province")}
+                        onChange={(e) => updateProvince(e.target.value)}
+                        className={inputClass}
+                      >
+                        {PROVINCES.map((p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="type-label text-[10px] text-neutral-400">{item.product.brand}</p>
-                      <p className="text-sm font-medium text-neutral-900 truncate">{item.product.name}</p>
-                      {item.selectedShade && <p className="type-body-sm text-neutral-400">Shade: {item.selectedShade}</p>}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-medium text-neutral-900">{formatNPR(item.product.price * item.quantity)}</p>
-                      <p className="type-body-sm text-neutral-400">Qty {item.quantity}</p>
+                    <div>
+                      <label htmlFor="district" className={labelClass}>
+                        District
+                      </label>
+                      <select
+                        id="district"
+                        {...register("district")}
+                        onChange={(e) => updateDistrict(e.target.value)}
+                        className={inputClass}
+                      >
+                        {districtOptions.map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.district && (
+                        <p className={errorClass}>{errors.district.message}</p>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="city" className={labelClass}>
+                        City / municipality
+                      </label>
+                      <select
+                        id="city"
+                        {...register("city")}
+                        className={inputClass}
+                      >
+                        {municipalityNames.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.city && (
+                        <p className={errorClass}>{errors.city.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="ward" className={labelClass}>
+                        Ward
+                      </label>
+                      <input
+                        id="ward"
+                        {...register("ward")}
+                        className={inputClass}
+                        placeholder="Ward number"
+                      />
+                      {errors.ward && (
+                        <p className={errorClass}>{errors.ward.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="address" className={labelClass}>
+                      Street address
+                    </label>
+                    <input
+                      id="address"
+                      {...register("address")}
+                      className={inputClass}
+                      placeholder="House no., street, locality"
+                    />
+                    {errors.address && (
+                      <p className={errorClass}>{errors.address.message}</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(1)}
+                    disabled={
+                      !form.name || !form.phone || !form.address || !form.ward
+                    }
+                    className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                  >
+                    Continue to delivery
+                  </button>
+                </div>
+              )}
 
-              {/* Summary */}
-              <div className="border border-neutral-200 p-6">
-                <div className="space-y-3 type-body-sm">
-                  <div className="flex justify-between text-neutral-400"><span>Subtotal</span><span className="text-neutral-900">{formatNPR(subtotal)}</span></div>
-                  <div className="flex justify-between text-neutral-400"><span>Shipping</span><span className="text-neutral-900">{deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}</span></div>
-                  <div className="border-t border-neutral-200 pt-3 flex justify-between">
-                    <span className="font-medium text-neutral-900">Total</span>
-                    <span className="type-price text-neutral-900">{formatNPR(total)}</span>
+              {currentStep === 1 && (
+                <div className="space-y-5">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                    Delivery method
+                  </h2>
+                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.5rem] border border-primary bg-[#fffaf7] p-5">
+                    <input
+                      type="radio"
+                      name="delivery"
+                      defaultChecked
+                      className="accent-primary"
+                    />
+                    <Truck className="text-primary" size={20} />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-neutral-950">
+                        Standard delivery
+                      </p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {deliveryRule.estimate}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-neutral-950">
+                      {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
+                    </span>
+                  </label>
+                  <CodAvailabilityChecker
+                    district={form.district}
+                    province={form.province}
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(0)}
+                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(2)}
+                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
+                    >
+                      Continue to payment
+                    </button>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Shipping summary */}
-              <div className="border border-neutral-200 p-4 type-body-sm text-neutral-400">
-                <p className="font-medium text-neutral-900 mb-1">Shipping to</p>
-                <p>{form.name}</p>
-                <p>{form.address}, Ward {form.ward}, {form.city}, {form.district}, {form.province}</p>
-                <p>{form.phone}</p>
-                <p className="mt-2 font-medium text-neutral-900">Payment: {form.payment}</p>
-              </div>
+              {currentStep === 2 && (
+                <div className="space-y-5">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                    Payment method
+                  </h2>
+                  <div className="grid gap-3">
+                    {paymentMethods.map((method) => {
+                      const isComingSoon = comingSoonMethods.has(method);
+                      return (
+                        <label
+                          key={method}
+                          className={`flex cursor-pointer items-center gap-4 rounded-[1.5rem] border p-5 transition ${form.payment === method ? "border-primary bg-[#fffaf7]" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            {...register("payment")}
+                            value={method}
+                            disabled={isComingSoon}
+                            className="accent-primary"
+                          />
+                          <CreditCard size={19} className="text-primary" />
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-neutral-950">
+                              {method}
+                            </p>
+                            {isComingSoon && (
+                              <p className="mt-1 text-xs text-neutral-500">
+                                Coming soon
+                              </p>
+                            )}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <label className="flex items-center gap-3 rounded-[1.5rem] border border-neutral-200 p-5 text-sm text-neutral-700">
+                    <input
+                      type="checkbox"
+                      {...register("giftWrap")}
+                      className="accent-primary"
+                    />
+                    <Gift size={18} className="text-primary" /> Add gift wrap
+                    for {formatNPR(100)}
+                  </label>
+                  <div>
+                    <label htmlFor="notes" className={labelClass}>
+                      Order notes
+                    </label>
+                    <textarea
+                      id="notes"
+                      {...register("notes")}
+                      className={`${inputClass} min-h-28`}
+                      placeholder="Delivery note, gift message or preferred call time"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(1)}
+                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(3)}
+                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
+                    >
+                      Review order
+                    </button>
+                  </div>
+                </div>
+              )}
 
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setCurrentStep(2)} className="border border-neutral-200 px-6 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer">
-                  Back
-                </button>
-                <button type="submit" disabled={!canSubmit || isSubmitting} className="flex-1 bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark disabled:bg-neutral-400 disabled:cursor-not-allowed cursor-pointer">
-                  {isSubmitting ? "Placing Order..." : "Place Order"}
-                </button>
-              </div>
+              {currentStep === 3 && (
+                <div className="space-y-5">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                    Review order
+                  </h2>
+                  <div className="divide-y divide-neutral-200 rounded-[1.5rem] border border-neutral-200">
+                    {items.map((item) => (
+                      <div
+                        key={`${item.product.id}-${item.selectedShade || "base"}`}
+                        className="flex gap-4 p-4"
+                      >
+                        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
+                          <Image
+                            src={item.product.image}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                            {item.product.brand}
+                          </p>
+                          <p className="truncate text-sm font-semibold text-neutral-950">
+                            {item.product.name}
+                          </p>
+                          {item.selectedShade && (
+                            <p className="text-xs text-neutral-500">
+                              Shade: {item.selectedShade}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-neutral-950">
+                            {formatNPR(item.product.price * item.quantity)}
+                          </p>
+                          <p className="text-xs text-neutral-500">
+                            Qty {item.quantity}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-[1.5rem] border border-neutral-200 bg-[#fffaf7] p-5">
+                    <OrderSummary
+                      subtotal={subtotal}
+                      deliveryFee={deliveryFee}
+                      giftWrapFee={giftWrapFee}
+                      total={total}
+                    />
+                  </div>
+                  <div className="rounded-[1.5rem] border border-neutral-200 p-5 text-sm leading-7 text-neutral-600">
+                    <p className="font-semibold text-neutral-950">
+                      Shipping to
+                    </p>
+                    <p>{form.name}</p>
+                    <p>
+                      {form.address}, Ward {form.ward}, {form.city},{" "}
+                      {form.district}, {form.province}
+                    </p>
+                    <p>{form.phone}</p>
+                    <p className="mt-2 font-semibold text-neutral-950">
+                      Payment: {form.payment}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(2)}
+                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!canSubmit || isSubmitting}
+                      className="flex-1 rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    >
+                      {isSubmitting ? "Placing order..." : "Place order"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </form>
+          </section>
+
+          <aside className="rounded-[2.25rem] border border-neutral-200 bg-white p-6 shadow-editorial lg:sticky lg:top-24">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Bag summary
+            </p>
+            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-neutral-950">
+              {itemCount} item{itemCount === 1 ? "" : "s"}
+            </h2>
+            <div className="mt-5 max-h-[360px] space-y-3 overflow-auto pr-1">
+              {items.map((item) => (
+                <div
+                  key={`${item.product.id}-${item.selectedShade || "base"}-summary`}
+                  className="flex gap-3 rounded-[1.25rem] bg-[#fffaf7] p-3"
+                >
+                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
+                    <Image
+                      src={item.product.image}
+                      alt={item.product.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-neutral-950">
+                      {item.product.name}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Qty {item.quantity}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-        </form>
+            <div className="mt-6 border-t border-neutral-200 pt-5">
+              <OrderSummary
+                subtotal={subtotal}
+                deliveryFee={deliveryFee}
+                giftWrapFee={giftWrapFee}
+                total={total}
+              />
+            </div>
+            <div className="mt-5 flex gap-3 rounded-[1.25rem] bg-neutral-950 p-4 text-white">
+              <LockKeyhole size={18} className="mt-0.5 text-[#f0d3f3]" />
+              <p className="text-xs leading-5 text-white/75">
+                Checkout stores only necessary order details and redirects to
+                confirmation after API order creation.
+              </p>
+            </div>
+          </aside>
+        </div>
       </div>
     </main>
   );

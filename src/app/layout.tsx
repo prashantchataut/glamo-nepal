@@ -1,21 +1,8 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
-
-const cormorant = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-display",
-  display: "swap",
-});
-
-const inter = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-body",
-  display: "swap",
-});
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -57,7 +44,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${cormorant.variable} ${inter.variable}`}
+      className=""
     >
       <head>
         <meta

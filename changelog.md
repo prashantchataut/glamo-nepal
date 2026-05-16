@@ -45,8 +45,8 @@ All notable changes to GLAMO NEPAL are documented in this file.
 
 ### accessibility
 
-- **fix(marquee):** replace invalid `role="marquee"` with WCAG-compliant pattern
-  - `AnnouncementBar`, `TrustBadgeMarquee`, `BrandsMarquee` now use paused-by-default auto-rotating regions
+- **fix(auto-rotation):** replace invalid `role="auto-rotation"` with WCAG-compliant pattern
+  - `AnnouncementBar`, `TrustBadgeAuto-rotation`, `BrandsAuto-rotation` now use paused-by-default auto-rotating regions
   - Play/Pause toggle button with `aria-pressed` and `aria-label`
   - `aria-live="polite"`, `aria-atomic="true"`, `role="region"`
   - `prefers-reduced-motion` respected (longer intervals when active)
@@ -68,3 +68,10 @@ All notable changes to GLAMO NEPAL are documented in this file.
 - Mock catalog, Zustand stores, Nepal delivery rules
 - Security headers, Zod validation, open-redirect prevention
 - Accessibility: skip link, ARIA semantics, reduced-motion, carousel controls
+## 2026-05-16 — Premium storefront completion pass v4
+
+- Reworked the site toward the provided premium beauty reference: softer editorial hero, Cormorant-style serif display tokens, rounder cards, calmer spacing and black/pink CTA rhythm.
+- Added real-brand catalog emphasis and remote editorial beauty photography for hero, banner preview and key product imagery while preserving GLAMO Nepal identity and NPR pricing.
+- Redesigned product cards, PDP, cart, checkout, wishlist, search, shop filters and UI primitives with softer radii and premium ecommerce affordances.
+- Added Tailwind brand token aliases so existing `brand-*` classes now resolve consistently across account/admin/customer pages.
+- Ran static QA, typecheck, lint, and banned-pattern grep successfully. Production build was attempted but timed out during Next.js optimized build in this container without surfacing a compile error.

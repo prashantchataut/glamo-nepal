@@ -66,8 +66,8 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
     });
 
   return (
-    <aside className="space-y-0 lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-4">
-      <div className="flex items-center justify-between mb-6">
+    <aside className="rounded-[2rem] border border-neutral-200 bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="type-heading-sm text-neutral-900">Filters</h2>
         <button
           type="button"
@@ -80,14 +80,14 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
 
       <FilterSection title="Search">
         <label className="relative block">
-          <Search className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             value={filters.search}
             onChange={(event) =>
               onFilterChange({ ...filters, search: event.target.value })
             }
             placeholder="Serum, SPF, lipstick..."
-            className="w-full border-b border-neutral-300 bg-transparent py-3 pl-6 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+            className="w-full rounded-full border border-neutral-200 bg-white py-3 pl-9 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
           />
         </label>
       </FilterSection>
@@ -106,7 +106,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 })
               }
               className={cn(
-                "flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors cursor-pointer",
+                "flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm transition-colors cursor-pointer",
                 filters.category === cat.slug
                   ? "bg-primary text-white"
                   : "text-neutral-700 hover:bg-neutral-100"
@@ -134,10 +134,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                   })
                 }
                 className={cn(
-                  "px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                  "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                   filters.subCategory === subCategory
                     ? "bg-primary text-white"
-                    : "bg-neutral-100 text-neutral-600 hover:text-primary"
+                    : "bg-[#fff7f3] text-neutral-600 hover:text-primary"
                 )}
               >
                 {subCategory}
@@ -208,10 +208,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 })
               }
               className={cn(
-                "px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                 filters.concerns.includes(concern)
                   ? "bg-primary text-white"
-                  : "bg-neutral-100 text-neutral-600 hover:text-primary"
+                  : "bg-[#fff7f3] text-neutral-600 hover:text-primary"
               )}
             >
               {concern}
@@ -263,7 +263,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                     minPrice: Number(event.target.value),
                   })
                 }
-                className="w-full border-b border-neutral-300 bg-transparent px-0 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
+                className="w-full rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
               />
             </label>
             <label className="space-y-1">
@@ -279,7 +279,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                     maxPrice: Number(event.target.value),
                   })
                 }
-                className="w-full border-b border-neutral-300 bg-transparent px-0 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
+                className="w-full rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
               />
             </label>
           </div>

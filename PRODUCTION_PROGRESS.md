@@ -12,7 +12,7 @@
 | 6 | Server-side order numbers | Done | `/api/checkout` generates `GLM-{year}-{uuid8}` via `crypto.randomUUID()`. Client no longer uses `Math.random()`. |
 | 7 | Newsletter server endpoint | Done | `POST /api/newsletter` validates email with Zod, persists to Supabase `newsletter_subscribers` with upsert. |
 | 8 | `__Host-` cookie prefix + HttpOnly | Done | Admin session cookie renamed to `__Host-glamo-admin-session` (Secure + no subdomain). All auth cookies are `HttpOnly; SameSite=Lax; Secure`. |
-| 9 | Marquee accessibility (WCAG) | Done | Replaced `role="marquee"` with paused-by-default auto-rotating regions. Play/Pause toggle, `aria-live="polite"`, `prefers-reduced-motion` respected. |
+| 9 | Auto-rotation accessibility (WCAG) | Done | Replaced `role="auto-rotation"` with paused-by-default auto-rotating regions. Play/Pause toggle, `aria-live="polite"`, `prefers-reduced-motion` respected. |
 
 ## Previous phases (summary)
 
@@ -27,7 +27,7 @@
 | Search/filtering | Done — URL-ready shop filters, brand pages |
 | Conversion features | Done — bundles, back-in-stock, delivery promise |
 | Analytics/events | Done — central event helper for all user actions |
-| Accessibility/legal safety | Done — WCAG marquee fix, skip link, reduced-motion, aria semantics |
+| Accessibility/legal safety | Done — WCAG auto-rotation fix, skip link, reduced-motion, aria semantics |
 | Performance optimisation | Done — source checks, local fonts |
 | Testing setup | Done — smoke routes, store contracts, content checks |
 
