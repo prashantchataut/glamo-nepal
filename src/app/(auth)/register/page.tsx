@@ -11,7 +11,7 @@ export const metadata = createMetadata({
 
 export default function RegisterPage() {
   return (
-    <main className="bg-neutral-50 py-16 md:py-24">
+    <main className="bg-[#fbf7f3] py-10 md:py-16">
       <div className="container mx-auto px-4 md:px-6">
         <Suspense fallback={<div className="mx-auto max-w-5xl bg-white p-8 text-neutral-400">Loading registration...</div>}>
           <AuthForm mode="register" />

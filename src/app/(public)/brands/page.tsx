@@ -18,14 +18,12 @@ export default function BrandsPage() {
     <main className="min-h-screen bg-neutral-50">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Brands", path: "/brands" }])} />
 
-      <section className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50 py-12 md:py-20">
-        <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 left-12 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="container relative mx-auto px-4 md:px-6">
-          <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Brand directory</p>
-          <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-neutral-900 md:text-7xl">Our Brands</h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">
-            Authentic beauty brands curated for Nepal-market shoppers — skincare, haircare and cosmetics you can trust.
+      <section className="border-b border-neutral-200 bg-[#fbf7f3] py-12 md:py-20">
+        <div className="container mx-auto px-5 sm:px-8">
+          <p className="type-label text-primary">Brand directory</p>
+          <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-neutral-900 md:text-7xl">Our Brands</h1>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-600">
+            Authentic beauty brands curated for Nepal-market shoppers — skincare, haircare and cosmetics selected with clear routines in mind.
           </p>
         </div>
       </section>
@@ -36,7 +34,7 @@ export default function BrandsPage() {
             <Link
               key={brand.slug}
               href={`/brands/${brand.slug}`}
-              className="group cursor-pointer overflow-hidden border border-neutral-200 bg-white transition-shadow hover:shadow-lg"
+              className="group cursor-pointer overflow-hidden border border-neutral-200 bg-white transition-colors hover:border-primary/40"
             >
               <div className="relative aspect-square overflow-hidden bg-neutral-100">
                 <Image
@@ -48,7 +46,7 @@ export default function BrandsPage() {
                 />
               </div>
               <div className="p-4 md:p-5">
-                <h2 className="font-display text-lg font-semibold text-neutral-900">{brand.name}</h2>
+                <h2 className="font-display text-2xl font-light text-neutral-900">{brand.name}</h2>
                 <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-neutral-500">{brand.description}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {brand.concerns.slice(0, 3).map((concern) => (

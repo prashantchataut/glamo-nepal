@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck, RotateCcw, Share2, Heart } from "lucide-react";
+import { ChevronRight, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck, RotateCcw, Share2, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -65,15 +65,15 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   }
 
   return (
-    <div className="bg-neutral-50">
+    <div className="bg-[#fbfaf8]">
       {/* Breadcrumb */}
-      <div className="mx-auto max-w-7xl px-4 pt-4 md:px-6 lg:px-8">
-        <nav className="type-body-sm text-neutral-400">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
-          <span className="mx-2">/</span>
-          <span className="text-neutral-700">{product.name}</span>
+      <div className="mx-auto max-w-7xl px-4 pt-5 md:px-6 lg:px-8">
+        <nav className="flex min-h-11 flex-wrap items-center gap-2 text-sm text-neutral-500" aria-label="Breadcrumb">
+          <Link href="/" className="transition hover:text-primary">Home</Link>
+          <ChevronRight size={14} aria-hidden="true" />
+          <Link href="/shop" className="transition hover:text-primary">Shop</Link>
+          <ChevronRight size={14} aria-hidden="true" />
+          <span className="font-medium text-neutral-800">{product.name}</span>
         </nav>
       </div>
 
@@ -102,7 +102,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
             {/* Main image */}
             <div
-              className="relative aspect-[3/4] overflow-hidden bg-neutral-100 cursor-zoom-in hidden lg:block"
+              className="relative aspect-[4/5] overflow-hidden border border-neutral-200 bg-white cursor-zoom-in hidden lg:block shadow-sm"
               onMouseEnter={() => setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleZoom}
@@ -123,7 +123,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             </div>
 
             {/* Mobile: simple image carousel */}
-            <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 lg:hidden">
+            <div className="relative aspect-[4/5] overflow-hidden border border-neutral-200 bg-white lg:hidden shadow-sm">
               <Image
                 src={galleryImages[currentImage]}
                 alt={`${product.brand} ${product.name}`}
@@ -152,14 +152,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
           </div>
 
           {/* Right: Product Info */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="border border-neutral-200 bg-white p-5 shadow-sm md:p-7 lg:sticky lg:top-24 lg:self-start">
             {/* Brand */}
-            <Link href={`/brands/${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="type-label text-[11px] text-neutral-400 hover:text-primary transition-colors">
+            <Link href={`/brands/${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="type-label text-[11px] text-primary hover:text-primary-dark transition-colors">
               {product.brand}
             </Link>
 
             {/* Name */}
-            <h1 className="type-display-md text-neutral-900 mt-1">{product.name}</h1>
+            <h1 className="type-display-md text-neutral-900 mt-2">{product.name}</h1>
 
             {/* Rating */}
             <div className="mt-3 flex items-center gap-2">
@@ -187,7 +187,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             <div className="mt-6 border-t border-neutral-200" />
 
             {/* Description */}
-            <p className="type-body-md text-neutral-700 mt-4 line-clamp-3">{product.description.trim()}</p>
+            <p className="type-body-md text-neutral-600 mt-5 leading-7">{product.description.trim()}</p>
 
             {/* Shade selector */}
             {product.shadeOptions && product.shadeOptions.length > 0 && (
@@ -217,7 +217,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             )}
 
             {/* Quantity + Add to Cart */}
-            <div ref={ctaRef} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div ref={ctaRef} className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               {product.inStock && (
                 <div className="flex items-center border border-neutral-200">
                   <button
@@ -243,7 +243,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               <button
                 onClick={addToCart}
                 disabled={!product.inStock}
-                className="flex flex-1 items-center justify-center gap-2 bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark disabled:bg-neutral-400 disabled:cursor-not-allowed cursor-pointer"
+                className="flex min-h-12 flex-1 items-center justify-center gap-2 bg-primary px-8 text-[13px] font-medium tracking-[0.12em] uppercase text-white transition-colors hover:bg-primary-dark disabled:bg-neutral-400 disabled:cursor-not-allowed cursor-pointer"
               >
                 <ShoppingBag size={16} />
                 {product.inStock ? "Add to Bag" : "Sold Out"}
@@ -252,7 +252,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 type="button"
                 onClick={toggleWishlist}
                 className={cn(
-                  "flex h-11 w-11 items-center justify-center border border-neutral-200 transition-colors cursor-pointer",
+                  "flex min-h-12 min-w-12 items-center justify-center border border-neutral-200 transition-colors cursor-pointer",
                   isWishlisted ? "bg-primary text-white border-primary" : "text-neutral-700 hover:text-primary"
                 )}
                 aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
@@ -266,26 +266,26 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             )}
 
             {/* Trust row */}
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <div className="text-center">
-                <Truck size={18} className="mx-auto text-neutral-400" />
+            <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="border border-neutral-200 bg-neutral-50 p-3 text-center">
+                <Truck size={18} className="mx-auto text-primary" />
                 <p className="type-label text-[10px] text-neutral-400 mt-1">Free Shipping</p>
                 <p className="type-body-sm text-neutral-700">Over रू 2,000</p>
               </div>
-              <div className="text-center">
-                <ShieldCheck size={18} className="mx-auto text-neutral-400" />
+              <div className="border border-neutral-200 bg-neutral-50 p-3 text-center">
+                <ShieldCheck size={18} className="mx-auto text-primary" />
                 <p className="type-label text-[10px] text-neutral-400 mt-1">Authentic</p>
                 <p className="type-body-sm text-neutral-700">Guaranteed</p>
               </div>
-              <div className="text-center">
-                <RotateCcw size={18} className="mx-auto text-neutral-400" />
+              <div className="border border-neutral-200 bg-neutral-50 p-3 text-center">
+                <RotateCcw size={18} className="mx-auto text-primary" />
                 <p className="type-label text-[10px] text-neutral-400 mt-1">7-Day Returns</p>
                 <p className="type-body-sm text-neutral-700">{getReturnEligibility(product)}</p>
               </div>
             </div>
 
             {/* Accordion: Details */}
-            <div className="mt-8 border-t border-neutral-200">
+            <div className="mt-8 border-y border-neutral-200">
               <Accordion type="single" collapsible>
                 <AccordionItem value="details">
                   <AccordionTrigger className="type-label text-[11px] text-neutral-900 py-4 hover:no-underline">Details</AccordionTrigger>
@@ -350,7 +350,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
       {/* Related Products */}
       {related.length > 0 && (
-        <section className="section-padding page-padding">
+        <section className="section-padding page-padding bg-white border-t border-neutral-200">
           <div className="mx-auto max-w-7xl">
             <span className="type-label text-[11px] text-neutral-400 mb-3 block">You Might Also Like</span>
             <h2 className="type-display-md text-neutral-900">Related Products</h2>

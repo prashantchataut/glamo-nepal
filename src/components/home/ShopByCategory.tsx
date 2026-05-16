@@ -1,47 +1,32 @@
-﻿"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { SHOP_CATEGORIES } from "@/lib/constants";
 import { Section } from "@/components/common/Section";
+import { IMAGES } from "@/lib/image-library";
+
+const categories = [
+  { name: "Skincare", href: "/shop?category=skincare", image: IMAGES.categories.skincare, copy: "Cleansers, serums and daily SPF." },
+  { name: "Makeup", href: "/shop?category=makeup", image: IMAGES.categories.makeup, copy: "Color, glow and polished essentials." },
+  { name: "Hair Care", href: "/shop?category=haircare", image: IMAGES.categories.haircare, copy: "Healthy lengths and wash-day staples." },
+  { name: "Body & Wellness", href: "/shop?category=bodycare", image: IMAGES.categories.body, copy: "Bath, body and soft fragrance rituals." },
+  { name: "Fragrance", href: "/shop?category=fragrance", image: IMAGES.categories.fragrance, copy: "Scents for daily signature moments." },
+];
 
 export function ShopByCategory() {
   return (
-    <Section
-      label="Shop by Category"
-      heading="Find Your Ritual"
-      align="center"
-    >
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {SHOP_CATEGORIES.slice(0, 4).map((category) => (
-          <Link
-            key={category.id}
-            href={`/shop?category=${category.slug}`}
-            className="group relative aspect-[3/4] overflow-hidden bg-neutral-100 cursor-pointer"
-          >
-            <Image
-              src={category.image}
-              alt={category.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 50vw, 25vw"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-neutral-900/20 to-transparent" />
-            <div className="absolute inset-0 flex flex-col justify-end p-6">
-              <span className="type-label text-[10px] text-white/70 mb-1">
-                {category.name}
-              </span>
-              <h3 className="font-display text-xl font-medium text-white leading-tight">
-                {category.name}
-              </h3>
-              <span className="mt-2 inline-flex items-center gap-1 text-[12px] text-white/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                Shop Now
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            </div>
+    <Section label="Shop by category" heading="Choose your ritual" subheading="Visual doors into skincare, makeup, hair care and fragrance — built for browsing, not guessing." className="bg-white">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {categories.map((category, index) => (
+          <Link key={category.name} href={category.href} className={index === 0 ? "group sm:col-span-2 lg:col-span-1" : "group"}>
+            <article className="h-full border border-neutral-200 bg-[#fbf7f3] transition-colors hover:border-primary/40">
+              <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+                <Image src={category.image} alt={`${category.name} beauty category`} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw" />
+              </div>
+              <div className="p-4">
+                <h3 className="font-display text-2xl text-neutral-900">{category.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-neutral-500">{category.copy}</p>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Shop now</p>
+              </div>
+            </article>
           </Link>
         ))}
       </div>

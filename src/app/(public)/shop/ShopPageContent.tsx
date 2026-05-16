@@ -136,17 +136,22 @@ export default function ShopPageContent() {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Page header */}
-      <section className="bg-primary-dark py-12 md:py-16">
-        <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
-          <span className="type-label text-[11px] text-secondary/80 mb-3 block">
-            रू pricing · Nepal delivery
-          </span>
-          <h1 className="type-display-lg text-white italic">
-            {categoryObj?.name || "All Products"}
-          </h1>
-          <p className="type-body-md mt-4 text-white/70 max-w-xl">
-            {categoryObj?.description || "Browse skincare, soft-glam makeup and daily beauty essentials with रू pricing and Nepal delivery."}
-          </p>
+      <section className="border-b border-neutral-200 bg-[#fbf7f3] py-12 md:py-18">
+        <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <span className="type-label text-primary">रू pricing · Nepal delivery</span>
+            <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-neutral-900 md:text-7xl">
+              {categoryObj?.name || "The beauty edit"}
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-600">
+              {categoryObj?.description || "Browse skincare, soft-glam makeup, hair care and daily essentials with clear pricing, polished filters and authentic GLAMO curation."}
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-3 border border-neutral-200 bg-white p-4 text-center shadow-card">
+            <div><p className="font-display text-2xl text-primary">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Products</p></div>
+            <div><p className="font-display text-2xl text-primary">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Districts</p></div>
+            <div><p className="font-display text-2xl text-primary">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Curated</p></div>
+          </div>
         </div>
       </section>
 
@@ -162,8 +167,8 @@ export default function ShopPageContent() {
                 className={cn(
                   "shrink-0 px-4 py-2 text-sm tracking-wide transition-colors cursor-pointer",
                   filters.category === cat.slug
-                    ? "bg-primary text-white"
-                    : "bg-neutral-100 text-neutral-700 hover:text-primary"
+                    ? "border-primary bg-primary text-white"
+                    : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40 hover:text-primary"
                 )}
               >
                 {cat.name}
@@ -265,7 +270,7 @@ export default function ShopPageContent() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 md:gap-6 xl:grid-cols-3">
                   {paginatedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

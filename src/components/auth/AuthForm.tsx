@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { SITE_CONFIG } from "@/lib/config";
+import { IMAGES } from "@/lib/image-library";
 import { useAuthStore } from "@/store/useAuthStore";
 import { setAuthCookies, clearAuthCookies, sanitizeRedirect } from "@/lib/auth-cookies";
 import { Button } from "@/components/ui/button";
@@ -190,18 +192,22 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   ];
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-0 bg-white md:gap-0 md:grid-cols-[0.9fr_1.1fr]">
-      <aside className="bg-neutral-900 p-8 text-white md:p-10">
-        <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-secondary">{copy.eyebrow}</p>
-        <h1 className="mt-4 font-display text-4xl font-semibold leading-tight md:text-5xl">{copy.title}</h1>
-        <p className="mt-4 text-sm leading-6 text-white/70">{copy.description}</p>
-        <div className="mt-8 border border-white/10 bg-white/5 p-4 text-sm leading-6 text-white/75">
-          <strong className="block text-white">Need help signing in?</strong>
-          Contact GLAMO customer care at {SITE_CONFIG.phone}, or continue with your email to view your account area.
+    <div className="mx-auto grid max-w-6xl overflow-hidden border border-neutral-200 bg-white shadow-editorial md:grid-cols-[0.95fr_1.05fr]">
+      <aside className="relative min-h-[420px] bg-neutral-900 p-8 text-white md:p-10 lg:p-12">
+        <Image src={IMAGES.auth.loginSplit} alt="Editorial beauty portrait for GLAMO account access" fill className="object-cover opacity-55" sizes="(max-width: 768px) 100vw, 45vw" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/45 to-neutral-950/10" />
+        <div className="relative z-10 flex h-full flex-col justify-end">
+          <p className="type-label text-secondary">{copy.eyebrow}</p>
+          <h1 className="mt-4 font-display text-5xl font-light leading-tight md:text-6xl">{copy.title}</h1>
+          <p className="mt-5 max-w-md text-sm leading-7 text-white/78">{copy.description}</p>
+          <div className="mt-8 border border-white/15 bg-neutral-950/45 p-4 text-sm leading-6 text-white/75">
+            <strong className="block text-white">Need help signing in?</strong>
+            Contact GLAMO customer care at {SITE_CONFIG.phone}, or continue with your email to view your account area.
+          </div>
         </div>
       </aside>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 md:p-10">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 md:p-10 lg:p-12">
         {!isConfigured && (mode === "login" || mode === "register") && (
           <div className="border border-secondary/30 bg-secondary/5 px-4 py-3 text-sm text-neutral-700">
             <strong>Coming soon:</strong> Authentication is not yet connected. Account features will be available once Supabase is configured.

@@ -26,11 +26,6 @@
       "sourceType": "well-known",
       "computedHash": "12d0da39c495673a2acce3d54b9e5d3e81db59f8314e28c4935c4602333ff430"
     },
-    "storefront-best-practices": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "633f757031071344075cce6450ff8c5bf209691a8d072bb6cc73be153faa4ba4"
-    },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",

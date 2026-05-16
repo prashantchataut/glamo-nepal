@@ -50,24 +50,22 @@ export function ProductCard({ product }: ProductCardProps) {
       return;
     }
     setAddState("loading");
-    window.setTimeout(() => {
-      const result = addToCart(product);
-      if (!result.ok) {
-        setAddState("idle");
-        toast.error(result.message || "Unable to add this item.");
-        return;
-      }
-      setAddState("added");
-      window.dispatchEvent(new CustomEvent("glamo:cart-pulse"));
-      toast.success(`${product.name} added to cart`);
-      trackEvent("add_to_cart", {
-        productId: product.id,
-        productSlug: product.slug,
-        sku: product.sku,
-        value: product.price,
-      });
-      window.setTimeout(() => setAddState("idle"), 2000);
-    }, 280);
+    const result = addToCart(product);
+    if (!result.ok) {
+      setAddState("idle");
+      toast.error(result.message || "Unable to add this item.");
+      return;
+    }
+    setAddState("added");
+    window.dispatchEvent(new CustomEvent("glamo:cart-pulse"));
+    toast.success(`${product.name} added to cart`);
+    trackEvent("add_to_cart", {
+      productId: product.id,
+      productSlug: product.slug,
+      sku: product.sku,
+      value: product.price,
+    });
+    window.requestAnimationFrame(() => setAddState("idle"));
   }
 
   function onWishlist(e: React.MouseEvent) {
@@ -85,12 +83,12 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <article
       aria-label={product.name}
-      className="group flex h-full flex-col"
+      className="group flex h-full flex-col border border-neutral-200 bg-white transition-colors hover:border-primary/30"
     >
       {/* Image container */}
       <Link
         href={`/products/${product.slug}`}
-        className="relative block aspect-[3/4] overflow-hidden bg-neutral-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="relative block aspect-[4/5] overflow-hidden bg-[#f7f1ec] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <Image
           src={product.image}
@@ -130,8 +128,8 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center transition-all duration-200",
-            "opacity-0 group-hover:opacity-100",
+            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center border border-neutral-200 transition-all duration-200",
+            "bg-white/95 opacity-100 md:opacity-0 md:group-hover:opacity-100",
             isWishlisted && "opacity-100",
             isWishlisted
               ? "bg-primary text-white"
@@ -154,7 +152,7 @@ export function ProductCard({ product }: ProductCardProps) {
               type="button"
               onClick={onCart}
               disabled={addState === "loading"}
-              className="flex h-10 w-full items-center justify-center gap-2 bg-neutral-900/80 text-white text-[11px] tracking-[0.1em] uppercase font-medium transition-colors hover:bg-neutral-900/90 disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-2 bg-neutral-900 text-white text-[11px] tracking-[0.16em] uppercase font-semibold transition-colors hover:bg-primary disabled:opacity-50"
             >
               {addState === "loading" ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -173,7 +171,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* Card body */}
-      <div className="pt-3 pb-4 px-0">
+      <div className="flex flex-1 flex-col px-4 pb-5 pt-4">
         {/* Brand */}
         <p className="type-label text-[10px] text-neutral-500 mb-1">
           {product.brand}
@@ -181,7 +179,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Name */}
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-display text-base leading-snug text-neutral-900 transition-colors group-hover:text-primary md:text-[18px]">
+          <h3 className="min-h-[2.65rem] font-display text-lg leading-tight text-neutral-900 transition-colors group-hover:text-primary">
             {product.name}
           </h3>
         </Link>
