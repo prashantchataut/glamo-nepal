@@ -12,9 +12,9 @@ function PasswordInput({ label, value, onChange }: { label: string; value: strin
   return (
     <label className="block text-sm font-semibold text-brand-textPrimary">
       {label}
-      <span className="mt-2 flex items-center rounded-none border border-border bg-brand-bgLight px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20">
+      <span className="mt-2 flex items-center rounded-2xl border border-border bg-brand-bgLight px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20">
         <input type={visible ? "text" : "password"} value={value} onChange={(event) => onChange(event.target.value)} required minLength={8} className="min-h-12 flex-1 bg-transparent pr-3 outline-none" />
-        <button type="button" onClick={() => setVisible((current) => !current)} className="rounded-none p-1 text-brand-textMuted hover:text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/25" aria-label={visible ? "Hide password" : "Show password"}>
+        <button type="button" onClick={() => setVisible((current) => !current)} className="rounded-2xl p-1 text-brand-textMuted hover:text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/25" aria-label={visible ? "Hide password" : "Show password"}>
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </span>
@@ -63,7 +63,7 @@ export function PasswordForm() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-      <form onSubmit={submit} className="rounded-none border border-border/70 bg-cream-50 p-6 shadow-sm md:p-8">
+      <form onSubmit={submit} className="rounded-2xl border border-border/70 bg-cream-50 p-6 shadow-sm md:p-8">
         <h1 className="font-display text-3xl font-semibold text-brand-textPrimary">Change password</h1>
         <p className="mt-2 text-sm leading-6 text-brand-textMuted">Choose a strong password and keep your account details secure.</p>
         <div className="mt-7 space-y-5">
@@ -71,7 +71,7 @@ export function PasswordForm() {
           <div>
             <PasswordInput label="New password" value={newPassword} onChange={setNewPassword} />
             <div className="mt-2 grid grid-cols-4 gap-1" aria-label="Password strength">
-              {[1, 2, 3, 4].map((item) => <span key={item} className={cn("h-1.5 rounded-none", score >= item ? "bg-brand-primary" : "bg-border")} />)}
+              {[1, 2, 3, 4].map((item) => <span key={item} className={cn("h-1.5 rounded-2xl", score >= item ? "bg-brand-primary" : "bg-border")} />)}
             </div>
           </div>
           <div>
@@ -79,11 +79,11 @@ export function PasswordForm() {
             {mismatch ? <p className="mt-1 text-xs font-semibold text-red-600">Passwords do not match.</p> : null}
           </div>
         </div>
-        <button disabled={isSaving || mismatch} className="mt-7 rounded-none bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark disabled:cursor-not-allowed disabled:opacity-60">
+        <button disabled={isSaving || mismatch} className="mt-7 rounded-2xl bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark disabled:cursor-not-allowed disabled:opacity-60">
           {isSaving ? "Updating..." : "Update password"}
         </button>
       </form>
-      <aside className="rounded-none border border-border/70 bg-brand-bgDark p-6 text-white shadow-sm md:p-8">
+      <aside className="rounded-2xl border border-border/70 bg-brand-bgDark p-6 text-white shadow-sm md:p-8">
         <ShieldCheck className="text-brand-gold" size={32} />
         <h2 className="mt-4 font-display text-3xl font-semibold">Password tips</h2>
         <ul className="mt-5 space-y-3 text-sm leading-6 text-white/75">

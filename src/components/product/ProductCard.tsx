@@ -47,7 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <article aria-label={product.name} className="group flex h-full min-w-0 flex-col transition duration-500 hover:-translate-y-1">
       <Link
         href={`/products/${product.slug}`}
-        className="relative block aspect-[4/5] overflow-hidden bg-cream-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-4"
+        className="relative block aspect-[4/5] overflow-hidden rounded-[1.6rem] bg-cream-100 shadow-[0_20px_58px_-52px_rgba(26,15,11,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-4"
       >
         <Image
           src={product.image}
@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center bg-cream-50 text-ink opacity-100 shadow-[0_12px_30px_-22px_rgba(26,15,11,0.5)] transition duration-300 hover:text-brand-rose md:opacity-0 md:group-hover:opacity-100",
+            "absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-cream-50/94 text-ink opacity-100 shadow-[0_12px_30px_-22px_rgba(26,15,11,0.5)] transition duration-300 hover:-translate-y-0.5 hover:text-brand-rose md:opacity-0 md:group-hover:opacity-100",
             isWishlisted && "text-brand-rose opacity-100",
           )}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
@@ -73,7 +73,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {cardBadge && (
-          <span className="absolute bottom-2.5 left-2.5 z-10 bg-cream-50/94 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-brand-deep backdrop-blur-sm md:bottom-3 md:left-3 md:px-3 md:text-label-sm">
+          <span className="absolute bottom-2.5 left-2.5 z-10 rounded-full bg-cream-50/94 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-brand-deep backdrop-blur-sm md:bottom-3 md:left-3 md:px-3 md:text-label-sm">
             {cardBadge}
           </span>
         )}
@@ -97,7 +97,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <span
                 key={shade.name}
                 title={shade.name}
-                className="h-3 w-3 rounded-none border border-cream-200"
+                className="h-3 w-3 rounded-full border border-cream-200"
                 style={{ backgroundColor: shade.hex || "#F0E8E3" }}
               />
             ))}
@@ -133,7 +133,7 @@ export function ProductCard({ product }: ProductCardProps) {
 export function ProductCardSkeleton() {
   return (
     <div className="flex h-full flex-col">
-      <div className="aspect-[4/5] skeleton-shimmer" />
+      <div className="aspect-[4/5] rounded-[1.6rem] skeleton-shimmer" />
       <div className="space-y-3 py-4">
         <div className="h-3 w-16 skeleton-shimmer" />
         <div className="h-5 w-4/5 skeleton-shimmer" />

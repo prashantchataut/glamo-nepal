@@ -1,15 +1,18 @@
-const AUTH_TOKEN_KEY = "glamo-auth-token";
+export const CUSTOMER_SESSION_COOKIE = "glamo-customer-session";
+const AUTH_TOKEN_KEY = CUSTOMER_SESSION_COOKIE;
 const AUTH_ROLE_KEY = "glamo-user-role";
 const AUTH_MAX_AGE = 604800;
 
 export function setAuthCookies(email: string, role: string) {
-  document.cookie = `${AUTH_TOKEN_KEY}=authenticated; path=/; max-age=${AUTH_MAX_AGE}; SameSite=Lax; Secure`;
-  document.cookie = `${AUTH_ROLE_KEY}=${encodeURIComponent(role)}; path=/; max-age=${AUTH_MAX_AGE}; SameSite=Lax; Secure`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${AUTH_TOKEN_KEY}=${encodeURIComponent(email)}; path=/; max-age=${AUTH_MAX_AGE}; SameSite=Lax${secure}`;
+  document.cookie = `${AUTH_ROLE_KEY}=${encodeURIComponent(role)}; path=/; max-age=${AUTH_MAX_AGE}; SameSite=Lax${secure}`;
 }
 
 export function clearAuthCookies() {
-  document.cookie = `${AUTH_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax; Secure`;
-  document.cookie = `${AUTH_ROLE_KEY}=; path=/; max-age=0; SameSite=Lax; Secure`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${AUTH_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax${secure}`;
+  document.cookie = `${AUTH_ROLE_KEY}=; path=/; max-age=0; SameSite=Lax${secure}`;
 }
 
 export function sanitizeRedirect(redirect: string | null): string {

@@ -58,7 +58,7 @@ export function MobileBottomNav() {
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className={cn("text-[11px] font-medium", isActive && "font-semibold")}>{item.label}</span>
               {count > 0 && (
-                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-none bg-brand-primary text-[9px] font-bold text-white">
+                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-2xl bg-brand-primary text-[9px] font-bold text-white">
                   {count}
                 </span>
               )}

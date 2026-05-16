@@ -66,7 +66,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
     });
 
   return (
-    <aside className="rounded-none border border-cream-200 bg-cream-50 p-5 shadow-soft lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+    <aside className="rounded-[1.75rem] border border-cream-200 bg-cream-50/95 p-5 shadow-[0_24px_70px_-58px_rgba(26,15,11,0.45)] lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="type-heading-sm text-ink">Filters</h2>
         <button
@@ -87,7 +87,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
               onFilterChange({ ...filters, search: event.target.value })
             }
             placeholder="Serum, SPF, lipstick..."
-            className="w-full rounded-none border border-cream-200 bg-cream-50 py-3 pl-9 pr-4 text-sm text-ink placeholder:text-cream-400 focus:border-brand-rose focus:outline-none"
+            className="w-full rounded-full border border-cream-200 bg-white/80 py-3 pl-9 pr-4 text-sm text-ink placeholder:text-cream-400 shadow-[0_14px_36px_-32px_rgba(26,15,11,0.35)] focus:border-brand-rose focus:outline-none focus:ring-2 focus:ring-primary/15"
           />
         </label>
       </FilterSection>
@@ -106,10 +106,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 })
               }
               className={cn(
-                "flex w-full items-center justify-between rounded-none px-3 py-2 text-left text-sm transition-colors cursor-pointer",
+                "flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm transition-all cursor-pointer",
                 filters.category === cat.slug
-                  ? "bg-brand-rose text-white"
-                  : "text-cream-700 hover:bg-cream-100"
+                  ? "bg-brand-rose text-white shadow-[0_14px_30px_-24px_rgba(168,77,94,0.55)]"
+                  : "text-cream-700 hover:bg-white hover:text-brand-deep"
               )}
             >
               {cat.name}
@@ -134,7 +134,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                   })
                 }
                 className={cn(
-                  "rounded-none px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                  "rounded-full px-3 py-1.5 text-xs tracking-wide transition-all cursor-pointer",
                   filters.subCategory === subCategory
                     ? "bg-brand-rose text-white"
                     : "bg-cream-100 text-cream-700 hover:text-brand-rose"
@@ -208,7 +208,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 })
               }
               className={cn(
-                "rounded-none px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                "rounded-2xl px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                 filters.concerns.includes(concern)
                   ? "bg-brand-rose text-white"
                   : "bg-cream-100 text-cream-700 hover:text-brand-rose"
@@ -263,7 +263,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                     minPrice: Number(event.target.value),
                   })
                 }
-                className="w-full rounded-none border border-cream-200 bg-cream-50 px-3 py-2 text-sm text-ink focus:border-brand-rose focus:outline-none"
+                className="w-full rounded-full border border-cream-200 bg-white/80 px-3 py-2 text-sm text-ink focus:border-brand-rose focus:outline-none focus:ring-2 focus:ring-primary/15"
               />
             </label>
             <label className="space-y-1">
@@ -279,7 +279,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                     maxPrice: Number(event.target.value),
                   })
                 }
-                className="w-full rounded-none border border-cream-200 bg-cream-50 px-3 py-2 text-sm text-ink focus:border-brand-rose focus:outline-none"
+                className="w-full rounded-full border border-cream-200 bg-white/80 px-3 py-2 text-sm text-ink focus:border-brand-rose focus:outline-none focus:ring-2 focus:ring-primary/15"
               />
             </label>
           </div>

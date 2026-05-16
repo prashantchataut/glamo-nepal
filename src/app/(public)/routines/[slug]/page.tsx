@@ -40,10 +40,10 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
             <h1 className="mt-3 font-display text-5xl font-semibold leading-tight text-brand-textPrimary md:text-7xl">{bundle.title}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{bundle.description}</p>
             <div className="mt-7 flex flex-wrap gap-2">
-              {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-none bg-cream-50 px-3 py-1 text-xs font-bold text-brand-primary shadow-sm ring-1 ring-brand-border">{tag}</span>)}
+              {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-2xl bg-cream-50 px-3 py-1 text-xs font-bold text-brand-primary shadow-sm ring-1 ring-brand-border">{tag}</span>)}
             </div>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-none border border-brand-border bg-cream-50 shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-brand-border bg-cream-50 shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
             <Image src={bundle.image} alt={bundle.title} fill sizes="(max-width: 1024px) 100vw, 420px" priority className="object-cover" />
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
 
       <section className="container mx-auto grid gap-8 px-4 py-10 md:px-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
-          <div className="rounded-none bg-cream-50 p-6 shadow-sm md:p-8">
+          <div className="rounded-2xl bg-cream-50 p-6 shadow-sm md:p-8">
             <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Routine steps</p>
             <h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">How this routine works</h2>
             <div className="mt-6 grid gap-4">
@@ -59,7 +59,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
                 const product = bundle.products.find((item) => item.slug === step.productSlug);
                 return (
                   <div key={step.productSlug} className="flex gap-4 rounded-3xl border border-border/70 bg-brand-bgLight p-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none bg-brand-primary font-bold text-white">{index + 1}</span>
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-primary font-bold text-white">{index + 1}</span>
                     <div>
                       <h3 className="font-display text-2xl font-semibold text-brand-textPrimary">{step.label}</h3>
                       <p className="mt-1 text-sm leading-6 text-brand-textMuted">{step.note}</p>
@@ -86,7 +86,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-28 lg:self-start">
-          <div className="rounded-none bg-cream-50 p-6 shadow-sm">
+          <div className="rounded-2xl bg-cream-50 p-6 shadow-sm">
             <PackageCheck className="mb-3 text-brand-primary" />
             <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Routine summary</h2>
             <div className="mt-4 space-y-3 text-sm text-brand-textMuted">
@@ -95,10 +95,10 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
               <div className="flex justify-between"><span>Bundle saving</span><strong className="text-brand-primary">{formatNPR(bundle.savings)}</strong></div>
             </div>
           </div>
-          <div className="rounded-none border border-amber-300/60 bg-amber-50 p-5 text-sm text-amber-900">
+          <div className="rounded-2xl border border-amber-300/60 bg-amber-50 p-5 text-sm text-amber-900">
             <div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><p>Patch test new products and follow each product&apos;s packaging directions. Contact GLAMO before purchase if you need help choosing a routine for sensitive skin.</p></div>
           </div>
-          <div className="rounded-none bg-cream-50 p-5 text-sm text-brand-textMuted shadow-sm">
+          <div className="rounded-2xl bg-cream-50 p-5 text-sm text-brand-textMuted shadow-sm">
             <div className="flex gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary" /><p>Bundle savings are shown for easy review. Final pricing is confirmed at checkout.</p></div>
           </div>
         </aside>

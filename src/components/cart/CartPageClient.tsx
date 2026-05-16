@@ -64,8 +64,8 @@ export function CartPageClient() {
   if (!items.length) {
     return (
       <main className="min-h-[72vh] bg-cream-50 px-4 py-20 md:py-28">
-        <div className="mx-auto max-w-2xl rounded-none border border-cream-200 bg-cream-50 p-8 text-center shadow-editorial md:p-12">
-          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-none bg-brand-blush text-brand-rose">
+        <div className="mx-auto max-w-2xl rounded-[2rem] border border-cream-200 bg-cream-50 p-8 text-center shadow-editorial md:p-12">
+          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-brand-blush text-brand-rose">
             <ShoppingBag size={28} />
           </div>
           <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
@@ -80,7 +80,7 @@ export function CartPageClient() {
           </p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-none bg-ink px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-rose"
+            className="luxury-button luxury-button-dark mt-8"
           >
             Start shopping
           </Link>
@@ -101,7 +101,7 @@ export function CartPageClient() {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px] lg:items-start">
           <section>
-            <div className="rounded-none border border-cream-200 bg-cream-50 p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-8">
+            <div className="rounded-[2rem] border border-cream-200 bg-cream-50/95 p-5 shadow-[0_24px_82px_-58px_rgba(26,21,18,0.58)] md:p-8">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
                 Shopping bag
               </p>
@@ -113,16 +113,16 @@ export function CartPageClient() {
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>
               </div>
-              <div className="mt-7 rounded-none border border-cream-200 bg-cream-50 p-4">
+              <div className="mt-7 rounded-[1.35rem] border border-cream-200 bg-white/70 p-4">
                 <div className="flex items-center gap-3 text-sm text-cream-700">
                   <Truck size={18} className="text-brand-rose" />{" "}
                   {remainingForFreeDelivery === 0
                     ? "You have unlocked free delivery."
                     : `${formatNPR(remainingForFreeDelivery)} away from free delivery.`}
                 </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-none bg-cream-200">
+                <div className="mt-3 h-2 overflow-hidden rounded-2xl bg-cream-200">
                   <div
-                    className="h-full rounded-none bg-brand-rose"
+                    className="h-full rounded-2xl bg-brand-rose"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -133,11 +133,11 @@ export function CartPageClient() {
               {items.map((item) => (
                 <article
                   key={`${item.product.id}-${item.selectedShade || "base"}`}
-                  className="grid grid-cols-[104px_minmax(0,1fr)] gap-4 rounded-none border border-cream-200 bg-cream-50 p-4 shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:p-5"
+                  className="grid grid-cols-[104px_minmax(0,1fr)] gap-4 rounded-[1.75rem] border border-cream-200 bg-cream-50/95 p-4 shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:p-5"
                 >
                   <Link
                     href={`/products/${item.product.slug}`}
-                    className="relative aspect-[4/5] overflow-hidden rounded-none bg-cream-100"
+                    className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-cream-100"
                   >
                     <Image
                       src={item.product.image}
@@ -169,14 +169,14 @@ export function CartPageClient() {
                         onClick={() =>
                           removeItem(item.product.id, item.selectedShade)
                         }
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-none text-cream-400 transition hover:bg-cream-100 hover:text-error"
+                        className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-cream-400 transition hover:bg-cream-100 hover:text-error"
                         aria-label={`Remove ${item.product.name}`}
                       >
                         <X size={18} />
                       </button>
                     </div>
                     <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="inline-flex w-fit items-center rounded-none border border-cream-200 bg-cream-50">
+                      <div className="inline-flex w-fit items-center rounded-full border border-cream-200 bg-white/80">
                         <button
                           type="button"
                           disabled={item.quantity <= 1}
@@ -225,7 +225,7 @@ export function CartPageClient() {
             </div>
           </section>
 
-          <aside className="rounded-none border border-cream-200 bg-cream-50 p-6 shadow-editorial lg:sticky lg:top-24">
+          <aside className="rounded-[2rem] border border-cream-200 bg-cream-50/95 p-6 shadow-editorial lg:sticky lg:top-24">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
               Order summary
             </p>
@@ -266,7 +266,7 @@ export function CartPageClient() {
                   item_count: itemCount,
                 })
               }
-              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-none bg-ink px-6 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-rose"
+              className="luxury-button luxury-button-dark mt-7 flex w-full"
             >
               Secure checkout
             </Link>

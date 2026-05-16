@@ -28,13 +28,13 @@ export default function RoutinesPage() {
       <section className="container mx-auto px-4 py-10 md:px-6 md:py-14">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {bundles.map((bundle) => (
-            <Link key={bundle.slug} href={`/routines/${bundle.slug}`} className="group overflow-hidden rounded-none border border-brand-border bg-cream-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none">
+            <Link key={bundle.slug} href={`/routines/${bundle.slug}`} className="group overflow-hidden rounded-2xl border border-brand-border bg-cream-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none">
               <div className="relative aspect-[16/10] overflow-hidden">
                 <Image src={bundle.image} alt={bundle.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-bgDark/40 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                  <span className="font-label rounded-none bg-brand-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">{bundle.concerns[0]}</span>
-                  <span className="rounded-none bg-cream-50/92 px-3 py-1 text-xs font-bold text-brand-gold shadow-md">{formatNPR(bundle.bundlePrice)}</span>
+                  <span className="font-label rounded-2xl bg-brand-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">{bundle.concerns[0]}</span>
+                  <span className="rounded-2xl bg-cream-50/92 px-3 py-1 text-xs font-bold text-brand-gold shadow-md">{formatNPR(bundle.bundlePrice)}</span>
                 </div>
               </div>
               <div className="p-6">
@@ -43,7 +43,7 @@ export default function RoutinesPage() {
                 <p className="mt-2 text-sm leading-6 text-brand-textMuted line-clamp-2">{bundle.description}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {bundle.skinTypes.slice(0, 3).map((tag) => (
-                    <span key={tag} className="font-label rounded-none bg-brand-primary-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-primary">{tag}</span>
+                    <span key={tag} className="font-label rounded-2xl bg-brand-primary-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-primary">{tag}</span>
                   ))}
                 </div>
                 <p className="mt-3 text-xs font-semibold text-brand-primary">{bundle.products.length} products &middot; Save {formatNPR(bundle.savings)}</p>

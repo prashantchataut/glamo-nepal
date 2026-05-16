@@ -2,7 +2,7 @@ import React from 'react'
 
 export function PromoBannerSummerGlow({ className = '' }: { className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-none ${className}`} style={{ aspectRatio: '680/420' }}>
+    <div className={`relative overflow-hidden rounded-2xl ${className}`} style={{ aspectRatio: '680/420' }}>
       <svg viewBox="0 0 680 420" className="absolute inset-0 w-full h-full" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="promoDarkBg" cx="0.3" cy="0.5" r="0.8">
@@ -30,7 +30,7 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
         <p className="font-display italic text-white text-6xl md:text-8xl leading-none mb-2">50%</p>
         <p className="text-brand-primary-light text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
         <p className="text-brand-textMuted text-[13px] mb-6">Clean. Vegan. Powerful.</p>
-        <a href="/shop" aria-label="Shop summer glow sale" className="inline-flex items-center justify-center w-[140px] h-10 rounded-none border border-brand-gold text-brand-gold text-[13px] font-medium hover:bg-brand-gold hover:text-brand-bgDark transition-colors">
+        <a href="/shop" aria-label="Shop summer glow sale" className="inline-flex items-center justify-center w-[140px] h-10 rounded-2xl border border-brand-gold text-brand-gold text-[13px] font-medium hover:bg-brand-gold hover:text-brand-bgDark transition-colors">
           Shop Now →
         </a>
       </div>
@@ -40,7 +40,7 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
 
 export function PromoBannerNewArrivals({ className = '' }: { className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-none ${className}`} style={{ aspectRatio: '680/420' }}>
+    <div className={`relative overflow-hidden rounded-2xl ${className}`} style={{ aspectRatio: '680/420' }}>
       <svg viewBox="0 0 680 420" className="absolute inset-0 w-full h-full" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="promoLightBg" x1="0" y1="0" x2="1" y2="1">
@@ -68,13 +68,13 @@ export function PromoBannerNewArrivals({ className = '' }: { className?: string 
       </div>
       <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
         <div className="flex items-center gap-2 mb-4">
-          <span className="w-1.5 h-1.5 rounded-none bg-brand-primary" />
+          <span className="w-1.5 h-1.5 rounded-2xl bg-brand-primary" />
           <span className="font-label text-[10px] uppercase tracking-[0.2em] text-brand-primary font-medium">Just Arrived</span>
         </div>
         <p className="text-white text-4xl md:text-5xl leading-tight font-display">New Glow</p>
         <p className="text-brand-primary text-4xl md:text-5xl leading-tight italic font-display">Collection</p>
         <p className="text-brand-textMuted text-sm mt-2 mb-6">Discover our latest additions</p>
-        <a href="/collections/new-arrivals" aria-label="Explore new arrivals collection" className="inline-flex items-center justify-center w-[140px] h-10 rounded-none bg-brand-primary text-white text-[13px] font-medium hover:bg-brand-primary-hover transition-colors">
+        <a href="/collections/new-arrivals" aria-label="Explore new arrivals collection" className="inline-flex items-center justify-center w-[140px] h-10 rounded-2xl bg-brand-primary text-white text-[13px] font-medium hover:bg-brand-primary-hover transition-colors">
           Explore →
         </a>
       </div>

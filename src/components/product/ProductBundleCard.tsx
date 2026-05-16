@@ -24,10 +24,10 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
   };
 
   return (
-    <article className="group overflow-hidden rounded-none border border-brand-secondary/20 bg-cream-50 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-soft">
+    <article className="group overflow-hidden rounded-2xl border border-brand-secondary/20 bg-cream-50 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-soft">
       <Link href={`/routines/${bundle.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-brand-bgLight">
         <Image src={bundle.image} alt={bundle.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 33vw" />
-        <div className="font-label absolute left-4 top-4 rounded-none bg-cream-50/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">{bundle.eyebrow}</div>
+        <div className="font-label absolute left-4 top-4 rounded-2xl bg-cream-50/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">{bundle.eyebrow}</div>
       </Link>
       <div className="p-5 md:p-6">
         <div className="font-label mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
@@ -40,8 +40,8 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
         {!compact ? (
           <div className="mt-4 space-y-2">
             {bundle.steps.slice(0, 3).map((step, index) => (
-              <div key={step.label} className="flex gap-3 rounded-none bg-brand-bgLight px-3 py-2 text-sm">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-none bg-brand-primary text-xs font-bold text-white">{index + 1}</span>
+              <div key={step.label} className="flex gap-3 rounded-2xl bg-brand-bgLight px-3 py-2 text-sm">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-2xl bg-brand-primary text-xs font-bold text-white">{index + 1}</span>
                 <span className="text-brand-textMuted"><strong className="text-brand-textPrimary">{step.label}:</strong> {step.note}</span>
               </div>
             ))}
@@ -52,7 +52,7 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
             <div className="text-lg font-bold tracking-tight text-brand-gold">{formatNPR(bundle.bundlePrice)}</div>
             <div className="text-xs text-brand-textMuted">Bundle saving {formatNPR(bundle.savings)}</div>
           </div>
-          <button type="button" onClick={addBundle} aria-label="Add routine to cart" className="inline-flex min-h-[44px] items-center gap-2 rounded-none bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 cursor-pointer">
+          <button type="button" onClick={addBundle} aria-label="Add routine to cart" className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-bgDark focus:outline-none focus:ring-2 focus:ring-brand-primary/40 cursor-pointer">
             <ShoppingBag size={16} /> Add routine
           </button>
         </div>

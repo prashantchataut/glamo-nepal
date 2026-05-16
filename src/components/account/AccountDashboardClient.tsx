@@ -23,9 +23,9 @@ export function AccountDashboardClient() {
 
   return (
     <div>
-      <div className="rounded-none border border-brand-border bg-brand-bgLight p-6 shadow-sm md:p-8">
+      <div className="rounded-2xl border border-brand-border bg-brand-bgLight p-6 shadow-sm md:p-8">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-none bg-cream-50 font-display text-2xl font-semibold text-brand-primary ring-1 ring-brand-border">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-cream-50 font-display text-2xl font-semibold text-brand-primary ring-1 ring-brand-border">
             {initials(user?.name, user?.email)}
           </div>
           <div>
@@ -35,7 +35,7 @@ export function AccountDashboardClient() {
             <p className="mt-1 text-sm text-brand-textMuted">{email}</p>
           </div>
         </div>
-        <p className="font-label mt-4 inline-flex rounded-none bg-cream-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
+        <p className="font-label mt-4 inline-flex rounded-2xl bg-cream-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
           Account data is loaded from Supabase when configured
         </p>
       </div>
@@ -47,9 +47,9 @@ export function AccountDashboardClient() {
             <Link
               key={link.href}
               href={link.href}
-              className="group rounded-none border border-brand-border bg-cream-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary/30 hover:shadow-card-hover"
+              className="group rounded-2xl border border-brand-border bg-cream-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary/30 hover:shadow-card-hover"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-none bg-brand-primary-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
                 <Icon size={18} strokeWidth={1.7} />
               </div>
               <h2 className="mt-3 font-display text-lg font-semibold text-brand-textPrimary">{link.name}</h2>

@@ -18,7 +18,7 @@ export function UrgencyBadge({ product, className }: UrgencyBadgeProps) {
   return (
     <span
       className={cn(
-        "font-label rounded-none px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] shadow-sm",
+        "font-label rounded-2xl px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] shadow-sm",
         isFastMoving
           ? "bg-teal-100 text-teal-800"
           : "bg-amber-100 text-amber-800",

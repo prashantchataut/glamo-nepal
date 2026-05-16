@@ -30,7 +30,7 @@
     --border: 24 32% 92%;
     --input: 24 32% 92%;
     --ring: 347 46% 65%;
-    --radius: 0px;
+    --radius: 20px;
 
     --color-primary: #D4798A;
     --color-primary-light: #F2D4DA;
@@ -123,8 +123,14 @@ body.scroll-locked {
   .section-padding { @apply py-20 md:py-28 lg:py-32; }
   .page-padding { @apply px-4 md:px-6 lg:px-8; }
 
-  .soft-card { @apply border border-cream-200 bg-cream-50 shadow-[0_18px_60px_-48px_rgba(26,15,11,0.22)]; }
-  .pill-button { @apply px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors; }
+  .soft-card { @apply rounded-[1.75rem] border border-cream-200 bg-cream-50 shadow-[0_22px_70px_-52px_rgba(26,15,11,0.28)]; }
+  .pill-button { @apply rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5; }
+
+  .luxury-button { @apply inline-flex min-h-12 items-center justify-center rounded-full px-7 text-xs font-semibold uppercase tracking-[0.16em] transition-all duration-300; }
+  .luxury-button-dark { @apply bg-ink text-white shadow-[0_20px_46px_-28px_rgba(26,15,11,0.58)] hover:-translate-y-0.5 hover:bg-brand-deep; }
+  .luxury-button-light { @apply border border-cream-200 bg-white/80 text-ink shadow-[0_16px_42px_-34px_rgba(26,15,11,0.35)] hover:-translate-y-0.5 hover:border-brand-rose/45 hover:text-brand-deep; }
+  .luxury-input { @apply rounded-[1.35rem] border border-cream-200 bg-white/78 px-4 py-3.5 text-sm text-ink shadow-[0_16px_42px_-34px_rgba(26,15,11,0.35)] outline-none transition-all placeholder:text-cream-400 focus:border-brand-rose focus:bg-white focus:ring-2 focus:ring-primary/15; }
+  .luxury-chip { @apply rounded-full border border-cream-200 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.13em] text-cream-700 transition-all hover:-translate-y-0.5 hover:border-brand-rose/40 hover:text-brand-deep; }
 }
 
 .skeleton-shimmer { background: #FAF6F3; }

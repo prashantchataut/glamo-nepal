@@ -48,7 +48,7 @@ export default function SearchPageContent() {
               {q ? `${results.length} product${results.length !== 1 ? "s" : ""} found across skincare, makeup and routine-ready picks.` : "Try sunscreen, vitamin C, lip tint, Korean skincare or Made in Nepal to jump into curated product results."}
             </p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-none border border-cream-200 bg-cream-50">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-cream-200 bg-cream-50">
             <Image src="/images/editorial/newsletter-vanity.svg" alt="GLAMO search visual" fill className="object-cover" />
           </div>
         </div>
@@ -56,13 +56,13 @@ export default function SearchPageContent() {
 
       <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         {!q ? (
-          <div className="rounded-none border border-cream-200 bg-cream-50 p-8 text-center shadow-editorial md:p-12">
+          <div className="rounded-2xl border border-cream-200 bg-cream-50 p-8 text-center shadow-editorial md:p-12">
             <Search size={46} className="mx-auto mb-4 text-brand-rose/40" strokeWidth={1.5} />
             <p className="font-display text-3xl text-ink">Search by product, brand or concern</p>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-cream-400">Use quick searches below or open the search icon in the navbar for instant suggestions.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-2">
               {TRENDING_SEARCHES.slice(0, 10).map((term) => (
-                <Link key={term} href={`/search?q=${encodeURIComponent(term)}`} className="cursor-pointer rounded-none border border-brand-rose/20 bg-brand-rose/5 px-4 py-2 text-sm font-bold text-brand-rose transition-colors hover:bg-brand-rose hover:text-white">
+                <Link key={term} href={`/search?q=${encodeURIComponent(term)}`} className="cursor-pointer rounded-2xl border border-brand-rose/20 bg-brand-rose/5 px-4 py-2 text-sm font-bold text-brand-rose transition-colors hover:bg-brand-rose hover:text-white">
                   {term}
                 </Link>
               ))}
@@ -73,7 +73,7 @@ export default function SearchPageContent() {
             <div className="mx-auto max-w-3xl"><EmptyState variant="search" query={q} /></div>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {suggestions.slice(0, 6).map((suggestion) => (
-                <Link key={`${suggestion.type}-${suggestion.href}`} href={suggestion.href} className="cursor-pointer rounded-none border border-brand-rose/20 bg-brand-rose/5 px-4 py-2 text-sm font-bold text-brand-rose transition-colors hover:bg-brand-rose hover:text-white">
+                <Link key={`${suggestion.type}-${suggestion.href}`} href={suggestion.href} className="cursor-pointer rounded-2xl border border-brand-rose/20 bg-brand-rose/5 px-4 py-2 text-sm font-bold text-brand-rose transition-colors hover:bg-brand-rose hover:text-white">
                   {suggestion.label}
                 </Link>
               ))}
@@ -81,13 +81,13 @@ export default function SearchPageContent() {
             <div className="mx-auto mt-8 grid max-w-6xl grid-cols-2 gap-4 text-left md:grid-cols-4 md:gap-6">
               {noResultRecommendations.map((product) => <ProductCard key={product.id} product={product} />)}
             </div>
-            <Link href="/shop" className="mt-8 inline-flex cursor-pointer rounded-none bg-ink px-8 py-3 text-sm font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-brand-rose">
+            <Link href="/shop" className="mt-8 inline-flex cursor-pointer rounded-2xl bg-ink px-8 py-3 text-sm font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-brand-rose">
               Browse All Products
             </Link>
           </div>
         ) : (
           <>
-            <div className="mb-6 flex items-center justify-between rounded-none border border-cream-200 bg-cream-50 p-4 shadow-soft">
+            <div className="mb-6 flex items-center justify-between rounded-2xl border border-cream-200 bg-cream-50 p-4 shadow-soft">
               <span className="text-sm font-semibold text-cream-400">{results.length} product{results.length !== 1 ? "s" : ""}</span>
               <select value={sort} onChange={(e) => setSort(e.target.value)} className="cursor-pointer border-b border-cream-300 bg-cream-50 px-4 py-2.5 text-sm text-ink outline-none focus:border-brand-rose">
                 {SORT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}

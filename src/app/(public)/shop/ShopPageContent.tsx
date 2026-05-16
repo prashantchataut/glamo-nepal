@@ -153,7 +153,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
               {categoryObj?.description || "Browse skincare, soft-glam makeup, hair care and daily essentials with clear pricing, polished filters and authentic GLAMO curation."}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-px border border-cream-200 bg-cream-200 text-center shadow-card">
+          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-[1.75rem] border border-cream-200 bg-cream-200 text-center shadow-card">
             <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Products</p></div>
             <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Districts</p></div>
             <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Curated</p></div>
@@ -171,10 +171,10 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 type="button"
                 onClick={() => handleFilterChange({ ...filters, category: filters.category === cat.slug ? "" : cat.slug, subCategory: "" })}
                 className={cn(
-                  "shrink-0 rounded-none border px-4 py-2 text-sm font-semibold tracking-wide transition-colors cursor-pointer",
+                  "luxury-chip shrink-0 cursor-pointer",
                   filters.category === cat.slug
-                    ? "border-brand-rose bg-brand-rose text-white"
-                    : "border-cream-200 bg-cream-50 text-cream-700 hover:border-brand-rose/40 hover:text-brand-rose"
+                    ? "border-brand-rose bg-brand-rose text-white shadow-[0_16px_36px_-30px_rgba(168,77,94,0.54)]"
+                    : ""
                 )}
               >
                 {cat.name}
@@ -204,12 +204,12 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="hidden items-center gap-2 rounded-none border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-cream-700 transition-colors hover:border-cream-400 lg:flex lg:hidden cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-full border border-cream-200 bg-white/80 px-4 py-2.5 text-sm text-cream-700 shadow-[0_14px_34px_-28px_rgba(26,15,11,0.35)] transition-all hover:-translate-y-0.5 hover:border-brand-rose/40 lg:hidden cursor-pointer"
                 >
                   <SlidersHorizontal size={16} />
                   Filters
                   {chips.length > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-none bg-brand-rose text-[10px] text-white">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-rose text-[10px] text-white">
                       {chips.length}
                     </span>
                   )}
@@ -238,7 +238,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="rounded-none bg-brand-rose px-3 py-1.5 text-[11px] tracking-widest uppercase text-white cursor-pointer"
+                  className="rounded-full bg-brand-rose px-3 py-1.5 text-[11px] tracking-widest uppercase text-white shadow-[0_12px_28px_-20px_rgba(168,77,94,0.5)] cursor-pointer"
                 >
                   Clear All
                 </button>
@@ -247,7 +247,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                     key={chip.key}
                     type="button"
                     onClick={() => handleFilterChange(chip.remove())}
-                    className="inline-flex items-center gap-1 rounded-none border border-cream-200 bg-cream-50 px-3 py-1.5 text-xs text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-full border border-cream-200 bg-white/80 px-3 py-1.5 text-xs text-cream-700 transition-all hover:-translate-y-0.5 hover:border-brand-rose hover:text-brand-rose cursor-pointer"
                   >
                     {chip.label}
                     <X size={12} />
@@ -269,7 +269,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="mt-6 rounded-none bg-ink px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-brand-rose cursor-pointer"
+                  className="luxury-button luxury-button-dark mt-6 cursor-pointer"
                 >
                   Clear Filters
                 </button>
@@ -289,7 +289,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="flex h-10 w-10 items-center justify-center rounded-none border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Previous page"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -300,7 +300,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                         type="button"
                         onClick={() => setCurrentPage(page)}
                         className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-none text-sm transition-colors cursor-pointer",
+                          "flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors cursor-pointer",
                           page === currentPage
                             ? "bg-brand-rose text-white"
                             : "border border-cream-200 text-cream-700 hover:border-brand-rose hover:text-brand-rose"
@@ -315,7 +315,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex h-10 w-10 items-center justify-center rounded-none border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Next page"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -333,11 +333,11 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className="inline-flex min-h-12 items-center justify-center gap-2 border border-ink bg-ink text-label-sm font-semibold uppercase tracking-[0.15em] text-white"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink bg-ink text-label-sm font-semibold uppercase tracking-[0.15em] text-white shadow-[0_18px_42px_-24px_rgba(26,15,11,0.48)]"
           >
             <SlidersHorizontal size={15} /> Filter {chips.length > 0 ? `(${chips.length})` : ""}
           </button>
-          <label className="relative inline-flex min-h-12 items-center justify-center border border-cream-200 bg-cream-50 text-label-sm font-semibold uppercase tracking-[0.15em] text-ink">
+          <label className="relative inline-flex min-h-12 items-center justify-center rounded-full border border-cream-200 bg-white/85 text-label-sm font-semibold uppercase tracking-[0.15em] text-ink shadow-[0_18px_42px_-30px_rgba(26,15,11,0.32)]">
             <span className="pointer-events-none">Sort</span>
             <select
               value={filters.sort}

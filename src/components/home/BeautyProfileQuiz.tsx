@@ -29,24 +29,24 @@ export function BeautyProfileQuiz() {
             Choose your skin type and current concern to discover a few polished product suggestions from the GLAMO edit.
           </p>
         </div>
-        <div className="rounded-none border border-black/5 bg-cream-50 p-6 shadow-sm md:p-7">
+        <div className="rounded-2xl border border-black/5 bg-cream-50 p-6 shadow-sm md:p-7">
           <div className="grid gap-5 md:grid-cols-2">
             <label className="space-y-2 text-sm font-semibold text-brand-textPrimary" htmlFor="quiz-skin-type">
               Skin type
-              <select id="quiz-skin-type" value={skinType} onChange={(e) => setSkinType(e.target.value)} className="w-full rounded-none border border-border bg-brand-surfacePink px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+              <select id="quiz-skin-type" value={skinType} onChange={(e) => setSkinType(e.target.value)} className="w-full rounded-2xl border border-border bg-brand-surfacePink px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                 {skinTypes.map((x) => <option key={x} value={x}>{x}</option>)}
               </select>
             </label>
             <label className="space-y-2 text-sm font-semibold text-brand-textPrimary" htmlFor="quiz-concern">
               Main concern
-              <select id="quiz-concern" value={concern} onChange={(e) => setConcern(e.target.value)} className="w-full rounded-none border border-border bg-brand-surfacePink px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
+              <select id="quiz-concern" value={concern} onChange={(e) => setConcern(e.target.value)} className="w-full rounded-2xl border border-border bg-brand-surfacePink px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-brand-primary/30">
                 {concerns.map((x) => <option key={x} value={x}>{x}</option>)}
               </select>
             </label>
           </div>
           <div className="mt-6 grid gap-3" aria-live="polite">
             {displayPicks.length > 0 ? displayPicks.map((p) => (
-              <Link key={p.id} href={`/products/${p.slug}`} className="flex items-center justify-between rounded-none bg-brand-surfacePink p-4 transition hover:bg-brand-primary-light">
+              <Link key={p.id} href={`/products/${p.slug}`} className="flex items-center justify-between rounded-2xl bg-brand-surfacePink p-4 transition hover:bg-brand-primary-light">
                 <div>
                   <p className="font-display text-lg font-semibold text-brand-textPrimary">{p.name}</p>
                   <p className="text-xs text-brand-textMuted">{p.brand} &middot; {p.concernTags.slice(0, 2).join(", ")}</p>

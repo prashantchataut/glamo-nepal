@@ -131,8 +131,8 @@ export async function middleware(request: NextRequest) {
   }
 
   const supabaseAuthCookie = request.cookies.getAll().find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
-  const legacyAuthCookie = request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
-  const hasAuthSession = Boolean(supabaseAuthCookie) || Boolean(legacyAuthCookie);
+  const customerSessionCookie = request.cookies.get("glamo-customer-session")?.value;
+  const hasAuthSession = Boolean(supabaseAuthCookie) || Boolean(customerSessionCookie);
 
   if (isProtected && !hasAuthSession) {
     const loginUrl = new URL("/login", request.url);

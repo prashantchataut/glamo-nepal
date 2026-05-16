@@ -1,16 +1,16 @@
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`skeleton-shimmer rounded-none ${className}`} />;
+  return <div className={`skeleton-shimmer rounded-2xl ${className}`} />;
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-none border border-brand-border bg-cream-50 p-4">
-      <div className="skeleton-shimmer aspect-[4/5] rounded-none" />
+    <div className="rounded-2xl border border-brand-border bg-cream-50 p-4">
+      <div className="skeleton-shimmer aspect-[4/5] rounded-2xl" />
       <div className="mt-4 space-y-2">
-        <div className="skeleton-shimmer h-3 w-16 rounded-none" />
+        <div className="skeleton-shimmer h-3 w-16 rounded-2xl" />
         <div className="skeleton-shimmer h-4 w-3/4 rounded" />
         <div className="skeleton-shimmer h-4 w-1/2 rounded" />
-        <div className="mt-3 skeleton-shimmer h-8 w-full rounded-none" />
+        <div className="mt-3 skeleton-shimmer h-8 w-full rounded-2xl" />
       </div>
     </div>
   );
@@ -27,5 +27,5 @@ export function SkeletonText({ lines = 3 }: { lines?: number }) {
 }
 
 export function SkeletonImage({ className = "" }: { className?: string }) {
-  return <div className={`skeleton-shimmer aspect-square rounded-none ${className}`} />;
+  return <div className={`skeleton-shimmer aspect-square rounded-2xl ${className}`} />;
 }

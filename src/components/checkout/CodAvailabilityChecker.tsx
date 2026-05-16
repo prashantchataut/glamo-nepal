@@ -14,10 +14,10 @@ export function CodAvailabilityChecker({ district, province }: { district: strin
   const rule = getDeliveryRule(district, province);
   const codAvailable = district ? isCodAvailable(district as never, province as never) : false;
   if (!district) {
-    return <div className="rounded-none border border-dashed border-brand-secondary/40 bg-brand-bgLight p-4 text-sm text-brand-textMuted">Choose a district to check Cash on Delivery availability.</div>;
+    return <div className="rounded-2xl border border-dashed border-brand-secondary/40 bg-brand-bgLight p-4 text-sm text-brand-textMuted">Choose a district to check Cash on Delivery availability.</div>;
   }
   return (
-    <div className={cn("rounded-none border p-4", codAvailable ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-amber-200 bg-amber-50 text-amber-900")}>
+    <div className={cn("rounded-2xl border p-4", codAvailable ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-amber-200 bg-amber-50 text-amber-900")}>
       <div className="flex items-start gap-3">
         {codAvailable ? <CheckCircle2 className="mt-0.5" size={20} /> : <XCircle className="mt-0.5" size={20} />}
         <div>

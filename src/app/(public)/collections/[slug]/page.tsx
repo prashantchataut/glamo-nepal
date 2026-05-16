@@ -30,7 +30,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
             <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">{collection.title}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{collection.description}</p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-none border border-brand-border bg-cream-50 shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-brand-border bg-cream-50 shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
             <Image src={collection.image} alt={collection.title} fill sizes="(max-width: 1024px) 100vw, 420px" priority className="object-cover" />
           </div>
         </div>
@@ -40,7 +40,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
           <div><p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-primary">Curated edit</p><h2 className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary">{products.length} products</h2></div>
           <p className="max-w-lg text-sm text-brand-textMuted">A polished GLAMO selection built around routines, occasions and easy Nepal shopping.</p>
         </div>
-        {products.length ? <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="rounded-none border border-dashed border-brand-secondary/50 bg-cream-50 p-12 text-center"><h2 className="font-display text-3xl font-semibold text-brand-textPrimary">No products yet</h2><p className="mt-2 text-brand-textMuted">Add products to this collection once supplier data is ready.</p></div>}
+        {products.length ? <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="rounded-2xl border border-dashed border-brand-secondary/50 bg-cream-50 p-12 text-center"><h2 className="font-display text-3xl font-semibold text-brand-textPrimary">No products yet</h2><p className="mt-2 text-brand-textMuted">Add products to this collection once supplier data is ready.</p></div>}
       </section>
     </main>
   );

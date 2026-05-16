@@ -2,8 +2,8 @@
 
 export function StatusCard({ icon, label, value, note }: { icon: React.ReactNode; label: string; value: string | number; note?: string }) {
   return (
-    <div className="rounded-none border border-border/70 bg-cream-50 p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
-      <div className="flex h-11 w-11 items-center justify-center rounded-none bg-brand-primary/10 text-brand-primary">
+    <div className="rounded-2xl border border-border/70 bg-cream-50 p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary">
         {icon}
       </div>
       <p className="font-label mt-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">{label}</p>

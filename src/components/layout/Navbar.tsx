@@ -71,7 +71,7 @@ export function Navbar() {
 
   const CountBubble = ({ count }: { count: number }) =>
     count > 0 ? (
-      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-none bg-brand-rose px-1 text-[9px] font-semibold leading-none text-white">
+      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-2xl bg-brand-rose px-1 text-[9px] font-semibold leading-none text-white">
         {count}
       </span>
     ) : null;
@@ -106,7 +106,7 @@ export function Navbar() {
 
             <button
               type="button"
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-none text-ink transition hover:bg-cream-100 lg:hidden"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl text-ink transition hover:bg-cream-100 lg:hidden"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
               aria-expanded={mobileMenuOpen}
@@ -127,14 +127,14 @@ export function Navbar() {
               <Link
                 href="/search"
                 onClick={openSearch}
-                className="hidden min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
+                className="hidden min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
                 aria-label="Search products"
               >
                 <Search size={18} strokeWidth={1.7} />
               </Link>
               <Link
                 href="/wishlist"
-                className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
+                className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
                 aria-label="Wishlist"
               >
                 <Heart size={18} strokeWidth={1.7} />
@@ -142,14 +142,14 @@ export function Navbar() {
               </Link>
               <Link
                 href="/login"
-                className="hidden min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose md:flex"
+                className="hidden min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose md:flex"
                 aria-label="Customer login"
               >
                 <User size={18} strokeWidth={1.7} />
               </Link>
               <a
                 href="/cart"
-                className="relative flex min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose"
+                className="relative flex min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose"
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
               >
                 <ShoppingBag size={19} strokeWidth={1.7} />
@@ -162,7 +162,7 @@ export function Navbar() {
             <Link
               href="/search"
               onClick={openSearch}
-              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-none bg-cream-50 px-4 text-left text-[13px] text-cream-400 shadow-[0_12px_30px_-26px_rgba(0,0,0,0.5)] ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-2"
+              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-2xl bg-cream-50 px-4 text-left text-[13px] text-cream-400 shadow-[0_12px_30px_-26px_rgba(0,0,0,0.5)] ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-2"
               aria-label="Search skincare, makeup, brands"
             >
               <span className="flex min-w-0 items-center gap-2">
@@ -202,7 +202,7 @@ export function Navbar() {
           </Link>
           <button
             type="button"
-            className="flex min-h-11 min-w-11 items-center justify-center rounded-none bg-cream-50 text-ink ring-1 ring-neutral-200"
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl bg-cream-50 text-ink ring-1 ring-neutral-200"
             onClick={() => setMobileMenuOpen(false)}
             aria-label="Close menu"
           >
@@ -217,7 +217,7 @@ export function Navbar() {
               setMobileMenuOpen(false);
               openSearch(event);
             }}
-            className="flex min-h-12 w-full items-center gap-3 rounded-none border border-cream-200 bg-cream-50 px-4 text-left text-sm text-cream-400"
+            className="flex min-h-12 w-full items-center gap-3 rounded-2xl border border-cream-200 bg-cream-50 px-4 text-left text-sm text-cream-400"
           >
             <Search size={18} strokeWidth={1.7} />
             Search products and brands
@@ -252,7 +252,7 @@ export function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="rounded-none border border-cream-200 bg-cream-50 px-4 py-3 text-sm font-semibold text-cream-800 transition hover:border-brand-rose/40 hover:text-brand-rose"
+                className="rounded-2xl border border-cream-200 bg-cream-50 px-4 py-3 text-sm font-semibold text-cream-800 transition hover:border-brand-rose/40 hover:text-brand-rose"
               >
                 {link.name}
               </Link>
@@ -262,13 +262,13 @@ export function Navbar() {
 
         <div className="mt-auto border-t border-cream-200 px-5 py-5">
           <div className="grid grid-cols-3 gap-2 pb-5">
-            <Link href="/login" className="rounded-none bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
+            <Link href="/login" className="rounded-2xl bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
               Login
             </Link>
-            <Link href="/wishlist" className="rounded-none bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
+            <Link href="/wishlist" className="rounded-2xl bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
               Wishlist
             </Link>
-            <a href="/cart" className="rounded-none bg-ink px-3 py-3 text-center text-xs font-semibold text-white">
+            <a href="/cart" className="rounded-2xl bg-ink px-3 py-3 text-center text-xs font-semibold text-white">
               Cart
             </a>
           </div>

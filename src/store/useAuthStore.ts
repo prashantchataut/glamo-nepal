@@ -9,7 +9,14 @@ const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 let supabase: SupabaseClient | null = null;
 
 if (isSupabaseConfigured) {
-  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      detectSessionInUrl: true,
+      flowType: "pkce",
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
 }
 
 export interface AuthUser {
@@ -26,6 +33,8 @@ interface AuthState {
   error: string | null;
   isConfigured: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  hydrateSession: () => Promise<void>;
   register: (name: string, email: string, phone: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -68,6 +77,55 @@ export const useAuthStore = create<AuthState>()((set) => ({
         error: err instanceof Error ? err.message : "Login failed. Please try again.",
         isLoading: false,
       });
+    }
+  },
+
+  loginWithGoogle: async () => {
+    if (!supabase) {
+      set({ error: "Google sign-in requires Supabase configuration." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const origin = window.location.origin;
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${origin}/account` },
+      });
+      if (authError) throw authError;
+      set({ isLoading: false });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Google sign-in failed.",
+        isLoading: false,
+      });
+    }
+  },
+
+  hydrateSession: async () => {
+    if (!supabase) return;
+    set({ isLoading: true, error: null });
+    try {
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const sessionUser = data.session?.user;
+      if (!sessionUser) {
+        set({ user: null, isLoading: false });
+        return;
+      }
+      set({
+        user: {
+          id: sessionUser.id,
+          email: sessionUser.email || "",
+          name: String(sessionUser.user_metadata?.name || sessionUser.user_metadata?.full_name || sessionUser.email?.split("@")[0] || ""),
+          phone: String(sessionUser.user_metadata?.phone || ""),
+          role: "customer",
+        },
+        isLoading: false,
+        error: null,
+      });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Session refresh failed.", isLoading: false });
     }
   },
 

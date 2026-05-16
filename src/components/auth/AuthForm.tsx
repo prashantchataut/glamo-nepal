@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -83,7 +83,7 @@ function PasswordField({
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error?.message ? `${id}-error` : undefined}
           {...register}
-          className="w-full rounded-none border border-cream-200 bg-cream-50 px-4 py-3 pr-10 font-sans text-body-md text-ink transition-colors duration-200 placeholder:text-cream-400 focus:border-brand-rose focus:outline-none focus:ring-2 focus:ring-primary/15"
+          className="w-full rounded-2xl border border-cream-200 bg-cream-50 px-4 py-3 pr-10 font-sans text-body-md text-ink transition-colors duration-200 placeholder:text-cream-400 focus:border-brand-rose focus:outline-none focus:ring-2 focus:ring-primary/15"
           autoComplete={label.includes("Confirm") ? "new-password" : "current-password"}
         />
         <button
@@ -124,8 +124,12 @@ function getDefaultValues(mode: AuthMode) {
 
 export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; redirectTo?: string }) {
   const router = useRouter();
-  const { login, register: registerUser, forgotPassword, resetPassword, isLoading, error: authError, isConfigured, clearError } = useAuthStore();
+  const { login, loginWithGoogle, hydrateSession, register: registerUser, forgotPassword, resetPassword, isLoading, error: authError, isConfigured, clearError } = useAuthStore();
   const copy = labels[mode];
+
+  useEffect(() => {
+    if (isConfigured) void hydrateSession();
+  }, [hydrateSession, isConfigured]);
 
   const {
     register,
@@ -155,7 +159,7 @@ export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; re
         const user = useAuthStore.getState().user;
         if (user) {
           setAuthCookies(user.email, user.role);
-          toast.success("Account created.");
+          toast.success("Account created. Please check your email if verification is enabled in Supabase.");
           router.push(sanitizeRedirect(redirectTo));
           router.refresh();
         }
@@ -183,6 +187,7 @@ export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; re
 
   const formErrors = errors as Record<string, { message?: string }>;
   const isPasswordMismatch = mode === "reset" && !!formErrors.confirmPassword;
+  const authImage = mode === "register" ? IMAGES.auth.registerSplit : IMAGES.auth.loginSplit;
 
   const authLinks: { label: string; href: string; show: boolean }[] = [
     { label: "Login", href: "/login", show: mode !== "login" },
@@ -191,15 +196,15 @@ export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; re
   ];
 
   return (
-    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-none border border-cream-200 bg-cream-50 shadow-editorial md:grid-cols-[0.95fr_1.05fr]">
+    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2rem] border border-cream-200 bg-cream-50 shadow-editorial md:grid-cols-[0.95fr_1.05fr]">
       <aside className="relative min-h-[420px] bg-ink p-8 text-white md:p-10 lg:p-12">
-        <Image src={IMAGES.auth.loginSplit} alt="Editorial beauty portrait for GLAMO account access" fill className="object-cover opacity-55" sizes="(max-width: 768px) 100vw, 45vw" />
+        <Image src={authImage} alt="Editorial beauty portrait for GLAMO account access" fill className="object-cover opacity-55" sizes="(max-width: 768px) 100vw, 45vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/10" />
         <div className="relative z-10 flex h-full flex-col justify-end">
           <p className="type-label text-gold">{copy.eyebrow}</p>
           <h1 className="mt-4 font-display text-5xl font-light leading-tight md:text-6xl">{copy.title}</h1>
           <p className="mt-5 max-w-md text-sm leading-7 text-white/78">{copy.description}</p>
-          <div className="mt-8 rounded-none border border-white/15 bg-ink/45 p-4 text-sm leading-6 text-white/75">
+          <div className="mt-8 rounded-[1.35rem] border border-white/15 bg-ink/45 p-4 text-sm leading-6 text-white/75">
             <strong className="block text-white">Need help signing in?</strong>
             Contact GLAMO customer care at {SITE_CONFIG.phone}, or continue with your email to view your account area.
           </div>
@@ -208,17 +213,17 @@ export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; re
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6 md:p-10 lg:p-12">
         {!isConfigured && (mode === "login" || mode === "register") && (
-          <div className="rounded-none border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-cream-700">
+          <div className="rounded-2xl border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-cream-700">
             <strong>Coming soon:</strong> Authentication is not yet connected. Account features will be available once Supabase is configured.
           </div>
         )}
         {isConfigured && (mode === "login" || mode === "register") && (
-          <div className="rounded-none border border-brand-rose/20 bg-brand-rose/5 px-4 py-3 text-sm text-brand-rose">
+          <div className="rounded-2xl border border-brand-rose/20 bg-brand-rose/5 px-4 py-3 text-sm text-brand-rose">
             <strong>Secure auth:</strong> Your credentials are handled by Supabase. We never store your password.
           </div>
         )}
         {authError && (
-          <div className="rounded-none border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+          <div className="rounded-2xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
             {authError}
           </div>
         )}
@@ -254,6 +259,25 @@ export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; re
         <Button type="submit" disabled={isLoading || isPasswordMismatch} className="mt-2 w-full">
           {isLoading ? "Please wait..." : copy.button}
         </Button>
+
+        {(mode === "login" || mode === "register") && (
+          <>
+            <div className="flex items-center gap-3 pt-1 text-xs font-semibold uppercase tracking-[0.16em] text-cream-400">
+              <span className="h-px flex-1 bg-cream-200" />
+              or
+              <span className="h-px flex-1 bg-cream-200" />
+            </div>
+            <button
+              type="button"
+              onClick={loginWithGoogle}
+              disabled={isLoading || !isConfigured}
+              className="luxury-button luxury-button-light w-full disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-brand-deep shadow-sm">G</span>
+              Continue with Google
+            </button>
+          </>
+        )}
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-sm font-semibold text-brand-rose">
           {authLinks.filter((l) => l.show).map((l) => (

@@ -55,11 +55,11 @@ export function OrderDetailClient() {
           <h1 className="mt-2 font-display text-4xl font-semibold text-brand-textPrimary md:text-5xl">{order.orderNumber}</h1>
           <p className="mt-2 text-sm text-brand-textMuted">Placed on {order.date} · Paid by {order.paymentMethod}</p>
         </div>
-        <span className={cn("font-label w-fit rounded-none px-4 py-2 text-xs font-bold uppercase tracking-[0.16em]", isCancelled ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700")}>{order.status}</span>
+        <span className={cn("font-label w-fit rounded-2xl px-4 py-2 text-xs font-bold uppercase tracking-[0.16em]", isCancelled ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700")}>{order.status}</span>
       </div>
 
       {!isCancelled ? (
-        <section className="mt-8 rounded-none border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
+        <section className="mt-8 rounded-2xl border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
           <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Tracking timeline</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-5">
             {steps.map((step, index) => {
@@ -67,8 +67,8 @@ export function OrderDetailClient() {
               const completed = index < activeIndex;
               const current = index === activeIndex;
               return (
-                <div key={step} className="relative rounded-none bg-brand-bgLight p-4">
-                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-none text-sm font-bold", completed ? "bg-emerald-600 text-white" : current ? "bg-brand-primary text-white" : "bg-cream-50 text-brand-textMuted")}><Icon size={18} /></div>
+                <div key={step} className="relative rounded-2xl bg-brand-bgLight p-4">
+                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-bold", completed ? "bg-emerald-600 text-white" : current ? "bg-brand-primary text-white" : "bg-cream-50 text-brand-textMuted")}><Icon size={18} /></div>
                   <p className={cn("mt-3 text-sm font-semibold", completed ? "text-emerald-700" : current ? "text-brand-primary" : "text-brand-textMuted")}>{step}</p>
                   <p className="mt-1 text-xs text-brand-textMuted">{completed || current ? order.date : "Pending update"}</p>
                 </div>
@@ -79,12 +79,12 @@ export function OrderDetailClient() {
       ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="rounded-none border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
+        <section className="rounded-2xl border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
           <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Items</h2>
           <div className="mt-5 space-y-4">
             {order.items.map((item) => (
-              <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-none bg-brand-bgLight p-3">
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-none bg-cream-50">
+              <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-2xl bg-brand-bgLight p-3">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-cream-50">
                   <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -98,14 +98,14 @@ export function OrderDetailClient() {
         </section>
 
         <aside className="space-y-6">
-          <section className="rounded-none border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
+          <section className="rounded-2xl border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
             <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Delivery & payment</h2>
             <div className="mt-4 space-y-3 text-sm leading-6 text-brand-textMuted">
               <p><span className="font-semibold text-brand-textPrimary">Address:</span> {order.shippingAddress}</p>
               <p><span className="font-semibold text-brand-textPrimary">Payment:</span> {order.paymentMethod}</p>
             </div>
           </section>
-          <section className="rounded-none border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
+          <section className="rounded-2xl border border-border/70 bg-cream-50 p-5 shadow-sm md:p-6">
             <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">Summary</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between"><span className="text-brand-textMuted">Subtotal</span><span>{formatNPR(order.total)}</span></div>
@@ -114,8 +114,8 @@ export function OrderDetailClient() {
             </div>
           </section>
           <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
-            <button disabled aria-disabled="true" title="Coming soon" className="inline-flex items-center justify-center gap-2 rounded-none border border-brand-primary px-5 py-3 text-sm font-semibold text-brand-primary transition cursor-not-allowed opacity-50"><Download size={16} /> Invoice</button>
-            {order.status === "Delivered" ? <button disabled aria-disabled="true" title="Coming soon" className="inline-flex items-center justify-center gap-2 rounded-none border border-border px-5 py-3 text-sm font-semibold text-brand-textMuted transition cursor-not-allowed opacity-50"><RotateCcw size={16} /> Return request</button> : null}
+            <button disabled aria-disabled="true" title="Coming soon" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-brand-primary px-5 py-3 text-sm font-semibold text-brand-primary transition cursor-not-allowed opacity-50"><Download size={16} /> Invoice</button>
+            {order.status === "Delivered" ? <button disabled aria-disabled="true" title="Coming soon" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border px-5 py-3 text-sm font-semibold text-brand-textMuted transition cursor-not-allowed opacity-50"><RotateCcw size={16} /> Return request</button> : null}
           </div>
         </aside>
       </div>

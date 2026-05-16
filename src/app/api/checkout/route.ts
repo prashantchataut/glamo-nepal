@@ -73,7 +73,7 @@ function buildOrder(id: string, orderNumber: string, createdAt: string, data: z.
       selectedShade: item.selectedShade,
     })),
     paymentMethod: data.paymentMethod,
-    paymentStatus: data.paymentMethod === "cod" ? "pending" : "failed",
+    paymentStatus: "pending",
     orderStatus: "pending",
     subtotal: data.subtotal,
     deliveryFee: data.deliveryFee,
@@ -135,11 +135,16 @@ export async function POST(request: NextRequest) {
     const orderNumber = generateOrderNumber();
     const createdAt = new Date().toISOString();
 
+    const baseHeaders = {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    };
+
     const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
+        ...baseHeaders,
         Prefer: "return=representation",
       },
       body: JSON.stringify({
@@ -161,8 +166,8 @@ export async function POST(request: NextRequest) {
         grand_total: data.grandTotal,
         currency: data.currency,
         order_status: "pending",
-        payment_status: data.paymentMethod === "cod" ? "pending" : "failed",
-        items: data.items,
+        payment_status: "pending",
+        payment_verification_status: data.paymentMethod === "cod" ? "not_required" : "awaiting_gateway_keys",
         notes: data.orderNotes || null,
         created_at: createdAt,
       }),
@@ -175,7 +180,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, status: "success", data: buildOrder(id, orderNumber, createdAt, data) });
+    const orderItemsPayload = data.items.map((item) => ({
+      id: crypto.randomUUID(),
+      order_id: id,
+      order_number: orderNumber,
+      product_id: item.productId,
+      sku: item.sku || item.productId,
+      product_name: item.name,
+      brand: item.brand || null,
+      image: item.image || null,
+      selected_shade: item.selectedShade || null,
+      quantity: item.quantity,
+      unit_price: item.price,
+      line_total: item.price * item.quantity,
+      created_at: createdAt,
+    }));
+
+    const itemResponse = await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
+      method: "POST",
+      headers: baseHeaders,
+      body: JSON.stringify(orderItemsPayload),
+    });
+
+    if (!itemResponse.ok) {
+      await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${id}`, {
+        method: "DELETE",
+        headers: baseHeaders,
+      }).catch(() => null);
+
+      return NextResponse.json(
+        { success: false, status: "error", message: "Order item persistence failed. No order was completed.", code: "ORDER_ITEMS_CREATION_FAILED" },
+        { status: 502 },
+      );
+    }
+
+    const order = buildOrder(id, orderNumber, createdAt, data);
+    return NextResponse.json({
+      success: true,
+      status: "success",
+      data: order,
+      message: data.paymentMethod === "cod"
+        ? "Order created. Cash on Delivery will be collected at delivery."
+        : "Order created. Payment verification is pending until provider keys are connected.",
+    });
   } catch {
     return NextResponse.json(
       { success: false, status: "error", message: "An unexpected error occurred.", code: "INTERNAL_ERROR" },

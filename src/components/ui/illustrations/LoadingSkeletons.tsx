@@ -2,7 +2,7 @@ import React from 'react'
 
 export function ProductCardSkeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`rounded-none overflow-hidden ${className}`}>
+    <div className={`rounded-2xl overflow-hidden ${className}`}>
       <div
         className="aspect-square w-full"
         style={{
@@ -46,7 +46,7 @@ export function ProductCardSkeleton({ className = '' }: { className?: string }) 
             }}
           />
           <div
-            className="h-8 w-8 rounded-none"
+            className="h-8 w-8 rounded-2xl"
             style={{
               background: 'linear-gradient(90deg, #FFE4E9 25%, #FEFCFB 50%, #FFE4E9 75%)',
               backgroundSize: '200% 100%',
@@ -61,7 +61,7 @@ export function ProductCardSkeleton({ className = '' }: { className?: string }) 
 
 export function HeroSkeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`w-full rounded-none overflow-hidden ${className}`}>
+    <div className={`w-full rounded-2xl overflow-hidden ${className}`}>
       <div
         className="w-full h-[400px] md:h-[600px]"
         style={{
@@ -95,7 +95,7 @@ export function HeroSkeleton({ className = '' }: { className?: string }) {
           />
           <div className="flex gap-3 pt-4">
             <div
-              className="h-10 w-32 rounded-none"
+              className="h-10 w-32 rounded-2xl"
               style={{
                 background: 'linear-gradient(90deg, #FFE4E9 25%, #FEFCFB 50%, #FFE4E9 75%)',
                 backgroundSize: '200% 100%',
@@ -103,7 +103,7 @@ export function HeroSkeleton({ className = '' }: { className?: string }) {
               }}
             />
             <div
-              className="h-10 w-28 rounded-none"
+              className="h-10 w-28 rounded-2xl"
               style={{
                 background: 'linear-gradient(90deg, #FFE4E9 25%, #FEFCFB 50%, #FFE4E9 75%)',
                 backgroundSize: '200% 100%',

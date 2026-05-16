@@ -17,8 +17,8 @@ export function EmptyState({ variant, className, query }: { variant: Variant; cl
   return (
     <div className={cn("flex flex-col items-center justify-center bg-cream-50/75 px-6 py-16 text-center", className)}>
       <div className="relative flex h-28 w-28 items-center justify-center border border-cream-200 bg-cream-50">
-        <span className="absolute left-5 top-4 h-3 w-3 rounded-none bg-gold/70" />
-        <span className="absolute bottom-5 right-5 h-4 w-4 rounded-none bg-brand-rose/80" />
+        <span className="absolute left-5 top-4 h-3 w-3 rounded-2xl bg-gold/70" />
+        <span className="absolute bottom-5 right-5 h-4 w-4 rounded-2xl bg-brand-rose/80" />
         <Icon size={42} className="text-brand-rose" strokeWidth={1.35} />
       </div>
       <p className="type-label mt-8 text-xs font-bold uppercase tracking-widest text-brand-rose">GLAMO Nepal</p>

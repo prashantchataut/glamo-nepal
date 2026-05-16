@@ -83,7 +83,7 @@ export function ProductRecommendationStrip({
                     <div className="h-3 w-20 animate-pulse rounded bg-brand-bgLight" />
                     <div className="h-6 w-4/5 animate-pulse rounded bg-brand-bgLight" />
                     <div className="h-4 w-2/3 animate-pulse rounded bg-brand-bgLight" />
-                    <div className="mt-auto h-11 w-full animate-pulse rounded-none bg-brand-bgLight" />
+                    <div className="mt-auto h-11 w-full animate-pulse rounded-2xl bg-brand-bgLight" />
                   </div>
                 </div>
               ))

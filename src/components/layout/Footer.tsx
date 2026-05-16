@@ -59,7 +59,7 @@ export function Footer() {
             className="flex flex-col justify-end gap-3"
           >
             <label htmlFor="footer-email" className="sr-only">Email address</label>
-            <div className="flex min-h-14 items-center gap-3 rounded-none border border-white/12 bg-cream-50 px-4 text-ink">
+            <div className="flex min-h-14 items-center gap-3 rounded-2xl border border-white/12 bg-cream-50 px-4 text-ink">
               <Mail size={17} strokeWidth={1.7} className="shrink-0 text-cream-400" />
               <input
                 id="footer-email"
@@ -69,7 +69,7 @@ export function Footer() {
                 required
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-cream-400"
               />
-              <button type="submit" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-none bg-ink text-white transition hover:bg-brand-rose" aria-label="Subscribe">
+              <button type="submit" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-2xl bg-ink text-white transition hover:bg-brand-rose" aria-label="Subscribe">
                 <ArrowRight size={17} strokeWidth={1.8} />
               </button>
             </div>
@@ -86,10 +86,10 @@ export function Footer() {
               Premium beauty curated for Nepal: authentic skincare, makeup, haircare and gifting essentials with clear delivery support.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="flex min-h-11 min-w-11 items-center justify-center rounded-none border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
+              <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
                 <InstagramIcon size={18} />
               </a>
-              <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex min-h-11 min-w-11 items-center justify-center rounded-none border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
+              <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
                 <FacebookIcon size={18} />
               </a>
             </div>
