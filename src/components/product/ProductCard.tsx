@@ -83,7 +83,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <article
       aria-label={product.name}
-      className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-[0_18px_60px_-48px_rgba(26,21,18,0.55)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-editorial"
+      className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_24px_80px_-58px_rgba(26,21,18,0.55)]"
     >
       <Link
         href={`/products/${product.slug}`}
@@ -138,7 +138,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {product.inStock && (
-          <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          <div className="absolute inset-x-3 bottom-3 z-10 translate-y-0 opacity-100 transition-all duration-300 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
             <button
               type="button"
               onClick={onCart}

@@ -1,14 +1,54 @@
 import type { Product } from "@/types/product";
 
+const imageHost = "https://images." + "unsplash.com";
+const editorialImage = (path: string) => `${imageHost}${path}`;
+
+const PRODUCT_IMAGE_POOL = {
+  skincare: [
+    editorialImage("/photo-1620916566398-39f1143ab7be?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1556228720-195a672e8a03?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1556228578-8c89e6adf883?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1571781926291-c477ebfd024b?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1570172619644-dfd03ed5d881?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1608248597279-f99d160bfcbc?w=900&q=86&fit=crop&auto=format"),
+  ],
+  makeup: [
+    editorialImage("/photo-1512496015851-a90fb38ba796?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1596462502278-27bfdc403348?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1586495777744-4413f21062fa?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1522335789203-aabd1fc54bc9?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1599733589046-10c005739ef1?w=900&q=86&fit=crop&auto=format"),
+  ],
+  haircare: [
+    editorialImage("/photo-1522337360788-8b13dee7a37e?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1527799820374-dcf8d9d4a388?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1526758097130-bab247274f58?w=900&q=86&fit=crop&auto=format"),
+  ],
+  bodycare: [
+    editorialImage("/photo-1608248543803-ba4f8c70ae0b?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1596755094514-f87e34085b2c?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1607006483224-0e4d4170e8c6?w=900&q=86&fit=crop&auto=format"),
+  ],
+  fragrance: [
+    editorialImage("/photo-1541643600914-78b084683702?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1592945403244-b3fbafd7f539?w=900&q=86&fit=crop&auto=format"),
+  ],
+  tools: [
+    editorialImage("/photo-1583241475880-083f84372725?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1503236823255-94609f598e71?w=900&q=86&fit=crop&auto=format"),
+  ],
+} as const;
+
+
 export const CATALOG_REFERENCE_NOTES = "All catalog product data uses रू (NPR) pricing, Nepal-market availability, and local delivery zones. Supplier-approved INCI lists are pending for select items.";
 
 export const CATEGORIES = [
-  { name: "Skincare", slug: "skincare", description: "Cleansers, serums, moisturizers and SPF chosen for Nepal's climate.", image: "/images/categories/skincare.svg", subCategories: ["Cleansers", "Serums", "Moisturizers", "Masks", "Sunscreens", "Toners"], seoTitle: "Sunscreen in Nepal — SPF 50, SPF 30 & Daily Skincare", seoDescription: "Shop sunscreen in Nepal, plus cleansers, moisturizers, serums and face masks. Authentic skincare products delivered across Nepal from GLAMO NEPAL, Kathmandu." },
-  { name: "Makeup", slug: "makeup", description: "Everyday base, lip, eye and cheek essentials for polished looks.", image: "/images/categories/makeup.svg", subCategories: ["Foundation", "Lipstick", "Mascara", "Blush", "Concealer", "Tint", "Kajal"], seoTitle: "Makeup in Nepal — Foundation, Lipstick, Eyeshadow & More", seoDescription: "Shop makeup in Nepal: foundation, lipstick, eyeshadow, blush and kajal. Authentic beauty products with COD and fast delivery across Nepal." },
-  { name: "Haircare", slug: "haircare", description: "Shampoo, oils and treatments for humidity, frizz and scalp care.", image: "/images/categories/haircare.svg", subCategories: ["Shampoo", "Conditioner", "Hair Oil", "Treatment", "Serum"], seoTitle: "Haircare in Nepal — Shampoo, Conditioner & Hair Treatments", seoDescription: "Shop haircare in Nepal: shampoo, conditioner, hair oil and styling products for all hair types. Delivered across Nepal from GLAMO NEPAL, Kathmandu." },
-  { name: "Bodycare", slug: "bodycare", description: "Creams, lotions and body rituals for soft, healthy skin.", image: "/images/categories/bodycare.svg", subCategories: ["Body Lotion", "Body Scrub", "Body Oil", "Hand Care"], seoTitle: "Bath & Body in Nepal — Body Lotion, Soap & Body Wash", seoDescription: "Shop bath and body products in Nepal: body lotion, soap, body wash and hand cream. Premium skincare delivered across Nepal from GLAMO NEPAL." },
-  { name: "Fragrance", slug: "fragrance", description: "Soft perfumes, mists and roll-ons for everyday wear.", image: "/images/categories/fragrance.svg", subCategories: ["Perfume", "Body Mist", "Roll On"], seoTitle: "Fragrance in Nepal — Perfumes & Body Mists", seoDescription: "Shop fragrance in Nepal: perfumes, body mists and deodorants for men and women. Authentic scents with delivery across Nepal from GLAMO NEPAL." },
-  { name: "Tools", slug: "tools", description: "Brushes, sponges and beauty tools for a cleaner routine.", image: "/images/categories/tools.svg", subCategories: ["Brushes", "Sponges", "Accessories"], seoTitle: "Beauty Tools in Nepal — Brushes, Sponges & Accessories", seoDescription: "Shop beauty tools in Nepal: brushes, sponges and accessories for a cleaner routine. Authentic beauty tools delivered across Nepal from GLAMO NEPAL." },
+  { name: "Skincare", slug: "skincare", description: "Cleansers, serums, moisturizers and SPF chosen for Nepal's climate.", image: PRODUCT_IMAGE_POOL.skincare[2], subCategories: ["Cleansers", "Serums", "Moisturizers", "Masks", "Sunscreens", "Toners"], seoTitle: "Sunscreen in Nepal — SPF 50, SPF 30 & Daily Skincare", seoDescription: "Shop sunscreen in Nepal, plus cleansers, moisturizers, serums and face masks. Authentic skincare products delivered across Nepal from GLAMO NEPAL, Kathmandu." },
+  { name: "Makeup", slug: "makeup", description: "Everyday base, lip, eye and cheek essentials for polished looks.", image: PRODUCT_IMAGE_POOL.makeup[0], subCategories: ["Foundation", "Lipstick", "Mascara", "Blush", "Concealer", "Tint", "Kajal"], seoTitle: "Makeup in Nepal — Foundation, Lipstick, Eyeshadow & More", seoDescription: "Shop makeup in Nepal: foundation, lipstick, eyeshadow, blush and kajal. Authentic beauty products with COD and fast delivery across Nepal." },
+  { name: "Haircare", slug: "haircare", description: "Shampoo, oils and treatments for humidity, frizz and scalp care.", image: PRODUCT_IMAGE_POOL.haircare[0], subCategories: ["Shampoo", "Conditioner", "Hair Oil", "Treatment", "Serum"], seoTitle: "Haircare in Nepal — Shampoo, Conditioner & Hair Treatments", seoDescription: "Shop haircare in Nepal: shampoo, conditioner, hair oil and styling products for all hair types. Delivered across Nepal from GLAMO NEPAL, Kathmandu." },
+  { name: "Bodycare", slug: "bodycare", description: "Creams, lotions and body rituals for soft, healthy skin.", image: PRODUCT_IMAGE_POOL.bodycare[0], subCategories: ["Body Lotion", "Body Scrub", "Body Oil", "Hand Care"], seoTitle: "Bath & Body in Nepal — Body Lotion, Soap & Body Wash", seoDescription: "Shop bath and body products in Nepal: body lotion, soap, body wash and hand cream. Premium skincare delivered across Nepal from GLAMO NEPAL." },
+  { name: "Fragrance", slug: "fragrance", description: "Soft perfumes, mists and roll-ons for everyday wear.", image: PRODUCT_IMAGE_POOL.fragrance[0], subCategories: ["Perfume", "Body Mist", "Roll On"], seoTitle: "Fragrance in Nepal — Perfumes & Body Mists", seoDescription: "Shop fragrance in Nepal: perfumes, body mists and deodorants for men and women. Authentic scents with delivery across Nepal from GLAMO NEPAL." },
+  { name: "Tools", slug: "tools", description: "Brushes, sponges and beauty tools for a cleaner routine.", image: PRODUCT_IMAGE_POOL.tools[0], subCategories: ["Brushes", "Sponges", "Accessories"], seoTitle: "Beauty Tools in Nepal — Brushes, Sponges & Accessories", seoDescription: "Shop beauty tools in Nepal: brushes, sponges and accessories for a cleaner routine. Authentic beauty tools delivered across Nepal from GLAMO NEPAL." },
 ];
 
 export const BRANDS = ["Cetaphil", "COSRX", "Beauty of Joseon", "Innisfree", "The Ordinary", "CeraVe", "Bioderma", "La Roche-Posay", "Maybelline", "Lakme", "SUGAR Cosmetics", "Plum", "Minimalist", "Himalaya", "Mamaearth", "Aroma Magic", "Nivea", "Garnier", "L'Oreal Paris", "Swiss Beauty", "Kathmandu Glow", "Wild Earth Nepal"];
@@ -24,30 +64,51 @@ export const SORT_OPTIONS = [
 ];
 export const TRENDING_SEARCHES = ["Sunscreen SPF 50", "Vitamin C Serum", "Lip Tint", "Niacinamide", "COSRX", "Korean skincare", "Hair Oil", "Made in Nepal", "Cetaphil", "Maybelline"];
 
-const imageHost = "https://images." + "unsplash.com";
-const editorialImage = (path: string) => `${imageHost}${path}`;
-
 const REAL_PRODUCT_IMAGES: Record<string, string> = {
-  p001: editorialImage("/photo-1620916566398-39f1143ab7be?w=900&q=85&fit=crop"),
-  p002: editorialImage("/photo-1556228720-195a672e8a03?w=900&q=85&fit=crop"),
-  p003: editorialImage("/photo-1556228578-8c89e6adf883?w=900&q=85&fit=crop"),
-  p004: editorialImage("/photo-1571781926291-c477ebfd024b?w=900&q=85&fit=crop"),
-  p005: editorialImage("/photo-1570172619644-dfd03ed5d881?w=900&q=85&fit=crop"),
-  p006: editorialImage("/photo-1608248597279-f99d160bfcbc?w=900&q=85&fit=crop"),
-  p007: editorialImage("/photo-1596462502278-27bfdc403348?w=900&q=85&fit=crop"),
-  p008: editorialImage("/photo-1512496015851-a90fb38ba796?w=900&q=85&fit=crop"),
-  p009: editorialImage("/photo-1586495777744-4413f21062fa?w=900&q=85&fit=crop"),
-  p010: editorialImage("/photo-1522335789203-aabd1fc54bc9?w=900&q=85&fit=crop"),
-  p011: editorialImage("/photo-1599733589046-10c005739ef1?w=900&q=85&fit=crop"),
-  p012: editorialImage("/photo-1522337360788-8b13dee7a37e?w=900&q=85&fit=crop"),
-  p013: editorialImage("/photo-1608248543803-ba4f8c70ae0b?w=900&q=85&fit=crop"),
-  p014: editorialImage("/photo-1541643600914-78b084683702?w=900&q=85&fit=crop"),
-  p015: editorialImage("/photo-1503236823255-94609f598e71?w=900&q=85&fit=crop"),
-  p016: editorialImage("/photo-1583241475880-083f84372725?w=900&q=85&fit=crop"),
-  p017: editorialImage("/photo-1526758097130-bab247274f58?w=900&q=85&fit=crop"),
-  p018: editorialImage("/photo-1487412947147-5cebf100ffc2?w=900&q=85&fit=crop"),
-  p019: editorialImage("/photo-1607006483224-0e4d4170e8c6?w=900&q=85&fit=crop"),
-  p020: editorialImage("/photo-1625093742435-6fa192b6fb10?w=900&q=85&fit=crop"),
+  p001: PRODUCT_IMAGE_POOL.skincare[0],
+  p002: PRODUCT_IMAGE_POOL.skincare[1],
+  p003: PRODUCT_IMAGE_POOL.skincare[2],
+  p004: PRODUCT_IMAGE_POOL.skincare[3],
+  p005: PRODUCT_IMAGE_POOL.skincare[4],
+  p006: PRODUCT_IMAGE_POOL.skincare[5],
+  p007: PRODUCT_IMAGE_POOL.makeup[1],
+  p008: PRODUCT_IMAGE_POOL.makeup[0],
+  p009: PRODUCT_IMAGE_POOL.makeup[2],
+  p010: PRODUCT_IMAGE_POOL.makeup[3],
+  p011: PRODUCT_IMAGE_POOL.makeup[4],
+  p012: PRODUCT_IMAGE_POOL.haircare[0],
+  p013: PRODUCT_IMAGE_POOL.bodycare[0],
+  p014: PRODUCT_IMAGE_POOL.fragrance[0],
+  p015: PRODUCT_IMAGE_POOL.tools[0],
+  p016: PRODUCT_IMAGE_POOL.skincare[2],
+  p017: PRODUCT_IMAGE_POOL.makeup[3],
+  p018: PRODUCT_IMAGE_POOL.skincare[4],
+  p019: PRODUCT_IMAGE_POOL.bodycare[1],
+  p020: PRODUCT_IMAGE_POOL.skincare[5],
+  p021: PRODUCT_IMAGE_POOL.skincare[0],
+  p022: PRODUCT_IMAGE_POOL.skincare[1],
+  p023: PRODUCT_IMAGE_POOL.skincare[2],
+  p024: PRODUCT_IMAGE_POOL.skincare[3],
+  p025: PRODUCT_IMAGE_POOL.skincare[4],
+  p026: PRODUCT_IMAGE_POOL.skincare[5],
+  p027: PRODUCT_IMAGE_POOL.makeup[0],
+  p028: PRODUCT_IMAGE_POOL.makeup[1],
+  p029: PRODUCT_IMAGE_POOL.makeup[2],
+  p030: PRODUCT_IMAGE_POOL.makeup[3],
+  p031: PRODUCT_IMAGE_POOL.makeup[4],
+  p032: PRODUCT_IMAGE_POOL.haircare[1],
+  p033: PRODUCT_IMAGE_POOL.haircare[2],
+  p034: PRODUCT_IMAGE_POOL.haircare[0],
+  p035: PRODUCT_IMAGE_POOL.haircare[1],
+  p036: PRODUCT_IMAGE_POOL.skincare[1],
+  p037: PRODUCT_IMAGE_POOL.skincare[2],
+  p038: PRODUCT_IMAGE_POOL.skincare[5],
+  p039: PRODUCT_IMAGE_POOL.bodycare[2],
+  p040: PRODUCT_IMAGE_POOL.makeup[0],
+  p041: PRODUCT_IMAGE_POOL.skincare[3],
+  p042: PRODUCT_IMAGE_POOL.skincare[2],
+  p043: PRODUCT_IMAGE_POOL.haircare[2],
+  p044: PRODUCT_IMAGE_POOL.bodycare[0],
 };
 
 function product(input: Omit<Product, "images" | "inStock" | "reviewSummary"> & { images?: string[]; reviewSummary?: Product["reviewSummary"] }): Product {

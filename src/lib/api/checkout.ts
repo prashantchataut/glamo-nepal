@@ -1,5 +1,6 @@
 import type { ApiResponse, CheckoutPayload, Order } from "@/lib/api/contracts";
 import { apiRequest } from "@/lib/api/client";
+import { csrfHeaders } from "@/lib/csrf";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -13,7 +14,7 @@ export async function createCheckoutOrder(payload: CheckoutPayload): Promise<Api
 
   const response = await fetch("/api/checkout", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...csrfHeaders() },
     body: JSON.stringify(payload),
   });
 

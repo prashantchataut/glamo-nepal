@@ -1,143 +1,127 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Leaf, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { IMAGES } from "@/lib/image-library";
 
-const productTiles = [
+const heroProducts = [
   {
-    name: "COSRX Snail 96 Essence",
+    brand: "COSRX",
+    name: "Snail 96 Essence",
     image: IMAGES.heroProducts.cosrx,
     href: "/products/cosrx-advanced-snail-96-mucin-power-essence",
   },
   {
-    name: "Cetaphil Gentle Cleanser",
-    image: IMAGES.heroProducts.cetaphil,
-    href: "/products/cetaphil-gentle-skin-cleanser",
+    brand: "Beauty of Joseon",
+    name: "Relief Sun SPF50+",
+    image: IMAGES.heroProducts.boj,
+    href: "/products/beauty-of-joseon-relief-sun-spf50",
   },
   {
-    name: "Maybelline Fit Me",
+    brand: "Maybelline",
+    name: "Fit Me Foundation",
     image: IMAGES.heroProducts.maybelline,
-    href: "/search?q=Maybelline",
+    href: "/products/maybelline-fit-me-matte-poreless-foundation",
   },
 ];
 
-const serviceNotes = [
-  { label: "Authenticity-first", icon: ShieldCheck },
-  { label: "Kathmandu dispatch", icon: Truck },
-  { label: "Routine edits", icon: Sparkles },
+const trustNotes = [
+  { label: "Authentic catalog", value: "40+", icon: ShieldCheck },
+  { label: "Kathmandu dispatch", value: "1-2d", icon: Truck },
+  { label: "Routine edits", value: "Nepal", icon: Sparkles },
 ];
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-[#f6e6f4]">
-      <div
-        className="absolute inset-x-0 bottom-0 h-20 rounded-t-[60%] bg-[#fffaf7]"
-        aria-hidden="true"
-      />
-      <div className="mx-auto grid max-w-[1500px] gap-8 px-5 pb-24 pt-7 sm:px-8 lg:min-h-[690px] lg:grid-cols-[0.88fr_1.12fr] lg:items-center lg:px-10 lg:pb-28 lg:pt-8">
-        <div className="relative z-10 max-w-[640px]">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary ring-1 ring-white/80">
-            <Leaf size={14} aria-hidden="true" /> Premium beauty for Nepal
-          </div>
-          <h1 className="mt-5 font-display text-[4.8rem] font-semibold leading-[0.78] tracking-[-0.07em] text-neutral-950 sm:text-[6.8rem] lg:text-[8.4rem]">
-            Beauty,
-            <span className="block italic font-medium text-primary">
-              quietly
-            </span>
-            curated.
-          </h1>
-          <p className="mt-6 max-w-[34rem] text-[15px] leading-8 text-neutral-700 sm:text-base">
-            A softer GLAMO Nepal storefront for skincare, SPF, makeup and
-            gifting — real brand names, editorial product photography and a
-            calmer shopping rhythm.
+    <section className="relative overflow-hidden bg-[#f6e2f4]">
+      <div className="mx-auto grid max-w-[1480px] gap-8 px-4 pb-16 pt-7 sm:px-6 md:pb-20 lg:min-h-[640px] lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:px-8 lg:pb-24 lg:pt-8">
+        <div className="relative z-10 mx-auto max-w-[660px] text-center lg:mx-0 lg:text-left">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-700">
+            Premium beauty curated for Nepal
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <h1 className="mt-4 font-display text-[4.1rem] font-semibold leading-[0.82] tracking-[-0.07em] text-neutral-950 sm:text-[5.8rem] md:text-[7rem] lg:text-[8rem]">
+            Clean Beauty
+            <span className="block italic font-medium text-[#7a377f]">Made Easy.</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-[34rem] text-[15px] leading-7 text-neutral-700 sm:text-base lg:mx-0">
+            Shop skincare, SPF, makeup and body care from trusted global names and Nepal-aware routine edits — softer, clearer and ready for real shoppers.
+          </p>
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <Link
               href="/shop"
-              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-[#7a377f]"
             >
-              Shop the edit <ArrowRight size={15} />
+              View all products <ArrowRight size={15} strokeWidth={1.8} />
             </Link>
             <Link
-              href="/routines"
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-neutral-950/15 bg-white/70 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-950 transition-colors hover:border-primary hover:text-primary"
+              href="/brands"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-neutral-950/15 bg-white/70 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-950 transition hover:border-[#7a377f] hover:text-[#7a377f]"
             >
-              Build a routine
+              Explore brands
             </Link>
           </div>
-          <div className="mt-9 grid max-w-xl grid-cols-3 gap-3">
-            {serviceNotes.map(({ label, icon: Icon }) => (
-              <div
-                key={label}
-                className="rounded-[1.4rem] bg-white/70 p-3.5 ring-1 ring-white/80"
-              >
-                <Icon
-                  size={17}
-                  className="mb-2 text-primary"
-                  aria-hidden="true"
-                />
-                <span className="block text-[10px] font-semibold uppercase leading-4 tracking-[0.11em] text-neutral-700">
-                  {label}
-                </span>
+          <div className="mt-8 grid grid-cols-3 gap-2.5 sm:gap-3">
+            {trustNotes.map(({ label, value, icon: Icon }) => (
+              <div key={label} className="rounded-[22px] border border-white/85 bg-white/72 px-3 py-3 text-left shadow-[0_16px_45px_-38px_rgba(26,21,18,0.45)]">
+                <Icon size={16} className="mb-2 text-[#7a377f]" strokeWidth={1.7} aria-hidden="true" />
+                <span className="block font-display text-2xl font-semibold leading-none text-neutral-950">{value}</span>
+                <span className="mt-1 block text-[10px] font-semibold uppercase leading-4 tracking-[0.1em] text-neutral-600">{label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="relative z-10 min-h-[460px] lg:min-h-[610px]">
-          <div className="absolute right-0 top-0 hidden h-[500px] w-[69%] overflow-hidden rounded-[3.25rem] bg-white/45 ring-1 ring-white/80 md:block">
-            <Image
-              src={IMAGES.hero.primary}
-              alt="Editorial beauty campaign with soft makeup textures"
-              fill
-              priority
-              className="object-cover object-center"
-              sizes="(max-width: 1024px) 70vw, 42vw"
-            />
-          </div>
-          <div className="absolute left-0 top-8 h-[360px] w-[64%] overflow-hidden rounded-[3.25rem] bg-[#f9f4ef] shadow-editorial ring-1 ring-white/90 md:top-0 md:h-[520px] md:w-[51%]">
-            <Image
-              src={IMAGES.hero.flatlay}
-              alt="Skincare bottles arranged on a soft beauty flatlay"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 65vw, 34vw"
-            />
-          </div>
-          <div className="absolute bottom-2 right-0 grid w-[88%] grid-cols-3 gap-3 rounded-[2.25rem] bg-white/92 p-3 shadow-editorial ring-1 ring-white md:w-[70%]">
-            {productTiles.map((tile) => (
-              <Link
-                key={tile.name}
-                href={tile.href}
-                className="group overflow-hidden rounded-[1.75rem] bg-[#fbf7f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                <div className="relative aspect-square">
-                  <Image
-                    src={tile.image}
-                    alt={tile.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                    sizes="180px"
-                  />
-                </div>
-                <p className="px-3 py-2.5 text-[10px] font-semibold leading-4 text-neutral-700">
-                  {tile.name}
-                </p>
-              </Link>
-            ))}
-          </div>
-          <div className="absolute right-4 top-8 rounded-full bg-white px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-950 shadow-soft">
-            New beauty shelf
-          </div>
-          <div className="absolute bottom-24 left-3 hidden max-w-[190px] rounded-[1.75rem] bg-neutral-950 px-5 py-4 text-white shadow-editorial md:block">
-            <p className="font-display text-3xl leading-none">30+</p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-white/70">
-              real brands curated
-            </p>
+        <div className="relative z-10 mx-auto w-full max-w-[780px] lg:max-w-none">
+          <div className="relative min-h-[430px] sm:min-h-[540px] lg:min-h-[610px]">
+            <div className="absolute left-0 top-6 h-[64%] w-[55%] overflow-hidden rounded-[42px] bg-white shadow-[0_30px_95px_-68px_rgba(26,21,18,0.55)] ring-1 ring-white/90 sm:rounded-[54px] lg:top-0 lg:h-[72%]">
+              <Image
+                src={IMAGES.hero.flatlay}
+                alt="Premium skincare products on a soft editorial beauty flatlay"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 55vw, 34vw"
+              />
+            </div>
+            <div className="absolute right-0 top-0 h-[58%] w-[55%] overflow-hidden rounded-[42px] bg-white shadow-[0_30px_95px_-70px_rgba(26,21,18,0.48)] ring-1 ring-white/90 sm:rounded-[54px] lg:h-[66%]">
+              <Image
+                src={IMAGES.hero.primary}
+                alt="Editorial makeup and skincare campaign photography"
+                fill
+                priority
+                className="object-cover object-center"
+                sizes="(max-width: 1024px) 55vw, 34vw"
+              />
+            </div>
+            <div className="absolute bottom-3 left-1/2 w-[92%] -translate-x-1/2 rounded-[32px] border border-white/90 bg-white p-3 shadow-[0_30px_100px_-64px_rgba(26,21,18,0.55)] sm:rounded-[40px] sm:p-4 lg:bottom-8 lg:w-[78%]">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {heroProducts.map((product) => (
+                  <Link
+                    key={product.name}
+                    href={product.href}
+                    className="group rounded-[24px] bg-[#fbf6f2] p-2 transition hover:bg-[#f6e2f4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7a377f] focus-visible:ring-offset-2 sm:rounded-[30px]"
+                  >
+                    <div className="relative aspect-square overflow-hidden rounded-[18px] bg-white sm:rounded-[24px]">
+                      <Image
+                        src={product.image}
+                        alt={`${product.brand} ${product.name}`}
+                        fill
+                        className="object-cover transition duration-500 group-hover:scale-[1.04]"
+                        sizes="180px"
+                      />
+                    </div>
+                    <p className="mt-2 hidden text-[9px] font-semibold uppercase tracking-[0.16em] text-[#7a377f] sm:block">{product.brand}</p>
+                    <p className="mt-1 line-clamp-2 text-[10px] font-semibold leading-4 text-neutral-700 sm:text-[11px]">{product.name}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className="absolute right-4 top-[54%] hidden rounded-full bg-neutral-950 px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_50px_-34px_rgba(26,21,18,0.7)] sm:block">
+              Fresh beauty shelf
+            </div>
           </div>
         </div>
       </div>
+      <div className="h-12 rounded-t-[55%] bg-[#fffaf7] md:h-16" aria-hidden="true" />
     </section>
   );
 }

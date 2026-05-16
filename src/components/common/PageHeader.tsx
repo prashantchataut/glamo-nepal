@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface PageHeaderProps {
   eyebrow?: string;
@@ -9,12 +9,10 @@ interface PageHeaderProps {
 
 export function PageHeader({ eyebrow, title, description, children }: PageHeaderProps) {
   return (
-    <section className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50 py-12 md:py-16">
-      <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-28 left-12 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+    <section className="relative overflow-hidden border-b border-neutral-200 bg-[#fffaf7] py-12 md:py-16">
       <div className="container relative mx-auto px-4 text-center md:px-6">
         {eyebrow ? <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">{eyebrow}</p> : null}
-        <h1 className="mx-auto mt-3 max-w-4xl font-display text-4xl font-semibold leading-[0.98] text-neutral-900 md:text-6xl">{title}</h1>
+        <h1 className="mx-auto mt-3 max-w-4xl font-display text-4xl font-semibold leading-[0.98] tracking-[-0.035em] text-neutral-950 md:text-6xl">{title}</h1>
         {description ? <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-neutral-500 md:text-base">{description}</p> : null}
         {children ? <div className="mt-7">{children}</div> : null}
       </div>

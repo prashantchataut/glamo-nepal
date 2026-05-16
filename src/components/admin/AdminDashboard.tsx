@@ -276,7 +276,11 @@ export function AdminDashboard() {
 
   async function handleLogout() {
     setIsLoggingOut(true);
-    await fetch("/api/admin/logout", { method: "POST" }).catch(() => null);
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("glamo-csrf-token="))
+      ?.split("=")[1] || "";
+    await fetch("/api/admin/logout", { method: "POST", headers: { "x-csrf-token": csrfToken } }).catch(() => null);
     window.location.href = "/admin/login";
   }
 

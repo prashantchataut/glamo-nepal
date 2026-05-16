@@ -102,10 +102,10 @@ All validation schemas include `max()` constraints:
 
 ## 8. Accessibility Fixes (IMPLEMENTED)
 
-### 8.1 Marquee Components
-- **AnnouncementBar**: Replaced `role="marquee"` with paused-by-default auto-rotating region. Play/Pause toggle with `aria-pressed`. `aria-live="polite"`, `aria-atomic="true"`, `role="region"`. Respects `prefers-reduced-motion` (10s interval when reduced).
-- **TrustBadgeMarquee**: Same pattern — paused-by-default, Play/Pause, `aria-live="polite"`, `prefers-reduced-motion`.
-- **BrandsMarquee**: Same pattern — paused-by-default, Play/Pause, `aria-live="polite"`, `prefers-reduced-motion`.
+### 8.1 Auto-rotation Components
+- **AnnouncementBar**: Replaced `role="auto-rotation"` with paused-by-default auto-rotating region. Play/Pause toggle with `aria-pressed`. `aria-live="polite"`, `aria-atomic="true"`, `role="region"`. Respects `prefers-reduced-motion` (10s interval when reduced).
+- **TrustBadgeAuto-rotation**: Same pattern — paused-by-default, Play/Pause, `aria-live="polite"`, `prefers-reduced-motion`.
+- **BrandsAuto-rotation**: Same pattern — paused-by-default, Play/Pause, `aria-live="polite"`, `prefers-reduced-motion`.
 
 ### 8.2 Carousel (HeroBanner)
 - `aria-roledescription="carousel"` and `aria-label` on section
@@ -180,7 +180,7 @@ Added error.tsx and loading.tsx for:
 - [x] Admin password comparison uses timing-safe equality
 - [x] Order numbers generated server-side with `crypto.randomUUID()`
 - [x] Newsletter form submits to server endpoint (not localStorage-only)
-- [x] All marquee components use paused-by-default auto-rotating pattern with Play/Pause
+- [x] All auto-rotation components use paused-by-default auto-rotating pattern with Play/Pause
 - [x] Carousel has proper ARIA semantics and keyboard controls
 - [x] Carousel has pause/play button for WCAG compliance
 - [x] Newsletter has proper label, aria-live, and validation
@@ -196,7 +196,7 @@ Added error.tsx and loading.tsx for:
 - [x] Error and loading pages added for collections and routes
 - [x] Auth cookie logic deduplicated into shared utility
 - [x] WhatsApp ping animation has aria-hidden
-- [x] `prefers-reduced-motion` respected in HeroBanner and all marquees
+- [x] `prefers-reduced-motion` respected in HeroBanner and all auto-rotations
 - [x] ProductCard Quick View marked as aria-hidden
 - [x] Component error boundaries in layout
 - [x] TypeScript type check passes
