@@ -40,8 +40,8 @@ function FilterSection({
   children: ReactNode;
 }) {
   return (
-    <div className="border-b border-neutral-200 pb-5 mb-5 last:border-b-0 last:pb-0 last:mb-0">
-      <p className="type-label text-[11px] text-neutral-400 mb-3">{title}</p>
+    <div className="border-b border-cream-200 pb-5 mb-5 last:border-b-0 last:pb-0 last:mb-0">
+      <p className="type-label text-[11px] text-cream-400 mb-3">{title}</p>
       {children}
     </div>
   );
@@ -66,13 +66,13 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
     });
 
   return (
-    <aside className="rounded-[2rem] border border-neutral-200 bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+    <aside className="rounded-none border border-cream-200 bg-cream-50 p-5 shadow-soft lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="type-heading-sm text-neutral-900">Filters</h2>
+        <h2 className="type-heading-sm text-ink">Filters</h2>
         <button
           type="button"
           onClick={reset}
-          className="type-label text-[11px] text-primary hover:text-primary-dark transition-colors cursor-pointer"
+          className="type-label text-[11px] text-brand-rose hover:text-brand-rose-dark transition-colors cursor-pointer"
         >
           Clear All
         </button>
@@ -80,14 +80,14 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
 
       <FilterSection title="Search">
         <label className="relative block">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cream-400" />
           <input
             value={filters.search}
             onChange={(event) =>
               onFilterChange({ ...filters, search: event.target.value })
             }
             placeholder="Serum, SPF, lipstick..."
-            className="w-full rounded-full border border-neutral-200 bg-white py-3 pl-9 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+            className="w-full rounded-none border border-cream-200 bg-cream-50 py-3 pl-9 pr-4 text-sm text-ink placeholder:text-cream-400 focus:border-brand-rose focus:outline-none"
           />
         </label>
       </FilterSection>
@@ -106,10 +106,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 })
               }
               className={cn(
-                "flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm transition-colors cursor-pointer",
+                "flex w-full items-center justify-between rounded-none px-3 py-2 text-left text-sm transition-colors cursor-pointer",
                 filters.category === cat.slug
-                  ? "bg-primary text-white"
-                  : "text-neutral-700 hover:bg-neutral-100"
+                  ? "bg-brand-rose text-white"
+                  : "text-cream-700 hover:bg-cream-100"
               )}
             >
               {cat.name}
@@ -134,10 +134,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                   })
                 }
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                  "rounded-none px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                   filters.subCategory === subCategory
-                    ? "bg-primary text-white"
-                    : "bg-[#fff7f3] text-neutral-600 hover:text-primary"
+                    ? "bg-brand-rose text-white"
+                    : "bg-cream-100 text-cream-700 hover:text-brand-rose"
                 )}
               >
                 {subCategory}
@@ -152,7 +152,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
           {BRANDS.map((brand) => (
             <label
               key={brand}
-              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
+              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-cream-700 transition-colors hover:text-brand-rose"
             >
               <input
                 type="checkbox"
@@ -176,7 +176,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
           {SKIN_TYPES.map((skinType) => (
             <label
               key={skinType}
-              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
+              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-cream-700 transition-colors hover:text-brand-rose"
             >
               <input
                 type="checkbox"
@@ -208,10 +208,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 })
               }
               className={cn(
-                "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
+                "rounded-none px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                 filters.concerns.includes(concern)
-                  ? "bg-primary text-white"
-                  : "bg-[#fff7f3] text-neutral-600 hover:text-primary"
+                  ? "bg-brand-rose text-white"
+                  : "bg-cream-100 text-cream-700 hover:text-brand-rose"
               )}
             >
               {concern}
@@ -222,7 +222,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
 
       <FilterSection title="Availability">
         <div className="space-y-3">
-          <label className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
+          <label className="flex cursor-pointer items-center gap-3 text-sm text-cream-700">
             <input
               type="checkbox"
               checked={filters.madeInNepal}
@@ -233,7 +233,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
             />
             Made in Nepal only
           </label>
-          <label className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
+          <label className="flex cursor-pointer items-center gap-3 text-sm text-cream-700">
             <input
               type="checkbox"
               checked={filters.inStock}
@@ -251,7 +251,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <label className="space-y-1">
-              <span className="type-label text-[10px] text-neutral-400">Min</span>
+              <span className="type-label text-[10px] text-cream-400">Min</span>
               <input
                 type="number"
                 min={priceRange.min}
@@ -263,11 +263,11 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                     minPrice: Number(event.target.value),
                   })
                 }
-                className="w-full rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
+                className="w-full rounded-none border border-cream-200 bg-cream-50 px-3 py-2 text-sm text-ink focus:border-brand-rose focus:outline-none"
               />
             </label>
             <label className="space-y-1">
-              <span className="type-label text-[10px] text-neutral-400">Max</span>
+              <span className="type-label text-[10px] text-cream-400">Max</span>
               <input
                 type="number"
                 min={filters.minPrice}
@@ -279,11 +279,11 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                     maxPrice: Number(event.target.value),
                   })
                 }
-                className="w-full rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
+                className="w-full rounded-none border border-cream-200 bg-cream-50 px-3 py-2 text-sm text-ink focus:border-brand-rose focus:outline-none"
               />
             </label>
           </div>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-cream-400">
             Showing रू {filters.minPrice.toLocaleString()} – रू{" "}
             {filters.maxPrice.toLocaleString()}
           </p>

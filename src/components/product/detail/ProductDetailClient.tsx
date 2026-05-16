@@ -152,22 +152,22 @@ export default function ProductDetailClient({
   }
 
   return (
-    <main className="bg-[#fffaf7]">
-      <section className="border-b border-neutral-200 bg-[#f6e6f4] px-4 py-4 md:px-6 lg:px-8">
+    <main className="bg-cream-50">
+      <section className="border-b border-cream-200 bg-brand-blush px-4 py-4 md:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav
-            className="flex min-h-10 flex-wrap items-center gap-2 text-sm text-neutral-600"
+            className="flex min-h-10 flex-wrap items-center gap-2 text-sm text-cream-700"
             aria-label="Breadcrumb"
           >
-            <Link href="/" className="transition hover:text-primary">
+            <Link href="/" className="transition hover:text-brand-rose">
               Home
             </Link>
             <ChevronRight size={14} aria-hidden="true" />
-            <Link href="/shop" className="transition hover:text-primary">
+            <Link href="/shop" className="transition hover:text-brand-rose">
               Shop
             </Link>
             <ChevronRight size={14} aria-hidden="true" />
-            <span className="font-medium text-neutral-950">{product.name}</span>
+            <span className="font-medium text-ink">{product.name}</span>
           </nav>
         </div>
       </section>
@@ -181,10 +181,10 @@ export default function ProductDetailClient({
                 type="button"
                 onClick={() => setCurrentImage(i)}
                 className={cn(
-                  "relative aspect-square w-20 shrink-0 overflow-hidden rounded-2xl border bg-white transition-colors",
+                  "relative aspect-square w-20 shrink-0 overflow-hidden rounded-none border bg-cream-50 transition-colors",
                   currentImage === i
-                    ? "border-primary"
-                    : "border-neutral-200 hover:border-neutral-400",
+                    ? "border-brand-rose"
+                    : "border-cream-200 hover:border-cream-400",
                 )}
                 aria-label={`View ${product.name} image ${i + 1}`}
                 aria-current={currentImage === i ? "true" : undefined}
@@ -201,7 +201,7 @@ export default function ProductDetailClient({
           </div>
 
           <div
-            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-[#f8f0ec] shadow-editorial lg:order-2 lg:cursor-zoom-in"
+            className="order-1 relative aspect-[4/5] overflow-hidden rounded-none border border-cream-200 bg-cream-100 shadow-editorial lg:order-2 lg:cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleZoom}
@@ -223,7 +223,7 @@ export default function ProductDetailClient({
               sizes="(max-width: 1024px) 100vw, 52vw"
             />
             {discount > 0 && (
-              <span className="absolute left-5 top-5 rounded-full bg-white/92 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-950 ring-1 ring-white/80">
+              <span className="absolute left-5 top-5 rounded-none bg-cream-50/92 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink ring-1 ring-white/80">
                 Save {discount}%
               </span>
             )}
@@ -231,16 +231,16 @@ export default function ProductDetailClient({
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-54px_rgba(26,21,18,0.55)] md:p-7">
+          <div className="rounded-none border border-cream-200 bg-cream-50 p-5 shadow-[0_18px_70px_-54px_rgba(26,21,18,0.55)] md:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <Link
                   href={`/brands/${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                  className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:text-primary-dark"
+                  className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose transition-colors hover:text-brand-rose-dark"
                 >
                   {product.brand}
                 </Link>
-                <h1 className="mt-2 font-display text-5xl font-semibold leading-[0.92] tracking-[-0.04em] text-neutral-950 md:text-6xl">
+                <h1 className="mt-2 font-display text-5xl font-semibold leading-[0.92] tracking-[-0.04em] text-ink md:text-6xl">
                   {product.name}
                 </h1>
               </div>
@@ -249,10 +249,10 @@ export default function ProductDetailClient({
                   type="button"
                   onClick={toggleWishlist}
                   className={cn(
-                    "flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition",
+                    "flex h-11 w-11 items-center justify-center rounded-none border border-cream-200 transition",
                     isWishlisted
-                      ? "bg-primary text-white"
-                      : "bg-white text-neutral-700 hover:text-primary",
+                      ? "bg-brand-rose text-white"
+                      : "bg-cream-50 text-cream-700 hover:text-brand-rose",
                   )}
                   aria-label={
                     isWishlisted ? "Remove from wishlist" : "Add to wishlist"
@@ -266,7 +266,7 @@ export default function ProductDetailClient({
                 <button
                   type="button"
                   onClick={share}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 transition hover:text-primary"
+                  className="flex h-11 w-11 items-center justify-center rounded-none border border-cream-200 bg-cream-50 text-cream-700 transition hover:text-brand-rose"
                   aria-label="Share product"
                 >
                   <Share2 size={18} />
@@ -288,40 +288,40 @@ export default function ProductDetailClient({
                     }
                     className={
                       i < Math.round(product.rating)
-                        ? "text-secondary"
-                        : "text-neutral-300"
+                        ? "text-gold"
+                        : "text-cream-300"
                     }
                   />
                 ))}
               </div>
-              <span className="text-sm text-neutral-500">
+              <span className="text-sm text-cream-400">
                 {product.rating.toFixed(1)} ({product.reviewsCount} reviews)
               </span>
-              <span className="text-sm text-neutral-300">/</span>
-              <span className="text-sm text-neutral-500">{product.size}</span>
+              <span className="text-sm text-cream-300">/</span>
+              <span className="text-sm text-cream-400">{product.size}</span>
             </div>
 
             <div className="mt-5 flex flex-wrap items-end gap-3">
-              <span className="font-display text-4xl font-semibold leading-none text-neutral-950">
+              <span className="font-display text-4xl font-semibold leading-none text-ink">
                 {formatNPR(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="text-sm text-neutral-400 line-through">
+                <span className="text-sm text-cream-400 line-through">
                   {formatNPR(product.originalPrice)}
                 </span>
               )}
               {product.inStock ? (
-                <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
+                <span className="rounded-none bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
                   In stock
                 </span>
               ) : (
-                <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-500">
+                <span className="rounded-none bg-cream-100 px-3 py-1 text-xs font-semibold text-cream-400">
                   Sold out
                 </span>
               )}
             </div>
 
-            <p className="mt-5 text-[15px] leading-8 text-neutral-600">
+            <p className="mt-5 text-[15px] leading-8 text-cream-700">
               {product.description.trim()}
             </p>
 
@@ -329,7 +329,7 @@ export default function ProductDetailClient({
               {product.benefits.slice(0, 3).map((benefit) => (
                 <div
                   key={benefit}
-                  className="rounded-[1.25rem] bg-[#fff7f3] p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
+                  className="rounded-none bg-cream-100 p-3 text-xs font-medium leading-5 text-cream-700 ring-1 ring-neutral-100"
                 >
                   {benefit}
                 </div>
@@ -338,8 +338,8 @@ export default function ProductDetailClient({
 
             {product.shadeOptions && product.shadeOptions.length > 0 && (
               <div className="mt-7">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
-                  Shade: <span className="text-neutral-950">{shade}</span>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cream-400">
+                  Shade: <span className="text-ink">{shade}</span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {product.shadeOptions.map((option) => (
@@ -348,15 +348,15 @@ export default function ProductDetailClient({
                       type="button"
                       onClick={() => setShade(option.name)}
                       className={cn(
-                        "flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition",
+                        "flex min-h-11 items-center gap-2 rounded-none border px-4 text-sm transition",
                         shade === option.name
-                          ? "border-primary bg-primary text-white"
-                          : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40",
+                          ? "border-brand-rose bg-brand-rose text-white"
+                          : "border-cream-200 bg-cream-50 text-cream-700 hover:border-brand-rose/40",
                       )}
                       aria-pressed={shade === option.name}
                     >
                       <span
-                        className="h-4 w-4 rounded-full border border-white/70 ring-1 ring-neutral-200"
+                        className="h-4 w-4 rounded-none border border-white/70 ring-1 ring-neutral-200"
                         style={{ backgroundColor: option.hex || "#E8E4DF" }}
                       />
                       {option.name}
@@ -370,12 +370,12 @@ export default function ProductDetailClient({
               ref={ctaRef}
               className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
             >
-              <div className="flex h-12 w-fit items-center rounded-full border border-neutral-200 bg-neutral-50">
+              <div className="flex h-12 w-fit items-center rounded-none border border-cream-200 bg-cream-50">
                 <button
                   type="button"
                   disabled={quantity <= 1}
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="flex h-12 w-12 items-center justify-center text-neutral-700 transition hover:text-primary disabled:opacity-35"
+                  className="flex h-12 w-12 items-center justify-center text-cream-700 transition hover:text-brand-rose disabled:opacity-35"
                   aria-label="Decrease quantity"
                 >
                   <Minus size={15} />
@@ -388,7 +388,7 @@ export default function ProductDetailClient({
                   onClick={() =>
                     setQuantity((q) => Math.min(product.stockCount, q + 1))
                   }
-                  className="flex h-12 w-12 items-center justify-center text-neutral-700 transition hover:text-primary"
+                  className="flex h-12 w-12 items-center justify-center text-cream-700 transition hover:text-brand-rose"
                   aria-label="Increase quantity"
                 >
                   <Plus size={15} />
@@ -398,7 +398,7 @@ export default function ProductDetailClient({
                 type="button"
                 onClick={addToCart}
                 disabled={!product.inStock}
-                className="inline-flex min-h-12 flex-1 items-center justify-center gap-3 rounded-full bg-neutral-950 px-7 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-3 rounded-none bg-ink px-7 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-rose disabled:cursor-not-allowed disabled:bg-neutral-300"
               >
                 <ShoppingBag size={16} /> Add to bag
               </button>
@@ -411,14 +411,14 @@ export default function ProductDetailClient({
               {reassurance.map(({ label, text, icon: Icon }) => (
                 <div
                   key={label}
-                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-[#fffaf7] p-4"
+                  className="flex gap-3 rounded-none border border-cream-200 bg-cream-50 p-4"
                 >
-                  <Icon size={18} className="mt-0.5 text-primary" />
+                  <Icon size={18} className="mt-0.5 text-brand-rose" />
                   <div>
-                    <p className="text-sm font-semibold text-neutral-950">
+                    <p className="text-sm font-semibold text-ink">
                       {label}
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-neutral-500">
+                    <p className="mt-1 text-xs leading-5 text-cream-400">
                       {text}
                     </p>
                   </div>
@@ -430,8 +430,8 @@ export default function ProductDetailClient({
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 md:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
-        <div className="rounded-[2rem] bg-neutral-950 p-6 text-white md:p-8">
-          <Sparkles size={22} className="text-[#f0d3f3]" />
+        <div className="rounded-none bg-ink p-6 text-white md:p-8">
+          <Sparkles size={22} className="text-brand-blush" />
           <h2 className="mt-5 font-display text-4xl font-semibold leading-none">
             Routine notes
           </h2>
@@ -443,7 +443,7 @@ export default function ProductDetailClient({
             {product.concernTags.slice(0, 5).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/80"
+                className="rounded-none bg-cream-50/10 px-3 py-1.5 text-xs text-white/80"
               >
                 {tag}
               </span>
@@ -451,7 +451,7 @@ export default function ProductDetailClient({
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-neutral-200 bg-white p-5 md:p-7">
+        <div className="rounded-none border border-cream-200 bg-cream-50 p-5 md:p-7">
           <Accordion
             type="single"
             collapsible
@@ -461,23 +461,23 @@ export default function ProductDetailClient({
             <AccordionItem value="details">
               <AccordionTrigger>Product details</AccordionTrigger>
               <AccordionContent>
-                <dl className="grid gap-3 text-sm text-neutral-600 sm:grid-cols-2">
+                <dl className="grid gap-3 text-sm text-cream-700 sm:grid-cols-2">
                   <div>
-                    <dt className="font-semibold text-neutral-950">Origin</dt>
+                    <dt className="font-semibold text-ink">Origin</dt>
                     <dd>{product.origin}</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-neutral-950">Size</dt>
+                    <dt className="font-semibold text-ink">Size</dt>
                     <dd>{product.size}</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-neutral-950">
+                    <dt className="font-semibold text-ink">
                       Skin type
                     </dt>
                     <dd>{product.skinType.join(", ")}</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-neutral-950">SKU</dt>
+                    <dt className="font-semibold text-ink">SKU</dt>
                     <dd>{product.sku}</dd>
                   </div>
                 </dl>
@@ -486,7 +486,7 @@ export default function ProductDetailClient({
             <AccordionItem value="how-to-use">
               <AccordionTrigger>How to use</AccordionTrigger>
               <AccordionContent>
-                <ol className="space-y-2 text-sm leading-7 text-neutral-600">
+                <ol className="space-y-2 text-sm leading-7 text-cream-700">
                   {product.howToUse.map((step) => (
                     <li key={step}>- {step}</li>
                   ))}
@@ -500,7 +500,7 @@ export default function ProductDetailClient({
                   {product.ingredients.map((ingredient) => (
                     <span
                       key={ingredient}
-                      className="rounded-full bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700"
+                      className="rounded-none bg-cream-100 px-3 py-1.5 text-sm text-cream-700"
                     >
                       {ingredient}
                     </span>
@@ -511,11 +511,11 @@ export default function ProductDetailClient({
             <AccordionItem value="shipping">
               <AccordionTrigger>Delivery & returns</AccordionTrigger>
               <AccordionContent>
-                <p className="text-sm leading-7 text-neutral-600">
+                <p className="text-sm leading-7 text-cream-700">
                   {product.deliveryNote ||
                     "Delivery fees and timelines are calculated at checkout based on district."}
                 </p>
-                <p className="mt-3 text-sm leading-7 text-neutral-600">
+                <p className="mt-3 text-sm leading-7 text-cream-700">
                   {returnEligibility}
                 </p>
               </AccordionContent>
@@ -528,16 +528,16 @@ export default function ProductDetailClient({
         <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-rose">
                 Complete the shelf
               </p>
-              <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.03em] text-neutral-950">
+              <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.03em] text-ink">
                 You may also like
               </h2>
             </div>
             <Link
               href="/shop"
-              className="hidden text-sm font-semibold text-neutral-600 hover:text-primary md:inline"
+              className="hidden text-sm font-semibold text-cream-700 hover:text-brand-rose md:inline"
             >
               View all
             </Link>

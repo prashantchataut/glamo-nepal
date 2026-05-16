@@ -30,7 +30,7 @@ export function MobileBottomNav() {
   }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-navbar h-16 border-t border-border/50 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)] md:hidden" aria-label="Mobile navigation">
+    <nav className="fixed bottom-0 left-0 right-0 z-navbar h-16 border-t border-border/50 bg-cream-50/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)] md:hidden" aria-label="Mobile navigation">
       <div className="flex h-full items-center justify-around">
         {navItems.map((item) => {
           const isActive = item.href !== "#" && (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)));
@@ -57,7 +57,7 @@ export function MobileBottomNav() {
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className={cn("text-[11px] font-medium", isActive && "font-semibold")}>{item.label}</span>
               {count > 0 && (
-                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-brand-primary text-[9px] font-bold text-white">
+                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-none bg-brand-primary text-[9px] font-bold text-white">
                   {count}
                 </span>
               )}

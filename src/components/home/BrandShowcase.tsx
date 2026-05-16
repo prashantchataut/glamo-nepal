@@ -15,7 +15,7 @@ export function BrandShowcase() {
           <Link
             key={brand.id}
             href={`/brands/${brand.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-            className="group flex aspect-square items-center justify-center border border-neutral-200 bg-surface p-6 transition-all duration-300 hover:border-primary hover:shadow-sm cursor-pointer"
+            className="group flex aspect-square items-center justify-center border border-cream-200 bg-surface p-6 transition-all duration-300 hover:border-brand-rose hover:shadow-sm cursor-pointer"
           >
             <Image
               src={brand.image}

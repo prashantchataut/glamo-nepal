@@ -30,11 +30,11 @@ export class ComponentErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
       return (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center" role="alert">
+        <div className="rounded-none border border-red-200 bg-red-50 p-6 text-center" role="alert">
           <p className="text-sm font-semibold text-red-800">Something went wrong loading this section.</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="mt-3 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+            className="mt-3 rounded-none bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
           >
             Try again
           </button>

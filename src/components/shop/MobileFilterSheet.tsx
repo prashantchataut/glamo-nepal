@@ -23,7 +23,7 @@ export function MobileFilterSheet({
         className="w-[85vw] max-w-sm overflow-y-auto bg-surface p-6"
       >
         <SheetHeader>
-          <SheetTitle className="type-heading-sm text-neutral-900">
+          <SheetTitle className="type-heading-sm text-ink">
             Filters
           </SheetTitle>
         </SheetHeader>

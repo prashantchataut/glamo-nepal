@@ -134,29 +134,29 @@ export default function ShopPageContent() {
   }, [filters.category]);
 
   return (
-    <div className="min-h-screen bg-[#fffaf7]">
+    <div className="min-h-screen bg-cream-50">
       {/* Page header */}
-      <section className="bg-[#f6e6f4] py-12 md:py-18">
+      <section className="bg-brand-blush py-12 md:py-18">
         <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <span className="type-label text-primary">रू pricing · Nepal delivery</span>
-            <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-neutral-900 md:text-7xl">
+            <span className="type-label text-brand-rose">रू pricing · Nepal delivery</span>
+            <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-ink md:text-7xl">
               {categoryObj?.name || "The beauty edit"}
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-600">
+            <p className="mt-5 max-w-2xl text-base leading-8 text-cream-700">
               {categoryObj?.description || "Browse skincare, soft-glam makeup, hair care and daily essentials with clear pricing, polished filters and authentic GLAMO curation."}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3 rounded-[2rem] border border-neutral-200 bg-white/80 p-4 text-center shadow-card">
-            <div><p className="font-display text-2xl text-primary">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Products</p></div>
-            <div><p className="font-display text-2xl text-primary">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Districts</p></div>
-            <div><p className="font-display text-2xl text-primary">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Curated</p></div>
+          <div className="grid grid-cols-3 gap-3 rounded-none border border-cream-200 bg-cream-50/80 p-4 text-center shadow-card">
+            <div><p className="font-display text-2xl text-brand-rose">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Products</p></div>
+            <div><p className="font-display text-2xl text-brand-rose">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Districts</p></div>
+            <div><p className="font-display text-2xl text-brand-rose">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Curated</p></div>
           </div>
         </div>
       </section>
 
       {/* Category pills */}
-      <section className="border-b border-neutral-200 bg-white">
+      <section className="border-b border-cream-200 bg-cream-50">
         <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
           <div className="flex gap-2 overflow-x-auto py-4 no-scrollbar">
             {CATEGORIES.map((cat) => (
@@ -165,10 +165,10 @@ export default function ShopPageContent() {
                 type="button"
                 onClick={() => handleFilterChange({ ...filters, category: filters.category === cat.slug ? "" : cat.slug, subCategory: "" })}
                 className={cn(
-                  "shrink-0 rounded-full border px-4 py-2 text-sm font-semibold tracking-wide transition-colors cursor-pointer",
+                  "shrink-0 rounded-none border px-4 py-2 text-sm font-semibold tracking-wide transition-colors cursor-pointer",
                   filters.category === cat.slug
-                    ? "border-primary bg-primary text-white"
-                    : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40 hover:text-primary"
+                    ? "border-brand-rose bg-brand-rose text-white"
+                    : "border-cream-200 bg-cream-50 text-cream-700 hover:border-brand-rose/40 hover:text-brand-rose"
                 )}
               >
                 {cat.name}
@@ -198,24 +198,24 @@ export default function ShopPageContent() {
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400 lg:hidden cursor-pointer"
+                  className="flex items-center gap-2 rounded-none border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-cream-700 transition-colors hover:border-cream-400 lg:hidden cursor-pointer"
                 >
                   <SlidersHorizontal size={16} />
                   Filters
                   {chips.length > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-white">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-none bg-brand-rose text-[10px] text-white">
                       {chips.length}
                     </span>
                   )}
                 </button>
-                <p className="type-body-sm text-neutral-400">
+                <p className="type-body-sm text-cream-400">
                   {products.length} result{products.length !== 1 ? "s" : ""}
                 </p>
               </div>
               <select
                 value={filters.sort}
                 onChange={(event) => handleFilterChange({ ...filters, sort: event.target.value })}
-                className="border-b border-neutral-300 bg-transparent px-2 py-2 text-sm text-neutral-700 focus:border-primary focus:outline-none cursor-pointer"
+                className="border-b border-cream-300 bg-transparent px-2 py-2 text-sm text-cream-700 focus:border-brand-rose focus:outline-none cursor-pointer"
                 aria-label="Sort products"
               >
                 {SORT_OPTIONS.map((option) => (
@@ -232,7 +232,7 @@ export default function ShopPageContent() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="rounded-full bg-primary px-3 py-1.5 text-[11px] tracking-widest uppercase text-white cursor-pointer"
+                  className="rounded-none bg-brand-rose px-3 py-1.5 text-[11px] tracking-widest uppercase text-white cursor-pointer"
                 >
                   Clear All
                 </button>
@@ -241,7 +241,7 @@ export default function ShopPageContent() {
                     key={chip.key}
                     type="button"
                     onClick={() => handleFilterChange(chip.remove())}
-                    className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-700 transition-colors hover:border-primary hover:text-primary cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-none border border-cream-200 bg-cream-50 px-3 py-1.5 text-xs text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose cursor-pointer"
                   >
                     {chip.label}
                     <X size={12} />
@@ -253,17 +253,17 @@ export default function ShopPageContent() {
             {/* Product grid or empty state */}
             {products.length === 0 ? (
               <div className="py-24 text-center">
-                <svg className="mx-auto h-16 w-16 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+                <svg className="mx-auto h-16 w-16 text-cream-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <h2 className="type-heading-sm mt-6 text-neutral-900">No products found</h2>
-                <p className="type-body-md mt-2 text-neutral-400">
+                <h2 className="type-heading-sm mt-6 text-ink">No products found</h2>
+                <p className="type-body-md mt-2 text-cream-400">
                   Try clearing filters or searching for something different.
                 </p>
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="mt-6 rounded-full bg-neutral-950 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary cursor-pointer"
+                  className="mt-6 rounded-none bg-ink px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-brand-rose cursor-pointer"
                 >
                   Clear Filters
                 </button>
@@ -283,7 +283,7 @@ export default function ShopPageContent() {
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-none border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Previous page"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -294,10 +294,10 @@ export default function ShopPageContent() {
                         type="button"
                         onClick={() => setCurrentPage(page)}
                         className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors cursor-pointer",
+                          "flex h-10 w-10 items-center justify-center rounded-none text-sm transition-colors cursor-pointer",
                           page === currentPage
-                            ? "bg-primary text-white"
-                            : "border border-neutral-200 text-neutral-700 hover:border-primary hover:text-primary"
+                            ? "bg-brand-rose text-white"
+                            : "border border-cream-200 text-cream-700 hover:border-brand-rose hover:text-brand-rose"
                         )}
                         aria-label={`Page ${page}`}
                         aria-current={page === currentPage ? "page" : undefined}
@@ -309,7 +309,7 @@ export default function ShopPageContent() {
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-none border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Next page"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>

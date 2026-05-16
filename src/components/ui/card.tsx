@@ -12,8 +12,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <Tag
         ref={ref}
         className={cn(
-          "bg-surface border border-neutral-200 transition-all duration-300",
-          hover && "hover:border-neutral-400 hover:shadow-card-hover hover:-translate-y-1",
+          "bg-surface border border-cream-200 transition-all duration-300",
+          hover && "hover:border-cream-400 hover:shadow-card-hover hover:-translate-y-1",
           className
         )}
         {...props}
@@ -35,7 +35,7 @@ const CardImage = React.forwardRef<HTMLDivElement, CardImageProps>(
       <div
         ref={ref}
         className={cn(
-          "overflow-hidden bg-neutral-100",
+          "overflow-hidden bg-cream-100",
           aspectRatio === "3/4" && "aspect-[3/4]",
           aspectRatio === "1/1" && "aspect-square",
           aspectRatio === "4/3" && "aspect-[4/3]",

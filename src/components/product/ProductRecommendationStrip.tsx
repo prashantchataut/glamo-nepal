@@ -57,7 +57,7 @@ export function ProductRecommendationStrip({
   if (!loading && products.length === 0) return null;
 
   return (
-    <section className="bg-white py-12">
+    <section className="bg-cream-50 py-12">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-6 flex items-end justify-between">
           <div>
@@ -76,14 +76,14 @@ export function ProductRecommendationStrip({
             ? Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-white"
+                  className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-cream-50"
                 >
                   <div className="aspect-[4/5] animate-pulse rounded-t-[1.35rem] bg-brand-bgLight" />
                   <div className="flex flex-1 flex-col gap-3 p-5">
                     <div className="h-3 w-20 animate-pulse rounded bg-brand-bgLight" />
                     <div className="h-6 w-4/5 animate-pulse rounded bg-brand-bgLight" />
                     <div className="h-4 w-2/3 animate-pulse rounded bg-brand-bgLight" />
-                    <div className="mt-auto h-11 w-full animate-pulse rounded-full bg-brand-bgLight" />
+                    <div className="mt-auto h-11 w-full animate-pulse rounded-none bg-brand-bgLight" />
                   </div>
                 </div>
               ))

@@ -40,7 +40,7 @@ export default function CategoryPageContent() {
         <div className="text-center">
           <h1 className="font-display text-4xl font-semibold mb-4">Category Not Found</h1>
           <p className="text-brand-textMuted mb-6">The category you are looking for does not exist.</p>
-          <Link href="/shop" className="px-8 py-3 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-colors">
+          <Link href="/shop" className="px-8 py-3 bg-brand-primary text-white rounded-none font-semibold hover:bg-brand-bgDark transition-colors">
             Browse All Products
           </Link>
         </div>
@@ -58,7 +58,7 @@ export default function CategoryPageContent() {
             <h1 className="mt-3 font-display text-5xl font-semibold text-brand-textPrimary md:text-7xl">{category.name}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-brand-textMuted">{category.description}</p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm"><Image src={category.image} alt={category.name} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 420px" /></div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-none border border-brand-border bg-cream-50 shadow-sm"><Image src={category.image} alt={category.name} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 420px" /></div>
         </div>
       </div>
 
@@ -67,8 +67,8 @@ export default function CategoryPageContent() {
           <button
             onClick={() => setActiveSub("")}
             className={cn(
-              "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300",
-              !activeSub ? "bg-brand-primary text-white shadow-md" : "bg-white text-brand-textMuted border border-border hover:border-brand-primary/30 hover:text-brand-primary"
+              "px-5 py-2 rounded-none text-sm font-semibold transition-all duration-300",
+              !activeSub ? "bg-brand-primary text-white shadow-md" : "bg-cream-50 text-brand-textMuted border border-border hover:border-brand-primary/30 hover:text-brand-primary"
             )}
           >
             All
@@ -78,8 +78,8 @@ export default function CategoryPageContent() {
               key={sub}
               onClick={() => setActiveSub(sub === activeSub ? "" : sub)}
               className={cn(
-                "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300",
-                activeSub === sub ? "bg-brand-primary text-white shadow-md" : "bg-white text-brand-textMuted border border-border hover:border-brand-primary/30 hover:text-brand-primary"
+                "px-5 py-2 rounded-none text-sm font-semibold transition-all duration-300",
+                activeSub === sub ? "bg-brand-primary text-white shadow-md" : "bg-cream-50 text-brand-textMuted border border-border hover:border-brand-primary/30 hover:text-brand-primary"
               )}
             >
               {sub}
@@ -92,7 +92,7 @@ export default function CategoryPageContent() {
           <select
             value={sort}
             onChange={(e) => router.push(`/category/${slug}?sort=${e.target.value}`, { scroll: false })}
-            className="text-sm border border-border rounded-full px-4 py-2.5 bg-white text-brand-textPrimary focus:outline-none focus:ring-2 focus:ring-brand-primary/30 cursor-pointer"
+            className="text-sm border border-border rounded-none px-4 py-2.5 bg-cream-50 text-brand-textPrimary focus:outline-none focus:ring-2 focus:ring-brand-primary/30 cursor-pointer"
           >
             {SORT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>
@@ -102,7 +102,7 @@ export default function CategoryPageContent() {
           <div className="text-center py-20">
             <h3 className="font-display text-2xl font-semibold text-brand-textPrimary mb-2">No products found</h3>
             <p className="text-brand-textMuted mb-6">Try selecting a different sub-category.</p>
-            <button onClick={() => setActiveSub("")} className="px-8 py-3 bg-brand-primary text-white rounded-full font-semibold hover:bg-brand-bgDark transition-colors">
+            <button onClick={() => setActiveSub("")} className="px-8 py-3 bg-brand-primary text-white rounded-none font-semibold hover:bg-brand-bgDark transition-colors">
               View All {category.name}
             </button>
           </div>

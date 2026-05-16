@@ -6,17 +6,17 @@ const TESTIMONIALS = [
 
 export function Testimonials() {
   return (
-    <section className="bg-neutral-900 py-16 text-white md:py-24" aria-labelledby="testimonials-heading">
+    <section className="bg-ink py-16 text-white md:py-24" aria-labelledby="testimonials-heading">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
           <div>
-            <p className="type-label text-secondary">Customer notes</p>
+            <p className="type-label text-gold">Customer notes</p>
             <h2 id="testimonials-heading" className="mt-3 font-display text-5xl font-light leading-tight md:text-6xl">Beauty shopping that feels easier.</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {TESTIMONIALS.map((item) => (
               <article key={item.name} className="border border-white/15 p-6">
-                <div className="flex gap-1 text-secondary" aria-label="5 out of 5 stars">
+                <div className="flex gap-1 text-gold" aria-label="5 out of 5 stars">
                   {Array.from({ length: 5 }).map((_, index) => <span key={index}>★</span>)}
                 </div>
                 <blockquote className="mt-5 font-display text-2xl leading-snug text-white/90">“{item.quote}”</blockquote>

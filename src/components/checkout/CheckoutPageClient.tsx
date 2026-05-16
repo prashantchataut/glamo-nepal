@@ -69,23 +69,23 @@ function OrderSummary({
 }) {
   return (
     <div className="space-y-3 text-sm">
-      <div className="flex justify-between text-neutral-500">
+      <div className="flex justify-between text-cream-400">
         <span>Subtotal</span>
-        <span className="text-neutral-950">{formatNPR(subtotal)}</span>
+        <span className="text-ink">{formatNPR(subtotal)}</span>
       </div>
-      <div className="flex justify-between text-neutral-500">
+      <div className="flex justify-between text-cream-400">
         <span>Delivery</span>
-        <span className="text-neutral-950">
+        <span className="text-ink">
           {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
         </span>
       </div>
       {giftWrapFee > 0 && (
-        <div className="flex justify-between text-neutral-500">
+        <div className="flex justify-between text-cream-400">
           <span>Gift wrap</span>
-          <span className="text-neutral-950">{formatNPR(giftWrapFee)}</span>
+          <span className="text-ink">{formatNPR(giftWrapFee)}</span>
         </div>
       )}
-      <div className="flex justify-between border-t border-neutral-200 pt-4 text-neutral-950">
+      <div className="flex justify-between border-t border-cream-200 pt-4 text-ink">
         <span className="font-semibold">Total</span>
         <span className="font-display text-3xl font-semibold leading-none">
           {formatNPR(total)}
@@ -156,9 +156,9 @@ export function CheckoutPageClient() {
   );
 
   const inputClass =
-    "w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15";
+    "w-full rounded-none border border-cream-200 bg-cream-50 px-4 py-3 text-sm text-ink placeholder:text-cream-400 outline-none transition focus:border-brand-rose focus:ring-2 focus:ring-primary/15";
   const labelClass =
-    "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500";
+    "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-cream-400";
   const errorClass = "mt-1.5 text-xs text-error";
 
   function updateProvince(province: string) {
@@ -175,10 +175,10 @@ export function CheckoutPageClient() {
 
   function stepButton(step: number) {
     return currentStep === step
-      ? "bg-neutral-950 text-white"
+      ? "bg-ink text-white"
       : currentStep > step
-        ? "bg-primary text-white"
-        : "bg-white text-neutral-400";
+        ? "bg-brand-rose text-white"
+        : "bg-cream-50 text-cream-400";
   }
 
   async function onSubmit(data: CheckoutFormData) {
@@ -258,20 +258,20 @@ export function CheckoutPageClient() {
 
   if (!items.length) {
     return (
-      <main className="bg-[#fffaf7] py-16 md:py-24">
+      <main className="bg-cream-50 py-16 md:py-24">
         <div className="mx-auto max-w-lg px-4 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f6e6f4] text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-none bg-brand-blush text-brand-rose">
             <ShoppingBag size={30} />
           </div>
-          <h1 className="mt-6 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-neutral-950">
+          <h1 className="mt-6 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-ink">
             Your bag is empty
           </h1>
-          <p className="mt-4 text-sm leading-7 text-neutral-500">
+          <p className="mt-4 text-sm leading-7 text-cream-400">
             Add items before checking out.
           </p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-none bg-ink px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-brand-rose"
           >
             Start shopping
           </Link>
@@ -281,17 +281,17 @@ export function CheckoutPageClient() {
   }
 
   return (
-    <main className="bg-[#fffaf7] px-4 py-8 md:px-6 md:py-12 lg:px-8">
+    <main className="bg-cream-50 px-4 py-8 md:px-6 md:py-12 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 rounded-[2.5rem] bg-[#f6e6f4] px-5 py-6 md:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+        <div className="mb-8 rounded-none bg-brand-blush px-5 py-6 md:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
             Secure checkout
           </p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-neutral-950 md:text-7xl">
+            <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-ink md:text-7xl">
               Confirm your beauty bag.
             </h1>
-            <p className="max-w-sm text-sm leading-7 text-neutral-600">
+            <p className="max-w-sm text-sm leading-7 text-cream-700">
               Delivery rules are Nepal-aware. Digital payments stay marked
               coming soon until the gateway is ready.
             </p>
@@ -299,7 +299,7 @@ export function CheckoutPageClient() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px] lg:items-start">
-          <section className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-7">
+          <section className="rounded-none border border-cream-200 bg-cream-50 p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-7">
             <div className="mb-8 grid grid-cols-4 gap-2">
               {steps.map((step, i) => {
                 const Icon = step.icon;
@@ -312,7 +312,7 @@ export function CheckoutPageClient() {
                     aria-current={currentStep === i ? "step" : undefined}
                   >
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full transition ${stepButton(i)}`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-none transition ${stepButton(i)}`}
                     >
                       {i < currentStep ? (
                         <CheckCircle2 size={17} />
@@ -321,7 +321,7 @@ export function CheckoutPageClient() {
                       )}
                     </div>
                     <span
-                      className={`mt-2 hidden text-xs font-semibold uppercase tracking-[0.12em] sm:block ${i <= currentStep ? "text-neutral-950" : "text-neutral-400"}`}
+                      className={`mt-2 hidden text-xs font-semibold uppercase tracking-[0.12em] sm:block ${i <= currentStep ? "text-ink" : "text-cream-400"}`}
                     >
                       {step.label}
                     </span>
@@ -333,7 +333,7 @@ export function CheckoutPageClient() {
             <form onSubmit={handleSubmit(onSubmit)}>
               {currentStep === 0 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
                     Contact & shipping
                   </h2>
                   <div className="grid gap-5 sm:grid-cols-2">
@@ -475,7 +475,7 @@ export function CheckoutPageClient() {
                     disabled={
                       !form.name || !form.phone || !form.address || !form.ward
                     }
-                    className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    className="rounded-none bg-ink px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-rose disabled:cursor-not-allowed disabled:bg-neutral-300"
                   >
                     Continue to delivery
                   </button>
@@ -484,26 +484,26 @@ export function CheckoutPageClient() {
 
               {currentStep === 1 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
                     Delivery method
                   </h2>
-                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.5rem] border border-primary bg-[#fffaf7] p-5">
+                  <label className="flex cursor-pointer items-center gap-4 rounded-none border border-brand-rose bg-cream-50 p-5">
                     <input
                       type="radio"
                       name="delivery"
                       defaultChecked
                       className="accent-primary"
                     />
-                    <Truck className="text-primary" size={20} />
+                    <Truck className="text-brand-rose" size={20} />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-neutral-950">
+                      <p className="text-sm font-semibold text-ink">
                         Standard delivery
                       </p>
-                      <p className="mt-1 text-xs text-neutral-500">
+                      <p className="mt-1 text-xs text-cream-400">
                         {deliveryRule.estimate}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-neutral-950">
+                    <span className="text-sm font-semibold text-ink">
                       {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
                     </span>
                   </label>
@@ -515,14 +515,14 @@ export function CheckoutPageClient() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(0)}
-                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+                      className="rounded-none border border-cream-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-cream-700 hover:border-cream-400"
                     >
                       Back
                     </button>
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
-                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
+                      className="rounded-none bg-ink px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-brand-rose"
                     >
                       Continue to payment
                     </button>
@@ -532,7 +532,7 @@ export function CheckoutPageClient() {
 
               {currentStep === 2 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
                     Payment method
                   </h2>
                   <div className="grid gap-3">
@@ -541,7 +541,7 @@ export function CheckoutPageClient() {
                       return (
                         <label
                           key={method}
-                          className={`flex cursor-pointer items-center gap-4 rounded-[1.5rem] border p-5 transition ${form.payment === method ? "border-primary bg-[#fffaf7]" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
+                          className={`flex cursor-pointer items-center gap-4 rounded-none border p-5 transition ${form.payment === method ? "border-brand-rose bg-cream-50" : "border-cream-200 hover:border-cream-400"} ${isComingSoon ? "opacity-55" : ""}`}
                         >
                           <input
                             type="radio"
@@ -550,13 +550,13 @@ export function CheckoutPageClient() {
                             disabled={isComingSoon}
                             className="accent-primary"
                           />
-                          <CreditCard size={19} className="text-primary" />
+                          <CreditCard size={19} className="text-brand-rose" />
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-neutral-950">
+                            <p className="text-sm font-semibold text-ink">
                               {method}
                             </p>
                             {isComingSoon && (
-                              <p className="mt-1 text-xs text-neutral-500">
+                              <p className="mt-1 text-xs text-cream-400">
                                 Coming soon
                               </p>
                             )}
@@ -565,13 +565,13 @@ export function CheckoutPageClient() {
                       );
                     })}
                   </div>
-                  <label className="flex items-center gap-3 rounded-[1.5rem] border border-neutral-200 p-5 text-sm text-neutral-700">
+                  <label className="flex items-center gap-3 rounded-none border border-cream-200 p-5 text-sm text-cream-700">
                     <input
                       type="checkbox"
                       {...register("giftWrap")}
                       className="accent-primary"
                     />
-                    <Gift size={18} className="text-primary" /> Add gift wrap
+                    <Gift size={18} className="text-brand-rose" /> Add gift wrap
                     for {formatNPR(100)}
                   </label>
                   <div>
@@ -589,14 +589,14 @@ export function CheckoutPageClient() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(1)}
-                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+                      className="rounded-none border border-cream-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-cream-700 hover:border-cream-400"
                     >
                       Back
                     </button>
                     <button
                       type="button"
                       onClick={() => setCurrentStep(3)}
-                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
+                      className="rounded-none bg-ink px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-brand-rose"
                     >
                       Review order
                     </button>
@@ -606,16 +606,16 @@ export function CheckoutPageClient() {
 
               {currentStep === 3 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
                     Review order
                   </h2>
-                  <div className="divide-y divide-neutral-200 rounded-[1.5rem] border border-neutral-200">
+                  <div className="divide-y divide-neutral-200 rounded-none border border-cream-200">
                     {items.map((item) => (
                       <div
                         key={`${item.product.id}-${item.selectedShade || "base"}`}
                         className="flex gap-4 p-4"
                       >
-                        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
+                        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-[1rem] bg-cream-100">
                           <Image
                             src={item.product.image}
                             alt={item.product.name}
@@ -625,30 +625,30 @@ export function CheckoutPageClient() {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cream-400">
                             {item.product.brand}
                           </p>
-                          <p className="truncate text-sm font-semibold text-neutral-950">
+                          <p className="truncate text-sm font-semibold text-ink">
                             {item.product.name}
                           </p>
                           {item.selectedShade && (
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-cream-400">
                               Shade: {item.selectedShade}
                             </p>
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-semibold text-neutral-950">
+                          <p className="text-sm font-semibold text-ink">
                             {formatNPR(item.product.price * item.quantity)}
                           </p>
-                          <p className="text-xs text-neutral-500">
+                          <p className="text-xs text-cream-400">
                             Qty {item.quantity}
                           </p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="rounded-[1.5rem] border border-neutral-200 bg-[#fffaf7] p-5">
+                  <div className="rounded-none border border-cream-200 bg-cream-50 p-5">
                     <OrderSummary
                       subtotal={subtotal}
                       deliveryFee={deliveryFee}
@@ -656,8 +656,8 @@ export function CheckoutPageClient() {
                       total={total}
                     />
                   </div>
-                  <div className="rounded-[1.5rem] border border-neutral-200 p-5 text-sm leading-7 text-neutral-600">
-                    <p className="font-semibold text-neutral-950">
+                  <div className="rounded-none border border-cream-200 p-5 text-sm leading-7 text-cream-700">
+                    <p className="font-semibold text-ink">
                       Shipping to
                     </p>
                     <p>{form.name}</p>
@@ -666,7 +666,7 @@ export function CheckoutPageClient() {
                       {form.district}, {form.province}
                     </p>
                     <p>{form.phone}</p>
-                    <p className="mt-2 font-semibold text-neutral-950">
+                    <p className="mt-2 font-semibold text-ink">
                       Payment: {form.payment}
                     </p>
                   </div>
@@ -674,14 +674,14 @@ export function CheckoutPageClient() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
-                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+                      className="rounded-none border border-cream-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-cream-700 hover:border-cream-400"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
                       disabled={!canSubmit || isSubmitting}
-                      className="flex-1 rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                      className="flex-1 rounded-none bg-ink px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-rose disabled:cursor-not-allowed disabled:bg-neutral-300"
                     >
                       {isSubmitting ? "Placing order..." : "Place order"}
                     </button>
@@ -691,20 +691,20 @@ export function CheckoutPageClient() {
             </form>
           </section>
 
-          <aside className="rounded-[2.25rem] border border-neutral-200 bg-white p-6 shadow-editorial lg:sticky lg:top-24">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+          <aside className="rounded-none border border-cream-200 bg-cream-50 p-6 shadow-editorial lg:sticky lg:top-24">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
               Bag summary
             </p>
-            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-neutral-950">
+            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">
               {itemCount} item{itemCount === 1 ? "" : "s"}
             </h2>
             <div className="mt-5 max-h-[360px] space-y-3 overflow-auto pr-1">
               {items.map((item) => (
                 <div
                   key={`${item.product.id}-${item.selectedShade || "base"}-summary`}
-                  className="flex gap-3 rounded-[1.25rem] bg-[#fffaf7] p-3"
+                  className="flex gap-3 rounded-none bg-cream-50 p-3"
                 >
-                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
+                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[1rem] bg-cream-100">
                     <Image
                       src={item.product.image}
                       alt={item.product.name}
@@ -714,17 +714,17 @@ export function CheckoutPageClient() {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-neutral-950">
+                    <p className="truncate text-sm font-semibold text-ink">
                       {item.product.name}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-cream-400">
                       Qty {item.quantity}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-6 border-t border-neutral-200 pt-5">
+            <div className="mt-6 border-t border-cream-200 pt-5">
               <OrderSummary
                 subtotal={subtotal}
                 deliveryFee={deliveryFee}
@@ -732,8 +732,8 @@ export function CheckoutPageClient() {
                 total={total}
               />
             </div>
-            <div className="mt-5 flex gap-3 rounded-[1.25rem] bg-neutral-950 p-4 text-white">
-              <LockKeyhole size={18} className="mt-0.5 text-[#f0d3f3]" />
+            <div className="mt-5 flex gap-3 rounded-none bg-ink p-4 text-white">
+              <LockKeyhole size={18} className="mt-0.5 text-brand-blush" />
               <p className="text-xs leading-5 text-white/75">
                 Checkout stores only necessary order details and redirects to
                 confirmation after API order creation.

@@ -12,18 +12,18 @@ export function PhilosophyBackground({ className = '' }: { className?: string })
         <defs>
           <linearGradient id="philBg" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#F7EDF8" />
-            <stop offset="50%" stopColor="#FDF6F9" />
+            <stop offset="50%" stopColor="#FEFCFB" />
             <stop offset="100%" stopColor="#F7EDF8" />
           </linearGradient>
           <radialGradient id="philGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#D4A0D7" stopOpacity="0.1" />
-            <stop offset="100%" stopColor="#D4A0D7" stopOpacity="0" />
+            <stop offset="0%" stopColor="#F2D4DA" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="#F2D4DA" stopOpacity="0" />
           </radialGradient>
         </defs>
         <rect width="1440" height="400" fill="url(#philBg)" />
         <ellipse cx="720" cy="200" rx="300" ry="300" fill="url(#philGlow)" />
         {/* Left botanical */}
-        <g transform="translate(-60, 50)" opacity="0.08" fill="none" stroke="#D97898" strokeWidth="1.2">
+        <g transform="translate(-60, 50)" opacity="0.08" fill="none" stroke="#D4798A" strokeWidth="1.2">
           <path d="M 150 200 Q 130 140 150 80 Q 170 140 150 200 Z" />
           <path d="M 150 200 Q 90 160 50 110 Q 110 150 150 200 Z" />
           <path d="M 150 200 Q 80 200 20 200 Q 80 200 150 200 Z" />
@@ -36,7 +36,7 @@ export function PhilosophyBackground({ className = '' }: { className?: string })
           <circle cx="150" cy="200" r="8" strokeWidth="0.5" />
         </g>
         {/* Right botanical (mirror) */}
-        <g transform="translate(1290, 50) scale(-1,1) translate(-300,0)" opacity="0.08" fill="none" stroke="#D97898" strokeWidth="1.2">
+        <g transform="translate(1290, 50) scale(-1,1) translate(-300,0)" opacity="0.08" fill="none" stroke="#D4798A" strokeWidth="1.2">
           <path d="M 150 200 Q 130 140 150 80 Q 170 140 150 200 Z" />
           <path d="M 150 200 Q 90 160 50 110 Q 110 150 150 200 Z" />
           <path d="M 150 200 Q 80 200 20 200 Q 80 200 150 200 Z" />

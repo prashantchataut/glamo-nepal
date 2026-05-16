@@ -8,7 +8,7 @@ export function RecentlyViewedStrip({ excludeSlug }: { excludeSlug?: string }) {
   const items = useRecentlyViewedStore((s) => s.items).filter((p) => p.slug !== excludeSlug).slice(0, 4);
   if (!items.length) return null;
   return (
-    <section className="bg-white py-12">
+    <section className="bg-cream-50 py-12">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-6 flex items-end justify-between">
           <div><p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">Your beauty trail</p><h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Recently viewed</h2></div>

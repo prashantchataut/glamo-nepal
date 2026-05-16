@@ -33,9 +33,9 @@ const helpLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-neutral-950 text-white">
+    <footer className="bg-ink text-white">
       <div className="mx-auto max-w-[1480px] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
-        <div className="grid gap-8 rounded-[34px] border border-white/10 bg-white/[0.035] p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
+        <div className="grid gap-8 rounded-[34px] border border-white/10 bg-cream-50/[0.035] p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/50">Join the GLAMO beauty list</p>
             <h2 className="mt-3 max-w-xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-white md:text-6xl">
@@ -59,17 +59,17 @@ export function Footer() {
             className="flex flex-col justify-end gap-3"
           >
             <label htmlFor="footer-email" className="sr-only">Email address</label>
-            <div className="flex min-h-14 items-center gap-3 rounded-full border border-white/12 bg-white px-4 text-neutral-950">
-              <Mail size={17} strokeWidth={1.7} className="shrink-0 text-neutral-500" />
+            <div className="flex min-h-14 items-center gap-3 rounded-none border border-white/12 bg-cream-50 px-4 text-ink">
+              <Mail size={17} strokeWidth={1.7} className="shrink-0 text-cream-400" />
               <input
                 id="footer-email"
                 type="email"
                 name="email"
                 placeholder="Your email address"
                 required
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-neutral-400"
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-cream-400"
               />
-              <button type="submit" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-neutral-950 text-white transition hover:bg-primary" aria-label="Subscribe">
+              <button type="submit" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-none bg-ink text-white transition hover:bg-brand-rose" aria-label="Subscribe">
                 <ArrowRight size={17} strokeWidth={1.8} />
               </button>
             </div>
@@ -79,17 +79,17 @@ export function Footer() {
 
         <div className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
           <div>
-            <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-white transition hover:text-[#f6e2f4]">
+            <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-white transition hover:text-brand-blush">
               GLAMO
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-white/62">
               Premium beauty curated for Nepal: authentic skincare, makeup, haircare and gifting essentials with clear delivery support.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
+              <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="flex min-h-11 min-w-11 items-center justify-center rounded-none border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
                 <InstagramIcon size={18} />
               </a>
-              <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
+              <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex min-h-11 min-w-11 items-center justify-center rounded-none border border-white/10 text-white/70 transition hover:border-white/40 hover:text-white">
                 <FacebookIcon size={18} />
               </a>
             </div>

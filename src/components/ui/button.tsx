@@ -4,22 +4,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "btn-press inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-[13px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "btn-press inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-none text-[13px] font-semibold tracking-[0.16em] uppercase transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary:
-          "bg-neutral-950 text-white hover:bg-primary",
+          "bg-ink text-white hover:bg-brand-rose",
         secondary:
-          "border border-neutral-200 bg-white text-neutral-950 hover:border-primary hover:text-primary",
+          "border border-cream-200 bg-cream-50 text-ink hover:border-brand-rose hover:text-brand-rose",
         ghost:
-          "text-neutral-700 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 hover:after:w-full after:bg-secondary after:transition-all after:duration-300",
+          "text-cream-700 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 hover:after:w-full after:bg-gold after:transition-all after:duration-300",
         destructive:
           "bg-error text-white hover:bg-error/90",
         outline:
-          "border border-neutral-200 bg-transparent text-neutral-700 hover:border-neutral-400 hover:text-neutral-900",
+          "border border-cream-200 bg-transparent text-cream-700 hover:border-cream-400 hover:text-ink",
         link:
-          "text-primary underline-offset-4 hover:underline",
+          "text-brand-rose underline-offset-4 hover:underline",
       },
       size: {
         default: "h-11 px-8 py-3",

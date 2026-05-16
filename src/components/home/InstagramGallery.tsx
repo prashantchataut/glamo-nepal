@@ -5,7 +5,7 @@ import { InstagramIcon } from "@/components/ui/illustrations/SocialIcons";
 
 export function InstagramGallery() {
   return (
-    <section aria-labelledby="instagram-heading" className="overflow-hidden bg-white py-12 md:py-16 lg:py-20">
+    <section aria-labelledby="instagram-heading" className="overflow-hidden bg-cream-50 py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-4 md:px-6 mb-8 md:mb-10 text-center">
         <h2 id="instagram-heading" className="mb-3 font-display text-3xl font-semibold tracking-tight text-brand-textPrimary md:text-4xl">Follow Our <span className="italic text-brand-primary">Glow Journey</span></h2>
         <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-medium text-brand-textMuted transition-colors hover:text-brand-primary cursor-pointer"><InstagramIcon size={18} /> {SITE_CONFIG.instagramHandle}</a>
