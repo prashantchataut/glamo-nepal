@@ -69,6 +69,9 @@
   "engines": {
     "node": "20.x"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["unrs-resolver"]
+  },
   "overrides": {
     "glob": "^10.5.0",
     "next": {
