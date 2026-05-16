@@ -33,7 +33,6 @@ export default function SearchPageContent() {
   return (
     <div className="min-h-screen bg-neutral-50">
       <section className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50 py-12 md:py-20">
-        <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-400">
