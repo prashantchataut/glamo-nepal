@@ -1,4 +1,4 @@
-import { BLOG_POSTS, getBlogBySlug as getBlogBySlugMock, getRelatedPosts as getRelatedPostsMock, type BlogPost } from "@/lib/mock/blog";
+import { BLOG_POSTS, getBlogBySlug as getBlogBySlugFromCatalog, getRelatedPosts as getRelatedPostsFromCatalog, type BlogPost } from "@/lib/data/blog-content";
 import { fetchBlogPosts, fetchBlogPost, fetchRelatedPosts } from "@/lib/api/blog";
 
 let apiAvailable: boolean | null = null;
@@ -18,7 +18,7 @@ async function checkApiAvailable(): Promise<boolean> {
 }
 
 export type { BlogPost };
-export { BLOG_CATEGORIES } from "@/lib/mock/blog";
+export { BLOG_CATEGORIES } from "@/lib/data/blog-content";
 
 export async function getBlogPosts(params?: { page?: number; limit?: number; category?: string }): Promise<{ posts: BlogPost[]; total: number }> {
   if (await checkApiAvailable()) {
@@ -46,7 +46,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
       apiCheckExpiry = Date.now() + API_CHECK_TTL;
     }
   }
-  return getBlogBySlugMock(slug) ?? null;
+  return getBlogBySlugFromCatalog(slug) ?? null;
 }
 
 export async function getRelatedPosts(slug: string, limit = 3): Promise<BlogPost[]> {
@@ -58,7 +58,7 @@ export async function getRelatedPosts(slug: string, limit = 3): Promise<BlogPost
       apiCheckExpiry = Date.now() + API_CHECK_TTL;
     }
   }
-  return getRelatedPostsMock(slug, limit);
+  return getRelatedPostsFromCatalog(slug, limit);
 }
 
 export const BLOG_POSTS_SYNC = BLOG_POSTS;

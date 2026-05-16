@@ -63,7 +63,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
                     <div>
                       <h3 className="font-display text-2xl font-semibold text-brand-textPrimary">{step.label}</h3>
                       <p className="mt-1 text-sm leading-6 text-brand-textMuted">{step.note}</p>
-                      {product ? <Link href={`/product/${product.slug}`} className="mt-2 inline-flex text-sm font-semibold text-brand-primary">View {product.name}</Link> : null}
+                      {product ? <Link href={`/products/${product.slug}`} className="mt-2 inline-flex text-sm font-semibold text-brand-primary">View {product.name}</Link> : null}
                     </div>
                   </div>
                 );

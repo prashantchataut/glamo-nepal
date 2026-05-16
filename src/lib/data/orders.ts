@@ -1,2 +1,2 @@
-export * from "@/lib/mock/orders";
-export { MOCK_ORDERS as SAMPLE_ORDERS } from "@/lib/mock/orders";
+export * from "@/lib/data/sample-orders";
+export { SAMPLE_ORDER_HISTORY as SAMPLE_ORDERS } from "@/lib/data/sample-orders";

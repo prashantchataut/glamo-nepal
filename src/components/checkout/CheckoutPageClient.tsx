@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
@@ -9,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Truck, CreditCard, ClipboardCheck, ShoppingBag } from "lucide-react";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 import type { PaymentMethodCode } from "@/lib/api/contracts";
-import { csrfHeaders } from "@/lib/csrf";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-locations";
@@ -96,35 +95,13 @@ export function CheckoutPageClient() {
 
   async function onSubmit(data: CheckoutFormData) {
     setIsSubmitting(true);
-    let orderNumber: string;
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...csrfHeaders() },
-        body: JSON.stringify({
-          items: items.map((item) => ({
-            productId: item.product.id, name: item.product.name, price: item.product.price,
-            quantity: item.quantity, selectedShade: item.selectedShade, image: item.product.image, brand: item.product.brand,
-          })),
-          subtotal, deliveryFee, giftWrapFee, grandTotal: total,
-          customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone },
-          shippingAddress: { fullName: data.name, phone: data.phone, province: data.province, district: data.district, city: data.city, ward: data.ward, addressLine1: data.address },
-          paymentMethod: paymentCodeMap[data.payment] || "cod",
-          giftWrap: data.giftWrap, orderNotes: data.notes, currency: "NPR",
-        }),
-      });
-      const data_ = await res.json();
-      orderNumber = data_.orderNumber || `GLM-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-    } catch {
-      orderNumber = `GLM-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-    }
-
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", { value: total, method: data.payment, district: data.district, province: data.province, deliveryFee, giftWrap: data.giftWrap });
 
+    let order: Awaited<ReturnType<typeof placeOrder>>;
     try {
-      await placeOrder(
-        { orderNumber, total, paymentMethod: data.payment, shippingAddress, customerName: data.name, customerPhone: data.phone,
+      order = await placeOrder(
+        { orderNumber: "", total, paymentMethod: data.payment, shippingAddress, customerName: data.name, customerPhone: data.phone,
           items: items.map((item) => ({ name: item.product.name, brand: item.product.brand, image: item.product.image, price: item.product.price, quantity: item.quantity, selectedShade: item.selectedShade })),
         },
         { customer: { name: data.name, email: data.email || `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`, phone: data.phone },
@@ -138,7 +115,7 @@ export function CheckoutPageClient() {
       return;
     }
 
-    router.push(`/order/${orderNumber}/success`);
+    router.push(`/order-confirmation/${order.orderNumber}`);
     clearCart();
   }
 

@@ -42,7 +42,7 @@ import {
 import DOMPurify from "dompurify";
 import { PRODUCTS } from "@/lib/data/products";
 import { INVENTORY_SNAPSHOT, INVENTORY_SUMMARY, LOW_STOCK_SNAPSHOT, type InventoryRisk } from "@/lib/data/inventory";
-import { MOCK_ORDERS, type Order } from "@/lib/data/orders";
+import { SAMPLE_ORDER_HISTORY, type Order } from "@/lib/data/orders";
 import { SITE_CONFIG } from "@/lib/config";
 import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { cn, formatNPR } from "@/lib/utils";
@@ -207,7 +207,7 @@ export function AdminDashboard() {
   }, [banners]);
 
   const selectedBanner = banners.find((banner) => banner.id === selectedBannerId) || banners[0];
-  const grossSales = useMemo(() => MOCK_ORDERS.reduce((sum, order) => sum + order.total, 0), []);
+  const grossSales = useMemo(() => SAMPLE_ORDER_HISTORY.reduce((sum, order) => sum + order.total, 0), []);
   const inventoryValue = useMemo(() => PRODUCTS.reduce((sum, product) => sum + product.price * product.stockCount, 0), []);
   const lowStockCount = INVENTORY_SUMMARY.lowStockCount;
   const productSearch = productQuery.trim().toLowerCase();
@@ -216,7 +216,7 @@ export function AdminDashboard() {
     return PRODUCTS.filter((product) => [product.name, product.brand, product.category, product.subCategory, product.sku].join(" ").toLowerCase().includes(productSearch));
   }, [productSearch]);
 
-  const orderRows = MOCK_ORDERS.map((order) => ({ ...order, status: orderStatusById[order.id] || order.status }));
+  const orderRows = SAMPLE_ORDER_HISTORY.map((order) => ({ ...order, status: orderStatusById[order.id] || order.status }));
   const categoryCounts = useMemo(() => PRODUCTS.reduce<Record<string, number>>((acc, product) => {
     acc[product.category] = (acc[product.category] || 0) + 1;
     return acc;
@@ -291,7 +291,7 @@ export function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight text-brand-textPrimary">
-      <aside role="navigation" aria-label="Admin navigation" className={cn("fixed inset-y-0 left-0 z-menu w-[280px] border-r border-brand-border bg-white/95 shadow-xl backdrop-blur transition-transform duration-300 lg:translate-x-0", isSidebarOpen ? "translate-x-0" : "-translate-x-full")}>
+      <aside role="navigation" aria-label="Admin navigation" className={cn("fixed inset-y-0 left-0 z-menu w-[280px] border-r border-brand-border bg-white/95 shadow-xl transition-transform duration-300 lg:translate-x-0", isSidebarOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-brand-border px-6 py-6">
             <Link href="/admin" className="flex items-center gap-4">
@@ -340,10 +340,10 @@ export function AdminDashboard() {
         </div>
       </aside>
 
-      {isSidebarOpen && <button aria-label="Close menu overlay" className="fixed inset-0 z-admin-overlay bg-black/30 backdrop-blur-sm lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
+      {isSidebarOpen && <button aria-label="Close menu overlay" className="fixed inset-0 z-admin-overlay bg-black/30 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
 
       <div className="lg:pl-[280px]">
-        <header role="banner" className="sticky top-0 z-admin-header border-b border-brand-border bg-white/95 px-4 py-4 backdrop-blur-lg md:px-6">
+        <header role="banner" className="sticky top-0 z-admin-header border-b border-brand-border bg-white/95 px-4 py-4 md:px-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 md:gap-4">
               <button onClick={() => setIsSidebarOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-textPrimary shadow-sm lg:hidden" aria-label="Open admin menu">
@@ -399,7 +399,7 @@ export function AdminDashboard() {
               <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
                 <StatCard icon={Users} label="Customers" value="26" note="Seeded customer view until API connected" />
                 <StatCard icon={Package} label="Products" value={PRODUCTS.length} note={`${PRODUCTS.filter((product) => product.madeInNepal).length} Made in Nepal picks`} />
-                <StatCard icon={ShoppingBag} label="Orders" value={MOCK_ORDERS.length} note={`${formatNPR(grossSales)} sample order value`} />
+                <StatCard icon={ShoppingBag} label="Orders" value={SAMPLE_ORDER_HISTORY.length} note={`${formatNPR(grossSales)} sample order value`} />
                 <StatCard icon={AlertTriangle} label="Stock watch" value={lowStockCount} note={`${INVENTORY_SUMMARY.totalUnits} total units`} />
               </section>
 

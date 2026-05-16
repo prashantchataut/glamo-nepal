@@ -89,7 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       {/* Image container */}
       <Link
-        href={`/product/${product.slug}`}
+        href={`/products/${product.slug}`}
         className="relative block aspect-[3/4] overflow-hidden bg-neutral-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <Image
@@ -154,7 +154,7 @@ export function ProductCard({ product }: ProductCardProps) {
               type="button"
               onClick={onCart}
               disabled={addState === "loading"}
-              className="flex h-10 w-full items-center justify-center gap-2 bg-neutral-900/80 text-white text-[11px] tracking-[0.1em] uppercase font-medium backdrop-blur-sm transition-colors hover:bg-neutral-900/90 disabled:opacity-50"
+              className="flex h-10 w-full items-center justify-center gap-2 bg-neutral-900/80 text-white text-[11px] tracking-[0.1em] uppercase font-medium transition-colors hover:bg-neutral-900/90 disabled:opacity-50"
             >
               {addState === "loading" ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -180,7 +180,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
 
         {/* Name */}
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/products/${product.slug}`}>
           <h3 className="font-display text-base leading-snug text-neutral-900 transition-colors group-hover:text-primary md:text-[18px]">
             {product.name}
           </h3>

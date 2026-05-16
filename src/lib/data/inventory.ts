@@ -1,1 +1,1 @@
-export * from "@/lib/mock/inventory";
+export * from "@/lib/data/inventory-catalog";

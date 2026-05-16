@@ -34,7 +34,7 @@ export default function RoutinesPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-bgDark/40 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                   <span className="font-label rounded-full bg-brand-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">{bundle.concerns[0]}</span>
-                  <span className="rounded-full bg-white/92 px-3 py-1 text-xs font-bold text-brand-gold shadow-md backdrop-blur">{formatNPR(bundle.bundlePrice)}</span>
+                  <span className="rounded-full bg-white/92 px-3 py-1 text-xs font-bold text-brand-gold shadow-md">{formatNPR(bundle.bundlePrice)}</span>
                 </div>
               </div>
               <div className="p-6">

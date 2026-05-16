@@ -1,1 +1,1 @@
-export * from "@/lib/mock/products";
+export * from "@/lib/data/catalog-products";

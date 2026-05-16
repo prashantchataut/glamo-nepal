@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api/client";
-import type { BlogPost } from "@/lib/mock/blog";
+import type { BlogPost } from "@/lib/data/blog-content";
 
 export async function fetchBlogPosts(params?: { page?: number; limit?: number; category?: string }): Promise<{ posts: BlogPost[]; total: number }> {
   const searchParams = new URLSearchParams();

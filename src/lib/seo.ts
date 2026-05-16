@@ -88,7 +88,7 @@ export function productJsonLd(product: Product) {
     description: product.description,
     offers: {
       "@type": "Offer",
-      url: absoluteUrl(`/product/${product.slug}`),
+      url: absoluteUrl(`/products/${product.slug}`),
       priceCurrency: "NPR",
       price: product.price,
       availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",

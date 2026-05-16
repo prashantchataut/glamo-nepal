@@ -66,7 +66,7 @@ export function ComparePageClient() {
                           <X size={14} />
                         </button>
                       </div>
-                      <Link href={`/product/${product.slug}`} className="font-display text-xl font-semibold text-brand-textPrimary hover:text-brand-primary">
+                      <Link href={`/products/${product.slug}`} className="font-display text-xl font-semibold text-brand-textPrimary hover:text-brand-primary">
                         {product.name}
                       </Link>
                     </th>

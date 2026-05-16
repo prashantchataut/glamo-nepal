@@ -84,7 +84,7 @@ export function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-cart-backdrop bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-cart-backdrop bg-black/50"
           />
           <motion.aside
             key="cart-drawer"

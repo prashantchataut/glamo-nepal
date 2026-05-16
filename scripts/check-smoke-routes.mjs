@@ -6,7 +6,7 @@ const requiredRoutes = [
   "src/app/(public)/product/[slug]/page.tsx",
   "src/app/(public)/cart/page.tsx",
   "src/app/(public)/checkout/page.tsx",
-  "src/app/(public)/checkout/success/page.tsx",
+  "src/app/(public)/order-confirmation/[orderId]/page.tsx",
   "src/app/account/page.tsx",
   "src/app/admin/page.tsx",
   "src/app/(public)/collections/page.tsx",

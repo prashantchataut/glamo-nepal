@@ -1,4 +1,4 @@
-import { BRANDS, PRODUCTS } from "@/lib/mock/products";
+import { BRANDS, PRODUCTS } from "@/lib/data/catalog-products";
 import { slugify } from "@/lib/utils";
 
 export interface BrandProfile {

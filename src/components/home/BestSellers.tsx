@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/product/ProductCard";
-import { PRODUCTS } from "@/lib/mock/products";
+import { PRODUCTS } from "@/lib/data/products";
 import { Section } from "@/components/common/Section";
 
 const BEST_SELLERS = PRODUCTS.filter((p) => p.isBestSeller).slice(0, 4);

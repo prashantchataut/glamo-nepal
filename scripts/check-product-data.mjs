@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const file = path.join(process.cwd(), "src/lib/mock/products.ts");
+const file = path.join(process.cwd(), "src/lib/data/catalog-products.ts");
 const text = fs.readFileSync(file, "utf8");
 const productBlocks = [...text.matchAll(/product\(\{([\s\S]*?)\}\),/g)].map((match) => match[1]);
 const requiredFields = ["id", "name", "slug", "sku", "brand", "category", "subCategory", "price", "image", "rating", "reviewsCount", "skinType", "concernTags", "benefits", "howToUse", "ingredients", "size", "origin", "madeInNepal", "stockCount", "description"];
@@ -9,7 +9,7 @@ const issues = [];
 const seenSlugs = new Set();
 const seenSkus = new Set();
 
-if (productBlocks.length < 40) issues.push(`Expected at least 40 mock products, found ${productBlocks.length}.`);
+if (productBlocks.length < 40) issues.push(`Expected at least 40 catalog products, found ${productBlocks.length}.`);
 
 productBlocks.forEach((block, index) => {
   const label = `Product ${index + 1}`;
@@ -34,7 +34,7 @@ productBlocks.forEach((block, index) => {
   if (/https?:\/\//i.test(image)) issues.push(`${label} image appears to be a remote URL.`);
 });
 
-if (!text.includes("NEPAL_MARKET_REFERENCE_NOTES")) issues.push("Missing Nepal-market reference notes/audit trail.");
+if (!text.includes("CATALOG_REFERENCE_NOTES")) issues.push("Missing Nepal-market reference notes.");
 if (!text.includes("Supplier-approved")) issues.push("Missing supplier approval warning in catalog notes.");
 
 if (issues.length) {
@@ -42,5 +42,5 @@ if (issues.length) {
   issues.forEach((issue) => console.error(`- ${issue}`));
   process.exit(1);
 }
-console.log(`[OK] Product data check passed across ${productBlocks.length} mock products.`);
+console.log(`[OK] Product data check passed across ${productBlocks.length} catalog products.`);
 process.exit(0);

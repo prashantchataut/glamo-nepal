@@ -39,7 +39,7 @@ export function BlogPreview() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="font-label bg-white/90 backdrop-blur-sm text-brand-primary text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="font-label bg-white/90 text-brand-primary text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-full shadow-sm">
                     {post.category}
                   </span>
                 </div>

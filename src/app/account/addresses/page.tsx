@@ -1,5 +1,3 @@
-﻿// TODO: Add auth guard redirect when Supabase auth is connected
-// Example: if (!user) redirect('/login')
 import { Home, MapPinned, Plus, Star } from "lucide-react";
 import { SAMPLE_ADDRESSES as SAMPLE_ADDRESSES } from "@/lib/data/users";
 import { createMetadata } from "@/lib/seo";
@@ -33,14 +31,14 @@ export default function AddressesPage() {
                 </div>
                 <div>
                   <h2 className="font-display text-2xl font-semibold text-brand-textPrimary">{address.label}</h2>
-                  <p className="text-sm text-brand-textMuted">{address.name}</p>
+                  <p className="text-sm text-brand-textMuted">{address.fullName}</p>
                 </div>
               </div>
               {address.isDefault ? <span className="inline-flex items-center gap-1 rounded-full bg-brand-primary px-3 py-1 text-xs font-semibold text-white"><Star size={12} /> Default</span> : null}
             </div>
             <div className="mt-5 space-y-1 text-sm leading-6 text-brand-textMuted">
               <p>{address.phone}</p>
-              <p>{address.address}</p>
+              <p>{address.addressLine1}</p>
               <p>{address.city}, {address.district}, {address.province}</p>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">

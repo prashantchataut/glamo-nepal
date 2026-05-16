@@ -1,1 +1,1 @@
-export * from "@/lib/mock/bundles";
+export * from "@/lib/data/bundle-catalog";

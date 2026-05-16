@@ -1,4 +1,4 @@
-import { PRODUCTS, CATEGORIES, getProductBySlug, getRelatedProducts, searchProducts } from "@/lib/mock/products";
+import { PRODUCTS, CATEGORIES, getProductBySlug, getRelatedProducts, searchProducts } from "@/lib/data/catalog-products";
 import type { ApiResponse, Category, PaymentMethod } from "./contracts";
 import type { Product } from "@/types/product";
 

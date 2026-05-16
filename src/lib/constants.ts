@@ -2,10 +2,10 @@ import type { Product } from "@/types/product";
 import { SITE_CONFIG } from "@/lib/config";
 import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { formatNPR } from "@/lib/utils";
-import { PRODUCTS, CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/mock/products";
+import { PRODUCTS, CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/data/catalog-products";
 
 export { CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES };
-export { PRODUCTS as MOCK_PRODUCTS } from "@/lib/mock/products";
+export { PRODUCTS as CATALOG_PRODUCTS } from "@/lib/data/catalog-products";
 
 export { SITE_CONFIG };
 

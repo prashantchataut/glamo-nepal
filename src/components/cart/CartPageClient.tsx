@@ -72,7 +72,7 @@ export function CartPageClient() {
                 className="flex gap-4 border border-neutral-200 bg-surface p-4"
               >
                 <Link
-                  href={`/product/${item.product.slug}`}
+                  href={`/products/${item.product.slug}`}
                   className="relative h-24 w-20 shrink-0 overflow-hidden bg-neutral-100 cursor-pointer"
                 >
                   <Image

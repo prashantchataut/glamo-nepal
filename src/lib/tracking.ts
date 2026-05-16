@@ -45,25 +45,12 @@ function getOrCreateSessionId(): string {
   return id;
 }
 
-function getOrCreateUserId(): string | undefined {
-  if (typeof window === "undefined") return undefined;
-  try {
-    const authData = localStorage.getItem("glamo-auth-storage");
-    if (authData) {
-      const parsed = JSON.parse(authData);
-      const uid = parsed?.state?.user?.id;
-      if (typeof uid === "string") return uid;
-    }
-  } catch {
-    // auth data not available
-  }
-  return undefined;
-}
+
 
 export function initEventTracker(): void {
   if (typeof window === "undefined") return;
   sessionId = getOrCreateSessionId();
-  userId = getOrCreateUserId();
+  userId = undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _flushInterval = setInterval(() => {

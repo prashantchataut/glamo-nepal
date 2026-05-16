@@ -14,7 +14,7 @@ export function formatNPR(value: number) {
 }
 
 export function absoluteUrl(path = "") {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://glamonepal.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
   return `${siteUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
 

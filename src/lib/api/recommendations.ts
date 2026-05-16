@@ -1,4 +1,4 @@
-import { PRODUCTS, getRelatedProducts } from "@/lib/mock/products";
+import { PRODUCTS, getRelatedProducts } from "@/lib/data/catalog-products";
 import type { Product } from "@/types/product";
 import { apiRequest } from "./client";
 
@@ -38,10 +38,10 @@ export interface TrendingParams {
 }
 
 function mapToProduct(rp: RecommendedProduct): Product {
-  const mockProduct = PRODUCTS.find((p) => p.id === rp.id);
-  if (mockProduct) {
+  const catalogProduct = PRODUCTS.find((p) => p.id === rp.id);
+  if (catalogProduct) {
     return {
-      ...mockProduct,
+      ...catalogProduct,
       stockCount: rp.stockQuantity,
       inStock: rp.stockQuantity > 0,
       price: rp.salePrice ?? rp.basePrice,

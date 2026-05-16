@@ -46,7 +46,7 @@ export function BeautyProfileQuiz() {
           </div>
           <div className="mt-6 grid gap-3" aria-live="polite">
             {displayPicks.length > 0 ? displayPicks.map((p) => (
-              <Link key={p.id} href={`/product/${p.slug}`} className="flex items-center justify-between rounded-[1.5rem] bg-brand-surfacePink p-4 transition hover:bg-brand-primary-light">
+              <Link key={p.id} href={`/products/${p.slug}`} className="flex items-center justify-between rounded-[1.5rem] bg-brand-surfacePink p-4 transition hover:bg-brand-primary-light">
                 <div>
                   <p className="font-display text-lg font-semibold text-brand-textPrimary">{p.name}</p>
                   <p className="text-xs text-brand-textMuted">{p.brand} &middot; {p.concernTags.slice(0, 2).join(", ")}</p>

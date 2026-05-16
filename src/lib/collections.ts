@@ -1,5 +1,5 @@
 import type { Product } from "@/types/product";
-import { PRODUCTS } from "@/lib/mock/products";
+import { PRODUCTS } from "@/lib/data/catalog-products";
 
 export interface ProductCollection {
   slug: string;

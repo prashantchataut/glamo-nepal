@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, LayoutDashboard, LockKeyhole, LogOut, MapPin, Package, UserRound } from "lucide-react";
 import { toast } from "sonner";
-import { SAMPLE_USER as SAMPLE_USER } from "@/lib/data/users";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
@@ -27,8 +26,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const logout = useAuthStore((state) => state.logout);
   const clearCart = useCartStore((state) => state.clearCart);
   const resetCheckout = useCheckoutStore((state) => state.reset);
-  const sessionUser = useAuthStore((state) => state.user);
-  const user = sessionUser ?? SAMPLE_USER;
+  const user = useAuthStore((state) => state.user);
 
   const handleLogout = () => {
     clearAuthCookies();
@@ -57,18 +55,18 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
         <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
           <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
             <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-white shadow-sm">
-              <div className="bg-[linear-gradient(135deg,#FFFDFC_0%,#F8EEF2_60%,#F7F1EA_100%)] p-6 text-brand-textPrimary">
+              <div className="bg-brand-bgLight p-6 text-brand-textPrimary">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white font-display text-xl font-semibold text-brand-primary ring-1 ring-brand-border">
-                    {user.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}
+                    {(user?.name || user?.email || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">{user.name}</p>
-                    <p className="truncate text-xs text-brand-textMuted">{user.email}</p>
+                    <p className="truncate font-semibold">{user?.name || "Your GLAMO account"}</p>
+                    <p className="truncate text-xs text-brand-textMuted">{user?.email || "Supabase customer session"}</p>
                   </div>
                 </div>
                 <p className="font-label mt-4 rounded-full bg-white px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
-                  {"loyaltyPoints" in user ? user.loyaltyPoints.toLocaleString() : "0"} glow points
+                  0 glow points
                 </p>
               </div>
               <nav className="grid gap-1 p-3" aria-label="Account navigation">

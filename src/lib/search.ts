@@ -35,7 +35,7 @@ export function getSearchSuggestions(query: string, limit = 8): SearchSuggestion
       return tokens.every((token) => searchable.includes(token));
     })
       .slice(0, 4)
-      .forEach((product) => add({ label: product.name, href: `/product/${product.slug}`, type: "product" }));
+      .forEach((product) => add({ label: product.name, href: `/products/${product.slug}`, type: "product" }));
 
     Array.from(new Set(PRODUCTS.map((product) => product.brand)))
       .filter((brand) => matchesAnyToken(brand, tokens))

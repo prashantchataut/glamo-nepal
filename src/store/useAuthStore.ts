@@ -30,6 +30,8 @@ interface AuthState {
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (password: string) => Promise<void>;
+  updateProfile: (profile: { name?: string; phone?: string; birthday?: string; skinType?: string }) => Promise<void>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -147,6 +149,61 @@ export const useAuthStore = create<AuthState>()((set) => ({
         error: err instanceof Error ? err.message : "Password update failed.",
         isLoading: false,
       });
+    }
+  },
+
+  updateProfile: async (profile) => {
+    if (!supabase) {
+      set({ error: "Profile updates require Supabase configuration." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const currentUser = sessionData.session?.user;
+      if (!currentUser) throw new Error("Please sign in before updating your profile.");
+      const { data, error: updateError } = await supabase.auth.updateUser({
+        data: {
+          name: profile.name || "",
+          phone: profile.phone || "",
+          birthday: profile.birthday || "",
+          skinType: profile.skinType || "",
+        },
+      });
+      if (updateError) throw updateError;
+      const updatedUser = data.user || currentUser;
+      set({
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email || "",
+          name: String(updatedUser.user_metadata?.name || ""),
+          phone: String(updatedUser.user_metadata?.phone || ""),
+          role: "customer",
+        },
+        isLoading: false,
+        error: null,
+      });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Profile update failed.", isLoading: false });
+    }
+  },
+
+  updatePassword: async (_currentPassword, newPassword) => {
+    if (!supabase) {
+      set({ error: "Password updates require Supabase configuration." });
+      return;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!sessionData.session?.user) throw new Error("Please sign in before updating your password.");
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateError) throw updateError;
+      set({ isLoading: false, error: null });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Password update failed.", isLoading: false });
     }
   },
 

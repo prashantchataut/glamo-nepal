@@ -1,6 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import type { ApiResponse, ProductBundleContract, StockAlertPayload } from "@/lib/api/contracts";
-import { getBundle, getBundles } from "@/lib/mock/bundles";
+import { getBundle, getBundles } from "@/lib/data/bundle-catalog";
 
 const ok = <T>(data: T, message?: string): ApiResponse<T> => ({ status: "success", data, message });
 

@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 
 function PasswordInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   const [visible, setVisible] = useState(false);
@@ -26,6 +27,7 @@ export function PasswordForm() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSaving, setSaving] = useState(false);
+  const updatePassword = useAuthStore((state) => state.updatePassword);
 
   const score = useMemo(() => {
     let value = 0;
@@ -44,13 +46,19 @@ export function PasswordForm() {
       return;
     }
     setSaving(true);
-    window.setTimeout(() => {
-      setSaving(false);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      toast.success("Password updated.");
-    }, 600);
+    updatePassword(currentPassword, newPassword)
+      .then(() => {
+        const error = useAuthStore.getState().error;
+        if (error) {
+          toast.error(error);
+          return;
+        }
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        toast.success("Password updated.");
+      })
+      .finally(() => setSaving(false));
   };
 
   return (

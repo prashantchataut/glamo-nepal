@@ -14,7 +14,7 @@ export function InstagramGallery() {
         {INSTAGRAM_POSTS.map((post) => (
           <a key={post.id} href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" className="group relative aspect-square w-[50vw] flex-shrink-0 snap-start overflow-hidden bg-brand-bgLight sm:w-[33vw] md:w-[25vw] lg:w-[16.666vw] cursor-pointer">
             <Image src={post.image} alt={post.caption || "GLAMO Instagram post"} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 60vw, 25vw" loading="lazy" />
-            <div className="absolute inset-0 flex items-center justify-center bg-brand-primary/40 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-0 flex items-center justify-center bg-brand-primary/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <InstagramIcon size={32} className="scale-50 text-white transition-transform duration-300 group-hover:scale-100" />
             </div>
           </a>

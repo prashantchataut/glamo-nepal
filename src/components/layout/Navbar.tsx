@@ -51,7 +51,7 @@ export function Navbar() {
         className={cn(
           "sticky top-0 z-navbar h-[72px] transition-all duration-300",
           isScrolled
-            ? "bg-neutral-50/95 backdrop-blur-md border-b border-neutral-200 shadow-nav"
+            ? "bg-neutral-50/95 border-b border-neutral-200 shadow-nav"
             : "bg-neutral-50 border-b border-transparent"
         )}
       >
@@ -151,7 +151,7 @@ export function Navbar() {
       {/* Mobile overlay */}
       <div
         className={cn(
-          "fixed inset-0 z-menu-backdrop bg-neutral-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+          "fixed inset-0 z-menu-backdrop bg-neutral-900/40 transition-opacity duration-300 lg:hidden",
           mobileMenuOpen
             ? "opacity-100"
             : "pointer-events-none opacity-0"
