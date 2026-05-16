@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";

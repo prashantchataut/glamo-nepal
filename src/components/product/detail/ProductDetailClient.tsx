@@ -172,7 +172,7 @@ export default function ProductDetailClient({
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:px-6 md:py-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.92fr)] lg:gap-14 lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-7 px-4 py-7 pb-24 md:px-6 md:py-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.92fr)] lg:gap-14 lg:px-8 lg:pb-12">
         <div className="grid gap-4 lg:grid-cols-[88px_minmax(0,1fr)]">
           <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:flex-col lg:overflow-visible">
             {galleryImages.map((img, i) => (
@@ -240,7 +240,7 @@ export default function ProductDetailClient({
                 >
                   {product.brand}
                 </Link>
-                <h1 className="mt-2 font-display text-5xl font-semibold leading-[0.92] tracking-[-0.04em] text-ink md:text-6xl">
+                <h1 className="mt-2 text-balance font-display text-[clamp(2.6rem,12vw,4.2rem)] font-semibold leading-[0.92] tracking-[-0.05em] text-ink md:text-6xl">
                   {product.name}
                 </h1>
               </div>
@@ -368,7 +368,7 @@ export default function ProductDetailClient({
 
             <div
               ref={ctaRef}
-              className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
+              className="mt-7 hidden flex-col gap-3 sm:flex sm:flex-row sm:items-center lg:flex"
             >
               <div className="flex h-12 w-fit items-center rounded-none border border-cream-200 bg-cream-50">
                 <button
@@ -542,13 +542,25 @@ export default function ProductDetailClient({
               View all
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:gap-6 lg:grid-cols-4">
             {related.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}
           </div>
         </section>
       )}
+
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-cream-200 bg-cream-50/96 px-4 py-3 shadow-[0_-18px_50px_-36px_rgba(26,15,11,0.45)] backdrop-blur-md sm:hidden safe-area-bottom">
+        <button
+          type="button"
+          onClick={addToCart}
+          disabled={!product.inStock}
+          className="inline-flex min-h-14 w-full items-center justify-center gap-3 bg-ink px-7 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-rose disabled:cursor-not-allowed disabled:bg-neutral-300"
+        >
+          <ShoppingBag size={16} /> Add to bag · {formatNPR(product.price)}
+        </button>
+      </div>
+
     </main>
   );
 }

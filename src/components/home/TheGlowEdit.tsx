@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { GLOW_EDIT_TABS, GLOW_EDIT_PRODUCTS } from "@/lib/constants";

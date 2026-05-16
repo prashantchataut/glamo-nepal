@@ -1,13 +1,11 @@
-﻿"use client";
+"use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
-export function AdminLoginForm() {
+export function AdminLoginForm({ redirectTo = "/admin" }: { redirectTo?: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = useMemo(() => searchParams.get("redirect") || "/admin", [searchParams]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

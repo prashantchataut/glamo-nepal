@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -122,9 +122,8 @@ function getDefaultValues(mode: AuthMode) {
   }
 }
 
-export function AuthForm({ mode }: { mode: AuthMode }) {
+export function AuthForm({ mode, redirectTo = "/account" }: { mode: AuthMode; redirectTo?: string }) {
   const router = useRouter();
-  const params = useSearchParams();
   const { login, register: registerUser, forgotPassword, resetPassword, isLoading, error: authError, isConfigured, clearError } = useAuthStore();
   const copy = labels[mode];
 
@@ -147,7 +146,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         if (user) {
           setAuthCookies(user.email, user.role);
           toast.success("Signed in successfully.");
-          router.push(sanitizeRedirect(params.get("redirect")));
+          router.push(sanitizeRedirect(redirectTo));
           router.refresh();
         }
       } else if (mode === "register") {
@@ -157,7 +156,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         if (user) {
           setAuthCookies(user.email, user.role);
           toast.success("Account created.");
-          router.push(sanitizeRedirect(params.get("redirect")));
+          router.push(sanitizeRedirect(redirectTo));
           router.refresh();
         }
       } else if (mode === "forgot") {

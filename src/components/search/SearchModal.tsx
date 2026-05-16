@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 // Client component required: modal state, keyboard navigation, focus, recent searches, and live search.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

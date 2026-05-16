@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import { SITE_CONFIG } from "@/lib/config";
 import { INSTAGRAM_POSTS } from "@/lib/constants";
 import { InstagramIcon } from "@/components/ui/illustrations/SocialIcons";

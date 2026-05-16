@@ -17,15 +17,18 @@ export function ShopByCategory() {
     <Section
       label="Shop by category"
       heading="Choose your ritual"
-      subheading="Five visual doors into the GLAMO edit — quiet, intentional, and easy to browse."
+      subheading="Parenthetical categories, real photography and soft cream surfaces — inspired by editorial beauty catalogs, not app cards."
       className="bg-cream-50"
-      align="left"
     >
-      <div className="grid gap-px bg-cream-200 sm:grid-cols-2 lg:grid-cols-5">
-        {categories.map((category) => (
-          <Link key={category.name} href={category.href} className="group block bg-cream-50">
-            <article className="relative min-h-full p-3 transition duration-500 hover:bg-cream-100">
-              <div className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center border border-cream-200 bg-cream-50 text-ink transition group-hover:border-brand-rose group-hover:text-brand-rose">
+      <div className="mobile-bleed flex gap-px overflow-x-auto bg-cream-200 px-4 pb-2 mobile-snap no-scrollbar sm:mx-0 sm:grid sm:w-auto sm:grid-cols-2 sm:px-0 md:grid-cols-3 lg:grid-cols-5">
+        {categories.map((category, index) => (
+          <Link
+            key={category.name}
+            href={category.href}
+            className="group block min-w-[76vw] bg-cream-50 outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-4 sm:min-w-0"
+          >
+            <article className="relative min-h-full p-2.5 transition duration-500 hover:bg-cream-100 sm:p-3">
+              <div className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-cream-200 bg-cream-50 text-ink transition group-hover:border-brand-rose group-hover:text-brand-rose">
                 <ArrowUpRight size={16} strokeWidth={1.5} />
               </div>
               <div className="relative aspect-[4/5] overflow-hidden bg-cream-100">
@@ -34,12 +37,12 @@ export function ShopByCategory() {
                   alt={`${category.name} beauty category`}
                   fill
                   className="object-cover transition duration-700 group-hover:scale-[1.035]"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+                  sizes="(max-width: 640px) 76vw, (max-width: 1024px) 50vw, 20vw"
                 />
               </div>
-              <div className="flex items-end justify-between px-1 py-5">
-                <h3 className="font-display text-heading-lg italic text-ink">( {category.name} )</h3>
-                <span className="type-label-sm text-brand-deep">Explore</span>
+              <div className="flex items-end justify-between gap-4 px-1 py-4 sm:py-5">
+                <h3 className="font-display text-heading-xl italic leading-none text-ink">( {category.name} )</h3>
+                <span className="type-label-sm text-brand-deep">{String(index + 1).padStart(2, "0")}</span>
               </div>
             </article>
           </Link>

@@ -1,4 +1,4 @@
-﻿export function RouteLoading({ label = "Curating GLAMO beauty picks" }: { label?: string }) {
+export function RouteLoading({ label = "Curating GLAMO beauty picks" }: { label?: string }) {
   return (
     <main className="min-h-[60vh] bg-brand-bgLight py-16">
       <div className="container mx-auto px-4 md:px-6">

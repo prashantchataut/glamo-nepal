@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -44,9 +44,6 @@ function SummaryRow({
 }
 
 export function CartPageClient() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
   const subtotal = getSubtotal();
   const delivery = calculateDeliveryFee(subtotal, "Kathmandu", "Bagmati");
@@ -63,23 +60,6 @@ export function CartPageClient() {
     0,
     FREE_DELIVERY_THRESHOLD - subtotal,
   );
-
-  if (!mounted) {
-    return (
-      <main className="bg-cream-50 py-12 page-padding">
-        <div className="mx-auto max-w-7xl">
-          <div className="h-8 w-32 skeleton-shimmer rounded-none" />
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
-            <div className="space-y-4">
-              <div className="h-40 skeleton-shimmer rounded-none" />
-              <div className="h-40 skeleton-shimmer rounded-none" />
-            </div>
-            <div className="h-80 skeleton-shimmer rounded-none" />
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   if (!items.length) {
     return (

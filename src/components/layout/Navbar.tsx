@@ -109,13 +109,15 @@ export function Navbar() {
               className="flex min-h-11 min-w-11 items-center justify-center rounded-none text-ink transition hover:bg-cream-100 lg:hidden"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
             >
               <Menu size={21} strokeWidth={1.6} />
             </button>
 
             <Link
               href="/"
-              className="justify-self-center font-display text-[22px] font-light uppercase leading-none tracking-[0.18em] text-ink transition hover:text-brand-rose sm:text-[28px]"
+              className="justify-self-center font-display text-[23px] font-light uppercase leading-none tracking-[0.2em] text-ink transition hover:text-brand-rose sm:text-[28px]"
               aria-label="GLAMO Nepal home"
             >
               GLAMO
@@ -125,7 +127,7 @@ export function Navbar() {
               <Link
                 href="/search"
                 onClick={openSearch}
-                className="flex min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose"
+                className="hidden min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
                 aria-label="Search products"
               >
                 <Search size={18} strokeWidth={1.7} />
@@ -139,20 +141,20 @@ export function Navbar() {
                 <CountBubble count={wishlistCount} />
               </Link>
               <Link
-                href="/account"
+                href="/login"
                 className="hidden min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose md:flex"
-                aria-label="Account"
+                aria-label="Customer login"
               >
                 <User size={18} strokeWidth={1.7} />
               </Link>
-              <Link
+              <a
                 href="/cart"
                 className="relative flex min-h-10 min-w-10 items-center justify-center rounded-none text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose"
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
               >
                 <ShoppingBag size={19} strokeWidth={1.7} />
                 <CountBubble count={cartCount} />
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -188,13 +190,14 @@ export function Navbar() {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
+        id="mobile-navigation-drawer"
         className={cn(
-          "fixed inset-y-0 left-0 z-menu flex w-[92vw] max-w-sm flex-col overflow-y-auto rounded-r-[30px] bg-cream-50 shadow-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 left-0 z-menu flex w-[min(85vw,320px)] flex-col overflow-y-auto bg-cream-50 shadow-2xl transition-transform duration-300 ease-out lg:hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex items-center justify-between border-b border-cream-200 px-5 py-4">
-          <Link href="/" className="text-xl font-semibold uppercase tracking-[0.18em] text-ink">
+          <Link href="/" className="font-display text-2xl font-light uppercase tracking-[0.2em] text-ink">
             GLAMO
           </Link>
           <button
@@ -259,15 +262,15 @@ export function Navbar() {
 
         <div className="mt-auto border-t border-cream-200 px-5 py-5">
           <div className="grid grid-cols-3 gap-2 pb-5">
-            <Link href="/account" className="rounded-none bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
-              Account
+            <Link href="/login" className="rounded-none bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
+              Login
             </Link>
             <Link href="/wishlist" className="rounded-none bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
               Wishlist
             </Link>
-            <Link href="/cart" className="rounded-none bg-ink px-3 py-3 text-center text-xs font-semibold text-white">
+            <a href="/cart" className="rounded-none bg-ink px-3 py-3 text-center text-xs font-semibold text-white">
               Cart
-            </Link>
+            </a>
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             {SUPPORT_LINKS.map((link) => (

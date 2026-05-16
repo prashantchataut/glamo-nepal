@@ -137,3 +137,47 @@ body.scroll-locked {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* GLAMO mobile editorial QA fixes: prevent horizontal overflow and make small screens feel intentionally composed. */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video, canvas, svg { max-width: 100%; }
+  a, button, input, select, textarea { -webkit-tap-highlight-color: rgba(212, 121, 138, 0.18); }
+}
+
+@layer utilities {
+  .mobile-bleed { margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); width: 100vw; }
+  .mobile-snap { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .mobile-snap > * { scroll-snap-align: start; }
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+}
+
+@media (max-width: 767px) {
+  :root { --navbar-height: 64px; }
+  html, body { max-width: 100%; overflow-x: hidden; }
+  body { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  .section-padding { padding-top: 4.5rem; padding-bottom: 4.5rem; }
+  .page-padding { padding-left: 1rem; padding-right: 1rem; }
+  .luxury-container { padding-left: 1rem; padding-right: 1rem; }
+
+  .type-display-2xl,
+  .editorial-heading {
+    font-size: clamp(3rem, 16vw, 4.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+  }
+
+  .type-display-xl {
+    font-size: clamp(2.7rem, 14vw, 4rem);
+    line-height: 0.96;
+  }
+
+  .type-display-lg {
+    font-size: clamp(2.2rem, 11vw, 3.25rem);
+  }
+
+  input, select, textarea { min-height: 48px; }
+  button, a { touch-action: manipulation; }
+}

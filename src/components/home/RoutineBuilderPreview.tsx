@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductBundleCard } from "@/components/product/ProductBundleCard";
 import { getBundles } from "@/lib/data/bundles";

@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
@@ -67,16 +67,16 @@ function paramsFromFilters(filters: FilterState) {
 
 const ITEMS_PER_PAGE = 12;
 
-export default function ShopPageContent() {
+export default function ShopPageContent({ initialSearchParams = {} }: { initialSearchParams?: Record<string, string> }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+  const [filters, setFilters] = useState<FilterState>(() => filtersFromParams(new URLSearchParams(initialSearchParams)));
 
   const handleFilterChange = useCallback(
     (next: FilterState) => {
       const params = paramsFromFilters(next);
+      setFilters(next);
       router.replace(`/shop${params.toString() ? `?${params}` : ""}`, {
         scroll: false,
       });
@@ -84,6 +84,12 @@ export default function ShopPageContent() {
     },
     [router]
   );
+
+  useEffect(() => {
+    const syncFromLocation = () => setFilters(filtersFromParams(new URLSearchParams(window.location.search)));
+    window.addEventListener("popstate", syncFromLocation);
+    return () => window.removeEventListener("popstate", syncFromLocation);
+  }, []);
 
   const products = useMemo(() => {
     let result = [...PRODUCTS];
@@ -136,21 +142,21 @@ export default function ShopPageContent() {
   return (
     <div className="min-h-screen bg-cream-50">
       {/* Page header */}
-      <section className="bg-brand-blush py-12 md:py-18">
+      <section className="bg-brand-blush py-10 md:py-18">
         <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <span className="type-label text-brand-rose">रू pricing · Nepal delivery</span>
-            <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-ink md:text-7xl">
+            <h1 className="mt-3 text-balance font-display text-[clamp(3rem,14vw,4.8rem)] font-light leading-[0.92] tracking-[-0.04em] text-ink md:text-7xl">
               {categoryObj?.name || "The beauty edit"}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-cream-700">
               {categoryObj?.description || "Browse skincare, soft-glam makeup, hair care and daily essentials with clear pricing, polished filters and authentic GLAMO curation."}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3 rounded-none border border-cream-200 bg-cream-50/80 p-4 text-center shadow-card">
-            <div><p className="font-display text-2xl text-brand-rose">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Products</p></div>
-            <div><p className="font-display text-2xl text-brand-rose">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Districts</p></div>
-            <div><p className="font-display text-2xl text-brand-rose">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Curated</p></div>
+          <div className="grid grid-cols-3 gap-px border border-cream-200 bg-cream-200 text-center shadow-card">
+            <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Products</p></div>
+            <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Districts</p></div>
+            <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Curated</p></div>
           </div>
         </div>
       </section>
@@ -179,7 +185,7 @@ export default function ShopPageContent() {
       </section>
 
       {/* Main content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 pb-24 md:px-6 md:py-12 lg:px-8 lg:pb-12">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           {/* Sidebar — desktop only */}
           <div className="hidden w-64 shrink-0 lg:block">
@@ -198,7 +204,7 @@ export default function ShopPageContent() {
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="flex items-center gap-2 rounded-none border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-cream-700 transition-colors hover:border-cream-400 lg:hidden cursor-pointer"
+                  className="hidden items-center gap-2 rounded-none border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-cream-700 transition-colors hover:border-cream-400 lg:flex lg:hidden cursor-pointer"
                 >
                   <SlidersHorizontal size={16} />
                   Filters
@@ -270,7 +276,7 @@ export default function ShopPageContent() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-4 md:gap-6 xl:grid-cols-3">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:gap-6 xl:grid-cols-3">
                   {paginatedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -319,6 +325,33 @@ export default function ShopPageContent() {
               </>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-cream-200 bg-cream-50/96 px-4 py-3 shadow-[0_-18px_50px_-36px_rgba(26,15,11,0.45)] backdrop-blur-md lg:hidden safe-area-bottom">
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setMobileFiltersOpen(true)}
+            className="inline-flex min-h-12 items-center justify-center gap-2 border border-ink bg-ink text-label-sm font-semibold uppercase tracking-[0.15em] text-white"
+          >
+            <SlidersHorizontal size={15} /> Filter {chips.length > 0 ? `(${chips.length})` : ""}
+          </button>
+          <label className="relative inline-flex min-h-12 items-center justify-center border border-cream-200 bg-cream-50 text-label-sm font-semibold uppercase tracking-[0.15em] text-ink">
+            <span className="pointer-events-none">Sort</span>
+            <select
+              value={filters.sort}
+              onChange={(event) => handleFilterChange({ ...filters, sort: event.target.value })}
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              aria-label="Sort products"
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
 

@@ -15,7 +15,7 @@ const navItems = [
   { icon: ShoppingBag, label: "Cart", href: "/cart", action: undefined as string | undefined },
   { icon: Search, label: "Search", href: "#", action: "search" as const },
   { icon: Heart, label: "Wishlist", href: "/account/wishlist", action: undefined as string | undefined },
-  { icon: User, label: "Account", href: "/account", action: undefined as string | undefined },
+  { icon: User, label: "Login", href: "/login", action: undefined as string | undefined },
 ];
 
 export function MobileBottomNav() {
@@ -52,8 +52,9 @@ export function MobileBottomNav() {
             );
           }
 
+          const Wrapper = item.label === "Cart" ? "a" : Link;
           return (
-            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-brand-primary" : "text-brand-textMuted hover:text-brand-primary")} aria-label={item.label}>
+            <Wrapper key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-brand-primary" : "text-brand-textMuted hover:text-brand-primary")} aria-label={item.label}>
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className={cn("text-[11px] font-medium", isActive && "font-semibold")}>{item.label}</span>
               {count > 0 && (
@@ -61,7 +62,7 @@ export function MobileBottomNav() {
                   {count}
                 </span>
               )}
-            </Link>
+            </Wrapper>
           );
         })}
       </div>

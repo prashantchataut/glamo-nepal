@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ShopFilterSidebar, type FilterState } from "./ShopFilterSidebar";
@@ -19,12 +19,13 @@ export function MobileFilterSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        side="left"
-        className="w-[85vw] max-w-sm overflow-y-auto bg-surface p-6"
+        side="bottom"
+        className="max-h-[86svh] overflow-y-auto rounded-t-[28px] border-cream-200 bg-cream-50 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:p-6 lg:hidden"
       >
-        <SheetHeader>
-          <SheetTitle className="type-heading-sm text-ink">
-            Filters
+        <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-cream-300" aria-hidden="true" />
+        <SheetHeader className="text-left">
+          <SheetTitle className="font-display text-3xl font-light tracking-[-0.04em] text-ink">
+            Filter the edit
           </SheetTitle>
         </SheetHeader>
         <div className="mt-6">

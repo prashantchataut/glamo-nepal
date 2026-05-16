@@ -44,7 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <article aria-label={product.name} className="group flex h-full flex-col transition duration-500 hover:-translate-y-1">
+    <article aria-label={product.name} className="group flex h-full min-w-0 flex-col transition duration-500 hover:-translate-y-1">
       <Link
         href={`/products/${product.slug}`}
         className="relative block aspect-[4/5] overflow-hidden bg-cream-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-4"
@@ -54,7 +54,7 @@ export function ProductCard({ product }: ProductCardProps) {
           alt={`${product.brand} ${product.name}`}
           fill
           className={cn(
-            "object-cover object-center transition duration-[400ms] ease-out group-hover:scale-[1.03]",
+            "object-cover object-center transition duration-500 ease-out group-hover:scale-[1.03]",
             !product.inStock && "grayscale opacity-65",
           )}
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
@@ -73,25 +73,25 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {cardBadge && (
-          <span className="absolute bottom-3 left-3 z-10 bg-cream-50 px-3 py-1.5 text-label-sm font-semibold uppercase tracking-[0.15em] text-brand-deep">
+          <span className="absolute bottom-2.5 left-2.5 z-10 bg-cream-50/94 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-brand-deep backdrop-blur-sm md:bottom-3 md:left-3 md:px-3 md:text-label-sm">
             {cardBadge}
           </span>
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col pt-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cream-400 sm:text-[10px]">
+      <div className="flex flex-1 flex-col pt-3 md:pt-4">
+        <p className="truncate text-[9px] font-semibold uppercase tracking-[0.15em] text-cream-400 sm:text-[10px]">
           {product.brand}
         </p>
 
         <Link href={`/products/${product.slug}`} className="mt-1 block">
-          <h3 className="line-clamp-2 min-h-[2.6rem] font-display text-[1.06rem] font-medium leading-snug text-ink transition-colors group-hover:text-brand-deep sm:text-[1.15rem]">
+          <h3 className="line-clamp-2 min-h-[2.28rem] font-display text-[0.98rem] font-medium leading-[1.13] text-ink transition-colors group-hover:text-brand-deep sm:min-h-[2.6rem] sm:text-[1.15rem]">
             {product.name}
           </h3>
         </Link>
 
         {product.shadeOptions && product.shadeOptions.length > 0 && (
-          <div className="mt-3 flex items-center gap-1.5" aria-label="Available shades">
+          <div className="mt-2 flex items-center gap-1.5 sm:mt-3" aria-label="Available shades">
             <span className="mr-1 text-[11px] text-cream-400">Shade:</span>
             {product.shadeOptions.slice(0, 5).map((shade) => (
               <span
@@ -105,7 +105,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-3 sm:pt-4">
           <div className="flex flex-wrap items-baseline gap-2">
             <span className={cn("font-display text-price-md font-medium leading-none", discount > 0 ? "text-brand-deep" : "text-ink")}>
               {formatNPR(product.price)}
@@ -118,7 +118,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
           {product.reviewsCount > 0 && (
-            <div className="mt-3 flex items-center gap-1 text-[11px] text-cream-700" aria-label={`${product.rating} out of 5 stars`}>
+            <div className="mt-2 flex items-center gap-1 text-[10px] text-cream-700 sm:mt-3 sm:text-[11px]" aria-label={`${product.rating} out of 5 stars`}>
               <Star size={12} fill="currentColor" className="text-gold" />
               <span>{product.rating.toFixed(1)}</span>
               <span className="text-cream-400">({product.reviewsCount})</span>
