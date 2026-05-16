@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --navbar-height: 72px;
+    --navbar-height: 68px;
     --bar-height: 36px;
     --total-header-height: var(--navbar-height);
     --mobile-nav-height: 56px;
@@ -28,13 +28,13 @@
     --border: 30 10% 90%;
     --input: 30 10% 90%;
     --ring: 268 44% 44%;
-    --radius: 0px;
+    --radius: 18px;
 
-    --color-primary: #6B3FA0;
-    --color-primary-light: #9B6DD0;
-    --color-primary-dark: #4A2870;
-    --color-secondary: #C4A35A;
-    --color-secondary-light: #D4BC84;
+    --color-primary: #8A4E92;
+    --color-primary-light: #D8A7DC;
+    --color-primary-dark: #5B2D61;
+    --color-secondary: #C9A46B;
+    --color-secondary-light: #DFC2AF;
     --color-neutral-50: #FAFAF9;
     --color-neutral-100: #F5F3F0;
     --color-neutral-200: #E8E4DF;
@@ -57,7 +57,7 @@
   }
   body {
     @apply font-sans antialiased;
-    background-color: var(--color-neutral-50);
+    background: #fffaf7;
     color: var(--color-neutral-900);
     overflow-x: clip;
   }
@@ -116,7 +116,7 @@ body.scroll-locked {
     @apply font-display font-semibold text-price leading-tight;
   }
   .type-nav {
-    @apply font-body font-normal text-nav tracking-[0.08em] uppercase;
+    @apply font-body font-semibold text-nav tracking-[0.14em] uppercase;
   }
 
   .section-padding {
@@ -164,4 +164,10 @@ body.scroll-locked {
   .type-label { font-size: 0.6875rem; }
   .type-price { font-size: 1.25rem; }
   .type-nav { font-size: 0.75rem; }
+}
+
+@layer utilities {
+  .soft-card { @apply rounded-[28px] border border-neutral-200 bg-white shadow-[0_18px_60px_-42px_rgba(26,21,18,0.35)]; }
+  .pill-button { @apply rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors; }
+  .editorial-curve { border-radius: 46px; }
 }

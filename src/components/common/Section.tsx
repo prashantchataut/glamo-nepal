@@ -17,7 +17,7 @@ export function Section({
   heading,
   subheading,
   cta,
-  align = "left",
+  align = "center",
   children,
   className,
   id,
@@ -30,20 +30,20 @@ export function Section({
       <div className="mx-auto max-w-7xl">
         <div
           className={cn(
-            "mb-12",
+            "mb-10",
             align === "center" && "text-center",
             align === "left" && "flex flex-col md:flex-row md:items-end md:justify-between gap-4"
           )}
         >
           <div className={cn(align === "center" && "max-w-2xl mx-auto")}>
             {label && (
-              <span className="type-label mb-3 block text-neutral-400">
+              <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
                 {label}
               </span>
             )}
-            <h2 className="type-display-md text-neutral-900">{heading}</h2>
+            <h2 className="font-display text-4xl font-semibold leading-[0.95] tracking-[-0.035em] text-neutral-950 md:text-5xl">{heading}</h2>
             {subheading && (
-              <p className="type-body-lg mt-4 text-neutral-400 max-w-xl">
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-600">
                 {subheading}
               </p>
             )}

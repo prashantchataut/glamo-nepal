@@ -4,9 +4,9 @@ import { IMAGES } from "@/lib/image-library";
 
 export function BrandPhilosophyBanner() {
   return (
-    <section className="bg-[#f6eee9]">
+    <section className="bg-[#eef8ca]">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100 shadow-editorial lg:aspect-[5/6]">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[38px] bg-neutral-100 shadow-editorial lg:aspect-[5/6]">
           <Image src={IMAGES.editorial.brandMission} alt="Woman applying skincare in an editorial beauty ritual" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />
         </div>
         <div className="lg:pl-8">
@@ -31,7 +31,7 @@ export function BrandPhilosophyBanner() {
               <p className="mt-2 text-sm leading-6 text-neutral-600">Clear routines over noisy trends.</p>
             </div>
           </div>
-          <Link href="/about" className="mt-8 inline-flex min-h-12 items-center justify-center bg-neutral-900 px-8 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary">
+          <Link href="/about" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-900 px-8 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary">
             Read our story
           </Link>
         </div>

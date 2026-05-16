@@ -56,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <JsonLd data={organizationJsonLd()} />
       <AnnouncementBar />
       <Navbar />
-      <main id="main-content" className="min-h-screen pt-[var(--navbar-height)]">
+      <main id="main-content" className="min-h-screen">
         {children}
       </main>
       <Footer />

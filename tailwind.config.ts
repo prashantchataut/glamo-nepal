@@ -32,13 +32,13 @@ const config: Config = {
       },
       colors: {
         primary: {
-          DEFAULT: '#6B3FA0',
-          light: '#9B6DD0',
-          dark: '#4A2870',
+          DEFAULT: '#7B3F8C',
+          light: '#B77BC8',
+          dark: '#52265E',
         },
         secondary: {
-          DEFAULT: '#C4A35A',
-          light: '#D4BC84',
+          DEFAULT: '#B88967',
+          light: '#DFC2AF',
         },
         neutral: {
           50: '#FAFAF9',
@@ -109,7 +109,7 @@ const config: Config = {
         'body-sm': ['0.875rem', { lineHeight: '1.5' }],
         'label': ['0.8125rem', { lineHeight: '1.4', letterSpacing: '0.12em' }],
         'price': ['1.75rem', { lineHeight: '1.2' }],
-        'nav': ['0.875rem', { lineHeight: '1.4' }],
+        'nav': ['0.75rem', { lineHeight: '1.4' }],
       },
       boxShadow: {
         'card': '0 1px 3px rgba(0,0,0,0.04)',
@@ -139,9 +139,9 @@ const config: Config = {
         'skip-link': '100',
       },
       borderRadius: {
-        'lg': '0.75rem',
-        'md': '0.5rem',
-        'sm': '0.25rem',
+        'lg': '1.5rem',
+        'md': '1rem',
+        'sm': '0.75rem',
       },
       keyframes: {
         'accordion-down': {

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -83,12 +83,12 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <article
       aria-label={product.name}
-      className="group flex h-full flex-col border border-neutral-200 bg-white transition-colors hover:border-primary/30"
+      className="group flex h-full flex-col rounded-[26px] border border-neutral-200 bg-white shadow-[0_18px_60px_-46px_rgba(26,21,18,0.5)] transition-all hover:-translate-y-0.5 hover:border-primary/25"
     >
       {/* Image container */}
       <Link
         href={`/products/${product.slug}`}
-        className="relative block aspect-[4/5] overflow-hidden bg-[#f7f1ec] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="relative block aspect-[4/5] overflow-hidden rounded-t-[26px] bg-[#f7f1ec] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <Image
           src={product.image}
@@ -128,7 +128,7 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center border border-neutral-200 transition-all duration-200",
+            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition-all duration-200",
             "bg-white/95 opacity-100 md:opacity-0 md:group-hover:opacity-100",
             isWishlisted && "opacity-100",
             isWishlisted
@@ -152,7 +152,7 @@ export function ProductCard({ product }: ProductCardProps) {
               type="button"
               onClick={onCart}
               disabled={addState === "loading"}
-              className="flex h-12 w-full items-center justify-center gap-2 bg-neutral-900 text-white text-[11px] tracking-[0.16em] uppercase font-semibold transition-colors hover:bg-primary disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-t-[22px] bg-neutral-900 text-white text-[11px] tracking-[0.16em] uppercase font-semibold transition-colors hover:bg-primary disabled:opacity-50"
             >
               {addState === "loading" ? (
                 <Loader2 size={14} className="animate-spin" />

@@ -1,38 +1,45 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { EditorialHero, EditorialSection } from "@/components/common/EditorialPage";
-import { getBrandProfiles } from "@/lib/brands";
+import { notFound } from "next/navigation";
+import { ProductCard } from "@/components/product/ProductCard";
+import { EditorialSection } from "@/components/common/EditorialPage";
+import { getBrandProfile, getBrandProducts, getBrandProfiles } from "@/lib/brands";
 import { IMAGES } from "@/lib/image-library";
 import { createMetadata } from "@/lib/seo";
 
-export const metadata = createMetadata({ title: "Beauty Brands", description: "Discover curated skincare, makeup, haircare and Nepal-made beauty brands at GLAMO Nepal.", path: "/brands" });
+export function generateStaticParams() { return getBrandProfiles().map((brand) => ({ slug: brand.slug })); }
 
-export default function BrandsPage() {
-  const brands = getBrandProfiles();
+export function generateMetadata({ params }: { params: { slug: string } }) {
+  const brand = getBrandProfile(params.slug);
+  return createMetadata({ title: brand ? `${brand.name} at GLAMO Nepal` : "Brand Not Found", description: brand?.description || "Explore GLAMO Nepal brand edits.", path: `/brands/${params.slug}`, image: brand?.image });
+}
+
+export default function BrandDetailPage({ params }: { params: { slug: string } }) {
+  const brand = getBrandProfile(params.slug);
+  if (!brand) notFound();
+  const products = getBrandProducts(params.slug);
   return (
     <main className="bg-neutral-50">
-      <EditorialHero eyebrow="Brand directory" title="Curated brands, not endless shelves." description="Browse global favourites, practical routine staples and Nepal-made beauty stories selected for authenticity, performance and everyday use." image={IMAGES.categories.fragrance} imageAlt="Perfume bottles on a premium beauty counter" />
-      <EditorialSection title="Explore brands" description={`${brands.length} brand edits organized for faster product discovery.`}>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {brands.map((brand) => (
-            <Link key={brand.slug} href={`/brands/${brand.slug}`} className="group border border-neutral-200 bg-white p-5 transition-colors hover:border-primary/30">
-              <div className="flex items-start gap-5">
-                <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-neutral-200 bg-neutral-50">
-                  <Image src={brand.image} alt={`${brand.name} logo`} fill className="object-contain p-3" sizes="80px" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="font-display text-2xl font-medium leading-tight text-neutral-900 group-hover:text-primary">{brand.name}</h2>
-                  <p className="mt-2 text-sm leading-6 text-neutral-600">{brand.productCount} products · {brand.categories.join(", ") || "Beauty"}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {brand.concerns.slice(0, 3).map((concern) => <span key={concern} className="bg-neutral-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-600">{concern}</span>)}
-                  </div>
-                </div>
-                <ArrowRight size={18} className="mt-1 text-neutral-300 transition-colors group-hover:text-primary" />
-              </div>
-            </Link>
-          ))}
+      <section className="border-b border-neutral-200 bg-[#fbfaf8]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:px-8">
+          <div className="relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-white">
+            <Image src={brand.image || IMAGES.hero.secondary} alt={`${brand.name} brand artwork`} fill className="object-contain p-10" sizes="(max-width: 1024px) 100vw, 40vw" priority />
+          </div>
+          <div>
+            <Link href="/brands" className="text-sm font-semibold text-primary">← All brands</Link>
+            <p className="type-label mt-6 text-primary">Brand edit</p>
+            <h1 className="mt-4 font-display text-5xl font-medium leading-[0.95] text-neutral-900 md:text-7xl">{brand.name}</h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600">{brand.description}</p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.productCount}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Products</p></div>
+              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.madeInNepalCount}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Made in Nepal</p></div>
+              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.categories.length}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Categories</p></div>
+            </div>
+          </div>
         </div>
+      </section>
+      <EditorialSection title={`Shop ${brand.name}`} description="Product cards use GLAMO's standard storefront layout for consistent browsing, price comparison and quick add behavior.">
+        {products.length ? <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="border border-neutral-200 bg-white p-10 text-center"><h2 className="font-display text-3xl text-neutral-900">This brand edit is coming soon.</h2><p className="mt-3 text-neutral-600">Check back for new arrivals or browse the full shop.</p><Link href="/shop" className="mt-6 inline-flex bg-primary px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white">Browse shop</Link></div>}
       </EditorialSection>
     </main>
   );

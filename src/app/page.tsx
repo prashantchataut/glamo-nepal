@@ -2,7 +2,7 @@ import { HeroBanner } from "@/components/home/HeroBanner";
 import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { BrandPhilosophyBanner } from "@/components/home/BrandPhilosophyBanner";
-import { BrandsMarquee } from "@/components/home/BrandsMarquee";
+import { BrandShowcase } from "@/components/home/BrandShowcase";
 import { BestSellers } from "@/components/home/BestSellers";
 import { EditorialStrip } from "@/components/home/EditorialStrip";
 import { Testimonials } from "@/components/home/Testimonials";
@@ -23,7 +23,7 @@ export default function HomePage() {
       <ShopByCategory />
       <FeaturedProducts />
       <BrandPhilosophyBanner />
-      <BrandsMarquee />
+      <BrandShowcase />
       <BestSellers />
       <EditorialStrip />
       <Testimonials />
