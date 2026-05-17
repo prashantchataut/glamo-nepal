@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, Menu, Search, ShoppingBag, User, X, ChevronRight } from "lucide-react";
@@ -43,6 +43,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const menuRef = useRef<HTMLElement>(null);
   const cartTotal = useCartStore((state) => state.getTotalItems);
   const wishlistTotal = useWishlistStore((state) => state.getTotalItems);
   const openSearchModal = useUIStore((state) => state.openSearchModal);
@@ -62,10 +63,34 @@ export function Navbar() {
     return () => document.body.classList.remove("scroll-locked");
   }, [mobileMenuOpen]);
 
-  function openSearch(event: MouseEvent<HTMLAnchorElement>) {
-    event.preventDefault();
-    openSearchModal();
-  }
+  useEffect(() => {
+    if (!mobileMenuOpen || !menuRef.current) return;
+    const menu = menuRef.current;
+    const focusable = menu.querySelectorAll<HTMLElement>(
+      'a[href], button, input, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first.focus();
+    const handleTabTrap = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    menu.addEventListener("keydown", handleTabTrap);
+    return () => menu.removeEventListener("keydown", handleTabTrap);
+  }, [mobileMenuOpen]);
+
 
   const cartCount = mounted ? cartTotal() : 0;
   const wishlistCount = mounted ? wishlistTotal() : 0;
@@ -123,14 +148,14 @@ export function Navbar() {
             </Link>
 
             <div className="flex items-center justify-end gap-1.5">
-              <Link
-                href="/search"
-                onClick={openSearch}
+              <button
+                type="button"
+                onClick={openSearchModal}
                 className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
                 aria-label="Search products"
               >
                 <Search size={18} strokeWidth={1.7} />
-              </Link>
+              </button>
               <Link
                 href="/wishlist"
                 className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex"
@@ -158,9 +183,9 @@ export function Navbar() {
           </div>
 
           <div className="pb-3 lg:pb-4">
-            <Link
-              href="/search"
-              onClick={openSearch}
+            <button
+              type="button"
+              onClick={openSearchModal}
               className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-500 shadow-[0_12px_30px_-26px_rgba(0,0,0,0.5)] ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Search skincare, makeup, brands"
             >
@@ -171,7 +196,7 @@ export function Navbar() {
               <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400 sm:block">
                 Search
               </span>
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -186,6 +211,7 @@ export function Navbar() {
       />
 
       <aside
+        ref={menuRef}
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
@@ -209,17 +235,17 @@ export function Navbar() {
         </div>
 
         <div className="px-5 py-5">
-          <Link
-            href="/search"
-            onClick={(event) => {
+          <button
+            type="button"
+            onClick={() => {
               setMobileMenuOpen(false);
-              openSearch(event);
+              openSearchModal();
             }}
             className="flex min-h-12 w-full items-center gap-3 rounded-full border border-neutral-200 bg-white px-4 text-left text-sm text-neutral-500"
           >
             <Search size={18} strokeWidth={1.7} />
             Search products and brands
-          </Link>
+          </button>
         </div>
 
         <nav className="px-5" aria-label="Mobile primary navigation">
@@ -231,7 +257,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   "flex min-h-14 items-center justify-between border-b border-neutral-200 text-sm font-semibold uppercase tracking-[0.14em]",
-                  active ? "text-primary" : "text-neutral-850",
+                  active ? "text-primary" : "text-neutral-800",
                 )}
               >
                 {link.name}

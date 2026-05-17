@@ -3,10 +3,7 @@ import { PROVINCES, isValidProvinceDistrictCombo, type Province, type District }
 
 export const checkoutSchema = z.object({
   name: z.string().min(2, "Full name is required").max(100, "Name must be under 100 characters"),
-  email: z.union([
-    z.string().max(254, "Email must be under 254 characters").email("Enter a valid email address"),
-    z.literal(""),
-  ], { error: "Enter a valid email address" }),
+  email: z.string().min(1, "Email is required for order updates").max(254, "Email must be under 254 characters").email("Enter a valid email address"),
   phone: z.string().regex(/^(\+977\s?)?9[78]\d{8}$/, "Enter a valid Nepal mobile number (e.g. 9818212188)"),
   province: z.enum(PROVINCES as [string, ...string[]], { message: "Select a province" }),
   district: z.string().min(1, "Select a district").max(50, "District must be under 50 characters"),

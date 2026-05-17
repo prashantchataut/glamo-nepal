@@ -47,7 +47,10 @@ export function CartPageClient() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const getSubtotal = useCartStore((state) => state.getSubtotal);
   const subtotal = getSubtotal();
   const delivery = calculateDeliveryFee(subtotal, "Kathmandu", "Bagmati");
   const total = subtotal + delivery;

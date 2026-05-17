@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
@@ -15,8 +15,12 @@ export function CartDrawer() {
   const [mounted, setMounted] = useState(false);
   const [lineErrors, setLineErrors] = useState<Record<string, string>>({});
   const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const { isCartOpen, closeCart } = useUIStore();
-  const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore();
+  const isCartOpen = useUIStore((s) => s.isCartOpen);
+  const closeCart = useUIStore((s) => s.closeCart);
+  const items = useCartStore((s) => s.items);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const getTotalPrice = useCartStore((s) => s.getTotalPrice);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => setMounted(true), []);

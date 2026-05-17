@@ -23,11 +23,12 @@ export function ProductCard({ product }: ProductCardProps) {
   const [addState, setAddState] = useState<AddState>("idle");
   const [showNotify, setShowNotify] = useState(false);
   const addToCart = useCartStore((s) => s.addItem);
-  const wishlist = useWishlistStore();
+  const toggleWishlistItem = useWishlistStore((s) => s.toggleItem);
+  const isInWishlist = useWishlistStore((s) => s.isInWishlist);
 
   useEffect(() => setMounted(true), []);
 
-  const isWishlisted = mounted ? wishlist.isInWishlist(product.id) : false;
+  const isWishlisted = mounted ? isInWishlist(product.id) : false;
   const discount = product.originalPrice
     ? Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100,
@@ -71,7 +72,7 @@ export function ProductCard({ product }: ProductCardProps) {
   function onWishlist(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    wishlist.toggleItem(product);
+    toggleWishlistItem(product);
     trackEvent("wishlist_toggle", {
       productId: product.id,
       productSlug: product.slug,
@@ -85,27 +86,29 @@ export function ProductCard({ product }: ProductCardProps) {
       aria-label={product.name}
       className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_24px_80px_-58px_rgba(26,21,18,0.55)]"
     >
-      <Link
-        href={`/products/${product.slug}`}
-        className="relative block aspect-[4/5] overflow-hidden bg-[#f8f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-      >
-        <Image
-          src={product.image}
-          alt={`${product.brand} ${product.name}`}
-          fill
-          className={cn(
-            "object-cover transition-transform duration-700 group-hover:scale-[1.045]",
-            !product.inStock && "grayscale opacity-70",
-          )}
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-        />
-        <div
-          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-neutral-950/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          aria-hidden="true"
-        />
+      <div className="relative block aspect-[4/5] overflow-hidden bg-[#f8f0ec]">
+        <Link
+          href={`/products/${product.slug}`}
+          className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          <Image
+            src={product.image}
+            alt={`${product.brand} ${product.name}`}
+            fill
+            className={cn(
+              "object-cover transition-transform duration-700 group-hover:scale-[1.045]",
+              !product.inStock && "grayscale opacity-70",
+            )}
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-neutral-950/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            aria-hidden="true"
+          />
+        </Link>
 
         {(cardBadge || (discount > 0 && product.inStock)) && (
-          <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2">
+          <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2 pointer-events-none">
             {cardBadge && (
               <Badge variant={cardBadge}>
                 {cardBadge === "soldOut"
@@ -159,7 +162,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </button>
           </div>
         )}
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col px-4 pb-5 pt-4 sm:px-5">
         <div className="flex items-start justify-between gap-3">

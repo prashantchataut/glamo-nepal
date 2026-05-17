@@ -32,7 +32,7 @@ export function AnnouncementBar() {
       </p>
       <button
         onClick={handleDismiss}
-        className="absolute right-3 flex h-6 w-6 items-center justify-center text-white/70 transition-colors hover:text-white"
+        className="absolute right-2 flex h-9 w-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         aria-label="Dismiss announcement"
       >
         <X size={14} />

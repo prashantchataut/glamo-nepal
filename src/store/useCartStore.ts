@@ -10,10 +10,20 @@ interface CartState {
   addItem: (product: Product, quantity?: number, selectedShade?: string) => CartActionResult;
   removeItem: (productId: string, selectedShade?: string) => void;
   updateQuantity: (productId: string, quantity: number, selectedShade?: string) => CartActionResult;
-  clearCart: () => void; getTotalItems: () => number; getSubtotal: () => number; getTotalPrice: () => number;
+  clearCart: () => void;
+  getTotalItems: () => number;
+  getSubtotal: () => number;
+  getTotalPrice: () => number;
 }
 const sameLine = (item: CartItem, productId: string, selectedShade?: string) => item.product.id === productId && (item.selectedShade || "") === (selectedShade || "");
-const availableFor = (product: Product, selectedShade?: string) => Math.max(0, (selectedShade ? product.shadeOptions?.find((s) => s.name === selectedShade)?.stockCount : undefined) ?? product.stockCount ?? 0);
+const availableFor = (product: Product, selectedShade?: string) => {
+  if (!product.inStock) return 0;
+  if (selectedShade && product.shadeOptions) {
+    const shade = product.shadeOptions.find((s) => s.name === selectedShade);
+    if (shade && shade.stockCount !== undefined) return shade.stockCount;
+  }
+  return product.stockCount ?? 99;
+};
 export const useCartStore = create<CartState>()(persist((set, get) => ({
   items: [],
   addItem: (product, quantity = 1, selectedShade) => {
@@ -42,5 +52,8 @@ export const useCartStore = create<CartState>()(persist((set, get) => ({
   clearCart: () => set({ items: [] }),
   getTotalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
   getSubtotal: () => get().items.reduce((total, item) => total + item.product.price * item.quantity, 0),
-  getTotalPrice: () => get().items.reduce((total, item) => total + item.product.price * item.quantity, 0),
+  getTotalPrice: () => {
+    const subtotal = get().getSubtotal();
+    return subtotal;
+  },
 }), { name: "glamo-cart-storage", version: 1 }));

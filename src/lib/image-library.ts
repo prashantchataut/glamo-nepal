@@ -22,7 +22,7 @@ export const IMAGES = {
     makeup: u("/photo-1512496015851-a90fb38ba796?w=900&q=86&fit=crop&auto=format"),
     haircare: u("/photo-1522337360788-8b13dee7a37e?w=900&q=86&fit=crop&auto=format"),
     body: u("/photo-1608248543803-ba4f8c70ae0b?w=900&q=86&fit=crop&auto=format"),
-    fragrance: u("/photo-1541643600914-78b084683702?w=900&q=86&fit=crop&auto=format"),
+    fragrance: u("/photo-1588405748880-12d1d2a59f75?w=900&q=86&fit=crop&auto=format"),
   },
   editorial: {
     brandMission: u("/photo-1570172619644-dfd03ed5d881?w=1400&q=86&fit=crop&auto=format"),

@@ -6,6 +6,7 @@ import { BrandShowcase } from "@/components/home/BrandShowcase";
 import { BestSellers } from "@/components/home/BestSellers";
 import { EditorialStrip } from "@/components/home/EditorialStrip";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
+import { LazySection } from "@/components/common/LazySection";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -21,11 +22,21 @@ export default function HomePage() {
       <HeroBanner />
       <ShopByCategory />
       <FeaturedProducts />
-      <BrandPhilosophyBanner />
-      <BrandShowcase />
-      <BestSellers />
-      <EditorialStrip />
-      <NewsletterSignup />
+      <LazySection>
+        <BrandPhilosophyBanner />
+      </LazySection>
+      <LazySection>
+        <BrandShowcase />
+      </LazySection>
+      <LazySection>
+        <BestSellers />
+      </LazySection>
+      <LazySection>
+        <EditorialStrip />
+      </LazySection>
+      <LazySection>
+        <NewsletterSignup />
+      </LazySection>
     </main>
   );
 }

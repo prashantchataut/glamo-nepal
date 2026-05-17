@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
-import localFont from "next/font/local";
+import { Inter, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
@@ -8,15 +8,15 @@ import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBounda
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+const inter = Inter({
+  subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
 });
 
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-mono",
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -58,7 +58,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${inter.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
         <ComponentErrorBoundary name="RootLayout">

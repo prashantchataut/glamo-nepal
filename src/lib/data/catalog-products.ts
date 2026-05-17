@@ -17,7 +17,7 @@ const PRODUCT_IMAGE_POOL = {
     editorialImage("/photo-1596462502278-27bfdc403348?w=900&q=86&fit=crop&auto=format"),
     editorialImage("/photo-1586495777744-4413f21062fa?w=900&q=86&fit=crop&auto=format"),
     editorialImage("/photo-1522335789203-aabd1fc54bc9?w=900&q=86&fit=crop&auto=format"),
-    editorialImage("/photo-1599733589046-10c005739ef1?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1583241475880-083f84372725?w=900&q=86&fit=crop&auto=format"),
   ],
   haircare: [
     editorialImage("/photo-1522337360788-8b13dee7a37e?w=900&q=86&fit=crop&auto=format"),
@@ -30,7 +30,7 @@ const PRODUCT_IMAGE_POOL = {
     editorialImage("/photo-1607006483224-0e4d4170e8c6?w=900&q=86&fit=crop&auto=format"),
   ],
   fragrance: [
-    editorialImage("/photo-1541643600914-78b084683702?w=900&q=86&fit=crop&auto=format"),
+    editorialImage("/photo-1588405748880-12d1d2a59f75?w=900&q=86&fit=crop&auto=format"),
     editorialImage("/photo-1592945403244-b3fbafd7f539?w=900&q=86&fit=crop&auto=format"),
   ],
   tools: [

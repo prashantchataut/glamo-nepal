@@ -7,10 +7,10 @@
     --navbar-height: 68px;
     --bar-height: 36px;
     --total-header-height: var(--navbar-height);
-    --mobile-nav-height: 56px;
-    --font-display: var(--font-body), "Geist", system-ui, sans-serif;
-    --font-body: "Geist", system-ui, sans-serif;
-    --font-mono: var(--font-mono), "Geist Mono", ui-monospace, monospace;
+    --mobile-nav-height: 64px;
+    --font-display: var(--font-display), 'Playfair Display', Georgia, serif;
+    --font-body: var(--font-body), 'Inter', system-ui, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', monospace;
 
     --background: 40 10% 98%;
     --foreground: 20 20% 9%;

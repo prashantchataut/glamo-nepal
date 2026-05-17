@@ -24,11 +24,11 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        display: ['var(--font-display)', 'Cormorant Garamond', 'Georgia', 'serif'],
-        body: ['var(--font-body)', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
-        label: ['var(--font-body)', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-display)', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans: ['var(--font-body)', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'Playfair Display', 'Georgia', 'serif'],
+        body: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        label: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-display)', 'Playfair Display', 'Georgia', 'serif'],
+        sans: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         rose: {

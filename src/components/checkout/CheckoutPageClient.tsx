@@ -108,6 +108,7 @@ export function CheckoutPageClient() {
     handleSubmit,
     setValue,
     watch,
+    trigger,
     formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -216,9 +217,7 @@ export function CheckoutPageClient() {
         {
           customer: {
             name: data.name,
-            email:
-              data.email ||
-              `${data.phone.replace(/\D/g, "")}@guest.glamonepal.local`,
+            email: data.email,
             phone: data.phone,
           },
           shippingAddress: {
@@ -371,7 +370,7 @@ export function CheckoutPageClient() {
                   </div>
                   <div>
                     <label htmlFor="email" className={labelClass}>
-                      Email optional
+                      Email
                     </label>
                     <input
                       id="email"
@@ -383,6 +382,7 @@ export function CheckoutPageClient() {
                     {errors.email && (
                       <p className={errorClass}>{errors.email.message}</p>
                     )}
+                    <p className="mt-1 text-[11px] text-neutral-500">For order confirmation and delivery updates.</p>
                   </div>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>
@@ -474,10 +474,10 @@ export function CheckoutPageClient() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(1)}
-                    disabled={
-                      !form.name || !form.phone || !form.address || !form.ward
-                    }
+                    onClick={async () => {
+                      const valid = await trigger(["name", "phone", "province", "district", "city", "ward", "address"]);
+                      if (valid) setCurrentStep(1);
+                    }}
                     className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
                   >
                     Continue to delivery
@@ -598,7 +598,10 @@ export function CheckoutPageClient() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(3)}
+                      onClick={async () => {
+                        const valid = await trigger(["payment"]);
+                        if (valid) setCurrentStep(3);
+                      }}
                       className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
                     >
                       Review order

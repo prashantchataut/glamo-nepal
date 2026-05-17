@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
@@ -32,6 +33,35 @@ const helpLinks = [
 ];
 
 export function Footer() {
+  const [newsletterState, setNewsletterState] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleNewsletterSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
+    if (!email) return;
+
+    setNewsletterState("loading");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setNewsletterState("success");
+        form.reset();
+        setTimeout(() => setNewsletterState("idle"), 5000);
+      } else {
+        setNewsletterState("error");
+        setTimeout(() => setNewsletterState("idle"), 5000);
+      }
+    } catch {
+      setNewsletterState("error");
+      setTimeout(() => setNewsletterState("idle"), 5000);
+    }
+  }, []);
+
   return (
     <footer className="bg-neutral-950 text-white">
       <div className="mx-auto max-w-[1480px] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
@@ -43,19 +73,7 @@ export function Footer() {
             </h2>
           </div>
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              const form = event.currentTarget;
-              const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
-              if (email) {
-                fetch("/api/newsletter", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json", ...csrfHeaders() },
-                  body: JSON.stringify({ email }),
-                }).catch(() => {});
-                form.reset();
-              }
-            }}
+            onSubmit={handleNewsletterSubmit}
             className="flex flex-col justify-end gap-3"
           >
             <label htmlFor="footer-email" className="sr-only">Email address</label>
@@ -67,13 +85,22 @@ export function Footer() {
                 name="email"
                 placeholder="Your email address"
                 required
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-neutral-400"
+                disabled={newsletterState === "loading"}
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-neutral-400 disabled:opacity-50"
               />
-              <button type="submit" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-neutral-950 text-white transition hover:bg-primary" aria-label="Subscribe">
+              <button type="submit" disabled={newsletterState === "loading"} className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-neutral-950 text-white transition hover:bg-primary disabled:opacity-50" aria-label="Subscribe">
                 <ArrowRight size={17} strokeWidth={1.8} />
               </button>
             </div>
-            <p className="text-xs leading-5 text-white/50">No spam — only launches, routines and practical beauty notes.</p>
+            {newsletterState === "success" && (
+              <p className="text-xs leading-5 text-green-400">You&apos;re on the list! Check your inbox for a welcome note.</p>
+            )}
+            {newsletterState === "error" && (
+              <p className="text-xs leading-5 text-red-400">Something went wrong. Please try again.</p>
+            )}
+            {newsletterState === "idle" && (
+              <p className="text-xs leading-5 text-white/50">No spam — only launches, routines and practical beauty notes.</p>
+            )}
           </form>
         </div>
 

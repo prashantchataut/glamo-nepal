@@ -65,9 +65,10 @@ export default function ProductDetailClient({
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const addItem = useCartStore((s) => s.addItem);
-  const wishlist = useWishlistStore();
+  const toggleWishlistItem = useWishlistStore((s) => s.toggleItem);
+  const isInWishlist = useWishlistStore((s) => s.isInWishlist);
   const addRecent = useRecentlyViewedStore((s) => s.addItem);
-  const isWishlisted = wishlist.isInWishlist(product.id);
+  const isWishlisted = isInWishlist(product.id);
   const galleryImages = useMemo(
     () =>
       Array.from(new Set([product.image, ...(product.images || [])])).slice(
@@ -121,7 +122,7 @@ export default function ProductDetailClient({
   }
 
   function toggleWishlist() {
-    wishlist.toggleItem(product);
+    toggleWishlistItem(product);
     trackEvent("wishlist_toggle", {
       productId: product.id,
       productSlug: product.slug,

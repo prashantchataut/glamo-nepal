@@ -25,6 +25,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   isConfigured: boolean;
+  initialize: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, phone: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -35,11 +36,53 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>()((set) => ({
+export const useAuthStore = create<AuthState>()((set, get) => ({
   user: null,
   isLoading: false,
   error: null,
   isConfigured: isSupabaseConfigured,
+
+  initialize: () => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        set({
+          user: {
+            id: session.user.id,
+            email: session.user.email || "",
+            name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "",
+            phone: session.user.user_metadata?.phone || "",
+            role: "customer" as const,
+          },
+          isLoading: false,
+        });
+      } else {
+        set({ isLoading: false });
+      }
+    }).catch(() => {
+      set({ isLoading: false });
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        set({
+          user: {
+            id: session.user.id,
+            email: session.user.email || "",
+            name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "",
+            phone: session.user.user_metadata?.phone || "",
+            role: "customer" as const,
+          },
+          error: null,
+        });
+      } else {
+        const currentUser = get().user;
+        if (currentUser) {
+          set({ user: null });
+        }
+      }
+    });
+  },
 
   login: async (email, password) => {
     if (!supabase) {

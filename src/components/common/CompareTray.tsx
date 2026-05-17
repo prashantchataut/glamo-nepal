@@ -16,7 +16,7 @@ export function CompareTray() {
         <div className="flex items-center gap-2 overflow-x-auto">
           {items.map((product) => (
             <div key={product.id} className="flex min-w-0 items-center gap-2 rounded-2xl bg-brand-bgLight p-2 pr-3">
-              <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white"><Image src={product.image} alt="" fill className="object-cover" /></div>
+              <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white"><Image src={product.image} alt={product.name} fill className="object-cover" /></div>
               <div className="min-w-[120px]">
                 <p className="line-clamp-1 text-xs font-semibold text-brand-textPrimary">{product.name}</p>
                 <p className="text-[11px] text-brand-gold">{formatNPR(product.price)}</p>
