@@ -96,6 +96,19 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
+      if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
+        response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
+          httpOnly: false,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          path: "/",
+          maxAge: 60 * 60 * 24,
+        });
+      }
+      return response;
+    }
+    const response = addSecurityHeaders(NextResponse.next());
+    if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
       response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
         httpOnly: false,
         sameSite: "lax",
@@ -103,16 +116,7 @@ export async function middleware(request: NextRequest) {
         path: "/",
         maxAge: 60 * 60 * 24,
       });
-      return response;
     }
-    const response = addSecurityHeaders(NextResponse.next());
-    response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
-      httpOnly: false,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
     return response;
   }
 
@@ -120,13 +124,15 @@ export async function middleware(request: NextRequest) {
     const adminSession = await verifyAdminSessionToken(adminToken);
     if (adminSession) return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     const response = addSecurityHeaders(NextResponse.next());
-    response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
-      httpOnly: false,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+    if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
+      response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
+        httpOnly: false,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
+    }
     return response;
   }
 

@@ -7,6 +7,7 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 let supabase: SupabaseClient | null = null;
+let authSubscription: { unsubscribe: () => void } | null = null;
 
 if (isSupabaseConfigured) {
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -36,7 +37,7 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>()((set, get) => ({
+export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isLoading: false,
   error: null,
@@ -44,6 +45,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   initialize: () => {
     if (!supabase) return;
+    if (authSubscription) return;
+
+    set({ isLoading: true });
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         set({
@@ -60,10 +65,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         set({ isLoading: false });
       }
     }).catch(() => {
-      set({ isLoading: false });
+      set({ isLoading: false, error: "Failed to restore session. Please refresh." });
     });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         set({
           user: {
@@ -76,12 +81,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
           error: null,
         });
       } else {
-        const currentUser = get().user;
-        if (currentUser) {
-          set({ user: null });
-        }
+        set({ user: null });
       }
     });
+    authSubscription = subscription;
   },
 
   login: async (email, password) => {
@@ -151,8 +154,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 
   logout: async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
+    try {
+      if (supabase) await supabase.auth.signOut();
+    } catch {
+      // Local state cleared regardless
     }
     set({ user: null, error: null });
   },

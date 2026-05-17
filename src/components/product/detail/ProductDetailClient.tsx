@@ -85,6 +85,13 @@ export default function ProductDetailClient({
   const returnEligibility = getReturnEligibility(product);
 
   useEffect(() => {
+    setShade(product.shadeOptions?.[0]?.name || "");
+    setQuantity(1);
+    setQuantityError("");
+    setCurrentImage(0);
+  }, [product.id, product.shadeOptions]);
+
+  useEffect(() => {
     addRecent(product);
     trackEvent("product_viewed", {
       productId: product.id,

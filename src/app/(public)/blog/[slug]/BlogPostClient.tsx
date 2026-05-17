@@ -10,7 +10,7 @@ import { SITE_CONFIG } from "@/lib/config";
 
 function sanitizeBlogHtml(html: string): string {
   if (typeof window === "undefined") {
-    return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "").replace(/\son\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/javascript:/gi, "");
+    return html;
   }
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const createDOMPurify = require("dompurify");

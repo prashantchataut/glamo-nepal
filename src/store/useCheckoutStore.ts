@@ -99,6 +99,6 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
       reset: () => set({ status: "idle", error: null }),
     }),
-    { name: "glamo-checkout-storage", version: 1 },
+    { name: "glamo-checkout-storage", version: 1, onRehydrateStorage: () => (state) => { if (state?.status === "pending") { state.status = "idle"; state.error = null; } } },
   ),
 );
