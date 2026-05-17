@@ -3,6 +3,5 @@
     "env": {
       "NODE_OPTIONS": "--max-old-space-size=4096"
     }
-  },
-  "installCommand": "npm ci --prefer-offline --no-audit --no-fund"
+  }
 }
