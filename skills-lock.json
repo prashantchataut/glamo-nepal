@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "ai-podcast": {
+      "source": "inference-sh-skills/skills",
+      "sourceType": "github",
+      "skillPath": "ai-podcast/SKILL.md",
+      "computedHash": "8dd67854dc81f95dad7bf23940c9d3c2cf5a51cd97d341c8903bfb50cb5ef8ba"
+    },
+    "belt": {
+      "source": "belt-sh/cli",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/belt/SKILL.md",
+      "computedHash": "089aafb91641896947cc004126ef31b806f109d514107fa683203ae5d3f706e2"
+    },
     "canvas-design": {
       "source": "smithery.ai",
       "sourceType": "well-known",
@@ -15,6 +27,12 @@
       "source": "smithery.ai",
       "sourceType": "well-known",
       "computedHash": "e8118284a6365753790d44bb2758a6032b3af27fa84696428d9233f2be0f4e78"
+    },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": "skill/SKILL.md",
+      "computedHash": "c8f645c3e9aace8baf528021165168bac77d4f761f0ab7baf45e06e01691500f"
     },
     "security-threat-model": {
       "source": "smithery.ai",
