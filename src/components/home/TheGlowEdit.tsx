@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { GLOW_EDIT_TABS, GLOW_EDIT_PRODUCTS } from "@/lib/constants";
@@ -27,10 +27,10 @@ export function TheGlowEdit() {
                 aria-controls="glow-edit-panel"
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-6 py-2.5 rounded-2xl text-sm font-semibold tracking-wide transition-all duration-300",
+                  "px-6 py-2.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-300",
                   activeTab === tab
                     ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20"
-                    : "bg-cream-50 text-brand-textMuted hover:bg-cream-50 hover:text-brand-primary border border-border/50 hover:border-brand-primary/20"
+                    : "bg-white text-brand-textMuted hover:bg-white hover:text-brand-primary border border-border/50 hover:border-brand-primary/20"
                 )}
               >
                 {tab}
@@ -48,7 +48,7 @@ export function TheGlowEdit() {
         </div>
 
         <div className="text-center">
-          <Link href="/shop" className="font-label inline-flex items-center gap-2 px-8 py-3.5 border-2 border-brand-textPrimary text-brand-textPrimary rounded-2xl font-semibold uppercase tracking-[0.15em] text-sm hover:bg-brand-textPrimary hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+          <Link href="/shop" className="font-label inline-flex items-center gap-2 px-8 py-3.5 border-2 border-brand-textPrimary text-brand-textPrimary rounded-full font-semibold uppercase tracking-[0.15em] text-sm hover:bg-brand-textPrimary hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
             View All Collection <MoveRight size={16} />
           </Link>
         </div>

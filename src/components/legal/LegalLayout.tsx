@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { SITE_CONFIG } from "@/lib/config";
 
 export interface LegalSection {
@@ -19,7 +19,7 @@ export function LegalLayout({ title, description, sections }: { title: string; d
       </section>
       <div className="container mx-auto grid gap-8 px-4 py-10 md:px-6 lg:grid-cols-[18rem_1fr]">
         <aside className="lg:sticky lg:top-28 lg:self-start">
-          <nav className="rounded-2xl border border-border/70 bg-cream-50 p-4 shadow-sm" aria-label={`${title} sections`}>
+          <nav className="rounded-[2rem] border border-border/70 bg-white p-4 shadow-sm" aria-label={`${title} sections`}>
             <p className="font-label px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">On this page</p>
             <div className="grid gap-1">
               {sections.map((section) => (
@@ -29,12 +29,12 @@ export function LegalLayout({ title, description, sections }: { title: string; d
               ))}
             </div>
           </nav>
-          <div className="mt-4 rounded-2xl border border-border/70 bg-cream-50 p-5 text-sm leading-6 text-brand-textMuted shadow-sm">
+          <div className="mt-4 rounded-[2rem] border border-border/70 bg-white p-5 text-sm leading-6 text-brand-textMuted shadow-sm">
             <p className="font-semibold text-brand-textPrimary">Need help?</p>
             <p className="mt-2">Contact {SITE_CONFIG.phone} or visit {SITE_CONFIG.address}.</p>
           </div>
         </aside>
-        <article className="rounded-2xl border border-border/70 bg-cream-50 p-6 shadow-sm md:p-8">
+        <article className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
           <p className="text-sm font-semibold text-brand-textMuted">Last updated: April 2026</p>
           <div className="mt-8 space-y-10">
             {sections.map((section) => (

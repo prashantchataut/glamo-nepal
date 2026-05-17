@@ -6,8 +6,8 @@ export default function ShopLoading() {
         <div className="mt-4 h-12 w-80 animate-pulse rounded bg-brand-bgLight" />
         <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-brand-border bg-cream-50 p-4">
-              <div className="aspect-square animate-pulse rounded-2xl bg-brand-bgLight" />
+            <div key={i} className="rounded-2xl border border-brand-border bg-white p-4">
+              <div className="aspect-square animate-pulse rounded-xl bg-brand-bgLight" />
               <div className="mt-3 h-4 w-3/4 animate-pulse rounded bg-brand-bgLight" />
               <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-brand-bgLight" />
               <div className="mt-2 h-5 w-1/3 animate-pulse rounded bg-brand-bgLight" />

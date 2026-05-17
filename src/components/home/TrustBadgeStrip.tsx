@@ -22,7 +22,7 @@ export function TrustBadgeStrip() {
             const iconName = iconMap[badge.icon] || "cruelty-free";
             return (
               <div key={badge.text} className="flex items-center gap-2.5">
-                <span className="p-1.5 bg-cream-50/10 rounded-2xl">
+                <span className="p-1.5 bg-white/10 rounded-full">
                   <TrustIcon name={iconName} size={16} />
                 </span>
                 <span className="font-medium tracking-[0.06em] text-xs sm:text-sm uppercase whitespace-nowrap">

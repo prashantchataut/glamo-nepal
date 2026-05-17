@@ -18,7 +18,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <main className="bg-cream-50">
+    <main className="bg-neutral-50">
       <EditorialHero
         eyebrow="Our story"
         title="Beauty curated with Nepal in mind."
@@ -34,19 +34,19 @@ export default function AboutPage() {
         </div>
       </EditorialSection>
 
-      <section className="bg-cream-50 py-12 md:py-20">
+      <section className="bg-white py-12 md:py-20">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 md:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
-          <div className="relative aspect-[4/5] overflow-hidden border border-cream-200 bg-cream-100">
+          <div className="relative aspect-[4/5] overflow-hidden border border-neutral-200 bg-neutral-100">
             <Image src={IMAGES.editorial.brandMission} alt="Applying skincare as part of a calm routine" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
           </div>
           <div>
-            <p className="type-label text-brand-rose">Mission</p>
-            <h2 className="mt-4 font-display text-4xl font-medium leading-tight text-ink md:text-6xl">Make premium beauty feel personal, local and shoppable.</h2>
-            <p className="mt-6 text-base leading-8 text-cream-700">From sunscreen that works in Nepal&apos;s sun to lip tints that fit daily and festival looks, GLAMO builds a beauty destination around real customer moments.</p>
+            <p className="type-label text-primary">Mission</p>
+            <h2 className="mt-4 font-display text-4xl font-medium leading-tight text-neutral-900 md:text-6xl">Make premium beauty feel personal, local and shoppable.</h2>
+            <p className="mt-6 text-base leading-8 text-neutral-600">From sunscreen that works in Nepal&apos;s sun to lip tints that fit daily and festival looks, GLAMO builds a beauty destination around real customer moments.</p>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              {["44+ curated SKUs", "77 districts considered", "NPR-first pricing"].map((stat) => <div key={stat} className="border border-cream-200 bg-cream-50 p-4 text-sm font-semibold text-ink">{stat}</div>)}
+              {["44+ curated SKUs", "77 districts considered", "NPR-first pricing"].map((stat) => <div key={stat} className="border border-neutral-200 bg-neutral-50 p-4 text-sm font-semibold text-neutral-900">{stat}</div>)}
             </div>
-            <Link href="/contact" className="mt-8 inline-flex min-h-11 items-center justify-center border border-neutral-900 px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:bg-ink hover:text-white">Talk to us</Link>
+            <Link href="/contact" className="mt-8 inline-flex min-h-11 items-center justify-center border border-neutral-900 px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white">Talk to us</Link>
           </div>
         </div>
       </section>

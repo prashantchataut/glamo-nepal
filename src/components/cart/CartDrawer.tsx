@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
@@ -95,7 +95,7 @@ export function CartDrawer() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: reduceMotion ? 0 : 384, opacity: reduceMotion ? 0 : 1 }}
             transition={{ duration: 0.28, ease: "easeOut" }}
-            className="fixed inset-y-0 right-0 z-cart flex w-full max-w-md flex-col bg-cream-50 shadow-2xl"
+            className="fixed inset-y-0 right-0 z-cart flex w-full max-w-md flex-col bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-brand-border p-5 md:p-6">
               <h2 className="flex items-center gap-2 font-display text-2xl font-semibold text-brand-textPrimary">
@@ -107,7 +107,7 @@ export function CartDrawer() {
                 type="button"
                 aria-label="Close cart"
                 onClick={closeCart}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
               >
                 <X size={22} strokeWidth={1.5} />
               </button>
@@ -124,9 +124,9 @@ export function CartDrawer() {
                   <span className="font-bold text-emerald-600">Free delivery unlocked.</span>
                 )}
               </p>
-              <div className="h-2 w-full overflow-hidden rounded-2xl bg-cream-50">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white">
                 <div
-                  className="h-full rounded-2xl bg-brand-primary transition-all duration-500 ease-out"
+                  className="h-full rounded-full bg-brand-primary transition-all duration-500 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -142,9 +142,9 @@ export function CartDrawer() {
                     const error = lineErrors[key];
                     const isOut = !item.product.inStock;
                     return (
-                      <div key={key} className="rounded-2xl border border-brand-border bg-cream-50 p-3 shadow-sm">
+                      <div key={key} className="rounded-2xl border border-brand-border bg-white p-3 shadow-sm">
                         <div className="flex gap-4">
-                          <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl bg-brand-bgLight">
+                          <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight">
                             <Image
                               src={item.product.image}
                               alt={`${item.product.brand} ${item.product.name}`}
@@ -168,7 +168,7 @@ export function CartDrawer() {
                               </div>
                               <button
                                 onClick={() => removeItem(item.product.id, item.selectedShade)}
-                                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-brand-textMuted transition hover:bg-brand-bgLight hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-brand-bgLight hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                                 aria-label={`Remove ${item.product.name}`}
                               >
                                 <Trash2 size={16} strokeWidth={1.5} />
@@ -176,11 +176,11 @@ export function CartDrawer() {
                             </div>
                             <div className="mt-auto flex items-end justify-between gap-3 pt-4">
                               <div>
-                                <div className="flex items-center gap-2 rounded-2xl border border-brand-border bg-brand-bgLight px-2 py-1">
+                                <div className="flex items-center gap-2 rounded-full border border-brand-border bg-brand-bgLight px-2 py-1">
                                   <button
                                     onClick={() => changeQuantity(item.product.id, item.quantity - 1, item.selectedShade)}
                                     disabled={item.quantity <= 1}
-                                    className="inline-flex h-9 w-9 items-center justify-center rounded-2xl text-brand-textMuted transition hover:bg-cream-50 hover:text-brand-primary disabled:opacity-40"
+                                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-white hover:text-brand-primary disabled:opacity-40"
                                     aria-label="Decrease quantity"
                                   >
                                     <Minus size={14} />
@@ -188,7 +188,7 @@ export function CartDrawer() {
                                   <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
                                   <button
                                     onClick={() => changeQuantity(item.product.id, item.quantity + 1, item.selectedShade)}
-                                    className="inline-flex h-9 w-9 items-center justify-center rounded-2xl text-brand-textMuted transition hover:bg-cream-50 hover:text-brand-primary"
+                                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-white hover:text-brand-primary"
                                     aria-label="Increase quantity"
                                   >
                                     <Plus size={14} />
@@ -213,7 +213,7 @@ export function CartDrawer() {
               )}
             </div>
 
-            <div className="shrink-0 border-t border-brand-border bg-cream-50 p-5 safe-area-bottom">
+            <div className="shrink-0 border-t border-brand-border bg-white p-5 safe-area-bottom">
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-brand-textMuted">
                   <span>Subtotal</span>
@@ -232,7 +232,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={closeCart}
-                className="mt-5 flex w-full items-center justify-center rounded-2xl bg-brand-primary px-6 py-4 text-sm font-bold text-white shadow-md shadow-brand-primary/15 transition hover:-translate-y-0.5 hover:bg-brand-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 cursor-pointer"
+                className="mt-5 flex w-full items-center justify-center rounded-full bg-brand-primary px-6 py-4 text-sm font-bold text-white shadow-md shadow-brand-primary/15 transition hover:-translate-y-0.5 hover:bg-brand-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 cursor-pointer"
               >
                 Checkout securely
               </Link>

@@ -1,3 +1,8 @@
+// Rate limiting using an in-memory Map.
+// NOTE: In serverless environments (Vercel, etc.), each function invocation
+// gets its own context, so this provides per-instance rate limiting only.
+// For production, replace this with a persistent store (Vercel KV, Upstash Redis,
+// or Supabase pg_kv) to enforce limits across all instances.
 const RATE_LIMIT_MAP = new Map<string, { count: number; resetAt: number }>();
 
 interface RateLimitConfig {
@@ -53,11 +58,13 @@ export function checkRateLimit(pathname: string, ip: string): RateLimitResult {
   return { allowed: true, limit: config.maxRequests, remaining: config.maxRequests - entry.count, resetAt: entry.resetAt, retryAfterMs: 0 };
 }
 
-setInterval(() => {
-  const now = Date.now();
-  const keysToDelete: string[] = [];
-  RATE_LIMIT_MAP.forEach((entry, key) => {
-    if (now >= entry.resetAt) keysToDelete.push(key);
-  });
-  keysToDelete.forEach((key) => RATE_LIMIT_MAP.delete(key));
-}, 5 * 60 * 1000);
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    const keysToDelete: string[] = [];
+    RATE_LIMIT_MAP.forEach((entry, key) => {
+      if (now >= entry.resetAt) keysToDelete.push(key);
+    });
+    keysToDelete.forEach((key) => RATE_LIMIT_MAP.delete(key));
+  }, 5 * 60 * 1000);
+}

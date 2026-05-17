@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -38,22 +38,22 @@ export function ComparePageClient() {
             <p className="mt-2 text-brand-textMuted">Compare up to 3 products across price, brand, concern, size, origin, stock and features.</p>
           </div>
           {items.length > 0 ? (
-            <button onClick={clear} className="rounded-2xl border border-brand-primary px-5 py-2 font-semibold text-brand-primary">
+            <button onClick={clear} className="rounded-full border border-brand-primary px-5 py-2 font-semibold text-brand-primary">
               Clear compare
             </button>
           ) : null}
         </div>
 
         {items.length === 0 ? (
-          <div className="mt-10 rounded-2xl bg-cream-50 p-12 text-center shadow-sm">
+          <div className="mt-10 rounded-[2rem] bg-white p-12 text-center shadow-sm">
             <h2 className="font-display text-3xl font-semibold">No products selected</h2>
             <p className="mt-2 text-brand-textMuted">Use compare buttons on product cards to add up to 3 products.</p>
-            <Link href="/shop" className="mt-6 inline-flex rounded-2xl bg-brand-primary px-7 py-3 font-semibold text-white">
+            <Link href="/shop" className="mt-6 inline-flex rounded-full bg-brand-primary px-7 py-3 font-semibold text-white">
               Browse products
             </Link>
           </div>
         ) : (
-          <div className="mt-10 overflow-x-auto rounded-2xl bg-cream-50 p-4 shadow-sm">
+          <div className="mt-10 overflow-x-auto rounded-[2rem] bg-white p-4 shadow-sm">
             <table className="w-full min-w-[760px] border-separate border-spacing-0">
               <thead>
                 <tr>
@@ -62,7 +62,7 @@ export function ComparePageClient() {
                     <th key={product.id} className="p-4 text-left align-top">
                       <div className="relative mb-3 h-40 overflow-hidden rounded-2xl bg-brand-bgLight">
                         <Image src={product.image} alt={product.name} fill className="object-cover" />
-                        <button onClick={() => removeItem(product.id)} className="absolute right-2 top-2 rounded-2xl bg-cream-50 p-2 text-brand-textMuted" aria-label={`Remove ${product.name} from compare`}>
+                        <button onClick={() => removeItem(product.id)} className="absolute right-2 top-2 rounded-full bg-white p-2 text-brand-textMuted" aria-label={`Remove ${product.name} from compare`}>
                           <X size={14} />
                         </button>
                       </div>

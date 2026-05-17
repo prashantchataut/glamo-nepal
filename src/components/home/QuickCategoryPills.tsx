@@ -1,4 +1,4 @@
-
+﻿
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -6,7 +6,7 @@ import { CATEGORY_PILLS } from "@/lib/constants";
 
 export function QuickCategoryPills() {
   return (
-    <section aria-labelledby="quick-category-pills-heading" className="bg-cream-50 py-8 md:py-10">
+    <section aria-labelledby="quick-category-pills-heading" className="bg-white py-8 md:py-10">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -23,7 +23,7 @@ export function QuickCategoryPills() {
             <Link
               href={pill.link}
               key={pill.id}
-              className="inline-flex items-center rounded-2xl border border-brand-textPrimary/10 bg-brand-surfacePink px-5 py-3 text-sm font-medium text-brand-textPrimary transition-all duration-300 hover:border-brand-primary/30 hover:bg-cream-50 hover:text-brand-primary hover:shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center rounded-full border border-brand-textPrimary/10 bg-brand-surfacePink px-5 py-3 text-sm font-medium text-brand-textPrimary transition-all duration-300 hover:border-brand-primary/30 hover:bg-white hover:text-brand-primary hover:shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {pill.name}
             </Link>

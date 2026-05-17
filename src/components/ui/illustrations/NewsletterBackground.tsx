@@ -11,8 +11,8 @@ export function NewsletterDark({ className = '' }: { className?: string }) {
       >
         <defs>
           <radialGradient id="nlGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#D4798A" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#D4798A" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D97898" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#D97898" stopOpacity="0" />
           </radialGradient>
         </defs>
         <rect width="1440" height="400" fill="#1A0A1E" />
@@ -36,7 +36,7 @@ export function NewsletterDark({ className = '' }: { className?: string }) {
           <circle cx="500" cy="260" r="1.5" /><circle cx="1050" cy="60" r="1" />
         </g>
         {/* Gold corner accents */}
-        <g stroke="#B8860B" strokeWidth="1" opacity="0.4">
+        <g stroke="#C9A84C" strokeWidth="1" opacity="0.4">
           <line x1="40" y1="40" x2="120" y2="40" />
           <line x1="40" y1="40" x2="40" y2="120" />
           <line x1="1400" y1="360" x2="1320" y2="360" />
@@ -71,13 +71,13 @@ export function NewsletterLight({ className = '' }: { className?: string }) {
       >
         <defs>
           <linearGradient id="nlLightBg" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#FEFCFB" />
-            <stop offset="50%" stopColor="#FFE4E9" />
-            <stop offset="100%" stopColor="#FEFCFB" />
+            <stop offset="0%" stopColor="#FDF6F9" />
+            <stop offset="50%" stopColor="#FDECEF" />
+            <stop offset="100%" stopColor="#FDF6F9" />
           </linearGradient>
           <radialGradient id="nlBlob" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#F2D4DA" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#F2D4DA" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D4A0D7" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#D4A0D7" stopOpacity="0" />
           </radialGradient>
           <filter id="nlBlur">
             <feGaussianBlur stdDeviation="100" />
@@ -86,7 +86,7 @@ export function NewsletterLight({ className = '' }: { className?: string }) {
         <rect width="1440" height="400" fill="url(#nlLightBg)" />
         <ellipse cx="1000" cy="200" rx="500" ry="300" fill="url(#nlBlob)" filter="url(#nlBlur)" />
         {/* Botanical line art */}
-        <g fill="none" stroke="#D4798A" strokeWidth="0.8" opacity="0.06">
+        <g fill="none" stroke="#D97898" strokeWidth="0.8" opacity="0.06">
           <path d="M 80 320 Q 95 300 110 320 Q 95 340 80 320 Z" />
           <path d="M 200 280 Q 218 255 236 280 Q 218 305 200 280 Z" />
           <path d="M 120 180 Q 135 160 150 180 Q 135 200 120 180 Z" />

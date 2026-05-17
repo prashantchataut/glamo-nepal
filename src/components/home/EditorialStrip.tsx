@@ -10,22 +10,22 @@ const EDITORIAL_ITEMS = [
 
 export function EditorialStrip() {
   return (
-    <section className="bg-cream-50 py-16 md:py-24" aria-labelledby="editorial-strip-heading">
+    <section className="bg-white py-16 md:py-24" aria-labelledby="editorial-strip-heading">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="mb-10 max-w-2xl">
-          <p className="type-label text-brand-rose">The edit</p>
-          <h2 id="editorial-strip-heading" className="mt-3 font-display text-5xl font-light text-ink md:text-6xl">Beauty stories worth shopping.</h2>
+          <p className="type-label text-primary">The edit</p>
+          <h2 id="editorial-strip-heading" className="mt-3 font-display text-5xl font-light text-neutral-900 md:text-6xl">Beauty stories worth shopping.</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {EDITORIAL_ITEMS.map((item) => (
-            <Link key={item.title} href={item.href} className="group block border border-cream-200 bg-cream-100">
-              <div className="relative aspect-[4/5] overflow-hidden bg-cream-100">
+            <Link key={item.title} href={item.href} className="group block border border-neutral-200 bg-[#fbf7f3]">
+              <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
                 <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 33vw" />
               </div>
               <div className="p-5">
-                <p className="type-label text-brand-rose">{item.kicker}</p>
-                <h3 className="mt-2 font-display text-3xl leading-tight text-ink">{item.title}</h3>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-cream-700 group-hover:text-brand-rose">Explore collection</p>
+                <p className="type-label text-primary">{item.kicker}</p>
+                <h3 className="mt-2 font-display text-3xl leading-tight text-neutral-900">{item.title}</h3>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 group-hover:text-primary">Explore collection</p>
               </div>
             </Link>
           ))}

@@ -42,7 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (isAdminRoute) {
     return (
       <>
-        <main id="main-content" className="min-h-screen bg-cream-50">
+        <main id="main-content" className="min-h-screen bg-neutral-50">
           {children}
         </main>
         <Toaster richColors position="top-center" />

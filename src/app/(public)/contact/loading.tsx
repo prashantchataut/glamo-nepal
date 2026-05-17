@@ -6,9 +6,9 @@ export default function ContactLoading() {
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-5">
             <div className="h-8 w-48 animate-pulse rounded bg-brand-bgLight" />
-            <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
-            <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
-            <div className="h-32 animate-pulse rounded-2xl bg-brand-bgLight" />
+            <div className="h-12 animate-pulse rounded-xl bg-brand-bgLight" />
+            <div className="h-12 animate-pulse rounded-xl bg-brand-bgLight" />
+            <div className="h-32 animate-pulse rounded-xl bg-brand-bgLight" />
           </div>
           <div className="h-80 animate-pulse rounded-2xl bg-brand-bgLight" />
         </div>

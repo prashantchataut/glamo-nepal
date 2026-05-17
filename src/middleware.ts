@@ -27,10 +27,10 @@ function addSecurityHeaders(response: NextResponse) {
   const cspDirectives = [
     "default-src 'self'",
     "script-src 'self' https://cdn.vercel-insights.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com",
-    "connect-src 'self' https://khalti.com https://esewa.com.np https://pay.khalti.com",
+    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -131,8 +131,8 @@ export async function middleware(request: NextRequest) {
   }
 
   const supabaseAuthCookie = request.cookies.getAll().find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
-  const customerSessionCookie = request.cookies.get("glamo-customer-session")?.value;
-  const hasAuthSession = Boolean(supabaseAuthCookie) || Boolean(customerSessionCookie);
+  const legacyAuthCookie = request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
+  const hasAuthSession = Boolean(supabaseAuthCookie) || Boolean(legacyAuthCookie);
 
   if (isProtected && !hasAuthSession) {
     const loginUrl = new URL("/login", request.url);

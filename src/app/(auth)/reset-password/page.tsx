@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { createMetadata } from "@/lib/seo";
 
@@ -8,17 +9,13 @@ export const metadata = createMetadata({
   noIndex: true,
 });
 
-export default function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams?: { redirect?: string };
-}) {
-  const redirectTo = searchParams?.redirect || "/account";
-
+export default function ResetPasswordPage() {
   return (
-    <main className="bg-cream-100 py-10 md:py-16">
+    <main className="bg-[#fbf7f3] py-10 md:py-16">
       <div className="container mx-auto px-4 md:px-6">
-        <AuthForm mode="reset" redirectTo={redirectTo} />
+        <Suspense fallback={<div className="mx-auto max-w-5xl bg-white p-8 text-neutral-400">Loading reset form...</div>}>
+          <AuthForm mode="reset" />
+        </Suspense>
       </div>
     </main>
   );

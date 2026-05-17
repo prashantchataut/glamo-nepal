@@ -4,13 +4,13 @@ export function Skeleton({ className = "" }: { className?: string }) {
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-brand-border bg-cream-50 p-4">
-      <div className="skeleton-shimmer aspect-[4/5] rounded-2xl" />
+    <div className="rounded-[1.5rem] border border-brand-border bg-white p-4">
+      <div className="skeleton-shimmer aspect-[4/5] rounded-xl" />
       <div className="mt-4 space-y-2">
-        <div className="skeleton-shimmer h-3 w-16 rounded-2xl" />
+        <div className="skeleton-shimmer h-3 w-16 rounded-full" />
         <div className="skeleton-shimmer h-4 w-3/4 rounded" />
         <div className="skeleton-shimmer h-4 w-1/2 rounded" />
-        <div className="mt-3 skeleton-shimmer h-8 w-full rounded-2xl" />
+        <div className="mt-3 skeleton-shimmer h-8 w-full rounded-full" />
       </div>
     </div>
   );

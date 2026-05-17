@@ -12,6 +12,7 @@ import { useUIStore } from "@/store/useUIStore";
 const PRIMARY_LINKS = [
   { name: "Shop", href: "/shop" },
   { name: "Brands", href: "/brands" },
+  { name: "Routines", href: "/routines" },
   { name: "New In", href: "/collections/new-arrivals" },
   { name: "About", href: "/about" },
 ];
@@ -19,8 +20,8 @@ const PRIMARY_LINKS = [
 const CATEGORY_LINKS = [
   { name: "Skincare", href: "/shop?category=skincare" },
   { name: "Makeup", href: "/shop?category=makeup" },
-  { name: "Hair Care", href: "/shop?category=haircare" },
-  { name: "Body & Bath", href: "/shop?category=bodycare" },
+  { name: "Haircare", href: "/shop?category=haircare" },
+  { name: "Bodycare", href: "/shop?category=bodycare" },
 ];
 
 const SUPPORT_LINKS = [
@@ -71,7 +72,7 @@ export function Navbar() {
 
   const CountBubble = ({ count }: { count: number }) =>
     count > 0 ? (
-      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-2xl bg-brand-rose px-1 text-[9px] font-semibold leading-none text-white">
+      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-950 px-1 text-[9px] font-semibold leading-none text-white">
         {count}
       </span>
     ) : null;
@@ -80,12 +81,12 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-navbar border-b backdrop-blur-md transition-colors duration-300",
-          isScrolled ? "border-cream-200 bg-cream-50/95 shadow-nav" : "border-transparent bg-cream-50/90",
+          "sticky top-0 z-navbar border-b transition-colors duration-300",
+          isScrolled ? "border-[#e9dfd8] bg-[#fffaf7]/98 shadow-nav" : "border-[#ead8e8] bg-[#f7e5f5]",
         )}
       >
         <div className="mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8">
-          <div className="grid min-h-[68px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]">
+          <div className="grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]">
             <nav className="hidden items-center gap-6 xl:gap-8 lg:flex" aria-label="Primary navigation">
               {PRIMARY_LINKS.map((link) => {
                 const active = isActivePath(pathname, link.href);
@@ -94,8 +95,8 @@ export function Navbar() {
                     key={link.name}
                     href={link.href}
                     className={cn(
-                      "relative text-[13px] font-semibold uppercase tracking-[0.12em] transition-colors after:absolute after:-bottom-2 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-brand-rose after:transition-transform hover:after:scale-x-100",
-                      active ? "text-brand-rose after:scale-x-100" : "text-cream-700 hover:text-brand-rose",
+                      "text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                      active ? "text-neutral-950" : "text-neutral-700 hover:text-primary",
                     )}
                   >
                     {link.name}
@@ -106,18 +107,16 @@ export function Navbar() {
 
             <button
               type="button"
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl text-ink transition hover:bg-cream-100 lg:hidden"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-navigation-drawer"
             >
               <Menu size={21} strokeWidth={1.6} />
             </button>
 
             <Link
               href="/"
-              className="justify-self-center font-display text-[23px] font-light uppercase leading-none tracking-[0.2em] text-ink transition hover:text-brand-rose sm:text-[28px]"
+              className="justify-self-center text-[20px] font-semibold uppercase leading-none tracking-[0.18em] text-neutral-950 transition hover:text-primary sm:text-[22px]"
               aria-label="GLAMO Nepal home"
             >
               GLAMO
@@ -127,49 +126,49 @@ export function Navbar() {
               <Link
                 href="/search"
                 onClick={openSearch}
-                className="hidden min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
+                className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
                 aria-label="Search products"
               >
                 <Search size={18} strokeWidth={1.7} />
               </Link>
               <Link
                 href="/wishlist"
-                className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose sm:flex"
+                className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex"
                 aria-label="Wishlist"
               >
                 <Heart size={18} strokeWidth={1.7} />
                 <CountBubble count={wishlistCount} />
               </Link>
               <Link
-                href="/login"
-                className="hidden min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose md:flex"
-                aria-label="Customer login"
+                href="/account"
+                className="hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex"
+                aria-label="Account"
               >
                 <User size={18} strokeWidth={1.7} />
               </Link>
-              <a
+              <Link
                 href="/cart"
-                className="relative flex min-h-10 min-w-10 items-center justify-center rounded-2xl text-cream-700 transition hover:bg-cream-100 hover:text-brand-rose"
+                className="relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
               >
                 <ShoppingBag size={19} strokeWidth={1.7} />
                 <CountBubble count={cartCount} />
-              </a>
+              </Link>
             </div>
           </div>
 
-          <div className="hidden">
+          <div className="pb-3 lg:pb-4">
             <Link
               href="/search"
               onClick={openSearch}
-              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-2xl bg-cream-50 px-4 text-left text-[13px] text-cream-400 shadow-[0_12px_30px_-26px_rgba(0,0,0,0.5)] ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-rose focus-visible:ring-offset-2"
+              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-500 shadow-[0_12px_30px_-26px_rgba(0,0,0,0.5)] ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Search skincare, makeup, brands"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Search size={15} strokeWidth={1.7} />
                 <span className="truncate">Search skincare, makeup, SPF, brands...</span>
               </span>
-              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-cream-400 sm:block">
+              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400 sm:block">
                 Search
               </span>
             </Link>
@@ -179,7 +178,7 @@ export function Navbar() {
 
       <div
         className={cn(
-          "fixed inset-0 z-menu-backdrop bg-ink/35 transition-opacity duration-300 lg:hidden",
+          "fixed inset-0 z-menu-backdrop bg-neutral-950/35 transition-opacity duration-300 lg:hidden",
           mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => setMobileMenuOpen(false)}
@@ -190,19 +189,18 @@ export function Navbar() {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
-        id="mobile-navigation-drawer"
         className={cn(
-          "fixed inset-y-0 left-0 z-menu flex w-[min(85vw,320px)] flex-col overflow-y-auto bg-cream-50 shadow-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 left-0 z-menu flex w-[92vw] max-w-sm flex-col overflow-y-auto rounded-r-[30px] bg-[#fffaf7] shadow-2xl transition-transform duration-300 ease-out lg:hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center justify-between border-b border-cream-200 px-5 py-4">
-          <Link href="/" className="font-display text-2xl font-light uppercase tracking-[0.2em] text-ink">
+        <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
+          <Link href="/" className="text-xl font-semibold uppercase tracking-[0.18em] text-neutral-950">
             GLAMO
           </Link>
           <button
             type="button"
-            className="flex min-h-11 min-w-11 items-center justify-center rounded-2xl bg-cream-50 text-ink ring-1 ring-neutral-200"
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white text-neutral-900 ring-1 ring-neutral-200"
             onClick={() => setMobileMenuOpen(false)}
             aria-label="Close menu"
           >
@@ -217,7 +215,7 @@ export function Navbar() {
               setMobileMenuOpen(false);
               openSearch(event);
             }}
-            className="flex min-h-12 w-full items-center gap-3 rounded-2xl border border-cream-200 bg-cream-50 px-4 text-left text-sm text-cream-400"
+            className="flex min-h-12 w-full items-center gap-3 rounded-full border border-neutral-200 bg-white px-4 text-left text-sm text-neutral-500"
           >
             <Search size={18} strokeWidth={1.7} />
             Search products and brands
@@ -232,8 +230,8 @@ export function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "flex min-h-14 items-center justify-between border-b border-cream-200 text-sm font-semibold uppercase tracking-[0.14em]",
-                  active ? "text-brand-rose" : "text-ink",
+                  "flex min-h-14 items-center justify-between border-b border-neutral-200 text-sm font-semibold uppercase tracking-[0.14em]",
+                  active ? "text-primary" : "text-neutral-850",
                 )}
               >
                 {link.name}
@@ -244,7 +242,7 @@ export function Navbar() {
         </nav>
 
         <div className="px-5 py-6">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-cream-400">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Shop by category
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -252,7 +250,7 @@ export function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="rounded-2xl border border-cream-200 bg-cream-50 px-4 py-3 text-sm font-semibold text-cream-800 transition hover:border-brand-rose/40 hover:text-brand-rose"
+                className="rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 transition hover:border-primary/40 hover:text-primary"
               >
                 {link.name}
               </Link>
@@ -260,21 +258,21 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="mt-auto border-t border-cream-200 px-5 py-5">
+        <div className="mt-auto border-t border-neutral-200 px-5 py-5">
           <div className="grid grid-cols-3 gap-2 pb-5">
-            <Link href="/login" className="rounded-2xl bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
-              Login
+            <Link href="/account" className="rounded-2xl bg-white px-3 py-3 text-center text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
+              Account
             </Link>
-            <Link href="/wishlist" className="rounded-2xl bg-cream-50 px-3 py-3 text-center text-xs font-semibold text-cream-700 ring-1 ring-neutral-200">
+            <Link href="/wishlist" className="rounded-2xl bg-white px-3 py-3 text-center text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
               Wishlist
             </Link>
-            <a href="/cart" className="rounded-2xl bg-ink px-3 py-3 text-center text-xs font-semibold text-white">
+            <Link href="/cart" className="rounded-2xl bg-neutral-950 px-3 py-3 text-center text-xs font-semibold text-white">
               Cart
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             {SUPPORT_LINKS.map((link) => (
-              <Link key={link.name} href={link.href} className="py-1.5 text-sm text-cream-700 hover:text-brand-rose">
+              <Link key={link.name} href={link.href} className="py-1.5 text-sm text-neutral-600 hover:text-primary">
                 {link.name}
               </Link>
             ))}

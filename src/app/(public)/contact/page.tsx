@@ -7,15 +7,15 @@ export const metadata = createMetadata({ title: "Contact", description: "Contact
 
 export default function ContactPage() {
   return (
-    <main className="bg-cream-50">
-      <section className="border-b border-cream-200 bg-cream-50">
+    <main className="bg-neutral-50">
+      <section className="border-b border-neutral-200 bg-[#fbfaf8]">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8">
           <div>
-            <p className="type-label text-brand-rose">Customer care</p>
-            <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-ink md:text-7xl">We are here for the details.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-cream-700">Ask about an order, get help choosing a product, confirm delivery coverage or plan a store visit in Kathmandu.</p>
+            <p className="type-label text-primary">Customer care</p>
+            <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">We are here for the details.</h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600">Ask about an order, get help choosing a product, confirm delivery coverage or plan a store visit in Kathmandu.</p>
           </div>
-          <div className="relative min-h-[360px] overflow-hidden border border-cream-200 bg-cream-50 shadow-editorial md:min-h-[460px]">
+          <div className="relative min-h-[360px] overflow-hidden border border-neutral-200 bg-white shadow-editorial md:min-h-[460px]">
             <Image src={IMAGES.auth.loginSplit} alt="Beauty editorial support visual" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />
           </div>
         </div>

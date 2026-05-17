@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
@@ -67,16 +67,16 @@ function paramsFromFilters(filters: FilterState) {
 
 const ITEMS_PER_PAGE = 12;
 
-export default function ShopPageContent({ initialSearchParams = {} }: { initialSearchParams?: Record<string, string> }) {
+export default function ShopPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<FilterState>(() => filtersFromParams(new URLSearchParams(initialSearchParams)));
+  const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
 
   const handleFilterChange = useCallback(
     (next: FilterState) => {
       const params = paramsFromFilters(next);
-      setFilters(next);
       router.replace(`/shop${params.toString() ? `?${params}` : ""}`, {
         scroll: false,
       });
@@ -84,12 +84,6 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
     },
     [router]
   );
-
-  useEffect(() => {
-    const syncFromLocation = () => setFilters(filtersFromParams(new URLSearchParams(window.location.search)));
-    window.addEventListener("popstate", syncFromLocation);
-    return () => window.removeEventListener("popstate", syncFromLocation);
-  }, []);
 
   const products = useMemo(() => {
     let result = [...PRODUCTS];
@@ -140,29 +134,29 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
   }, [filters.category]);
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-screen bg-[#fffaf7]">
       {/* Page header */}
-      <section className="bg-brand-blush py-10 md:py-18">
+      <section className="bg-[#f6e6f4] py-12 md:py-18">
         <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <span className="type-label text-brand-rose">रू pricing · Nepal delivery</span>
-            <h1 className="mt-3 text-balance font-display text-[clamp(3rem,14vw,4.8rem)] font-light leading-[0.92] tracking-[-0.04em] text-ink md:text-7xl">
+            <span className="type-label text-primary">रू pricing · Nepal delivery</span>
+            <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-neutral-900 md:text-7xl">
               {categoryObj?.name || "The beauty edit"}
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-cream-700">
+            <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-600">
               {categoryObj?.description || "Browse skincare, soft-glam makeup, hair care and daily essentials with clear pricing, polished filters and authentic GLAMO curation."}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-[1.75rem] border border-cream-200 bg-cream-200 text-center shadow-card">
-            <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Products</p></div>
-            <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Districts</p></div>
-            <div className="bg-cream-50 p-3"><p className="font-display text-2xl text-brand-rose">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-cream-400">Curated</p></div>
+          <div className="grid grid-cols-3 gap-3 rounded-[2rem] border border-neutral-200 bg-white/80 p-4 text-center shadow-card">
+            <div><p className="font-display text-2xl text-primary">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Products</p></div>
+            <div><p className="font-display text-2xl text-primary">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Districts</p></div>
+            <div><p className="font-display text-2xl text-primary">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Curated</p></div>
           </div>
         </div>
       </section>
 
       {/* Category pills */}
-      <section className="border-b border-cream-200 bg-cream-50">
+      <section className="border-b border-neutral-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
           <div className="flex gap-2 overflow-x-auto py-4 no-scrollbar">
             {CATEGORIES.map((cat) => (
@@ -171,10 +165,10 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 type="button"
                 onClick={() => handleFilterChange({ ...filters, category: filters.category === cat.slug ? "" : cat.slug, subCategory: "" })}
                 className={cn(
-                  "luxury-chip shrink-0 cursor-pointer",
+                  "shrink-0 rounded-full border px-4 py-2 text-sm font-semibold tracking-wide transition-colors cursor-pointer",
                   filters.category === cat.slug
-                    ? "border-brand-rose bg-brand-rose text-white shadow-[0_16px_36px_-30px_rgba(168,77,94,0.54)]"
-                    : ""
+                    ? "border-primary bg-primary text-white"
+                    : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40 hover:text-primary"
                 )}
               >
                 {cat.name}
@@ -185,7 +179,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
       </section>
 
       {/* Main content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 pb-24 md:px-6 md:py-12 lg:px-8 lg:pb-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           {/* Sidebar — desktop only */}
           <div className="hidden w-64 shrink-0 lg:block">
@@ -204,24 +198,24 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-full border border-cream-200 bg-white/80 px-4 py-2.5 text-sm text-cream-700 shadow-[0_14px_34px_-28px_rgba(26,15,11,0.35)] transition-all hover:-translate-y-0.5 hover:border-brand-rose/40 lg:hidden cursor-pointer"
+                  className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400 lg:hidden cursor-pointer"
                 >
                   <SlidersHorizontal size={16} />
                   Filters
                   {chips.length > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-rose text-[10px] text-white">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-white">
                       {chips.length}
                     </span>
                   )}
                 </button>
-                <p className="type-body-sm text-cream-400">
+                <p className="type-body-sm text-neutral-400">
                   {products.length} result{products.length !== 1 ? "s" : ""}
                 </p>
               </div>
               <select
                 value={filters.sort}
                 onChange={(event) => handleFilterChange({ ...filters, sort: event.target.value })}
-                className="border-b border-cream-300 bg-transparent px-2 py-2 text-sm text-cream-700 focus:border-brand-rose focus:outline-none cursor-pointer"
+                className="border-b border-neutral-300 bg-transparent px-2 py-2 text-sm text-neutral-700 focus:border-primary focus:outline-none cursor-pointer"
                 aria-label="Sort products"
               >
                 {SORT_OPTIONS.map((option) => (
@@ -238,7 +232,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="rounded-full bg-brand-rose px-3 py-1.5 text-[11px] tracking-widest uppercase text-white shadow-[0_12px_28px_-20px_rgba(168,77,94,0.5)] cursor-pointer"
+                  className="rounded-full bg-primary px-3 py-1.5 text-[11px] tracking-widest uppercase text-white cursor-pointer"
                 >
                   Clear All
                 </button>
@@ -247,7 +241,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                     key={chip.key}
                     type="button"
                     onClick={() => handleFilterChange(chip.remove())}
-                    className="inline-flex items-center gap-1 rounded-full border border-cream-200 bg-white/80 px-3 py-1.5 text-xs text-cream-700 transition-all hover:-translate-y-0.5 hover:border-brand-rose hover:text-brand-rose cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-700 transition-colors hover:border-primary hover:text-primary cursor-pointer"
                   >
                     {chip.label}
                     <X size={12} />
@@ -259,24 +253,24 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
             {/* Product grid or empty state */}
             {products.length === 0 ? (
               <div className="py-24 text-center">
-                <svg className="mx-auto h-16 w-16 text-cream-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+                <svg className="mx-auto h-16 w-16 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <h2 className="type-heading-sm mt-6 text-ink">No products found</h2>
-                <p className="type-body-md mt-2 text-cream-400">
+                <h2 className="type-heading-sm mt-6 text-neutral-900">No products found</h2>
+                <p className="type-body-md mt-2 text-neutral-400">
                   Try clearing filters or searching for something different.
                 </p>
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="luxury-button luxury-button-dark mt-6 cursor-pointer"
+                  className="mt-6 rounded-full bg-neutral-950 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary cursor-pointer"
                 >
                   Clear Filters
                 </button>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:gap-6 xl:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 md:gap-6 xl:grid-cols-3">
                   {paginatedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -289,7 +283,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Previous page"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -302,8 +296,8 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors cursor-pointer",
                           page === currentPage
-                            ? "bg-brand-rose text-white"
-                            : "border border-cream-200 text-cream-700 hover:border-brand-rose hover:text-brand-rose"
+                            ? "bg-primary text-white"
+                            : "border border-neutral-200 text-neutral-700 hover:border-primary hover:text-primary"
                         )}
                         aria-label={`Page ${page}`}
                         aria-current={page === currentPage ? "page" : undefined}
@@ -315,7 +309,7 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-cream-200 text-cream-700 transition-colors hover:border-brand-rose hover:text-brand-rose disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Next page"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -325,33 +319,6 @@ export default function ShopPageContent({ initialSearchParams = {} }: { initialS
               </>
             )}
           </div>
-        </div>
-      </div>
-
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-cream-200 bg-cream-50/96 px-4 py-3 shadow-[0_-18px_50px_-36px_rgba(26,15,11,0.45)] backdrop-blur-md lg:hidden safe-area-bottom">
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setMobileFiltersOpen(true)}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink bg-ink text-label-sm font-semibold uppercase tracking-[0.15em] text-white shadow-[0_18px_42px_-24px_rgba(26,15,11,0.48)]"
-          >
-            <SlidersHorizontal size={15} /> Filter {chips.length > 0 ? `(${chips.length})` : ""}
-          </button>
-          <label className="relative inline-flex min-h-12 items-center justify-center rounded-full border border-cream-200 bg-white/85 text-label-sm font-semibold uppercase tracking-[0.15em] text-ink shadow-[0_18px_42px_-30px_rgba(26,15,11,0.32)]">
-            <span className="pointer-events-none">Sort</span>
-            <select
-              value={filters.sort}
-              onChange={(event) => handleFilterChange({ ...filters, sort: event.target.value })}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label="Sort products"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       </div>
 

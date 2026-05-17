@@ -10,6 +10,7 @@ export const metadata = createMetadata({
   noIndex: true,
 });
 
-export default function OrderConfirmationPage() {
+export default function OrderConfirmationPage({ params }: { params: { orderId: string } }) {
+  void params.orderId;
   return <CheckoutSuccessClient />;
 }

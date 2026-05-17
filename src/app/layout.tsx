@@ -1,8 +1,24 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
+import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1 };
+
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-body",
+  display: "swap",
+});
+
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -44,20 +60,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className=""
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="min-h-screen bg-cream-50 font-sans text-ink antialiased">
+      <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
         <ComponentErrorBoundary name="RootLayout">
           <AppShell>{children}</AppShell>
         </ComponentErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
@@ -45,7 +45,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
           {navLinks.map(({ name, href, icon: Icon }) => {
             const active = pathname === href || (href !== "/account" && pathname.startsWith(href));
             return (
-              <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition", active ? "bg-brand-primary text-white" : "bg-cream-50 text-brand-textMuted hover:text-brand-primary")}>
+              <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition", active ? "bg-brand-primary text-white" : "bg-white text-brand-textMuted hover:text-brand-primary")}>
                 <Icon size={16} strokeWidth={1.7} />
                 {name}
               </Link>
@@ -54,10 +54,10 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
           <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
-            <div className="overflow-hidden rounded-2xl border border-border/70 bg-cream-50 shadow-sm">
+            <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-white shadow-sm">
               <div className="bg-brand-bgLight p-6 text-brand-textPrimary">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cream-50 font-display text-xl font-semibold text-brand-primary ring-1 ring-brand-border">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white font-display text-xl font-semibold text-brand-primary ring-1 ring-brand-border">
                     {(user?.name || user?.email || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
@@ -65,7 +65,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                     <p className="truncate text-xs text-brand-textMuted">{user?.email || "Supabase customer session"}</p>
                   </div>
                 </div>
-                <p className="font-label mt-4 rounded-2xl bg-cream-50 px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
+                <p className="font-label mt-4 rounded-full bg-white px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
                   0 glow points
                 </p>
               </div>

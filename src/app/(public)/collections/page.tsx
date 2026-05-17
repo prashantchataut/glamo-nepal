@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 import { PRODUCT_COLLECTIONS, getCollectionProducts } from "@/lib/collections";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -27,7 +27,7 @@ export default function CollectionsPage() {
           {PRODUCT_COLLECTIONS.map((collection) => {
             const productCount = getCollectionProducts(collection.slug).length;
             return (
-              <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group overflow-hidden rounded-2xl border border-brand-border bg-cream-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none">
+              <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none">
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <Image src={collection.image} alt={collection.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-bgDark/40 via-transparent to-transparent" />

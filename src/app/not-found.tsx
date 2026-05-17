@@ -1,20 +1,35 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+import { ShoppingBag, Search, Home, ArrowRight } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="min-h-[72vh] bg-cream-50 px-4 py-20 md:py-28">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="font-display text-[7rem] font-light leading-none tracking-[-0.06em] text-cream-200 md:text-[10rem]">404</p>
-        <h1 className="-mt-5 font-display text-display-md font-light text-ink md:-mt-8">Page not found.</h1>
-        <p className="mx-auto mt-5 max-w-lg text-body-md leading-8 text-cream-700">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved. Return home or browse the GLAMO edit.
+    <main className="min-h-[60vh] bg-neutral-50 py-16 md:py-24">
+      <div className="mx-auto max-w-2xl px-4 text-center">
+        <p className="type-display-xl text-neutral-200 font-light">404</p>
+        <h1 className="type-display-lg text-neutral-900 -mt-4 italic">
+          Page not found
+        </h1>
+        <p className="type-body-md text-neutral-400 mt-4 max-w-md mx-auto">
+          The page you&apos;re looking for may have moved, sold out, or never existed. Continue shopping or search for what you need.
         </p>
-        <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/" className="inline-flex min-h-14 items-center justify-center bg-ink px-8 text-label-md font-semibold uppercase tracking-[0.12em] text-cream-50 transition hover:bg-brand-deep">
-            Go home
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer"
+          >
+            <ShoppingBag size={16} /> Shop GLAMO
           </Link>
-          <Link href="/shop" className="inline-flex min-h-14 items-center justify-center border border-ink/20 px-8 text-label-md font-semibold uppercase tracking-[0.12em] text-ink transition hover:border-brand-rose hover:text-brand-rose">
-            Browse products
+          <Link
+            href="/search"
+            className="inline-flex items-center gap-2 border border-neutral-200 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer"
+          >
+            <Search size={16} /> Search
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 border border-neutral-200 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-700 transition-colors hover:border-neutral-400 cursor-pointer"
+          >
+            <Home size={16} /> Home <ArrowRight size={14} />
           </Link>
         </div>
       </div>

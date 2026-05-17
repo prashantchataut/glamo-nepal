@@ -19,6 +19,7 @@ import {
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 import type { PaymentMethodCode } from "@/lib/api/contracts";
 import { trackEvent } from "@/lib/analytics";
+import { toast } from "sonner";
 import { calculateDeliveryFee, getDeliveryRule } from "@/lib/delivery";
 import {
   PROVINCES,
@@ -36,10 +37,12 @@ import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 
 const paymentMethods = [
-  { label: "Cash on Delivery", helper: "Pay when your GLAMO parcel arrives.", badge: "Most flexible" },
-  { label: "Khalti", helper: "Order is created now; payment verification stays pending until gateway keys are connected.", badge: "Verification pending" },
-  { label: "eSewa", helper: "Order is created now; eSewa payment status remains pending for manual follow-up.", badge: "Verification pending" },
+  "Cash on Delivery",
+  "Khalti",
+  "eSewa",
+  "Cards",
 ] as const;
+const comingSoonMethods = new Set(["Khalti", "eSewa", "Cards"]);
 const paymentCodeMap: Record<string, PaymentMethodCode> = {
   "Cash on Delivery": "cod",
   Khalti: "khalti",
@@ -67,23 +70,23 @@ function OrderSummary({
 }) {
   return (
     <div className="space-y-3 text-sm">
-      <div className="flex justify-between text-cream-400">
+      <div className="flex justify-between text-neutral-500">
         <span>Subtotal</span>
-        <span className="text-ink">{formatNPR(subtotal)}</span>
+        <span className="text-neutral-950">{formatNPR(subtotal)}</span>
       </div>
-      <div className="flex justify-between text-cream-400">
+      <div className="flex justify-between text-neutral-500">
         <span>Delivery</span>
-        <span className="text-ink">
+        <span className="text-neutral-950">
           {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
         </span>
       </div>
       {giftWrapFee > 0 && (
-        <div className="flex justify-between text-cream-400">
+        <div className="flex justify-between text-neutral-500">
           <span>Gift wrap</span>
-          <span className="text-ink">{formatNPR(giftWrapFee)}</span>
+          <span className="text-neutral-950">{formatNPR(giftWrapFee)}</span>
         </div>
       )}
-      <div className="flex justify-between border-t border-cream-200 pt-4 text-ink">
+      <div className="flex justify-between border-t border-neutral-200 pt-4 text-neutral-950">
         <span className="font-semibold">Total</span>
         <span className="font-display text-3xl font-semibold leading-none">
           {formatNPR(total)}
@@ -96,7 +99,7 @@ function OrderSummary({
 export function CheckoutPageClient() {
   const router = useRouter();
   const { items, getSubtotal, clearCart } = useCartStore();
-  const { placeOrder, error: checkoutError, reset: resetCheckout } = useCheckoutStore();
+  const { placeOrder } = useCheckoutStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -154,9 +157,9 @@ export function CheckoutPageClient() {
   );
 
   const inputClass =
-    "w-full rounded-[1.35rem] border border-cream-200 bg-white/80 px-4 py-3.5 text-sm text-ink placeholder:text-cream-400 shadow-[0_14px_38px_-34px_rgba(26,15,11,0.32)] outline-none transition-all focus:border-brand-rose focus:bg-white focus:ring-2 focus:ring-primary/15";
+    "w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15";
   const labelClass =
-    "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-cream-400";
+    "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500";
   const errorClass = "mt-1.5 text-xs text-error";
 
   function updateProvince(province: string) {
@@ -173,14 +176,13 @@ export function CheckoutPageClient() {
 
   function stepButton(step: number) {
     return currentStep === step
-      ? "bg-ink text-white"
+      ? "bg-neutral-950 text-white"
       : currentStep > step
-        ? "bg-brand-rose text-white"
-        : "bg-cream-50 text-cream-400";
+        ? "bg-primary text-white"
+        : "bg-white text-neutral-400";
   }
 
   async function onSubmit(data: CheckoutFormData) {
-    resetCheckout();
     setIsSubmitting(true);
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
@@ -196,7 +198,7 @@ export function CheckoutPageClient() {
     try {
       order = await placeOrder(
         {
-          orderNumber: "",
+          orderNumber: `GLM-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
           total,
           paymentMethod: data.payment,
           shippingAddress,
@@ -248,6 +250,8 @@ export function CheckoutPageClient() {
       );
     } catch {
       setIsSubmitting(false);
+      const checkoutError = useCheckoutStore.getState().error;
+      toast.error(checkoutError || "Order placement failed. Please try again.");
       return;
     }
 
@@ -257,20 +261,20 @@ export function CheckoutPageClient() {
 
   if (!items.length) {
     return (
-      <main className="bg-cream-50 py-16 md:py-24">
+      <main className="bg-[#fffaf7] py-16 md:py-24">
         <div className="mx-auto max-w-lg px-4 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-blush text-brand-rose">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f6e6f4] text-primary">
             <ShoppingBag size={30} />
           </div>
-          <h1 className="mt-6 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-ink">
+          <h1 className="mt-6 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-neutral-950">
             Your bag is empty
           </h1>
-          <p className="mt-4 text-sm leading-7 text-cream-400">
+          <p className="mt-4 text-sm leading-7 text-neutral-500">
             Add items before checking out.
           </p>
           <Link
             href="/shop"
-            className="luxury-button luxury-button-dark mt-8"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
           >
             Start shopping
           </Link>
@@ -280,17 +284,17 @@ export function CheckoutPageClient() {
   }
 
   return (
-    <main className="bg-cream-50 px-4 py-8 md:px-6 md:py-12 lg:px-8">
+    <main className="bg-[#fffaf7] px-4 py-8 md:px-6 md:py-12 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 rounded-[2rem] bg-brand-blush/85 px-5 py-6 shadow-[0_22px_70px_-56px_rgba(168,77,94,0.38)] md:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
+        <div className="mb-8 rounded-[2.5rem] bg-[#f6e6f4] px-5 py-6 md:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
             Secure checkout
           </p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-ink md:text-7xl">
+            <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-neutral-950 md:text-7xl">
               Confirm your beauty bag.
             </h1>
-            <p className="max-w-sm text-sm leading-7 text-cream-700">
+            <p className="max-w-sm text-sm leading-7 text-neutral-600">
               Delivery rules are Nepal-aware. Digital payments stay marked
               coming soon until the gateway is ready.
             </p>
@@ -298,7 +302,7 @@ export function CheckoutPageClient() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px] lg:items-start">
-          <section className="rounded-[2rem] border border-cream-200 bg-cream-50/95 p-5 shadow-[0_24px_82px_-58px_rgba(26,21,18,0.58)] md:p-7">
+          <section className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-7">
             <div className="mb-8 grid grid-cols-4 gap-2">
               {steps.map((step, i) => {
                 const Icon = step.icon;
@@ -320,7 +324,7 @@ export function CheckoutPageClient() {
                       )}
                     </div>
                     <span
-                      className={`mt-2 hidden text-xs font-semibold uppercase tracking-[0.12em] sm:block ${i <= currentStep ? "text-ink" : "text-cream-400"}`}
+                      className={`mt-2 hidden text-xs font-semibold uppercase tracking-[0.12em] sm:block ${i <= currentStep ? "text-neutral-950" : "text-neutral-400"}`}
                     >
                       {step.label}
                     </span>
@@ -332,7 +336,7 @@ export function CheckoutPageClient() {
             <form onSubmit={handleSubmit(onSubmit)}>
               {currentStep === 0 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
                     Contact & shipping
                   </h2>
                   <div className="grid gap-5 sm:grid-cols-2">
@@ -474,7 +478,7 @@ export function CheckoutPageClient() {
                     disabled={
                       !form.name || !form.phone || !form.address || !form.ward
                     }
-                    className="luxury-button luxury-button-dark disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
                   >
                     Continue to delivery
                   </button>
@@ -483,26 +487,26 @@ export function CheckoutPageClient() {
 
               {currentStep === 1 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
                     Delivery method
                   </h2>
-                  <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-brand-rose bg-cream-50 p-5">
+                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.5rem] border border-primary bg-[#fffaf7] p-5">
                     <input
                       type="radio"
                       name="delivery"
                       defaultChecked
                       className="accent-primary"
                     />
-                    <Truck className="text-brand-rose" size={20} />
+                    <Truck className="text-primary" size={20} />
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-ink">
+                      <p className="text-sm font-semibold text-neutral-950">
                         Standard delivery
                       </p>
-                      <p className="mt-1 text-xs text-cream-400">
+                      <p className="mt-1 text-xs text-neutral-500">
                         {deliveryRule.estimate}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-ink">
+                    <span className="text-sm font-semibold text-neutral-950">
                       {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
                     </span>
                   </label>
@@ -514,14 +518,14 @@ export function CheckoutPageClient() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(0)}
-                      className="luxury-button luxury-button-light"
+                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
                     >
                       Back
                     </button>
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
-                      className="luxury-button luxury-button-dark"
+                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
                     >
                       Continue to payment
                     </button>
@@ -531,47 +535,46 @@ export function CheckoutPageClient() {
 
               {currentStep === 2 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
                     Payment method
                   </h2>
                   <div className="grid gap-3">
                     {paymentMethods.map((method) => {
+                      const isComingSoon = comingSoonMethods.has(method);
                       return (
                         <label
-                          key={method.label}
-                          className={`flex cursor-pointer items-center gap-4 rounded-[1.35rem] border p-5 transition-all hover:-translate-y-0.5 ${form.payment === method.label ? "border-brand-rose bg-brand-blush/35 shadow-[0_18px_52px_-42px_rgba(168,77,94,0.5)]" : "border-cream-200 bg-white/60 hover:border-brand-rose/45"}`}
+                          key={method}
+                          className={`flex cursor-pointer items-center gap-4 rounded-[1.5rem] border p-5 transition ${form.payment === method ? "border-primary bg-[#fffaf7]" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
                         >
                           <input
                             type="radio"
                             {...register("payment")}
-                            value={method.label}
+                            value={method}
+                            disabled={isComingSoon}
                             className="accent-primary"
                           />
-                          <CreditCard size={19} className="text-brand-rose" />
+                          <CreditCard size={19} className="text-primary" />
                           <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-ink">
-                                {method.label}
-                              </p>
-                              <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.13em] text-brand-deep">
-                                {method.badge}
-                              </span>
-                            </div>
-                            <p className="mt-1 text-xs leading-5 text-cream-500">
-                              {method.helper}
+                            <p className="text-sm font-semibold text-neutral-950">
+                              {method}
                             </p>
+                            {isComingSoon && (
+                              <p className="mt-1 text-xs text-neutral-500">
+                                Coming soon
+                              </p>
+                            )}
                           </div>
                         </label>
                       );
                     })}
                   </div>
-                  <label className="flex items-center gap-3 rounded-[1.35rem] border border-cream-200 bg-white/60 p-5 text-sm text-cream-700">
+                  <label className="flex items-center gap-3 rounded-[1.5rem] border border-neutral-200 p-5 text-sm text-neutral-700">
                     <input
                       type="checkbox"
                       {...register("giftWrap")}
                       className="accent-primary"
                     />
-                    <Gift size={18} className="text-brand-rose" /> Add gift wrap
+                    <Gift size={18} className="text-primary" /> Add gift wrap
                     for {formatNPR(100)}
                   </label>
                   <div>
@@ -589,14 +592,14 @@ export function CheckoutPageClient() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(1)}
-                      className="luxury-button luxury-button-light"
+                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
                     >
                       Back
                     </button>
                     <button
                       type="button"
                       onClick={() => setCurrentStep(3)}
-                      className="luxury-button luxury-button-dark"
+                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
                     >
                       Review order
                     </button>
@@ -606,16 +609,16 @@ export function CheckoutPageClient() {
 
               {currentStep === 3 && (
                 <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">
+                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
                     Review order
                   </h2>
-                  <div className="divide-y divide-neutral-200 rounded-2xl border border-cream-200">
+                  <div className="divide-y divide-neutral-200 rounded-[1.5rem] border border-neutral-200">
                     {items.map((item) => (
                       <div
                         key={`${item.product.id}-${item.selectedShade || "base"}`}
                         className="flex gap-4 p-4"
                       >
-                        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-[1rem] bg-cream-100">
+                        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
                           <Image
                             src={item.product.image}
                             alt={item.product.name}
@@ -625,30 +628,30 @@ export function CheckoutPageClient() {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cream-400">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
                             {item.product.brand}
                           </p>
-                          <p className="truncate text-sm font-semibold text-ink">
+                          <p className="truncate text-sm font-semibold text-neutral-950">
                             {item.product.name}
                           </p>
                           {item.selectedShade && (
-                            <p className="text-xs text-cream-400">
+                            <p className="text-xs text-neutral-500">
                               Shade: {item.selectedShade}
                             </p>
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-semibold text-ink">
+                          <p className="text-sm font-semibold text-neutral-950">
                             {formatNPR(item.product.price * item.quantity)}
                           </p>
-                          <p className="text-xs text-cream-400">
+                          <p className="text-xs text-neutral-500">
                             Qty {item.quantity}
                           </p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="rounded-[1.35rem] border border-cream-200 bg-white/70 p-5">
+                  <div className="rounded-[1.5rem] border border-neutral-200 bg-[#fffaf7] p-5">
                     <OrderSummary
                       subtotal={subtotal}
                       deliveryFee={deliveryFee}
@@ -656,8 +659,8 @@ export function CheckoutPageClient() {
                       total={total}
                     />
                   </div>
-                  <div className="rounded-[1.35rem] border border-cream-200 bg-white/60 p-5 text-sm leading-7 text-cream-700">
-                    <p className="font-semibold text-ink">
+                  <div className="rounded-[1.5rem] border border-neutral-200 p-5 text-sm leading-7 text-neutral-600">
+                    <p className="font-semibold text-neutral-950">
                       Shipping to
                     </p>
                     <p>{form.name}</p>
@@ -666,7 +669,7 @@ export function CheckoutPageClient() {
                       {form.district}, {form.province}
                     </p>
                     <p>{form.phone}</p>
-                    <p className="mt-2 font-semibold text-ink">
+                    <p className="mt-2 font-semibold text-neutral-950">
                       Payment: {form.payment}
                     </p>
                   </div>
@@ -674,42 +677,37 @@ export function CheckoutPageClient() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
-                      className="luxury-button luxury-button-light"
+                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
                       disabled={!canSubmit || isSubmitting}
-                      className="luxury-button luxury-button-dark flex-1 disabled:cursor-not-allowed disabled:bg-neutral-300"
+                      className="flex-1 rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
                     >
                       {isSubmitting ? "Placing order..." : "Place order"}
                     </button>
                   </div>
                 </div>
               )}
-              {checkoutError && (
-                <div className="mt-6 rounded-[1.35rem] border border-error/25 bg-error/5 px-5 py-4 text-sm leading-6 text-error" role="alert">
-                  {checkoutError}
-                </div>
-              )}
             </form>
           </section>
 
-          <aside className="rounded-[2rem] border border-cream-200 bg-cream-50/95 p-6 shadow-editorial lg:sticky lg:top-24">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-rose">
+          <aside className="rounded-[2.25rem] border border-neutral-200 bg-white p-6 shadow-editorial lg:sticky lg:top-24">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
               Bag summary
             </p>
-            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">
+            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-neutral-950">
               {itemCount} item{itemCount === 1 ? "" : "s"}
             </h2>
             <div className="mt-5 max-h-[360px] space-y-3 overflow-auto pr-1">
               {items.map((item) => (
                 <div
                   key={`${item.product.id}-${item.selectedShade || "base"}-summary`}
-                  className="flex gap-3 rounded-2xl bg-cream-50 p-3"
+                  className="flex gap-3 rounded-[1.25rem] bg-[#fffaf7] p-3"
                 >
-                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[1rem] bg-cream-100">
+                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
                     <Image
                       src={item.product.image}
                       alt={item.product.name}
@@ -719,17 +717,17 @@ export function CheckoutPageClient() {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-ink">
+                    <p className="truncate text-sm font-semibold text-neutral-950">
                       {item.product.name}
                     </p>
-                    <p className="text-xs text-cream-400">
+                    <p className="text-xs text-neutral-500">
                       Qty {item.quantity}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-6 border-t border-cream-200 pt-5">
+            <div className="mt-6 border-t border-neutral-200 pt-5">
               <OrderSummary
                 subtotal={subtotal}
                 deliveryFee={deliveryFee}
@@ -737,8 +735,8 @@ export function CheckoutPageClient() {
                 total={total}
               />
             </div>
-            <div className="mt-5 flex gap-3 rounded-[1.35rem] bg-ink p-4 text-white">
-              <LockKeyhole size={18} className="mt-0.5 text-brand-blush" />
+            <div className="mt-5 flex gap-3 rounded-[1.25rem] bg-neutral-950 p-4 text-white">
+              <LockKeyhole size={18} className="mt-0.5 text-[#f0d3f3]" />
               <p className="text-xs leading-5 text-white/75">
                 Checkout stores only necessary order details and redirects to
                 confirmation after API order creation.

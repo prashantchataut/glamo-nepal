@@ -19,27 +19,27 @@ export function EditorialHero({
   cta?: { label: string; href: string };
 }) {
   return (
-    <section className="border-b border-cream-200 bg-cream-50">
+    <section className="border-b border-neutral-200 bg-[#fbfaf8]">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
         <div>
-          <p className="type-label text-brand-rose">{eyebrow}</p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-ink md:text-7xl">
+          <p className="type-label text-primary">{eyebrow}</p>
+          <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">
             {title}
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-cream-700 md:text-lg">
+          <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600 md:text-lg">
             {description}
           </p>
           {cta ? (
             <Link
               href={cta.href}
-              className="mt-8 inline-flex min-h-11 items-center gap-2 bg-ink px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-brand-rose"
+              className="mt-8 inline-flex min-h-11 items-center gap-2 bg-neutral-900 px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary"
             >
               {cta.label} <ArrowRight size={15} />
             </Link>
           ) : null}
         </div>
         {image ? (
-          <div className="relative min-h-[360px] overflow-hidden border border-cream-200 bg-cream-50 shadow-editorial md:min-h-[500px]">
+          <div className="relative min-h-[360px] overflow-hidden border border-neutral-200 bg-white shadow-editorial md:min-h-[500px]">
             <Image src={image} alt={imageAlt || title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 48vw" priority />
           </div>
         ) : null}
@@ -62,12 +62,12 @@ export function EditorialSection({
   className?: string;
 }) {
   return (
-    <section className={`bg-cream-50 py-12 md:py-16 ${className}`}>
+    <section className={`bg-neutral-50 py-12 md:py-16 ${className}`}>
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div className="mb-8 max-w-3xl">
-          {eyebrow ? <p className="type-label text-brand-rose">{eyebrow}</p> : null}
-          <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-ink md:text-5xl">{title}</h2>
-          {description ? <p className="mt-4 text-base leading-7 text-cream-700">{description}</p> : null}
+          {eyebrow ? <p className="type-label text-primary">{eyebrow}</p> : null}
+          <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-neutral-900 md:text-5xl">{title}</h2>
+          {description ? <p className="mt-4 text-base leading-7 text-neutral-600">{description}</p> : null}
         </div>
         {children}
       </div>
@@ -77,10 +77,10 @@ export function EditorialSection({
 
 export function InfoCard({ title, body, href }: { title: string; body: string; href?: string }) {
   const content = (
-    <div className="h-full border border-cream-200 bg-cream-50 p-6 transition-colors hover:border-brand-rose/30 md:p-7">
-      <h3 className="font-display text-2xl font-medium leading-tight text-ink">{title}</h3>
-      <p className="mt-3 text-sm leading-7 text-cream-700">{body}</p>
-      {href ? <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-rose">Explore <ArrowRight size={14} /></span> : null}
+    <div className="h-full border border-neutral-200 bg-white p-6 transition-colors hover:border-primary/30 md:p-7">
+      <h3 className="font-display text-2xl font-medium leading-tight text-neutral-900">{title}</h3>
+      <p className="mt-3 text-sm leading-7 text-neutral-600">{body}</p>
+      {href ? <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Explore <ArrowRight size={14} /></span> : null}
     </div>
   );
   return href ? <Link href={href} className="block h-full">{content}</Link> : content;

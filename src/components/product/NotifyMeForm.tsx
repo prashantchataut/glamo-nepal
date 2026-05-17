@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ export function NotifyMeForm({ productName }: { productName: string }) {
   }
 
   return (
-    <div className="rounded-2xl border border-brand-secondary/30 bg-cream-50 p-5 shadow-sm">
+    <div className="rounded-[2rem] border border-brand-secondary/30 bg-white p-5 shadow-sm">
       <div className="flex items-start gap-3">
         <Bell className="mt-0.5 text-brand-primary" size={20} aria-hidden="true" />
         <div>
@@ -37,9 +37,9 @@ export function NotifyMeForm({ productName }: { productName: string }) {
               value={contact}
               onChange={(event) => setContact(event.target.value)}
               placeholder="Email or phone number"
-              className="min-h-12 flex-1 rounded-2xl border border-border bg-brand-bgLight px-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/25"
+              className="min-h-12 flex-1 rounded-full border border-border bg-brand-bgLight px-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/25"
             />
-            <button className="min-h-[44px] rounded-2xl bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark">Notify me</button>
+            <button className="min-h-[44px] rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-bgDark">Notify me</button>
           </form>
         )}
       </div>

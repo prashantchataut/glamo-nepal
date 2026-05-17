@@ -15,7 +15,7 @@ const navItems = [
   { icon: ShoppingBag, label: "Cart", href: "/cart", action: undefined as string | undefined },
   { icon: Search, label: "Search", href: "#", action: "search" as const },
   { icon: Heart, label: "Wishlist", href: "/account/wishlist", action: undefined as string | undefined },
-  { icon: User, label: "Login", href: "/login", action: undefined as string | undefined },
+  { icon: User, label: "Account", href: "/account", action: undefined as string | undefined },
 ];
 
 export function MobileBottomNav() {
@@ -30,7 +30,7 @@ export function MobileBottomNav() {
   }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-navbar h-16 border-t border-border/50 bg-cream-50/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)] md:hidden" aria-label="Mobile navigation">
+    <nav className="fixed bottom-0 left-0 right-0 z-navbar h-16 border-t border-border/50 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)] md:hidden" aria-label="Mobile navigation">
       <div className="flex h-full items-center justify-around">
         {navItems.map((item) => {
           const isActive = item.href !== "#" && (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)));
@@ -52,17 +52,16 @@ export function MobileBottomNav() {
             );
           }
 
-          const Wrapper = item.label === "Cart" ? "a" : Link;
           return (
-            <Wrapper key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-brand-primary" : "text-brand-textMuted hover:text-brand-primary")} aria-label={item.label}>
+            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-brand-primary" : "text-brand-textMuted hover:text-brand-primary")} aria-label={item.label}>
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className={cn("text-[11px] font-medium", isActive && "font-semibold")}>{item.label}</span>
               {count > 0 && (
-                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-2xl bg-brand-primary text-[9px] font-bold text-white">
+                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-brand-primary text-[9px] font-bold text-white">
                   {count}
                 </span>
               )}
-            </Wrapper>
+            </Link>
           );
         })}
       </div>
