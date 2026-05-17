@@ -20,8 +20,6 @@ const geistMono = localFont({
   display: "swap",
 });
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1 };
-
 export const metadata = {
   title: "GLAMO Nepal — Premium Beauty & Cosmetics",
   description:
