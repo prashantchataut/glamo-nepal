@@ -6,6 +6,8 @@ export const RATE_LIMITS = {
   passwordReset: { max: 3, window: 60 * 60 },
   coupon: { max: 10, window: 60 },
   payment: { max: 5, window: 60 },
+  event: { max: 50, window: 60 },
+  review: { max: 5, window: 60 * 60 },
   general: { max: 100, window: 60 },
 } as const
 
@@ -82,4 +84,23 @@ export const paymentRateLimit = rateLimit({
 export const generalRateLimit = rateLimit({
   max: RATE_LIMITS.general.max,
   window: RATE_LIMITS.general.window,
+})
+
+export const eventRateLimit = rateLimit({
+  max: RATE_LIMITS.event.max,
+  window: RATE_LIMITS.event.window,
+  keyGenerator: (c) => {
+    const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+    return `ratelimit:${ip}:event`
+  },
+})
+
+export const reviewRateLimit = rateLimit({
+  max: RATE_LIMITS.review.max,
+  window: RATE_LIMITS.review.window,
+  keyGenerator: (c) => {
+    const user = c.get('user')
+    const id = user?.id ?? c.req.header('cf-connecting-ip') ?? 'unknown'
+    return `ratelimit:${id}:review`
+  },
 })

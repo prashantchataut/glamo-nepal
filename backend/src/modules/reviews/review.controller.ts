@@ -56,7 +56,8 @@ export async function deleteReview(c: Context<AppEnv>) {
     const user = c.get('user')
     const { id } = c.req.param()
     const supabase = c.get('supabase')
-    await ReviewService.deleteReview(user.id, id, supabase)
+    const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
+    await ReviewService.deleteReview(user.id, id, supabase, isAdmin)
     return ApiResponse.success(c, 'Review deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {

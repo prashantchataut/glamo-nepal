@@ -170,7 +170,8 @@ export async function updateReview(
 export async function deleteReview(
   userId: string,
   reviewId: string,
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  isAdmin: boolean = false
 ) {
   const { data: existing, error: fetchError } = await supabase
     .from('reviews')
@@ -183,7 +184,7 @@ export async function deleteReview(
     throw new AppError('Review not found', 404, 'REVIEW_NOT_FOUND')
   }
 
-  if (existing.user_id !== userId) {
+  if (!isAdmin && existing.user_id !== userId) {
     throw new AppError('You can only delete your own reviews', 403, 'FORBIDDEN')
   }
 

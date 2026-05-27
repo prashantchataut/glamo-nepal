@@ -33,7 +33,8 @@ const app = new Hono<AppEnv>()
 app.use('*', cors({
   origin: (origin) => {
     const allowed = ['http://localhost:3000', 'https://glamonepal.com', 'https://www.glamonepal.com']
-    return allowed.includes(origin) ? origin : 'http://localhost:3000'
+    if (!origin) return ''
+    return allowed.includes(origin) ? origin : ''
   },
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Idempotency-Key'],
