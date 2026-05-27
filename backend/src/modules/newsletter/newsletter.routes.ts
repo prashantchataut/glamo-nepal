@@ -5,7 +5,6 @@ import { requireRole } from '../../middleware/requireRole'
 import { validateBody, validateQuery } from '../../middleware/validate'
 import { rateLimit } from '../../middleware/rateLimit'
 import { subscribeSchema, subscriberFilterSchema } from './newsletter.schema'
-import type { ZodSchema } from 'zod'
 import {
   subscribe,
   unsubscribe,
@@ -25,9 +24,9 @@ const subscribeRateLimit = rateLimit({
   },
 })
 
-newsletterRoutes.post('/subscribe', subscribeRateLimit, validateBody(subscribeSchema as ZodSchema<any>), subscribe)
+newsletterRoutes.post('/subscribe', subscribeRateLimit, validateBody(subscribeSchema), subscribe)
 newsletterRoutes.get('/unsubscribe', unsubscribe)
-newsletterRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(subscriberFilterSchema as ZodSchema<any>), getSubscribers)
+newsletterRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(subscriberFilterSchema), getSubscribers)
 newsletterRoutes.get('/export', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), exportSubscribers)
 newsletterRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteSubscriber)
 

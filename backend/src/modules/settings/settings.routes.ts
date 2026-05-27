@@ -4,7 +4,6 @@ import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody } from '../../middleware/validate'
 import { updateSettingsSchema } from './settings.schema'
-import type { ZodSchema } from 'zod'
 import {
   getPublicSettings,
   getSettings,
@@ -15,6 +14,6 @@ const settingsRoutes = new Hono<AppEnv>()
 
 settingsRoutes.get('/public', getPublicSettings)
 settingsRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getSettings)
-settingsRoutes.patch('/', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateSettingsSchema as ZodSchema<any>), updateSettings)
+settingsRoutes.patch('/', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateSettingsSchema), updateSettings)
 
 export { settingsRoutes }

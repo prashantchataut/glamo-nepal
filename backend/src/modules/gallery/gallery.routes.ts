@@ -4,7 +4,6 @@ import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody, validateQuery } from '../../middleware/validate'
 import { createGalleryItemSchema, updateGalleryItemSchema, reorderSchema, galleryFilterSchema } from './gallery.schema'
-import type { ZodSchema } from 'zod'
 import {
   getGallery,
   createGalleryItem,
@@ -15,10 +14,10 @@ import {
 
 const galleryRoutes = new Hono<AppEnv>()
 
-galleryRoutes.get('/', validateQuery(galleryFilterSchema as ZodSchema<any>), getGallery)
-galleryRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createGalleryItemSchema as ZodSchema<any>), createGalleryItem)
-galleryRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateGalleryItemSchema as ZodSchema<any>), updateGalleryItem)
+galleryRoutes.get('/', validateQuery(galleryFilterSchema), getGallery)
+galleryRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createGalleryItemSchema), createGalleryItem)
+galleryRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateGalleryItemSchema), updateGalleryItem)
 galleryRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteGalleryItem)
-galleryRoutes.patch('/reorder', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(reorderSchema as ZodSchema<any>), reorderGallery)
+galleryRoutes.patch('/reorder', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(reorderSchema), reorderGallery)
 
 export { galleryRoutes }

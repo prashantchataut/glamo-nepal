@@ -4,7 +4,6 @@ import { authMiddleware } from '../../middleware/auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody, validateQuery } from '../../middleware/validate'
 import { createBlogPostSchema, updateBlogPostSchema, blogFilterSchema } from './blog.schema'
-import type { ZodSchema } from 'zod'
 import {
   getBlogPosts,
   getBlogCategories,
@@ -19,11 +18,11 @@ import {
 
 const blogRoutes = new Hono<AppEnv>()
 
-blogRoutes.get('/', validateQuery(blogFilterSchema as ZodSchema<any>), getBlogPosts)
+blogRoutes.get('/', validateQuery(blogFilterSchema), getBlogPosts)
 blogRoutes.get('/categories', getBlogCategories)
 blogRoutes.get('/:slug', getBlogPostBySlug)
-blogRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createBlogPostSchema as ZodSchema<any>), createBlogPost)
-blogRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateBlogPostSchema as ZodSchema<any>), updateBlogPost)
+blogRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createBlogPostSchema), createBlogPost)
+blogRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateBlogPostSchema), updateBlogPost)
 blogRoutes.patch('/:id/publish', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), publishBlogPost)
 blogRoutes.patch('/:id/unpublish', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), unpublishBlogPost)
 blogRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteBlogPost)
