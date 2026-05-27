@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const newsletterSchema = z.object({
   email: z.string().email().max(254),
 });
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || "";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+    const limit = checkRateLimit("/api/newsletter", ip);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { success: false, status: "error", message: "Too many subscription attempts. Please try again later.", code: "RATE_LIMITED" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+      );
+    }
     const body = await request.json();
     const result = newsletterSchema.safeParse(body);
 
@@ -20,39 +28,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (!CONVEX_URL) {
       return NextResponse.json(
         { success: false, status: "error", message: "Newsletter subscription is not yet available. Please try again later.", code: "SERVICE_UNAVAILABLE" },
         { status: 503 },
       );
     }
 
-    const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/newsletter_subscribers`, {
+    const convexResponse = await fetch(`${CONVEX_URL}/api/newsletter`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
-        Prefer: "return=representation,resolution=merge-duplicates",
-      },
-      body: JSON.stringify({
-        email: result.data.email,
-        subscribed_at: new Date().toISOString(),
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: result.data.email }),
     });
 
-    if (!supabaseResponse.ok) {
-      const status = supabaseResponse.status;
-      if (status === 409) {
-        return NextResponse.json({ success: true, status: "success", message: "You are already on the list!" });
-      }
-      await supabaseResponse.text();
+    if (!convexResponse.ok) {
       return NextResponse.json(
         { success: false, status: "error", message: "Failed to subscribe. Please try again.", code: "UPSTREAM_ERROR" },
-        { status: 502 },
+        { status: convexResponse.status },
       );
     }
 
-    return NextResponse.json({ success: true, status: "success", message: "You are on the list! We will reach out when our newsletter launches." });
+    const data = await convexResponse.json();
+    return NextResponse.json({ success: true, status: "success", message: data.message });
   } catch {
     return NextResponse.json(
       { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },

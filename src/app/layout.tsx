@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
+import { ConvexClientProvider } from "@/lib/convex/ConvexClientProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -61,10 +62,12 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
-        <ComponentErrorBoundary name="RootLayout">
-          <AppShell>{children}</AppShell>
-        </ComponentErrorBoundary>
-        <Analytics />
+        <ConvexClientProvider>
+          <ComponentErrorBoundary name="RootLayout">
+            <AppShell>{children}</AppShell>
+          </ComponentErrorBoundary>
+        </ConvexClientProvider>
+        <ConditionalAnalytics />
       </body>
     </html>
   );

@@ -53,20 +53,20 @@ export function AdminLoginForm() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
         <div>
-          <h2 className="font-display text-3xl font-semibold text-neutral-900">Admin login</h2>
-          <p className="text-sm text-neutral-500">Use your GLAMO admin credentials.</p>
+          <h2 className="font-display text-3xl font-semibold text-neutral-900">Sign in</h2>
+          <p className="text-sm text-neutral-500">Use your workspace credentials.</p>
         </div>
       </div>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5">
         <div className="w-full">
-          <label htmlFor="admin-email" className="type-label mb-2 block text-neutral-400">Admin email</label>
+          <label htmlFor="admin-email" className="type-label mb-2 block text-neutral-400">Email</label>
           <input
             id="admin-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="Enter admin email"
+            placeholder="Enter email"
             autoComplete="username"
             className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
             required
@@ -103,12 +103,12 @@ export function AdminLoginForm() {
           disabled={isSubmitting}
           className="btn-press w-full min-h-[44px] bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Signing in..." : "Sign in to admin"}
+          {isSubmitting ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
       <div className="mt-6 bg-neutral-50 p-4 text-xs leading-6 text-neutral-500">
-        Access is protected by a signed, HTTP-only admin session cookie. For deployment, set <strong>ADMIN_EMAIL</strong>, <strong>ADMIN_PASSWORD</strong> and <strong>ADMIN_SESSION_SECRET</strong> in your environment.
+        Access is protected by a signed, HTTP-only session cookie.
       </div>
     </>
   );

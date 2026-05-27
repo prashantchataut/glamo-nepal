@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "Admin — GLAMO NEPAL",
-  description: "Protected administration workspace.",
+  title: "Dashboard — GLAMO NEPAL",
+  description: "Workspace.",
   robots: { index: false, follow: false },
 };
 

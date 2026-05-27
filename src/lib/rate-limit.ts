@@ -13,6 +13,9 @@ interface RateLimitConfig {
 const RATE_LIMITS: Record<string, RateLimitConfig> = {
   "/api/admin/login": { maxRequests: 5, windowMs: 15 * 60 * 1000 },
   "/api/contact": { maxRequests: 3, windowMs: 60 * 60 * 1000 },
+  "/api/newsletter": { maxRequests: 3, windowMs: 60 * 60 * 1000 },
+  "/api/checkout": { maxRequests: 10, windowMs: 15 * 60 * 1000 },
+  "/api/orders/create": { maxRequests: 10, windowMs: 15 * 60 * 1000 },
 };
 
 const DEFAULT_LIMIT: RateLimitConfig = { maxRequests: 60, windowMs: 60 * 1000 };

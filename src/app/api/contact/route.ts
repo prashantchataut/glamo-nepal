@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { contactSchema } from "@/lib/validations/contact";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || "";
+
+function sanitize(input: string): string {
+  return input.replace(/<[^>]*>/g, "").trim();
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,39 +35,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (!CONVEX_URL) {
       return NextResponse.json(
         { success: false, status: "error", message: "Contact form is not configured. Please try again later.", code: "SERVICE_UNAVAILABLE" },
         { status: 503 },
       );
     }
 
-    const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/contact_submissions`, {
+    const convexResponse = await fetch(`${CONVEX_URL}/api/contact`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
-        Prefer: "return=representation",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: result.data.name,
-        email: result.data.email,
-        phone: result.data.phone || null,
-        subject: result.data.subject,
-        message: result.data.message,
-        created_at: new Date().toISOString(),
+        ...result.data,
+        name: sanitize(result.data.name),
+        subject: sanitize(result.data.subject),
+        message: sanitize(result.data.message),
+        ...(result.data.phone ? { phone: sanitize(result.data.phone) } : {}),
       }),
     });
 
-    if (!supabaseResponse.ok) {
-      await supabaseResponse.text();
+    if (!convexResponse.ok) {
       return NextResponse.json(
         { success: false, status: "error", message: "Failed to submit contact form. Please try again.", code: "UPSTREAM_ERROR" },
-        { status: 502 },
+        { status: convexResponse.status },
       );
     }
 
-    return NextResponse.json({ success: true, status: "success", message: "Message sent successfully! We will get back to you soon." });
+    const data = await convexResponse.json();
+    return NextResponse.json({ success: true, status: "success", message: data.message });
   } catch {
     return NextResponse.json(
       { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
