@@ -6,6 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 [[kv_namespaces]]
 binding = "KV"
 id = "placeholder-replace-after-creating-namespace"
+# NOTE: Before deploying, create a KV namespace with `wrangler kv namespace create RATE_LIMITS`
+# and replace the id above with the returned namespace ID. Rate limiting will not persist without this.
 
 [[r2_buckets]]
 binding = "R2"
