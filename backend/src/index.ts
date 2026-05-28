@@ -30,11 +30,12 @@ import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
 
+const ALLOWED_ORIGINS = ['https://glamonepal.com', 'https://www.glamonepal.com', 'http://localhost:3000']
+
 app.use('*', cors({
   origin: (origin) => {
-    const allowed = ['http://localhost:3000', 'https://glamonepal.com', 'https://www.glamonepal.com']
     if (!origin) return ''
-    return allowed.includes(origin) ? origin : ''
+    return ALLOWED_ORIGINS.includes(origin) ? origin : ''
   },
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Idempotency-Key'],
