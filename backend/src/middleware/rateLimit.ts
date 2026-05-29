@@ -15,30 +15,40 @@ export type RateLimitConfig = { max: number; window: number; keyGenerator?: (c: 
 
 export function rateLimit(config: RateLimitConfig) {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
-    const keyGenerator = config.keyGenerator ?? (() => {
-      const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
-      return `ratelimit:${ip}:${c.req.path}`
-    })
+    try {
+      if (!c.env.KV) {
+        console.warn('Rate limiting disabled: KV namespace not configured')
+        await next()
+        return
+      }
 
-    const key = keyGenerator(c)
-    const current = await c.env.KV.get<string>(key)
+      const keyGenerator = config.keyGenerator ?? (() => {
+        const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+        return `ratelimit:${ip}:${c.req.path}`
+      })
 
-    const count = current ? parseInt(current, 10) : 0
+      const key = keyGenerator(c)
+      const current = await c.env.KV.get<string>(key)
 
-    if (count >= config.max) {
-      c.header('Retry-After', String(config.window))
-      return c.json({
-        success: false,
-        message: 'Too many requests, please try again later',
-        errors: [],
-      }, 429)
+      const count = current ? parseInt(current, 10) : 0
+
+      if (count >= config.max) {
+        c.header('Retry-After', String(config.window))
+        return c.json({
+          success: false,
+          message: 'Too many requests, please try again later',
+          errors: [],
+        }, 429)
+      }
+
+      const newCount = count + 1
+      await c.env.KV.put(key, String(newCount), { expirationTtl: config.window })
+
+      c.header('X-RateLimit-Limit', String(config.max))
+      c.header('X-RateLimit-Remaining', String(config.max - newCount))
+    } catch (err) {
+      console.warn('Rate limiting error, allowing request:', err)
     }
-
-    const newCount = count + 1
-    await c.env.KV.put(key, String(newCount), { expirationTtl: config.window })
-
-    c.header('X-RateLimit-Limit', String(config.max))
-    c.header('X-RateLimit-Remaining', String(config.max - newCount))
 
     await next()
   }
