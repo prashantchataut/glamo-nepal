@@ -39,69 +39,6 @@ file_size_limit = "50MB"
 [edge_runtime]
 enabled = true
 
-[functions.api.auth]
-verify_jwt = false
-
-[functions.api.account]
-verify_jwt = true
-
-[functions.api.products]
-verify_jwt = false
-
-[functions.api.categories]
-verify_jwt = false
-
-[functions.api.brands]
-verify_jwt = false
-
-[functions.api.cart]
-verify_jwt = true
-
-[functions.api.wishlist]
-verify_jwt = true
-
-[functions.api.orders]
-verify_jwt = true
-
-[functions.api.coupons]
-verify_jwt = false
-
-[functions.api.reviews]
-verify_jwt = false
-
-[functions.api.inventory]
-verify_jwt = true
-
-[functions.api.banners]
-verify_jwt = false
-
-[functions.api.popups]
-verify_jwt = false
-
-[functions.api.blogs]
-verify_jwt = false
-
-[functions.api.gallery]
-verify_jwt = false
-
-[functions.api.team]
-verify_jwt = false
-
-[functions.api.newsletter]
-verify_jwt = false
-
-[functions.api.settings]
-verify_jwt = false
-
-[functions.api.admin]
-verify_jwt = true
-
-[functions.api.events]
-verify_jwt = false
-
-[functions.api.recommendations]
-verify_jwt = false
-
 [functions.payments.khalti-initiate]
 verify_jwt = true
 
