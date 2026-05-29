@@ -1,5 +1,13 @@
 # GLAMO Nepal API — Deployment Guide
 
+## Architecture
+
+The **Hono backend on Cloudflare Workers** is the sole API server for GLAMO Nepal. All application routes (auth, products, orders, admin, etc.) are served exclusively through this Hono backend.
+
+**Supabase Edge Functions** remain only for specific purposes — they are **not** general API routes:
+- **Payments**: `khalti-initiate`, `khalti-verify`, `esewa-initiate`, `esewa-verify`, `cod-initiate`, `payment-status`
+- **Emails**: `welcome`, `order-confirmation`, `order-status-update`, `low-stock-alert`
+
 ## Cloudflare Workers Deployment
 
 ### Prerequisites
@@ -18,9 +26,13 @@ wrangler login
 wrangler d1 create glamo-nepal-db
 # Copy the database_id from the output
 
-# Create KV namespace
+# Create KV namespace for caching
 wrangler kv:namespace create "GLAMO_KV"
 # Copy the id from the output
+
+# Create KV namespace for rate limiting
+wrangler kv namespace create RATE_LIMITS
+# Replace the placeholder ID in wrangler.toml with the output
 
 # Create R2 bucket
 wrangler r2 bucket create glamo-nepal-assets
@@ -30,7 +42,8 @@ wrangler r2 bucket create glamo-nepal-assets
 
 Replace placeholder IDs in `wrangler.toml`:
 - `database_id` — from D1 create output
-- `id` under `[[kv_namespaces]]` — from KV create output
+- `id` under `[[kv_namespaces]]` — from KV create output for `GLAMO_KV`
+- `id` under the `RATE_LIMITS` KV namespace — from `wrangler kv namespace create RATE_LIMITS` output
 
 ### Step 3: Generate RSA Key Pair for JWT
 

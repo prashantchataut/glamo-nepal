@@ -16,6 +16,7 @@
 
 - [ ] Create KV namespace: `wrangler kv:namespace create "GLAMO_KV"`
 - [ ] Update KV `id` in `wrangler.toml`
+- [ ] KV namespace created and ID set in wrangler.toml (run `wrangler kv namespace create RATE_LIMITS`)
 - [ ] Create R2 bucket: `wrangler r2 bucket create glamo-nepal-assets`
 - [ ] Enable R2.dev subdomain or custom domain for public access
 - [ ] Configure custom domain for Worker (e.g., `api.glamonepal.com`)
@@ -38,6 +39,14 @@
 - [ ] Update `ADMIN_EMAIL` in `wrangler.toml`
 - [ ] Verify CORS origin matches frontend domain
 
+## Architecture Validation
+
+- [ ] Supabase Edge Function API routes removed (only payment/email functions remain)
+- [ ] Convex removed from frontend and backend
+- [ ] All API routes verified on Hono backend
+- [ ] Rate limiting verified working with KV
+- [ ] CORS origins set to production domains
+
 ## Security
 
 - [ ] Supabase Auth handles JWT (no custom JWT keys needed)
@@ -49,7 +58,7 @@
 - [ ] Response sanitization: no password_hash or refresh_token in responses
 - [ ] Error messages: no stack traces or DB details in production
 - [ ] Idempotency keys supported on payment endpoints (X-Idempotency-Key header)
-- [ ] Rate limiting active (KV-based)
+- [ ] Rate limiting active (KV-based, using RATE_LIMITS namespace)
 
 ## API Endpoints (All ~120)
 
