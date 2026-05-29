@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { contactSchema } from "@/lib/validations/contact";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || "";
-
 function sanitize(input: string): string {
   return input.replace(/<[^>]*>/g, "").trim();
+}
+
+function getApiBaseUrl(): string | null {
+  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || null;
 }
 
 export async function POST(request: NextRequest) {
@@ -35,34 +37,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!CONVEX_URL) {
+    const apiBaseUrl = getApiBaseUrl();
+    if (!apiBaseUrl) {
       return NextResponse.json(
         { success: false, status: "error", message: "Contact form is not configured. Please try again later.", code: "SERVICE_UNAVAILABLE" },
         { status: 503 },
       );
     }
 
-    const convexResponse = await fetch(`${CONVEX_URL}/api/contact`, {
+    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/api/v1/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...result.data,
-        name: sanitize(result.data.name),
-        subject: sanitize(result.data.subject),
-        message: sanitize(result.data.message),
-        ...(result.data.phone ? { phone: sanitize(result.data.phone) } : {}),
-      }),
+      body: JSON.stringify(result.data),
     });
 
-    if (!convexResponse.ok) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Failed to submit contact form. Please try again.", code: "UPSTREAM_ERROR" },
-        { status: convexResponse.status },
-      );
-    }
-
-    const data = await convexResponse.json();
-    return NextResponse.json({ success: true, status: "success", message: data.message });
+    const data = await upstream.json();
+    return NextResponse.json(data, { status: upstream.status });
   } catch {
     return NextResponse.json(
       { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },

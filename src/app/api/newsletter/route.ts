@@ -6,7 +6,9 @@ const newsletterSchema = z.object({
   email: z.string().email().max(254),
 });
 
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || "";
+function getApiBaseUrl(): string | null {
+  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,28 +30,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!CONVEX_URL) {
+    const apiBaseUrl = getApiBaseUrl();
+    if (!apiBaseUrl) {
       return NextResponse.json(
         { success: false, status: "error", message: "Newsletter subscription is not yet available. Please try again later.", code: "SERVICE_UNAVAILABLE" },
         { status: 503 },
       );
     }
 
-    const convexResponse = await fetch(`${CONVEX_URL}/api/newsletter`, {
+    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/api/v1/newsletter`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: result.data.email }),
+      body: JSON.stringify(result.data),
     });
 
-    if (!convexResponse.ok) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Failed to subscribe. Please try again.", code: "UPSTREAM_ERROR" },
-        { status: convexResponse.status },
-      );
-    }
-
-    const data = await convexResponse.json();
-    return NextResponse.json({ success: true, status: "success", message: data.message });
+    const data = await upstream.json();
+    return NextResponse.json(data, { status: upstream.status });
   } catch {
     return NextResponse.json(
       { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
