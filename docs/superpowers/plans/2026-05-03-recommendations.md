@@ -1504,7 +1504,7 @@ The final JSX should be:
 ```tsx
 <>
   <HeroBanner />
-  <TrustBadgeMarquee />
+  <TrustBadgeAuto-rotation />
   <QuickCategoryPills />
   <RecentlyViewedStrip />
   <FeaturedProducts />
@@ -1514,7 +1514,7 @@ The final JSX should be:
   <PromoBannerGrid />
   <TheGlowEdit />
   <ProductRecommendationStrip title="Trending Now" subtitle="Popular this week" context="home" />
-  <BrandsMarquee />
+  <BrandsAuto-rotation />
   <RoutineBuilderPreview />
   <BrandPhilosophyBanner />
   <BeautyProfileQuiz />

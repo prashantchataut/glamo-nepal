@@ -105,7 +105,7 @@ src/components/ui/
 
 ### Pages to Modify
 1. `HeroBanner.tsx` — Add background composition + floating cards
-2. `TrustBadgeMarquee.tsx` — Replace lucide icons with custom SVGs
+2. `TrustBadgeAuto-rotation.tsx` — Replace lucide icons with custom SVGs
 3. `PromoBannerGrid.tsx` — Replace with editorial banners
 4. `BrandPhilosophyBanner.tsx` — Add background + botanical SVGs
 5. `ProductCard.tsx` — Apply background tile

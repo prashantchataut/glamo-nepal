@@ -124,7 +124,7 @@
 - **Fix:** Change to include brand name.
 
 ### M7. 6+ home components unnecessarily marked `"use client"`
-- **Files:** `TrustBadgeMarquee.tsx`, `QuickCategoryPills.tsx`, `ShopByCategory.tsx`, `PromoBannerGrid.tsx`, `BrandPhilosophyBanner.tsx`, `BlogPreview.tsx`, `EditorialBanner.tsx`, `Footer.tsx`
+- **Files:** `TrustBadgeAuto-rotation.tsx`, `QuickCategoryPills.tsx`, `ShopByCategory.tsx`, `PromoBannerGrid.tsx`, `BrandPhilosophyBanner.tsx`, `BlogPreview.tsx`, `EditorialBanner.tsx`, `Footer.tsx`
 - **Issue:** These render static content but ship client JS. Increases initial bundle by ~50-100KB.
 - **Fix:** Remove `"use client"` directives and refactor to server components.
 

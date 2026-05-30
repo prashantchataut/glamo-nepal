@@ -70,7 +70,7 @@ export function NewsletterSignup() {
     <section className="relative overflow-hidden border-t border-brand-border bg-brand-surfaceWarm py-16 md:py-20 lg:py-24">
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-secondary/30 blur-[110px]" />
       <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-[2.25rem] border border-brand-border bg-white/82 p-8 text-center shadow-[0_30px_90px_-65px_rgba(36,31,34,0.45)] backdrop-blur md:p-12">
+        <div className="mx-auto max-w-3xl rounded-[2.25rem] border border-brand-border bg-white/82 p-8 text-center shadow-[0_30px_90px_-65px_rgba(36,31,34,0.45)] soft-overlay md:p-12">
           <span className="mb-6 inline-block rounded-full bg-brand-primary-light px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-primary">Join the Glow Notes</span>
           <h2 className="font-serif text-4xl font-semibold leading-tight text-brand-textPrimary md:text-5xl lg:text-6xl">Get Glowing. <span className="italic text-brand-primary">Get GLAMO.</span></h2>
           <p className="mx-auto mt-5 mb-8 max-w-lg text-base leading-7 text-brand-textMuted">New arrivals, routine tips and Nepal-only beauty edits without inbox clutter.</p>
@@ -432,7 +432,7 @@ Change from:
 <div className="absolute left-6 top-6 z-10 rounded-full bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-bgDark shadow-sm">
   Up to 30% OFF
 </div>
-<div className="absolute bottom-6 left-6 z-10 max-w-[220px] rounded-[1.5rem] bg-white/92 px-5 py-4 shadow-lg ring-1 ring-black/5 backdrop-blur">
+<div className="absolute bottom-6 left-6 z-10 max-w-[220px] rounded-[1.5rem] bg-white/92 px-5 py-4 shadow-lg ring-1 ring-black/5 soft-overlay">
   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-primary">GLAMO edit</p>
   <p className="mt-2 font-serif text-2xl font-semibold text-brand-textPrimary">New Year 2083</p>
   <p className="mt-1 text-sm leading-6 text-brand-textMuted">Celebrate with skin-loving essentials, makeup heroes and giftable beauty picks.</p>
@@ -444,7 +444,7 @@ To:
 <div className="absolute left-6 top-6 z-10 rounded-full bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-bgDark shadow-sm">
   {slide.annotation}
 </div>
-<div className="absolute bottom-6 left-6 z-10 max-w-[220px] rounded-[1.5rem] bg-white/92 px-5 py-4 shadow-lg ring-1 ring-black/5 backdrop-blur">
+<div className="absolute bottom-6 left-6 z-10 max-w-[220px] rounded-[1.5rem] bg-white/92 px-5 py-4 shadow-lg ring-1 ring-black/5 soft-overlay">
   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-primary">GLAMO edit</p>
   <p className="mt-2 font-serif text-2xl font-semibold text-brand-textPrimary">{slide.title1} {slide.title2}</p>
   <p className="mt-1 text-sm leading-6 text-brand-textMuted">{slide.subtitle}</p>
@@ -765,7 +765,7 @@ export default async function BlogPage() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-primary shadow-sm backdrop-blur-sm">
+                <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-primary shadow-sm soft-overlay-sm">
                   {post.category}
                 </span>
               </Link>
@@ -923,7 +923,7 @@ export function BlogPreview() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute left-4 top-4">
-                  <span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-primary shadow-sm backdrop-blur-sm">
+                  <span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-primary shadow-sm soft-overlay-sm">
                     {post.category}
                   </span>
                 </div>
@@ -1020,7 +1020,7 @@ export default function BlogPostClient({ post, related }: { post: BlogPost; rela
           <Link href="/blog" className="mb-6 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white">
             <ArrowLeft size={16} strokeWidth={1.5} /> Back to Blog
           </Link>
-          <span className="mb-4 inline-block w-fit rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white backdrop-blur-sm">{post.category}</span>
+          <span className="mb-4 inline-block w-fit rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white soft-overlay-sm">{post.category}</span>
           <h1 className="max-w-3xl font-serif text-3xl font-semibold leading-tight text-white md:text-4xl lg:text-5xl">{post.title}</h1>
         </div>
       </div>

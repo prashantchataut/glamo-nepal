@@ -285,7 +285,7 @@ In `Navbar.tsx`:
 In `AnnouncementBar.tsx`:
 - `py-2.5` → `py-3`
 - `text-[11px]` → `text-xs`
-- `gap-10` → `gap-8` (marquee items)
+- `gap-10` → `gap-8` (auto-rotation items)
 
 - [ ] **Step 3: Fix MobileBottomNav.tsx spacing**
 

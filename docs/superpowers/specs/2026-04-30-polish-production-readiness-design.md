@@ -18,7 +18,7 @@ All developer-facing text is replaced with professional, customer-facing languag
 The newsletter form gets a simple client-side state machine: idle → submitting → success. No backend API call is made (there is no newsletter API yet). On submit, the form shows a thank-you message. A TODO comment marks where the real API call should go.
 
 ### D3: Brand logos — Use existing SVG assets
-The BrandsMarquee component switches from rendering text `<span>` elements to rendering `<Image>` components using the brand logo SVGs already in `/public/brands/`. This uses the `BRAND_LOGOS` constant that already has `image` properties pointing to these files.
+The BrandsAuto-rotation component switches from rendering text `<span>` elements to rendering `<Image>` components using the brand logo SVGs already in `/public/brands/`. This uses the `BRAND_LOGOS` constant that already has `image` properties pointing to these files.
 
 ### D4: Organization schema — Change from BeautySalon to OnlineStore
 The `organizationJsonLd()` function in `seo.ts` changes its `@type` from `"BeautySalon"` to `"OnlineStore"` to correctly represent an ecommerce business rather than a physical salon.
@@ -84,7 +84,7 @@ Remove the warning banner that displays `bundle.ownerNote` to customers.
 ### 14. `src/components/home/NewsletterSignup.tsx` — Add submit logic
 Add `useState` for email and submitted state. On submit: prevent default, set submitted to true, show thank-you message. Add TODO comment for real API integration.
 
-### 15. `src/components/home/BrandsMarquee.tsx` — Use logo images
+### 15. `src/components/home/BrandsAuto-rotation.tsx` — Use logo images
 Replace text `<span>` rendering with `<Image>` components using `brand.image` from BRAND_LOGOS. Add `import Image from "next/image"`.
 
 ### 16. `src/lib/seo.ts` — Fix Organization schema

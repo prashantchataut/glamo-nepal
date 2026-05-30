@@ -434,7 +434,7 @@ export default function BlogListingPage() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-primary shadow-sm backdrop-blur-sm">
+                  <span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-primary shadow-sm soft-overlay-sm">
                     {post.category}
                   </span>
                 </div>

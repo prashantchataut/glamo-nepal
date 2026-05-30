@@ -77,7 +77,7 @@ This replaces: `emerald-*` → `admin-success`, `amber-*` → `admin-warning`, `
 | `shadow-[0_35px_120px_-55px_rgba(26,10,30,0.85)]` | `shadow-editorial` | AdminLoginForm |
 | `shadow-[0_25px_80px_-45px_rgba(139,58,143,0.6)]` | `shadow-soft` (with opacity adjustment) | AdminLoginForm |
 | `border-red-100`, `bg-red-50`, `text-red-700` | `border-admin-error/20`, `bg-admin-error-light`, `text-admin-error` | AdminLoginForm |
-| `bg-white/92` | `bg-white/95 backdrop-blur-xl` | AdminDashboard |
+| `bg-white/92` | `bg-white/95 soft-overlay-xl` | AdminDashboard |
 
 ### B3. Spacing — 8pt Grid
 
