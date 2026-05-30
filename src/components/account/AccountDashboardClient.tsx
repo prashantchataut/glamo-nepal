@@ -11,32 +11,32 @@ const quickLinks = [
   { name: "Password", href: "/account/password", icon: LockKeyhole, description: "Update your password" },
 ];
 
-function initials(name?: string, email?: string) {
-  const source = name?.trim() || email?.split("@")[0] || "Glamo customer";
+function initials(name?: string, phone?: string) {
+  const source = name?.trim() || phone || "Glamo customer";
   return source.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 }
 
 export function AccountDashboardClient() {
   const user = useAuthStore((state) => state.user);
   const displayName = user?.name?.trim() || "Your GLAMO account";
-  const email = user?.email || "Sign in with Supabase to sync your profile, wishlist and orders.";
+  const contactInfo = user?.phone || "Sign in with your phone number to sync your profile, wishlist and orders.";
 
   return (
     <div>
       <div className="rounded-[2rem] border border-brand-border bg-brand-bgLight p-6 shadow-sm md:p-8">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white font-display text-2xl font-semibold text-brand-primary ring-1 ring-brand-border">
-            {initials(user?.name, user?.email)}
+            {initials(user?.name, user?.phone)}
           </div>
           <div>
             <h1 className="font-display text-3xl font-semibold text-brand-textPrimary md:text-4xl">
               {user?.name ? `Hello, ${user.name.split(" ")[0]}` : displayName}
             </h1>
-            <p className="mt-1 text-sm text-brand-textMuted">{email}</p>
+            <p className="mt-1 text-sm text-brand-textMuted">{contactInfo}</p>
           </div>
         </div>
         <p className="font-label mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
-          Account data is loaded from Supabase when configured
+          Phone-verified account
         </p>
       </div>
 

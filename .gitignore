@@ -25,6 +25,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# lock files (pnpm is primary)
+package-lock.json
+
+# dev server pid
+dev.pid
+
 # env files
 .env
 .env*.local
@@ -41,6 +47,9 @@ next-env.d.ts
 
 # superpowers specs
 docs/superpowers/
+
+# convex local dev
+/.convex/
 
 # binary archives
 *.zip

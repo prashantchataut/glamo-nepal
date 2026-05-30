@@ -4,7 +4,7 @@ import { ADMIN_SESSION_COOKIE, LEGACY_AUTH_COOKIE, verifyAdminSessionToken } fro
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const protectedPrefixes = ["/account"];
-const authPages = ["/login", "/register", "/forgot-password", "/reset-password"];
+const authPages = ["/login", "/register"];
 const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
 
 function isPathOrChild(pathname: string, prefix: string) {
@@ -136,9 +136,9 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const supabaseAuthCookie = request.cookies.getAll().find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
+  const glamoAuthToken = request.cookies.get("glamo-auth-token")?.value;
   const legacyAuthCookie = request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
-  const hasAuthSession = Boolean(supabaseAuthCookie) || Boolean(legacyAuthCookie);
+  const hasAuthSession = Boolean(glamoAuthToken) || Boolean(legacyAuthCookie);
 
   if (isProtected && !hasAuthSession) {
     const loginUrl = new URL("/login", request.url);

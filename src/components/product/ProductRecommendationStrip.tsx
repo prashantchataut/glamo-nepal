@@ -25,7 +25,7 @@ export function ProductRecommendationStrip({
 }: ProductRecommendationStripProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const userId = useAuthStore.getState().user?.id;
+  const userId = useAuthStore((s) => s.user)?.id;
 
   useEffect(() => {
     let cancelled = false;

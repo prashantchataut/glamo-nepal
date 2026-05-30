@@ -7,24 +7,22 @@ import { useAuthStore } from "@/store/useAuthStore";
 export function ProfileForm() {
   const user = useAuthStore((state) => state.user);
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [birthday, setBirthday] = useState("");
-  const [skinType, setSkinType] = useState("");
+  const [email, setEmail] = useState("");
   const [isSaving, setSaving] = useState(false);
 
   useEffect(() => {
     setName(user?.name || "");
-    setPhone(user?.phone || "");
-  }, [user?.name, user?.phone]);
+    setEmail(user?.email || "");
+  }, [user?.name, user?.email]);
 
-  const initials = (name || user?.email || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  const initials = (name || user?.phone || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
     try {
       const { updateProfile } = useAuthStore.getState();
-      await updateProfile({ name, phone, birthday, skinType });
+      await updateProfile({ name, email });
       const error = useAuthStore.getState().error;
       if (error) toast.error(error);
       else toast.success("Profile saved.");
@@ -41,16 +39,14 @@ export function ProfileForm() {
         </div>
         <div>
           <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Profile details</h2>
-          <p className="mt-1 text-sm text-brand-textMuted">Keep your contact details and beauty profile up to date.</p>
+          <p className="mt-1 text-sm text-brand-textMuted">Keep your contact details up to date.</p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         <label className="text-sm font-semibold text-brand-textPrimary">Full name<input value={name} onChange={(event) => setName(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25" /></label>
-        <label className="text-sm font-semibold text-brand-textPrimary">Email<input value={user?.email || ""} readOnly placeholder="Signed-in email appears here" className="mt-2 w-full cursor-not-allowed rounded-2xl border border-border bg-brand-bgLight px-4 py-3 text-brand-textMuted outline-none" /></label>
-        <label className="text-sm font-semibold text-brand-textPrimary">Phone<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+977 98XXXXXXXX" className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25" /></label>
-        <label className="text-sm font-semibold text-brand-textPrimary">Birthday<input type="date" value={birthday} onChange={(event) => setBirthday(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25" /></label>
-        <label className="text-sm font-semibold text-brand-textPrimary md:col-span-2">Beauty profile<select value={skinType} onChange={(event) => setSkinType(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25"><option value="">Select your skin type</option><option>Oily</option><option>Dry</option><option>Combination</option><option>Sensitive</option><option>Acne-Prone</option></select></label>
+        <label className="text-sm font-semibold text-brand-textPrimary">Email (optional)<input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25" /></label>
+        <label className="text-sm font-semibold text-brand-textPrimary">Phone<input value={user?.phone || ""} readOnly placeholder="+977 98XXXXXXXX" className="mt-2 w-full cursor-not-allowed rounded-2xl border border-border bg-brand-bgLight px-4 py-3 text-brand-textMuted outline-none" /></label>
       </div>
       <button disabled={isSaving} className="mt-7 rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark disabled:opacity-60">
         {isSaving ? "Saving..." : "Save profile"}

@@ -23,10 +23,11 @@ const navLinks = [
 export function AccountShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const logout = useAuthStore((state) => state.logout);
+  const { user, logout } = useAuthStore((state) => state);
   const clearCart = useCartStore((state) => state.clearCart);
   const resetCheckout = useCheckoutStore((state) => state.reset);
-  const user = useAuthStore((state) => state.user);
+
+  const isLoading = !user;
 
   const handleLogout = () => {
     clearAuthCookies();
@@ -37,6 +38,19 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
     router.push("/login");
     router.refresh();
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-brand-bgLight flex items-center justify-center">
+        <div className="text-brand-textMuted">Loading account...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    router.push("/login");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
@@ -58,11 +72,11 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
               <div className="bg-brand-bgLight p-6 text-brand-textPrimary">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white font-display text-xl font-semibold text-brand-primary ring-1 ring-brand-border">
-                    {(user?.name || user?.email || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
+                    {(user?.name || user?.phone || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <p className="truncate font-semibold">{user?.name || "Your GLAMO account"}</p>
-                    <p className="truncate text-xs text-brand-textMuted">{user?.email || "Supabase customer session"}</p>
+                    <p className="truncate text-xs text-brand-textMuted">{user?.phone || "GLAMO customer"}</p>
                   </div>
                 </div>
                 <p className="font-label mt-4 rounded-full bg-white px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">

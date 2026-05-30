@@ -1,35 +1,27 @@
 import { z } from "zod";
 
-export const loginSchema = z.object({
-  email: z.string().max(254, "Email must be under 254 characters").email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password must be under 128 characters"),
-});
-
-export const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
-  email: z.string().max(254, "Email must be under 254 characters").email("Enter a valid email address"),
+export const phoneSchema = z.object({
   phone: z.union([
     z.string().regex(/^(\+977\s?)?9[78]\d{8}$/, "Enter a valid Nepal mobile number"),
     z.literal(""),
   ], { error: "Enter a valid Nepal mobile number" }),
-  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password must be under 128 characters"),
 });
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().max(254, "Email must be under 254 characters").email("Enter a valid email address"),
+export const registerPhoneSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
+  phone: z.string().regex(/^(\+977\s?)?9[78]\d{8}$/, "Enter a valid Nepal mobile number"),
 });
 
-export const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password must be under 128 characters"),
-    confirmPassword: z.string().min(8, "Confirm your password").max(128, "Password must be under 128 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export const verifyCodeSchema = z.object({
+  code: z.string().length(6, "Enter the 6-digit verification code"),
+});
 
-export type LoginFormData = z.infer<typeof loginSchema>;
-export type RegisterFormData = z.infer<typeof registerSchema>;
-export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
-export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export const profileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be under 100 characters"),
+  email: z.string().email("Enter a valid email address").optional().or(z.literal("")),
+});
+
+export type PhoneFormData = z.infer<typeof phoneSchema>;
+export type RegisterPhoneFormData = z.infer<typeof registerPhoneSchema>;
+export type VerifyCodeFormData = z.infer<typeof verifyCodeSchema>;
+export type ProfileFormData = z.infer<typeof profileSchema>;

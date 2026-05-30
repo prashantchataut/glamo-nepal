@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { Toaster } from "sonner";
@@ -12,7 +12,7 @@ import { BackToTopButton } from "@/components/common/BackToTopButton";
 import { SkipToContent } from "@/components/common/SkipToContent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd } from "@/lib/seo";
-import { useAuthStore } from "@/store/useAuthStore";
+
 
 const CartDrawer = dynamic(
   () =>
@@ -39,11 +39,6 @@ const CompareTray = dynamic(
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
-  const initializeAuth = useAuthStore((s) => s.initialize);
-
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
 
   if (isAdminRoute) {
     return (
