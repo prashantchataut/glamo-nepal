@@ -33,8 +33,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
 
   initialize: () => {
-    // Convex Auth manages session state reactively via ConvexAuthProvider.
-    // The useAuthSync hook synchronizes Convex Auth state into this store.
+    // Auth state is managed via phone-based OTP in AuthForm component.
   },
 
   logout: async () => {

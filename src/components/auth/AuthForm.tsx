@@ -58,7 +58,6 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
     clearError();
     setIsLoading(true);
     try {
-      const formattedPhone = formatPhone(phone);
       setMode("verify");
       toast.success("Verification code sent to your phone.");
     } catch (err) {
@@ -66,7 +65,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [phone, clearError, setError]);
+  }, [clearError, setError]);
 
   const handleVerify = useCallback(async () => {
     clearError();
@@ -88,20 +87,19 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [phone, code, name, mode, clearError, setError, setUser, router, params]);
+  }, [phone, name, mode, clearError, setError, setUser, router, params]);
 
   const handleResend = useCallback(async () => {
     clearError();
     setIsLoading(true);
     try {
-      const formattedPhone = formatPhone(phone);
       toast.success("New verification code sent.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to resend code.");
     } finally {
       setIsLoading(false);
     }
-  }, [phone, clearError, setError]);
+  }, [clearError, setError]);
 
   return (
     <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[2.75rem] border border-neutral-200 bg-white shadow-editorial md:grid-cols-[0.95fr_1.05fr]">

@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { contactSchema } from "@/lib/validations/contact";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-function sanitize(input: string): string {
-  return input.replace(/<[^>]*>/g, "").trim();
-}
-
 function getApiBaseUrl(): string | null {
   return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || null;
 }
