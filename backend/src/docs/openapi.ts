@@ -52,10 +52,10 @@ export const openApiSpec = {
               schema: { $ref: '#/components/schemas/RegisterInput' },
               example: {
                 email: 'aasha@example.com',
-                password: 'SecureP@ss123',
-                firstName: 'Aasha',
-                lastName: 'Shrestha',
-                phone: '+977-9841234567',
+password: '********',
+              firstName: 'Aasha',
+              lastName: 'Shrestha',
+              phone: '+977-9841234567',
               },
             },
           },
@@ -79,7 +79,7 @@ export const openApiSpec = {
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/LoginInput' },
-              example: { email: 'aasha@example.com', password: 'SecureP@ss123' },
+              example: { email: 'aasha@example.com', password: '********' },
             },
           },
         },
@@ -1613,7 +1613,7 @@ export const openApiSpec = {
         required: ['email', 'password'],
         properties: {
           email: { type: 'string', format: 'email', example: 'aasha@example.com' },
-          password: { type: 'string', minLength: 8, example: 'SecureP@ss123' },
+          password: { type: 'string', minLength: 8, example: '********' },
           firstName: { type: 'string', maxLength: 100, example: 'Aasha' },
           lastName: { type: 'string', maxLength: 100, example: 'Shrestha' },
           phone: { type: 'string', example: '+977-9841234567' },
@@ -1624,7 +1624,7 @@ export const openApiSpec = {
         required: ['email', 'password'],
         properties: {
           email: { type: 'string', format: 'email', example: 'aasha@example.com' },
-          password: { type: 'string', example: 'SecureP@ss123' },
+          password: { type: 'string', example: '********' },
         },
       },
       RefreshTokenInput: {

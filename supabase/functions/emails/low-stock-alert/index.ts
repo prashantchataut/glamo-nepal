@@ -17,7 +17,7 @@ app.post('/', async (c) => {
   const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
   const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://glamonepal.com';
-  const adminEmails = (Deno.env.get('ADMIN_EMAILS') || 'admin@glamonepal.com').split(',').map((e: string) => e.trim());
+  const adminEmails = (Deno.env.get('ADMIN_EMAILS') || '').split(',').map((e: string) => e.trim()).filter(Boolean);
   const supabase = createSupabaseAdminClient(supabaseUrl, supabaseServiceRoleKey);
 
   let lowStockProducts: Array<{

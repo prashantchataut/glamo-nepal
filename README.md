@@ -40,32 +40,20 @@ Admin panel routes:
 - `/admin/login` — protected admin sign-in
 - `/admin` — dashboard, products, orders, stock, banners, customers, analytics and settings
 
-Set these in `.env.local` before using the admin panel:
+Set these in `.env.local` before using the admin panel (see `.env.example` for the full list):
 
 ```env
-ADMIN_EMAIL=admin@glamonepal.com
-ADMIN_PASSWORD=ChangeMe@123
-ADMIN_SESSION_SECRET=replace_with_a_long_random_secret_at_least_32_chars
-AUTH_SECRET=replace_with_a_long_random_secret_at_least_32_chars
+ADMIN_EMAIL=<your-admin-email>
+ADMIN_PASSWORD=<generate-a-strong-password>
+ADMIN_SESSION_SECRET=<generate-with:-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
+AUTH_SECRET=<generate-with:-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
 ```
 
-The default credentials are only for local setup. Change them before deployment.
+**Never commit real credentials.** Generate unique values for each environment.
 
 ## Security
 
-This project implements defence-in-depth security controls:
-
-| Control | Implementation |
-|---------|---------------|
-| **Rate limiting** | Server-side in-memory rate limiting via Edge Middleware. `/api/admin/login`: 5 req/IP/15 min. `/api/contact`: 3 req/IP/hr. Default: 60 req/IP/min. |
-| **CSRF protection** | Double-submit cookie pattern. `glamo-csrf-token` cookie validated against `x-csrf-token` header on all state-changing POST/PUT/DELETE requests. |
-| **CSP** | Hardened Content-Security-Policy with per-request nonces for `script-src` and `style-src`. No `'unsafe-eval'`; no `'unsafe-inline'` in `script-src`. |
-| **Auth cookies** | `__Host-glamo-admin-session` prefix (Secure + no subdomain). All auth cookies: `HttpOnly; Secure; SameSite=Lax`. |
-| **Timing-safe auth** | Admin login uses constant-time byte comparison for both email and password. |
-| **SVG sanitisation** | DOMPurify with `{ USE_PROFILES: { svg: true, svgFilters: true } }`. No regex-based sanitisation. |
-| **Order IDs** | Server-generated `GLM-{year}-{uuid8}` via `crypto.randomUUID()`. No client-side `Math.random()`. |
-| **Newsletter** | Server-side `POST /api/newsletter` with Zod validation and Supabase persistence. No localStorage-only. |
-| **Security headers** | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Strict-Transport-Security` with preload. |
+This project implements defence-in-depth security controls. See the source code and `docs/` for implementation details.
 
 ## Backend commands
 

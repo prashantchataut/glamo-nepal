@@ -18,4 +18,4 @@ bucket_name = "glamo-nepal-assets"
 FRONTEND_URL = "http://localhost:3000"
 FREE_SHIPPING_THRESHOLD = "2500"
 COD_FEE = "50"
-ADMIN_EMAIL = "admin@glamonepal.com"
+# ADMIN_EMAIL should be set via: wrangler secret put ADMIN_EMAIL

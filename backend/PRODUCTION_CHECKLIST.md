@@ -8,7 +8,7 @@
 - [ ] Run seed data `0002_seed_data.sql` in Supabase SQL Editor
 - [ ] Verify all tables created: check Table Editor in Supabase dashboard
 - [ ] Create admin user via Supabase Auth signup
-- [ ] Update admin profile role: `UPDATE profiles SET role = 'SUPER_ADMIN' WHERE email = 'admin@glamonepal.com';`
+- [ ] Update admin profile role: `UPDATE profiles SET role = 'SUPER_ADMIN' WHERE email = '<your-admin-email>';`
 - [ ] Configure Supabase Auth: set site URL to production frontend URL
 - [ ] Configure Supabase Auth: add email templates for verification and password reset
 
@@ -36,7 +36,7 @@
 - [ ] Update `FRONTEND_URL` in `wrangler.toml` to production URL
 - [ ] Update `FREE_SHIPPING_THRESHOLD` in `wrangler.toml` (currently 2500 NPR)
 - [ ] Update `COD_FEE` in `wrangler.toml` (currently 50 NPR)
-- [ ] Update `ADMIN_EMAIL` in `wrangler.toml`
+- [ ] Set `ADMIN_EMAIL` via `wrangler secret put ADMIN_EMAIL` (remove from wrangler.toml vars)
 - [ ] Verify CORS origin matches frontend domain
 
 ## Architecture Validation

@@ -14,7 +14,6 @@ export interface CloudflareBindings {
   FRONTEND_URL: string
   FREE_SHIPPING_THRESHOLD: string
   COD_FEE: string
-  ADMIN_EMAIL: string
 }
 
 export type AppEnv = {

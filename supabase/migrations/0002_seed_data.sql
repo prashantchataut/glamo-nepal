@@ -38,11 +38,11 @@ INSERT INTO brands (id, name, slug, description, is_active) VALUES
   ('brand_cerave', 'CeraVe', 'cerave', 'Skincare developed with dermatologists', true);
 
 -- ============================================
--- ADMIN USER (password: ChangeMe@123)
+-- ADMIN USER (set password via Supabase Auth signup)
 -- ============================================
 -- Note: This creates the admin user in auth.users.
 -- You must create this user through Supabase Auth signup first,
 -- then update their profile role to SUPER_ADMIN.
 
 -- After signing up the admin user via Supabase Auth, run:
--- UPDATE profiles SET role = 'SUPER_ADMIN' WHERE email = 'admin@glamonepal.com';
+-- UPDATE profiles SET role = 'SUPER_ADMIN' WHERE email = '<your-admin-email>';

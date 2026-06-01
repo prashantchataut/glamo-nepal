@@ -6,10 +6,10 @@
 2. Add:
 
 ```env
-ADMIN_EMAIL=admin@glamonepal.com
-ADMIN_PASSWORD=ChangeMe@123
-ADMIN_SESSION_SECRET=replace_with_a_long_random_secret_at_least_32_chars
-AUTH_SECRET=replace_with_a_long_random_secret_at_least_32_chars
+ADMIN_EMAIL=<your-admin-email>
+ADMIN_PASSWORD=<generate-a-strong-password>
+ADMIN_SESSION_SECRET=<generate-with:-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
+AUTH_SECRET=<generate-with:-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
 ```
 
 3. Run the frontend:
