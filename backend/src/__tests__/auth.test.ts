@@ -55,7 +55,7 @@ describe('Auth Middleware', () => {
 
     const res = await app.request('/protected')
     expect(res.status).toBe(401)
-    const body = await res.json()
+    const body = (await res.json()) as { message: string }
     expect(body.message).toContain('no token provided')
   })
 
@@ -77,7 +77,7 @@ describe('Auth Middleware', () => {
       headers: { Authorization: 'Bearer invalid-token' },
     })
     expect(res.status).toBe(401)
-    const body = await res.json()
+    const body = (await res.json()) as { message: string }
     expect(body.message).toContain('invalid token')
   })
 
@@ -108,7 +108,7 @@ describe('Auth Middleware', () => {
       headers: { Authorization: 'Bearer valid-token' },
     })
     expect(res.status).toBe(401)
-    const body = await res.json()
+    const body = (await res.json()) as { message: string }
     expect(body.message).toContain('not found or inactive')
   })
 
@@ -142,7 +142,7 @@ describe('Auth Middleware', () => {
       headers: { Authorization: 'Bearer valid-token' },
     })
     expect(res.status).toBe(200)
-    const body = await res.json()
+    const body = (await res.json()) as { userId: string; role: string }
     expect(body.userId).toBe('user-1')
     expect(body.role).toBe('ADMIN')
   })
@@ -212,7 +212,7 @@ describe('Auth Middleware', () => {
       headers: { Authorization: 'Bearer valid-token' },
     })
     expect(res.status).toBe(200)
-    const body = await res.json()
+    const body = (await res.json()) as { id: string; email: string; role: string; isActive: boolean }
     expect(body.id).toBe('user-1')
     expect(body.email).toBe('staff@test.com')
     expect(body.role).toBe('STAFF')
