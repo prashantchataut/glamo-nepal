@@ -43,7 +43,7 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
   const [uploading, setUploading] = useState(false);
   const [deleteImageId, setDeleteImageId] = useState<string | null>(null);
   const [deleteVariantId, setDeleteVariantId] = useState<string | null>(null);
-  const [editingVariant, setEditingVariant] = useState<{ id: string; name: string; price: number; salePrice: string; stockQuantity: string } | null>(null);
+  const [editingVariant, setEditingVariant] = useState<{ id: string; name: string; price: string; salePrice: string; stockQuantity: string } | null>(null);
   const [addingVariant, setAddingVariant] = useState(false);
   const [newVariant, setNewVariant] = useState({ name: "", price: "", stockQuantity: "0" });
 
@@ -329,22 +329,146 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
 
             {product.variants && product.variants.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold">Variants ({product.variants.length})</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Variants ({product.variants.length})</h3>
+                  <button
+                    onClick={() => setAddingVariant(true)}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline"
+                  >
+                    <Plus size={14} /> Add variant
+                  </button>
+                </div>
                 <div className="mt-2 space-y-2">
                   {product.variants.map((v) => (
-                    <div key={v.id} className="flex items-center justify-between rounded-xl border border-brand-border p-3">
-                      <div>
-                        <p className="text-sm font-medium">{v.name}</p>
-                        {v.sku && <p className="text-xs text-brand-textMuted">SKU: {v.sku}</p>}
+                    editingVariant?.id === v.id ? (
+                      <div key={v.id} className="grid gap-2 rounded-xl border border-brand-primary bg-brand-primary/5 p-3 sm:grid-cols-4">
+                        <input
+                          value={editingVariant.name}
+                          onChange={(e) => setEditingVariant((prev) => prev ? { ...prev, name: e.target.value } : null)}
+                          className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                          placeholder="Name"
+                        />
+                        <input
+                          type="number"
+                          value={editingVariant.price}
+                          onChange={(e) => setEditingVariant((prev) => prev ? { ...prev, price: e.target.value } : null)}
+                          className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                          placeholder="Price"
+                        />
+                        <input
+                          type="number"
+                          value={editingVariant.stockQuantity}
+                          onChange={(e) => setEditingVariant((prev) => prev ? { ...prev, stockQuantity: e.target.value } : null)}
+                          className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                          placeholder="Stock"
+                        />
+                        <div className="flex gap-2">
+                          <button onClick={handleUpdateVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-white">Save</button>
+                          <button onClick={() => setEditingVariant(null)} className="rounded-full border border-brand-border px-3 py-2 text-xs font-medium">Cancel</button>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold">{formatNPR(v.price)}</p>
-                        {v.sale_price != null && <p className="text-xs text-admin-success">{formatNPR(v.sale_price)}</p>}
-                        <p className="text-xs text-brand-textMuted">Stock: {v.stock_quantity}</p>
+                    ) : (
+                      <div key={v.id} className="flex items-center justify-between rounded-xl border border-brand-border p-3">
+                        <div>
+                          <p className="text-sm font-medium">{v.name}</p>
+                          {v.sku && <p className="text-xs text-brand-textMuted">SKU: {v.sku}</p>}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="text-sm font-semibold">{formatNPR(v.price)}</p>
+                            {v.sale_price != null && <p className="text-xs text-admin-success">{formatNPR(v.sale_price)}</p>}
+                            <p className="text-xs text-brand-textMuted">Stock: {v.stock_quantity}</p>
+                          </div>
+                          <button
+                            onClick={() => setEditingVariant({ id: v.id, name: v.name, price: String(v.price), salePrice: v.sale_price != null ? String(v.sale_price) : "", stockQuantity: String(v.stock_quantity) })}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
+                            aria-label="Edit variant"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteVariantId(v.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-admin-error hover:bg-admin-error-light"
+                            aria-label="Delete variant"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  ))}
+
+                  {addingVariant && (
+                    <div className="grid gap-2 rounded-xl border border-dashed border-brand-primary bg-brand-primary/5 p-3 sm:grid-cols-4">
+                      <input
+                        value={newVariant.name}
+                        onChange={(e) => setNewVariant((prev) => ({ ...prev, name: e.target.value }))}
+                        className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                        placeholder="Variant name"
+                      />
+                      <input
+                        type="number"
+                        value={newVariant.price}
+                        onChange={(e) => setNewVariant((prev) => ({ ...prev, price: e.target.value }))}
+                        className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                        placeholder="Price"
+                      />
+                      <input
+                        type="number"
+                        value={newVariant.stockQuantity}
+                        onChange={(e) => setNewVariant((prev) => ({ ...prev, stockQuantity: e.target.value }))}
+                        className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                        placeholder="Stock"
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={handleAddVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-white">Add</button>
+                        <button onClick={() => { setAddingVariant(false); setNewVariant({ name: "", price: "", stockQuantity: "0" }); }} className="rounded-full border border-brand-border px-3 py-2 text-xs font-medium">Cancel</button>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
+              </div>
+            )}
+
+            {(!product.variants || product.variants.length === 0) && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Variants</h3>
+                  <button
+                    onClick={() => setAddingVariant(true)}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline"
+                  >
+                    <Plus size={14} /> Add variant
+                  </button>
+                </div>
+                {addingVariant && (
+                  <div className="mt-2 grid gap-2 rounded-xl border border-dashed border-brand-primary bg-brand-primary/5 p-3 sm:grid-cols-4">
+                    <input
+                      value={newVariant.name}
+                      onChange={(e) => setNewVariant((prev) => ({ ...prev, name: e.target.value }))}
+                      className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                      placeholder="Variant name"
+                    />
+                    <input
+                      type="number"
+                      value={newVariant.price}
+                      onChange={(e) => setNewVariant((prev) => ({ ...prev, price: e.target.value }))}
+                      className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                      placeholder="Price"
+                    />
+                    <input
+                      type="number"
+                      value={newVariant.stockQuantity}
+                      onChange={(e) => setNewVariant((prev) => ({ ...prev, stockQuantity: e.target.value }))}
+                      className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                      placeholder="Stock"
+                    />
+                    <div className="flex gap-2">
+                      <button onClick={handleAddVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-white">Add</button>
+                      <button onClick={() => { setAddingVariant(false); setNewVariant({ name: "", price: "", stockQuantity: "0" }); }} className="rounded-full border border-brand-border px-3 py-2 text-xs font-medium">Cancel</button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -368,7 +492,7 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
         )}
       </DialogContent>
 
-      <ConfirmDialog
+<ConfirmDialog
         open={deleteImageId !== null}
         onOpenChange={(v) => { if (!v) setDeleteImageId(null); }}
         title="Delete image"
@@ -376,6 +500,17 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={handleImageDelete}
+      />
+
+      <ConfirmDialog
+        open={deleteVariantId !== null}
+        onOpenChange={(v) => { if (!v) setDeleteVariantId(null); }}
+        title="Delete variant"
+        description="Are you sure you want to delete this variant? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="destructive"
+        isLoading={deleteVariantMutation.isLoading}
+        onConfirm={handleDeleteVariant}
       />
     </Dialog>
   );
