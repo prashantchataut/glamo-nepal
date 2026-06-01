@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
@@ -6,6 +7,7 @@ import { adminApi, type DashboardStats, type SalesReport } from "@/lib/api/admin
 import { formatNPR } from "@/lib/utils";
 import { RefreshCw, TrendingUp, ShoppingCart, Package } from "lucide-react";
 import type { ComponentType } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 type DateRange = "7d" | "30d" | "month" | "custom";
 
@@ -84,15 +86,29 @@ export function AnalyticsView() {
 
   const { data: sales, error: salesError, isLoading: salesLoading, isError: isSalesError, refetch: refetchSales } = useAdminData<SalesReport>(fetchSales);
 
-  const revenueEntries = useMemo(() => {
+const revenueChartData = useMemo(() => {
     if (!sales) return [];
-    return Object.entries(sales.revenueByPeriod).sort(([a], [b]) => a.localeCompare(b));
+    return Object.entries(sales.revenueByPeriod)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, data]) => ({ date: date.slice(5), revenue: data.revenue, orders: data.orders }));
   }, [sales]);
 
-  const maxRevenue = useMemo(() => {
-    if (revenueEntries.length === 0) return 0;
-    return Math.max(...revenueEntries.map(([, v]) => v.revenue));
-  }, [revenueEntries]);
+  const orderStatusData = useMemo(() => {
+    if (!stats?.orderStatusBreakdown) return [];
+    const statusColors: Record<string, string> = {
+      PENDING: "#f59e0b",
+      CONFIRMED: "#3b82f6",
+      PROCESSING: "#8b5cf6",
+      SHIPPED: "#06b6d4",
+      DELIVERED: "#10b981",
+      CANCELLED: "#ef4444",
+    };
+    return Object.entries(stats.orderStatusBreakdown).map(([status, count]) => ({
+      name: status.charAt(0) + status.slice(1).toLowerCase(),
+      value: count,
+      color: statusColors[status] ?? "#6b7280",
+    }));
+  }, [stats]);
 
   const topProducts = useMemo(() => stats?.topPerformers?.products ?? [], [stats]);
   const maxSold = useMemo(() => Math.max(...topProducts.map((p) => p.totalSold), 1), [topProducts]);
@@ -152,25 +168,22 @@ export function AnalyticsView() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">
         <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
-          <h3 className="font-display text-xl font-semibold">Revenue</h3>
+          <h3 className="font-display text-xl font-semibold">Revenue trend</h3>
           {salesLoading ? (
-            <div className="mt-4 space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-8 animate-pulse rounded bg-brand-bgLight" />
-              ))}
-            </div>
+            <div className="mt-4 h-64 animate-pulse rounded bg-brand-bgLight" />
           ) : isSalesError ? (
             <ErrorState message={salesError || "Failed to load revenue data"} onRetry={refetchSales} />
-          ) : revenueEntries.length > 0 ? (
-            <div className="mt-4 space-y-4">
-              {revenueEntries.map(([period, data]) => (
-                <MiniBar
-                  key={period}
-                  label={period.slice(5)}
-                  value={data.revenue}
-                  max={maxRevenue || 1}
-                />
-              ))}
+          ) : revenueChartData.length > 0 ? (
+            <div className="mt-4 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueChartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
+                  <Tooltip formatter={((value: any) => formatNPR(Number(value))) as any} labelFormatter={((label: any) => label) as any} />
+                  <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           ) : (
             <p className="mt-4 text-sm text-brand-textMuted">No revenue data for this period.</p>
@@ -178,6 +191,36 @@ export function AnalyticsView() {
         </div>
 
         <div className="space-y-5">
+          <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+            <h3 className="font-display text-xl font-semibold">Order status</h3>
+            {statsLoading ? (
+              <div className="mt-4 h-48 animate-pulse rounded bg-brand-bgLight" />
+            ) : orderStatusData.length > 0 ? (
+              <div className="mt-4 h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={orderStatusData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value" nameKey="name">
+                      {orderStatusData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={((value: any) => `${value} orders`) as any} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  {orderStatusData.map((entry) => (
+                    <span key={entry.name} className="flex items-center gap-1 text-xs text-brand-textMuted">
+                      <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                      {entry.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-brand-textMuted">No order data yet.</p>
+            )}
+          </div>
+
           <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
             <h3 className="font-display text-xl font-semibold">Top products</h3>
             {statsLoading ? (

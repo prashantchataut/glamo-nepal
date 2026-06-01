@@ -7,7 +7,8 @@ import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { StatusPill } from "@/components/admin/shared/StatusPill";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
-import { Users, RefreshCw } from "lucide-react";
+import { CustomerDetailModal } from "./CustomerDetailModal";
+import { Users, RefreshCw, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 const PAGE_SIZE = 20;
@@ -43,6 +44,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 export function CustomersView() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const fetchUsers = useCallback(
     () => adminApi.listUsers({ page, limit: PAGE_SIZE, search: search || undefined }),
@@ -120,6 +122,18 @@ export function CustomersView() {
       header: "Joined",
       render: (row) => <span className="text-sm text-brand-textMuted">{row.created_at?.slice(0, 10)}</span>,
     },
+    {
+      key: "actions",
+      header: "",
+      render: (row) => (
+        <button
+          onClick={() => setSelectedUserId(row.id)}
+          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium text-brand-primary transition hover:bg-brand-primary/10"
+        >
+          <Eye size={14} /> View
+        </button>
+      ),
+    },
   ];
 
   if (isError && !data) {
@@ -156,6 +170,12 @@ export function CustomersView() {
           onPageChange={setPage}
         />
       )}
+
+      <CustomerDetailModal
+        open={!!selectedUserId}
+        onOpenChange={(open) => { if (!open) setSelectedUserId(null); }}
+        userId={selectedUserId}
+      />
     </section>
   );
 }
