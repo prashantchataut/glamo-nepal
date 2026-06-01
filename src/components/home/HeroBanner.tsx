@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import { IMAGES } from "@/lib/image-library";
 
 export function HeroBanner() {
   return (
@@ -71,7 +72,7 @@ export function HeroBanner() {
             {/* Main Image */}
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-[0_30px_90px_-20px_rgba(217,120,152,0.3)] ring-1 ring-white/50">
               <Image
-                src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1200&auto=format&fit=crop"
+                src={IMAGES.hero.secondary}
                 alt="Premium skincare assortment"
                 fill
                 priority
@@ -84,7 +85,7 @@ export function HeroBanner() {
             <div className="absolute -bottom-6 -left-4 z-20 flex w-72 items-center gap-4 rounded-[2rem] bg-white/95 p-4 shadow-[0_20px_50px_-10px_rgba(53,19,29,0.1)] backdrop-blur-md sm:-left-12 lg:-bottom-10 lg:-left-16">
               <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[1.2rem] bg-[#F5F3F0]">
                 <Image
-                  src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=400&auto=format&fit=crop"
+                  src={IMAGES.heroProducts.cosrx}
                   alt="Featured serum"
                   fill
                   className="object-cover"

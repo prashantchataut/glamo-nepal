@@ -141,7 +141,7 @@ export interface CreateProductInput {
   meta_description?: string;
 }
 
-export interface UpdateProductInput extends Partial<CreateProductInput> {}
+export type UpdateProductInput = Partial<CreateProductInput>;
 
 // ── Orders ─────────────────────────────────────────────────────────────────
 
@@ -260,7 +260,7 @@ export interface CreateBannerInput {
   expires_at?: string;
 }
 
-export interface UpdateBannerInput extends Partial<CreateBannerInput> {}
+export type UpdateBannerInput = Partial<CreateBannerInput>;
 
 // ── Customers / Users ──────────────────────────────────────────────────────
 
