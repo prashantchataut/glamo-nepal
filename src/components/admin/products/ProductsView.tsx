@@ -1,188 +1,240 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import NextImage from "next/image";
 import {
   Download,
   Eye,
-  Filter,
   Pencil,
   Plus,
-  Search,
   Trash2,
 } from "lucide-react";
-import { PRODUCTS } from "@/lib/data/products";
-import { INVENTORY_SNAPSHOT } from "@/lib/data/inventory";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
-import { ComingSoonTooltip } from "@/components/ui/ComingSoonTooltip";
+import { DataTable, type Column } from "@/components/admin/shared/DataTable";
+import { Pagination } from "@/components/admin/shared/Pagination";
+import { SearchInput } from "@/components/admin/shared/SearchInput";
+import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
+import { adminApi, type AdminProduct } from "@/lib/api/admin";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import { useAdminStore } from "@/store/useAdminStore";
 
-function exportProductsCsv() {
-  const rows = [
-    ["sku", "name", "brand", "category", "price_npr", "stock", "status"],
-    ...PRODUCTS.map((product) => [
-      product.sku,
-      product.name,
-      product.brand,
-      product.category,
-      String(product.price),
-      String(product.stockCount),
-      product.inStock ? "active" : "out_of_stock",
-    ]),
-  ]
-    .map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","));
-  const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "glamo-products-export.csv";
-  link.click();
-  URL.revokeObjectURL(url);
-}
+const PAGE_SIZE = 20;
 
 export function ProductsView() {
-  const [productQuery, setProductQuery] = useState("");
-  const productSearch = productQuery.trim().toLowerCase();
-  const filteredProducts = useMemo(() => {
-    if (!productSearch) return PRODUCTS;
-    return PRODUCTS.filter((product) =>
-      [product.name, product.brand, product.category, product.subCategory, product.sku]
-        .join(" ")
-        .toLowerCase()
-        .includes(productSearch),
-    );
-  }, [productSearch]);
+  const { productSearch, setProductSearch } = useAdminStore();
+  const [page, setPage] = useState(1);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const { data, error, isLoading, refetch } = useAdminData(
+    useCallback(
+      () => adminApi.listProducts({ page, limit: PAGE_SIZE, search: productSearch || undefined }),
+      [page, productSearch]
+    )
+  );
+
+  const deleteMutation = useAdminMutation(adminApi.deleteProduct);
+
+  const products = data?.products ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = data?.totalPages ?? 1;
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      setProductSearch(query);
+      setPage(1);
+    },
+    [setProductSearch],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteId) return;
+    await deleteMutation.mutate(deleteId);
+    setDeleteId(null);
+    refetch();
+  }, [deleteId, deleteMutation, refetch]);
+
+  const handleExport = useCallback(() => {
+    if (!products.length) return;
+    const rows = [
+      ["sku", "name", "brand", "category", "price_npr", "stock", "status"],
+      ...products.map((p) => [
+        p.sku ?? "",
+        p.name,
+        p.brand?.name ?? "",
+        p.category?.name ?? "",
+        String(p.base_price),
+        String(p.stock_quantity),
+        p.is_active ? "active" : "inactive",
+      ]),
+    ].map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","));
+    const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "glamo-products-export.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [products]);
+
+  const columns: Column<AdminProduct>[] = [
+    {
+      key: "product",
+      header: "Product",
+      render: (product) => (
+        <div className="flex items-center gap-4">
+          {product.images?.find((img) => img.is_primary)?.url ? (
+            <NextImage
+              src={product.images.find((img) => img.is_primary)?.url ?? ""}
+              alt={product.name}
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-xl bg-brand-bgLight object-cover"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-bgLight text-xs font-semibold text-brand-textMuted">
+              {product.name.charAt(0)}
+            </div>
+          )}
+          <div>
+            <p className="font-semibold text-brand-textPrimary">{product.name}</p>
+            <p className="text-xs text-brand-textMuted">{product.brand?.name ?? "—"}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "sku",
+      header: "SKU",
+      render: (product) => <span className="font-mono text-xs">{product.sku ?? "—"}</span>,
+    },
+    {
+      key: "category",
+      header: "Category",
+      render: (product) => <span className="capitalize">{product.category?.name ?? "—"}</span>,
+    },
+    {
+      key: "price",
+      header: "Price",
+      render: (product) => (
+        <div>
+          <span className="font-semibold">{formatNPR(product.base_price)}</span>
+          {product.sale_price && product.sale_price < product.base_price && (
+            <span className="ml-2 text-xs text-brand-textMuted line-through">{formatNPR(product.base_price)}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "stock",
+      header: "Stock",
+      render: (product) => <span>{product.stock_quantity} pcs</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (product) => {
+        const status = product.stock_quantity <= 0 ? "Out" : product.stock_quantity <= product.low_stock_threshold ? "Low" : "Active";
+        return <StatusPill variant={stockStatusToVariant(status)}>{status}</StatusPill>;
+      },
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (product) => (
+        <div className="flex gap-1">
+          <button
+            aria-label="View product"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
+            onClick={() => {/* TODO: open product detail modal */}}
+          >
+            <Eye size={15} />
+          </button>
+          <button
+            aria-label="Edit product"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
+            onClick={() => {/* TODO: open product edit modal */}}
+          >
+            <Pencil size={15} />
+          </button>
+          <button
+            aria-label="Delete product"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-admin-error hover:bg-admin-error-light"
+            onClick={() => setDeleteId(product.id)}
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">Product management</h2>
-          <p className="mt-1 text-sm text-brand-textMuted">
-            Search, review and prepare SKUs for catalog APIs.
-          </p>
+          <p className="mt-1 text-sm text-brand-textMuted">Browse, search and manage your product catalog.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <ComingSoonTooltip>
-            <button
-              disabled
-              className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Filter size={15} /> Filter
-            </button>
-          </ComingSoonTooltip>
           <button
-            onClick={exportProductsCsv}
-            className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary"
+            onClick={handleExport}
+            disabled={!products.length}
+            className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-medium text-brand-textPrimary disabled:opacity-50"
           >
             <Download size={15} /> Export
           </button>
-          <ComingSoonTooltip>
-            <button
-              disabled
-              className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Plus size={15} /> Add product
-            </button>
-          </ComingSoonTooltip>
+          <button
+            onClick={() => {/* TODO: open product create modal */}}
+            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
+          >
+            <Plus size={15} /> Add product
+          </button>
         </div>
       </div>
-      <div className="relative mt-4 max-w-lg">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-textMuted" size={16} />
-        <input
-          aria-label="Search products by SKU, brand or name"
-          value={productQuery}
-          onChange={(event) => setProductQuery(event.target.value)}
-          className="w-full rounded-xl border border-brand-border bg-brand-bgLight py-3 pl-10 pr-4 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+
+      <div className="mt-4">
+        <SearchInput
+          value={productSearch}
+          onSearch={handleSearch}
           placeholder="Search by SKU, brand or product"
         />
       </div>
-      <div className="mt-4 overflow-x-auto -mx-6 px-6">
-        <table className="w-full min-w-[900px] text-sm">
-          <caption className="sr-only">Product catalog</caption>
-          <thead>
-            <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
-              <th scope="col" className="px-4 py-3">Product</th>
-              <th scope="col" className="px-4 py-3">SKU</th>
-              <th scope="col" className="px-4 py-3">Category</th>
-              <th scope="col" className="px-4 py-3">Price</th>
-              <th scope="col" className="px-4 py-3">Stock</th>
-              <th scope="col" className="px-4 py-3">Status</th>
-              <th scope="col" className="px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map((product) => {
-              const inventory = INVENTORY_SNAPSHOT.find(
-                (item) => item.productId === product.id,
-              );
-              const status =
-                product.stockCount <= 0
-                  ? "Out"
-                  : product.stockCount <= (inventory?.reorderPoint || 10)
-                    ? "Low"
-                    : "Active";
-              return (
-                <tr key={product.id} className="border-b border-brand-border/70 last:border-0">
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-4">
-                      <NextImage
-                        src={product.image}
-                        alt=""
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 rounded-xl bg-brand-bgLight object-cover"
-                      />
-                      <div>
-                        <p className="font-semibold text-brand-textPrimary">{product.name}</p>
-                        <p className="text-xs text-brand-textMuted">{product.brand}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 font-mono text-xs">{product.sku}</td>
-                  <td className="px-4 py-4 capitalize">{product.category}</td>
-                  <td className="px-4 py-4 font-semibold">{formatNPR(product.price)}</td>
-                  <td className="px-4 py-4">{product.stockCount} pcs</td>
-                  <td className="px-4 py-4">
-                    <StatusPill variant={stockStatusToVariant(status)}>{status}</StatusPill>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-1">
-                      <ComingSoonTooltip>
-                        <button
-                          disabled
-                          aria-label="View product"
-                          className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Eye size={15} />
-                        </button>
-                      </ComingSoonTooltip>
-                      <ComingSoonTooltip>
-                        <button
-                          disabled
-                          aria-label="Edit product"
-                          className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                      </ComingSoonTooltip>
-                      <ComingSoonTooltip>
-                        <button
-                          disabled
-                          aria-label="Delete product"
-                          className="flex h-11 w-11 items-center justify-center rounded-lg text-admin-error hover:bg-admin-error-light disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </ComingSoonTooltip>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+
+      <div className="mt-4">
+        <DataTable
+          columns={columns}
+          data={products}
+          keyExtractor={(p) => p.id}
+          caption="Product catalog"
+          isLoading={isLoading}
+          emptyMessage={error ? `Error: ${error}` : "No products found."}
+          minRowWidth="900px"
+        />
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            onPageChange={setPage}
+            pageSize={PAGE_SIZE}
+          />
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        title="Delete product"
+        description="This action cannot be undone. The product will be permanently removed from your catalog."
+        confirmLabel="Delete"
+        variant="destructive"
+        isLoading={deleteMutation.isLoading}
+        onConfirm={handleDelete}
+      />
     </section>
   );
 }
