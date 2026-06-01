@@ -42,6 +42,17 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
 
   const [uploading, setUploading] = useState(false);
   const [deleteImageId, setDeleteImageId] = useState<string | null>(null);
+  const [deleteVariantId, setDeleteVariantId] = useState<string | null>(null);
+  const [editingVariant, setEditingVariant] = useState<{ id: string; name: string; price: number; salePrice: string; stockQuantity: string } | null>(null);
+  const [addingVariant, setAddingVariant] = useState(false);
+  const [newVariant, setNewVariant] = useState({ name: "", price: "", stockQuantity: "0" });
+
+  const deleteVariantMutation = useAdminMutation(
+    useCallback(
+      (params: { productId: string; variantId: string }) => adminApi.deleteVariant(params.productId, params.variantId),
+      [],
+    ),
+  );
 
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,6 +81,52 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
       toast.error("Failed to remove image");
     }
   }, [deleteImageId, productId, refetch]);
+
+  const handleAddVariant = useCallback(async () => {
+    if (!productId || !newVariant.name || !newVariant.price) return;
+    try {
+      await adminApi.addVariant(productId, {
+        name: newVariant.name,
+        price: Number(newVariant.price),
+        stockQuantity: Number(newVariant.stockQuantity) || 0,
+      });
+      toast.success("Variant added");
+      setAddingVariant(false);
+      setNewVariant({ name: "", price: "", stockQuantity: "0" });
+      refetch();
+    } catch {
+      toast.error("Failed to add variant");
+    }
+  }, [productId, newVariant, refetch]);
+
+  const handleUpdateVariant = useCallback(async () => {
+    if (!productId || !editingVariant) return;
+    try {
+      await adminApi.updateVariant(productId, editingVariant.id, {
+        name: editingVariant.name,
+        price: Number(editingVariant.price),
+        salePrice: editingVariant.salePrice ? Number(editingVariant.salePrice) : null,
+        stockQuantity: Number(editingVariant.stockQuantity),
+      });
+      toast.success("Variant updated");
+      setEditingVariant(null);
+      refetch();
+    } catch {
+      toast.error("Failed to update variant");
+    }
+  }, [productId, editingVariant, refetch]);
+
+  const handleDeleteVariant = useCallback(async () => {
+    if (!deleteVariantId || !productId) return;
+    try {
+      await deleteVariantMutation.mutate({ productId, variantId: deleteVariantId });
+      toast.success("Variant deleted");
+      setDeleteVariantId(null);
+      refetch();
+    } catch {
+      toast.error("Failed to delete variant");
+    }
+  }, [deleteVariantId, productId, deleteVariantMutation, refetch]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
