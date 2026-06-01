@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import NextImage from "next/image";
 import {
   Download,
@@ -35,7 +35,7 @@ export function ProductsView() {
 
   const deleteMutation = useAdminMutation(adminApi.deleteProduct);
 
-  const products = data?.products ?? [];
+  const products = useMemo(() => data?.products ?? [], [data?.products]);
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 

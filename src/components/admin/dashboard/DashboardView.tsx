@@ -94,7 +94,7 @@ export function DashboardView() {
   );
 
   const recentOrders = stats?.recentActivity?.orders ?? [];
-  const categoryCounts = stats?.topPerformers?.categories ?? {};
+  const categoryCounts = useMemo(() => stats?.topPerformers?.categories ?? {}, [stats?.topPerformers?.categories]);
   const lowStockProducts = stats?.inventoryAlerts?.lowStockProducts ?? [];
   const maxCategoryCount = useMemo(
     () => Math.max(...Object.values(categoryCounts), 0),
