@@ -296,7 +296,6 @@ export function ProductsView() {
           selectedIds={selectedIds}
           onSelectionChange={setSelectedIds}
           onRowClick={(p) => setDetailId(p.id)}
-          onSelectionChange={setSelectedIds}
         />
       </div>
 
