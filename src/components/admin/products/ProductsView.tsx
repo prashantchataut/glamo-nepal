@@ -8,7 +8,12 @@ import {
   Pencil,
   Plus,
   Trash2,
+  X,
+  CheckSquare,
+  Square,
+  Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
@@ -30,6 +35,8 @@ export function ProductsView() {
   const [formOpen, setFormOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<AdminProduct | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const { data, error, isLoading, refetch } = useAdminData(
     useCallback(
@@ -39,6 +46,10 @@ export function ProductsView() {
   );
 
   const deleteMutation = useAdminMutation(adminApi.deleteProduct);
+  const bulkStatusMutation = useAdminMutation(
+    (params: { ids: string[]; isActive: boolean }) => adminApi.bulkUpdateProductStatus(params.ids, params.isActive)
+  );
+  const bulkDeleteMutation = useAdminMutation(adminApi.bulkDeleteProducts);
 
   const products = useMemo(() => data?.products ?? [], [data?.products]);
   const total = data?.total ?? 0;
@@ -58,6 +69,33 @@ export function ProductsView() {
     setDeleteId(null);
     refetch();
   }, [deleteId, deleteMutation, refetch]);
+
+  const handleBulkStatus = useCallback(async (isActive: boolean) => {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    const result = await bulkStatusMutation.mutate({ ids, isActive });
+    if (result) {
+      toast.success(`${ids.length} product${ids.length > 1 ? "s" : ""} ${isActive ? "activated" : "deactivated"}`);
+      setSelectedIds(new Set());
+      refetch();
+    } else {
+      toast.error(bulkStatusMutation.error ?? "Failed to update status");
+    }
+  }, [selectedIds, bulkStatusMutation, refetch]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    const result = await bulkDeleteMutation.mutate(ids);
+    if (result) {
+      toast.success(`${ids.length} product${ids.length > 1 ? "s" : ""} deleted`);
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      refetch();
+    } else {
+      toast.error(bulkDeleteMutation.error ?? "Failed to delete products");
+    }
+  }, [selectedIds, bulkDeleteMutation, refetch]);
 
   const handleExport = useCallback(() => {
     if (!products.length) return;
@@ -206,6 +244,46 @@ export function ProductsView() {
         />
       </div>
 
+      {selectedIds.size > 0 && (
+        <div className="mt-4 flex items-center gap-3 rounded-full bg-brand-primary/10 px-4 py-2">
+          <span className="text-sm font-medium text-brand-textPrimary">
+            {selectedIds.size} selected
+          </span>
+          <button
+            onClick={() => handleBulkStatus(true)}
+            disabled={bulkStatusMutation.isLoading}
+            className="btn-press inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
+          >
+            {bulkStatusMutation.isLoading ? <Loader2 size={12} className="animate-spin" /> : <CheckSquare size={12} />}
+            Activate
+          </button>
+          <button
+            onClick={() => handleBulkStatus(false)}
+            disabled={bulkStatusMutation.isLoading}
+            className="btn-press inline-flex items-center gap-1.5 rounded-full border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-brand-textPrimary transition hover:bg-brand-bgLight disabled:opacity-50"
+          >
+            {bulkStatusMutation.isLoading ? <Loader2 size={12} className="animate-spin" /> : <Square size={12} />}
+            Deactivate
+          </button>
+          <button
+            onClick={() => setBulkDeleteOpen(true)}
+            disabled={bulkDeleteMutation.isLoading}
+            className="btn-press inline-flex items-center gap-1.5 rounded-full bg-admin-error px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+          >
+            {bulkDeleteMutation.isLoading ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+            Delete
+          </button>
+          <div className="flex-1" />
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-brand-textMuted transition hover:bg-brand-bgLight"
+            aria-label="Clear selection"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -215,6 +293,10 @@ export function ProductsView() {
           isLoading={isLoading}
           emptyMessage={error ? `Error: ${error}` : "No products found."}
           minRowWidth="900px"
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+          onRowClick={(p) => setDetailId(p.id)}
+          onSelectionChange={setSelectedIds}
         />
       </div>
 
@@ -239,6 +321,17 @@ export function ProductsView() {
         variant="destructive"
         isLoading={deleteMutation.isLoading}
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={(open) => { if (!open) setBulkDeleteOpen(false); }}
+        title={`Delete ${selectedIds.size} product${selectedIds.size > 1 ? "s" : ""}`}
+        description={`This action cannot be undone. ${selectedIds.size} product${selectedIds.size > 1 ? "s will be" : " will be"} permanently removed from your catalog.`}
+        confirmLabel="Delete all"
+        variant="destructive"
+        isLoading={bulkDeleteMutation.isLoading}
+        onConfirm={handleBulkDelete}
       />
 
       <ProductFormModal

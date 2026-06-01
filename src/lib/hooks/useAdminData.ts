@@ -7,6 +7,7 @@ import type { ApiResponse } from "@/lib/api/contracts";
 interface UseAdminDataOptions {
   refreshInterval?: number;
   enabled?: boolean;
+  deps?: unknown[];
 }
 
 interface UseAdminDataResult<T> {
@@ -21,7 +22,7 @@ export function useAdminData<T>(
   fetcher: () => Promise<ApiResponse<T>>,
   options: UseAdminDataOptions = {}
 ): UseAdminDataResult<T> {
-  const { refreshInterval, enabled = true } = options;
+  const { refreshInterval, enabled = true, deps = [] } = options;
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,13 +54,15 @@ export function useAdminData<T>(
       return;
     }
     fetchData();
-  }, [enabled, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, fetchData, ...deps]);
 
   useEffect(() => {
     if (!refreshInterval || !enabled) return;
     const interval = setInterval(fetchData, refreshInterval);
     return () => clearInterval(interval);
-  }, [refreshInterval, enabled, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshInterval, enabled, fetchData, ...deps]);
 
   return {
     data,

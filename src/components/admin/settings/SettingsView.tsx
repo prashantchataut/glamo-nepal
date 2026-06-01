@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi, type SiteSetting } from "@/lib/api/admin";
-import { RefreshCw, Save, ShieldAlert } from "lucide-react";
+import { RefreshCw, Save, ShieldAlert, Upload, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
+import NextImage from "next/image";
 
 const GROUP_ORDER = ["general", "payment", "shipping", "social"] as const;
 const GROUP_LABELS: Record<string, string> = {
@@ -14,6 +14,12 @@ const GROUP_LABELS: Record<string, string> = {
   shipping: "Shipping",
   social: "Social",
 };
+
+const IMAGE_KEYS = new Set(["site_logo", "site_favicon", "og_image", "logo"]);
+
+function isImageKey(key: string): boolean {
+  return IMAGE_KEYS.has(key) || key.includes("logo") || key.includes("favicon") || key.includes("og_image") || key.includes("icon");
+}
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
@@ -26,9 +32,92 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   );
 }
 
+function SettingsField({
+  setting,
+  value,
+  onChange,
+  onImageUpload,
+  uploading,
+  isReadOnly,
+}: {
+  setting: SiteSetting;
+  value: string;
+  onChange: (key: string, value: string) => void;
+  onImageUpload: (key: string, file: File) => void;
+  uploading: boolean;
+  isReadOnly: boolean;
+}) {
+  const isImage = isImageKey(setting.key);
+  const label = setting.key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  if (isImage) {
+    return (
+      <label className="space-y-2 text-sm font-medium">
+        <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</span>
+        {isReadOnly ? (
+          <div className="rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm text-brand-textPrimary">{value || "—"}</div>
+        ) : (
+          <div className="flex items-center gap-3">
+            {value && (
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-brand-border bg-brand-bgLight">
+                <NextImage src={value} alt={label} fill className="object-contain" unoptimized />
+              </div>
+            )}
+            <div className="flex flex-1 flex-col gap-2">
+              <input
+                value={value}
+                onChange={(e) => onChange(setting.key, e.target.value)}
+                placeholder="Image URL or upload"
+                className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+              />
+              <div className="flex items-center gap-2">
+                <label className="btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-border px-3 py-1.5 text-xs font-medium text-brand-textPrimary transition hover:bg-brand-bgLight">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) onImageUpload(setting.key, file);
+                    }}
+                    disabled={uploading}
+                  />
+                  {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                  Upload
+                </label>
+                {value && (
+                  <button onClick={() => onChange(setting.key, "")} className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs text-admin-error transition hover:bg-admin-error-light">
+                    <X size={12} /> Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </label>
+    );
+  }
+
+  return (
+    <label className="space-y-2 text-sm font-medium">
+      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</span>
+      {isReadOnly ? (
+        <div className="rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm text-brand-textPrimary">{value || "—"}</div>
+      ) : (
+        <input
+          value={value}
+          onChange={(e) => onChange(setting.key, e.target.value)}
+          className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+        />
+      )}
+    </label>
+  );
+}
+
 export function SettingsView() {
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
   const { data: settings, error, isLoading, isError, refetch } = useAdminData<SiteSetting[]>(
     useCallback(() => adminApi.getAllSettings(), [])
@@ -93,6 +182,19 @@ export function SettingsView() {
     }
   }
 
+  async function handleImageUpload(key: string, file: File) {
+    setUploadingKey(key);
+    try {
+      const result = await adminApi.uploadSettingImage(file);
+      handleChange(key, result.data.url);
+      toast.success("Image uploaded. Save to apply.");
+    } catch {
+      toast.error("Failed to upload image.");
+    } finally {
+      setUploadingKey(null);
+    }
+  }
+
   const isReadOnly = false;
 
   if (isError && !settings) {
@@ -102,6 +204,9 @@ export function SettingsView() {
       </section>
     );
   }
+
+  const orderedGroups = GROUP_ORDER.filter((g) => grouped[g]?.length);
+  const otherGroups = Object.entries(grouped).filter(([key]) => !GROUP_ORDER.includes(key as typeof GROUP_ORDER[number]));
 
   return (
     <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
@@ -143,9 +248,8 @@ export function SettingsView() {
         </div>
       ) : (
         <div className="mt-5 space-y-8">
-          {GROUP_ORDER.map((groupKey) => {
+          {orderedGroups.map((groupKey) => {
             const groupItems = grouped[groupKey];
-            if (!groupItems || groupItems.length === 0) return null;
             return (
               <div key={groupKey}>
                 <h3 className="font-display text-lg font-semibold text-brand-textPrimary">
@@ -153,57 +257,41 @@ export function SettingsView() {
                 </h3>
                 <div className="mt-3 grid gap-3 grid-cols-1 sm:grid-cols-2">
                   {groupItems.map((setting) => (
-                    <label key={setting.id} className="space-y-2 text-sm font-medium">
-                      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">
-                        {setting.key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                      </span>
-                      {isReadOnly ? (
-                        <div className="rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm text-brand-textPrimary">
-                          {setting.value || "—"}
-                        </div>
-                      ) : (
-                        <input
-                          value={editedValues[setting.key] ?? setting.value}
-                          onChange={(e) => handleChange(setting.key, e.target.value)}
-                          className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
-                        />
-                      )}
-                    </label>
+                    <SettingsField
+                      key={setting.id}
+                      setting={setting}
+                      value={editedValues[setting.key] ?? setting.value}
+                      onChange={handleChange}
+                      onImageUpload={handleImageUpload}
+                      uploading={uploadingKey === setting.key}
+                      isReadOnly={isReadOnly}
+                    />
                   ))}
                 </div>
               </div>
             );
           })}
 
-          {Object.entries(grouped)
-            .filter(([key]) => !GROUP_ORDER.includes(key as typeof GROUP_ORDER[number]))
-            .map(([groupKey, items]) => (
-              <div key={groupKey}>
-                <h3 className="font-display text-lg font-semibold text-brand-textPrimary">
-                  {GROUP_LABELS[groupKey] || groupKey.replace(/\b\w/g, (c) => c.toUpperCase())}
-                </h3>
-                <div className="mt-3 grid gap-3 grid-cols-1 sm:grid-cols-2">
-                  {items.map((setting) => (
-                    <label key={setting.id} className="space-y-2 text-sm font-medium">
-                      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">
-                        {setting.key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                      </span>
-                      {isReadOnly ? (
-                        <div className="rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm text-brand-textPrimary">
-                          {setting.value || "—"}
-                        </div>
-                      ) : (
-                        <input
-                          value={editedValues[setting.key] ?? setting.value}
-                          onChange={(e) => handleChange(setting.key, e.target.value)}
-                          className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
-                        />
-                      )}
-                    </label>
-                  ))}
-                </div>
+          {otherGroups.map(([groupKey, items]) => (
+            <div key={groupKey}>
+              <h3 className="font-display text-lg font-semibold text-brand-textPrimary">
+                {GROUP_LABELS[groupKey] || groupKey.replace(/\b\w/g, (c) => c.toUpperCase())}
+              </h3>
+              <div className="mt-3 grid gap-3 grid-cols-1 sm:grid-cols-2">
+                {items.map((setting) => (
+                  <SettingsField
+                    key={setting.id}
+                    setting={setting}
+                    value={editedValues[setting.key] ?? setting.value}
+                    onChange={handleChange}
+                    onImageUpload={handleImageUpload}
+                    uploading={uploadingKey === setting.key}
+                    isReadOnly={isReadOnly}
+                  />
+                ))}
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       )}
     </section>

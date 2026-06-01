@@ -656,6 +656,41 @@ export const adminApi = {
       body: JSON.stringify(data),
     }),
 
+  uploadSettingImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    return apiRequest<{ url: string; publicId: string }>("/banners/upload", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
+  bulkUpdateProductStatus: (ids: string[], isActive: boolean) =>
+    apiRequest<{ message: string }>("/admin/products/bulk-status", {
+      method: "PATCH",
+      body: JSON.stringify({ productIds: ids, isActive }),
+    }),
+
+  bulkDeleteProducts: (ids: string[]) =>
+    apiRequest<{ message: string }>("/admin/products/bulk", {
+      method: "DELETE",
+      body: JSON.stringify({ productIds: ids }),
+    }),
+
+  exportProducts: (params?: { search?: string; status?: string; format?: string }) => {
+    const query = params
+      ? "?" + new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
+            if (v !== undefined && v !== null) acc[k] = String(v);
+            return acc;
+          }, {})
+        ).toString()
+      : "";
+    return apiRequest<Blob>(`/admin/products/export${query}`, {
+      headers: { Accept: "text/csv" },
+    });
+  },
+
   // Categories (for product forms)
   listCategories: () =>
     apiRequest<Array<{ id: string; name: string; slug: string; parentId?: string }>>("/categories"),

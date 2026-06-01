@@ -39,7 +39,7 @@ export function CustomerDetailModal({ open, onOpenChange, userId }: CustomerDeta
 
   const { data: user, error, isLoading, isError, refetch } = useAdminData<AdminUserDetail>(
     fetchUser,
-    { enabled: open && !!userId }
+    { enabled: open && !!userId, deps: [userId] }
   );
 
   const fullName = user
