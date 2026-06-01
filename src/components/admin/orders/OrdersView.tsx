@@ -184,6 +184,7 @@ export function OrdersView() {
           isLoading={isLoading}
           emptyMessage={error ? `Error: ${error}` : "No orders found."}
           minRowWidth="900px"
+          onRowClick={(o) => setDetailOrderId(o.id)}
         />
       </div>
 

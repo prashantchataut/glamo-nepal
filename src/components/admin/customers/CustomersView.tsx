@@ -158,6 +158,7 @@ export function CustomersView() {
           caption="Customer list"
           isLoading={isLoading}
           emptyMessage="No customers found."
+          onRowClick={(row) => setSelectedUserId(row.id)}
         />
       </div>
 
