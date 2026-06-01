@@ -24,6 +24,9 @@
     "jose": "^6.0.0",
     "zod": "^3.24.3"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.16.10",
     "@cloudflare/workers-types": "^4.20250109.0",
