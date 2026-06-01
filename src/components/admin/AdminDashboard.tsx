@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { useState } from "react";
 import { useAdminStore } from "@/store/useAdminStore";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
@@ -15,9 +16,13 @@ import { AuditLogView } from "@/components/admin/audit/AuditLogView";
 
 export function AdminDashboard() {
   const { activeSection, setActiveSection, sidebarOpen } = useAdminStore();
-  const isLoggingOut = false;
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  function handleLogout() {
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch {}
     window.location.href = "/admin/login";
   }
 
