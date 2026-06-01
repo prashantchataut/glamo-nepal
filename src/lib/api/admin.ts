@@ -43,6 +43,8 @@ export interface DashboardStats {
       order_number: string;
       total_amount: number;
       status: string;
+      payment_method?: string;
+      payment_status?: string;
       created_at: string;
       user_id: string;
       customerName?: string;

@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { ComponentType } from "react";
-import Link from "next/link";
-import NextImage from "next/image";
+
 import {
   Users,
   Package,
@@ -12,57 +11,11 @@ import {
   MoreHorizontal,
   ShieldCheck,
 } from "lucide-react";
-import { PRODUCTS } from "@/lib/data/products";
-import {
-  INVENTORY_SUMMARY,
-  LOW_STOCK_SNAPSHOT,
-} from "@/lib/data/inventory";
-import { SAMPLE_ORDER_HISTORY, type Order } from "@/lib/data/orders";
 import { formatNPR } from "@/lib/utils";
-import { StatusPill } from "@/components/admin/shared/StatusPill";
-import { orderStatusToVariant, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
-
-const adminImageHost = "https://images." + "unsplash.com";
-const adminImage = (path: string) => `${adminImageHost}${path}`;
-
-type ManagedBanner = {
-  id: string;
-  title: string;
-  subtitle: string;
-  cta: string;
-  href: string;
-  desktopImage: string;
-  mobileImage: string;
-  status: "Published" | "Scheduled" | "Paused";
-  updatedAt: string;
-};
-
-const defaultBanners: ManagedBanner[] = [
-  {
-    id: "hero-new-year",
-    title: "New Year 2083 Beauty Edit",
-    subtitle: "Fresh skincare, soft glam makeup and giftable beauty picks curated for Nepal.",
-    cta: "Shop New Year Offers",
-    href: "/collections/festival-ready",
-    desktopImage: adminImage("/photo-1596462502278-27bfdc403348?w=1600&q=85&fit=crop"),
-    mobileImage: adminImage("/photo-1487412947147-5cebf100ffc2?w=900&q=85&fit=crop"),
-    status: "Published",
-    updatedAt: "2026-05-01",
-  },
-  {
-    id: "store-visit",
-    title: "Visit GLAMO NEPAL in Naya Baneshwor",
-    subtitle: "Find us at Mantra In & Out Square, Kathmandu.",
-    cta: "Get Directions",
-    href: "/contact",
-    desktopImage: adminImage("/photo-1556228578-8c89e6adf883?w=1600&q=85&fit=crop"),
-    mobileImage: adminImage("/photo-1522337360788-8b13dee7a37e?w=900&q=85&fit=crop"),
-    status: "Published",
-    updatedAt: "2026-05-01",
-  },
-];
-
-const bannerStorageKey = "glamo-admin-managed-banners";
+import { StatusPill, orderStatusToVariant, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
+import { adminApi, type DashboardStats } from "@/lib/api/admin";
+import { useAdminData } from "@/lib/hooks/useAdminData";
+import { useAdminStore } from "@/store/useAdminStore";
 
 function StatCard({
   label,
@@ -86,9 +39,7 @@ function StatCard({
         </span>
       </div>
       <p className="mt-4 text-xs font-medium text-brand-textMuted">{label}</p>
-      <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">
-        {value}
-      </p>
+      <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">{value}</p>
       <p className="mt-2 text-xs leading-4 text-brand-textMuted">{note}</p>
     </div>
   );
@@ -103,90 +54,52 @@ function MiniBar({ label, value, max }: { label: string; value: number; max: num
         <span className="text-brand-textMuted">{value}</span>
       </div>
       <div className="h-1.5 rounded-full bg-brand-bgLight">
-        <div
-          className="h-1.5 rounded-full bg-brand-primary"
-          style={{ width: `${width}%` }}
-        />
+        <div className="h-1.5 rounded-full bg-brand-primary" style={{ width: `${width}%` }} />
       </div>
     </div>
   );
 }
 
-function BannerPreview({ banner }: { banner: ManagedBanner }) {
+function SkeletonCard() {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-white/20 bg-brand-bgDark text-white shadow-lg">
-      <div className="grid min-h-[180px] md:grid-cols-[1.1fr_0.9fr]">
-        <div className="flex flex-col justify-center p-5 md:p-6">
-          <span className="font-label w-fit rounded-full bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-white/75">
-            {banner.status}
-          </span>
-          <h3 className="mt-3 font-display text-2xl font-semibold leading-tight md:text-3xl">
-            {banner.title}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-white/70">{banner.subtitle}</p>
-          <Link
-            href={banner.href}
-            className="mt-4 w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-brand-primary"
-          >
-            {banner.cta}
-          </Link>
-        </div>
-        <div className="relative min-h-[180px] bg-white/10">
-          <NextImage
-            src={banner.desktopImage}
-            alt="Banner preview"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 40vw"
-            unoptimized
-          />
-        </div>
+    <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="flex items-center justify-between gap-4">
+        <div className="h-10 w-10 animate-pulse rounded-xl bg-brand-bgLight" />
+        <div className="h-5 w-12 animate-pulse rounded-full bg-brand-bgLight" />
       </div>
+      <div className="mt-4 h-3 w-20 animate-pulse rounded bg-brand-bgLight" />
+      <div className="mt-2 h-7 w-16 animate-pulse rounded bg-brand-bgLight" />
+      <div className="mt-2 h-3 w-32 animate-pulse rounded bg-brand-bgLight" />
     </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <tr className="border-b border-brand-border/70">
+      <td className="px-4 py-4"><div className="h-4 w-24 animate-pulse rounded bg-brand-bgLight" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-28 animate-pulse rounded bg-brand-bgLight" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-20 animate-pulse rounded bg-brand-bgLight" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-16 animate-pulse rounded bg-brand-bgLight" /></td>
+      <td className="px-4 py-4"><div className="h-5 w-20 animate-pulse rounded-full bg-brand-bgLight" /></td>
+      <td className="px-4 py-4"><div className="h-9 w-9 animate-pulse rounded-full bg-brand-bgLight" /></td>
+    </tr>
   );
 }
 
 export function DashboardView() {
-  const [banners, setBanners] = useState<ManagedBanner[]>(defaultBanners);
-  const [selectedBannerId] = useState(defaultBanners[0].id);
-  const [orderStatusById] = useState<Record<string, Order["status"]>>({});
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem(bannerStorageKey);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as ManagedBanner[];
-        if (Array.isArray(parsed) && parsed.length > 0) setBanners(parsed);
-      } catch {
-        window.localStorage.removeItem(bannerStorageKey);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(bannerStorageKey, JSON.stringify(banners));
-  }, [banners]);
-
-  const selectedBanner =
-    banners.find((banner) => banner.id === selectedBannerId) || banners[0];
-  const grossSales = useMemo(
-    () => SAMPLE_ORDER_HISTORY.reduce((sum, order) => sum + order.total, 0),
-    []
+  const { data: stats, error, isLoading, refetch } = useAdminData<DashboardStats>(
+    () => adminApi.dashboardStats(),
+    { refreshInterval: 30000 }
   );
-  const lowStockCount = INVENTORY_SUMMARY.lowStockCount;
-  const orderRows = SAMPLE_ORDER_HISTORY.map((order) => ({
-    ...order,
-    status: orderStatusById[order.id] || order.status,
-  }));
-  const categoryCounts = useMemo(
-    () =>
-      PRODUCTS.reduce<Record<string, number>>((acc, product) => {
-        acc[product.category] = (acc[product.category] || 0) + 1;
-        return acc;
-      }, {}),
-    []
+
+  const recentOrders = stats?.recentActivity?.orders ?? [];
+  const categoryCounts = stats?.topPerformers?.categories ?? {};
+  const lowStockProducts = stats?.inventoryAlerts?.lowStockProducts ?? [];
+  const maxCategoryCount = useMemo(
+    () => Math.max(...Object.values(categoryCounts), 0),
+    [categoryCounts]
   );
-  const maxCategoryCount = Math.max(...Object.values(categoryCounts));
 
   return (
     <div className="space-y-6">
@@ -200,173 +113,170 @@ export function DashboardView() {
               Welcome to GLAMO NEPAL admin.
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
-              Manage catalog quality, order flow, inventory risks and homepage
-              banners from one operating panel.
+              Manage catalog quality, order flow, inventory risks and homepage banners from one operating panel.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                href="/admin?section=products"
+              <button
+                onClick={() => useAdminStore.getState().setActiveSection("products")}
                 className="btn-press rounded-full bg-white px-4 py-3 text-sm font-bold text-brand-primary"
               >
                 Manage products
-              </Link>
-              <Link
-                href="/admin?section=banners"
+              </button>
+              <button
+                onClick={() => useAdminStore.getState().setActiveSection("banners")}
                 className="btn-press rounded-full border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white"
               >
                 Replace banners
-              </Link>
+              </button>
             </div>
           </div>
-          <BannerPreview banner={selectedBanner} />
         </div>
       </section>
 
-      <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <StatCard
-          icon={Users}
-          label="Customers"
-          value="26"
-          note="Seeded customer view until API connected"
-        />
-        <StatCard
-          icon={Package}
-          label="Products"
-          value={PRODUCTS.length}
-          note={`${PRODUCTS.filter((product) => product.madeInNepal).length} Made in Nepal picks`}
-        />
-        <StatCard
-          icon={ShoppingBag}
-          label="Orders"
-          value={SAMPLE_ORDER_HISTORY.length}
-          note={`${formatNPR(grossSales)} sample order value`}
-        />
-        <StatCard
-          icon={AlertTriangle}
-          label="Stock watch"
-          value={lowStockCount}
-          note={`${INVENTORY_SUMMARY.totalUnits} total units`}
-        />
-      </section>
+      {isLoading && !stats ? (
+        <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+        </section>
+      ) : error ? (
+        <section className="rounded-[2rem] border border-red-200 bg-red-50 p-6 text-center">
+          <p className="text-sm font-medium text-red-700">Failed to load dashboard data</p>
+          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <button onClick={refetch} className="mt-3 rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100">
+            Retry
+          </button>
+        </section>
+      ) : (
+        <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
+          <StatCard
+            icon={Users}
+            label="Customers"
+            value={stats?.allTime?.customers ?? 0}
+            note="Total registered customers"
+          />
+          <StatCard
+            icon={Package}
+            label="Products"
+            value={stats?.allTime?.activeProducts ?? 0}
+            note="Active catalog products"
+          />
+          <StatCard
+            icon={ShoppingBag}
+            label="Orders"
+            value={stats?.allTime?.orders ?? 0}
+            note={stats?.today ? `${formatNPR(stats.today.revenue)} today` : "Loading..."}
+          />
+          <StatCard
+            icon={AlertTriangle}
+            label="Stock watch"
+            value={stats?.inventoryAlerts?.lowStock ?? 0}
+            note={stats?.inventoryAlerts ? `${stats.inventoryAlerts.lowStock + stats.inventoryAlerts.outOfStock} items need attention` : "Loading..."}
+          />
+        </section>
+      )}
 
       <section className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
-              <h3 className="font-display text-xl font-semibold">
-                Order history
-              </h3>
-              <p className="mt-1 text-sm text-brand-textMuted">
-                Track payment, status and fulfillment.
-              </p>
+              <h3 className="font-display text-xl font-semibold">Order history</h3>
+              <p className="mt-1 text-sm text-brand-textMuted">Track payment, status and fulfillment.</p>
             </div>
-            <Link
-              href="/admin?section=orders"
+            <button
+              onClick={() => useAdminStore.getState().setActiveSection("orders")}
               className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary min-h-[44px]"
             >
               View all
-            </Link>
+            </button>
           </div>
           <div className="overflow-x-auto -mx-6 px-6">
-            <table className="w-full min-w-[700px] text-sm">
-              <caption className="sr-only">Recent orders</caption>
-              <thead>
-                <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
-                  <th scope="col" className="px-4 py-3">
-                    Order
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Customer
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Payment
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Total
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Status
-                  </th>
-                  <th scope="col" className="px-4 py-3">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderRows.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-b border-brand-border/70 last:border-0"
-                  >
-                    <td className="px-4 py-4 font-mono text-xs font-semibold text-brand-textPrimary">
-                      {order.orderNumber}
-                    </td>
-                    <td className="px-4 py-4">
-                      {order.shippingAddress.split(",")[0]}
-                    </td>
-                    <td className="px-4 py-4">{order.paymentMethod}</td>
-                    <td className="px-4 py-4 font-bold">
-                      {formatNPR(order.total)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <StatusPill variant={orderStatusToVariant(order.status)}>
-                        {order.status}
-                      </StatusPill>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button
-                        aria-label="Open order actions"
-                        className="flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted hover:bg-brand-bgLight"
-                      >
-                        <MoreHorizontal size={16} />
-                      </button>
-                    </td>
+            {isLoading && !recentOrders.length ? (
+              <table className="w-full min-w-[700px] text-sm">
+                <caption className="sr-only">Loading recent orders</caption>
+                <thead>
+                  <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
+                    <th scope="col" className="px-4 py-3">Order</th>
+                    <th scope="col" className="px-4 py-3">Customer</th>
+                    <th scope="col" className="px-4 py-3">Payment</th>
+                    <th scope="col" className="px-4 py-3">Total</th>
+                    <th scope="col" className="px-4 py-3">Status</th>
+                    <th scope="col" className="px-4 py-3">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)}
+                </tbody>
+              </table>
+            ) : recentOrders.length > 0 ? (
+              <table className="w-full min-w-[700px] text-sm">
+                <caption className="sr-only">Recent orders</caption>
+                <thead>
+                  <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
+                    <th scope="col" className="px-4 py-3">Order</th>
+                    <th scope="col" className="px-4 py-3">Customer</th>
+                    <th scope="col" className="px-4 py-3">Payment</th>
+                    <th scope="col" className="px-4 py-3">Total</th>
+                    <th scope="col" className="px-4 py-3">Status</th>
+                    <th scope="col" className="px-4 py-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="border-b border-brand-border/70 last:border-0">
+                      <td className="px-4 py-4 font-mono text-xs font-semibold text-brand-textPrimary">{order.order_number}</td>
+                      <td className="px-4 py-4">{order.customerName ?? "Unknown"}</td>
+                      <td className="px-4 py-4">{order.payment_method ?? "N/A"}</td>
+                      <td className="px-4 py-4 font-bold">{formatNPR(order.total_amount)}</td>
+                      <td className="px-4 py-4">
+                        <StatusPill variant={orderStatusToVariant(order.status)}>
+                          {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
+                        </StatusPill>
+                      </td>
+                      <td className="px-4 py-4">
+                        <button aria-label="Open order actions" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted hover:bg-brand-bgLight">
+                          <MoreHorizontal size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="py-8 text-center text-sm text-brand-textMuted">No orders yet.</p>
+            )}
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="card-hover rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h3 className="font-display text-xl font-semibold">
-              Top categories
-            </h3>
+            <h3 className="font-display text-xl font-semibold">Top categories</h3>
             <div className="mt-4 space-y-4">
-              {Object.entries(categoryCounts).map(([category, count]) => (
-                <MiniBar
-                  key={category}
-                  label={category}
-                  value={count}
-                  max={maxCategoryCount}
-                />
-              ))}
+              {Object.entries(categoryCounts).length > 0 ? (
+                Object.entries(categoryCounts).map(([category, count]) => (
+                  <MiniBar key={category} label={category} value={count} max={maxCategoryCount} />
+                ))
+              ) : (
+                <p className="text-sm text-brand-textMuted">No category data yet.</p>
+              )}
             </div>
           </div>
           <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-            <h3 className="font-display text-xl font-semibold">
-              Low-stock alerts
-            </h3>
+            <h3 className="font-display text-xl font-semibold">Low-stock alerts</h3>
             <div className="mt-4 space-y-3">
-              {LOW_STOCK_SNAPSHOT.slice(0, 4).map((item) => (
-                <div
-                  key={item.productId}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-brand-bgLight p-3 text-sm"
-                >
-                  <div>
-                    <p className="font-semibold text-brand-textPrimary">
-                      {item.name}
-                    </p>
-                    <p className="text-[11px] text-brand-textMuted">
-                      Reorder at {item.reorderPoint}
-                    </p>
+              {lowStockProducts.length > 0 ? (
+                lowStockProducts.slice(0, 4).map((item) => (
+                  <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-brand-bgLight p-3 text-sm">
+                    <div>
+                      <p className="font-semibold text-brand-textPrimary">{item.name}</p>
+                      <p className="text-[11px] text-brand-textMuted">Reorder at {item.low_stock_threshold}</p>
+                    </div>
+                    <StatusPill variant={stockStatusToVariant(item.stock_quantity <= 0 ? "out" : "low")}>
+                      {item.stock_quantity}
+                    </StatusPill>
                   </div>
-                  <StatusPill variant={stockStatusToVariant(item.risk)}>
-                    {item.stockCount}
-                  </StatusPill>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-brand-textMuted">No low-stock alerts.</p>
+              )}
             </div>
           </div>
         </div>

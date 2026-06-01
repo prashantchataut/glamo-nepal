@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GlamoApiError } from "@/lib/api/client";
+import type { ApiResponse } from "@/lib/api/contracts";
 
 interface UseAdminDataOptions {
   refreshInterval?: number;
@@ -17,7 +18,7 @@ interface UseAdminDataResult<T> {
 }
 
 export function useAdminData<T>(
-  fetcher: () => Promise<T>,
+  fetcher: () => Promise<ApiResponse<T>>,
   options: UseAdminDataOptions = {}
 ): UseAdminDataResult<T> {
   const { refreshInterval, enabled = true } = options;
@@ -32,7 +33,7 @@ export function useAdminData<T>(
     setError(null);
     try {
       const result = await fetcherRef.current();
-      setData(result);
+      setData(result.data);
     } catch (err) {
       if (err instanceof GlamoApiError) {
         setError(err.message);
@@ -80,7 +81,7 @@ interface UseAdminMutationResult<TData, TVariables> {
 }
 
 export function useAdminMutation<TData, TVariables>(
-  mutationFn: (variables: TVariables) => Promise<TData>
+  mutationFn: (variables: TVariables) => Promise<ApiResponse<TData>>
 ): UseAdminMutationResult<TData, TVariables> {
   const [data, setData] = useState<TData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +93,8 @@ export function useAdminMutation<TData, TVariables>(
       setError(null);
       try {
         const result = await mutationFn(variables);
-        setData(result);
-        return result;
+        setData(result.data);
+        return result.data;
       } catch (err) {
         if (err instanceof GlamoApiError) {
           setError(err.message);
