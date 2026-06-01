@@ -1,22 +1,28 @@
-# Cloudflare Workers Environment Variables
-# Copy this file to .dev.vars for local development
+# GLAMO Nepal Backend — Local Development Variables
+# Copy this file to .dev.vars (wrangler dev reads this automatically)
+# NEVER commit real secrets to git!
 
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# ── Supabase (REQUIRED) ──────────────────────────────────────────────────
+# Get these from: Supabase Dashboard → Settings → API
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 
-# Email (Resend)
-RESEND_API_KEY=
+# ── Cloudinary (REQUIRED for image uploads) ────────────────────────────────
+CLOUDINARY_CLOUD_NAME=YOUR_CLOUD_NAME
+CLOUDINARY_API_KEY=YOUR_API_KEY
+CLOUDINARY_API_SECRET=YOUR_API_SECRET
 
-# R2 Storage
-R2_PUBLIC_URL=
+# ── R2 Public URL (for Cloudflare R2 assets) ──────────────────────────────
+R2_PUBLIC_URL=http://localhost:8787/r2
 
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+# ── Email (Resend) ────────────────────────────────────────────────────────
+RESEND_API_KEY=re_xxx
 
-# Payments
-KHALTI_SECRET_KEY=
-ESEWA_SECRET_KEY=
-ESEWA_MERCHANT_CODE=
+# ── Payments ──────────────────────────────────────────────────────────────
+KHALTI_SECRET_KEY=live_secret_key_xxx
+ESEWA_SECRET_KEY=xxx
+ESEWA_MERCHANT_CODE=xxx
+
+# ── Auth (JWT for Hono backend, separate from Next.js admin session) ──────
+JWT_PRIVATE_KEY=
+JWT_PUBLIC_KEY=
