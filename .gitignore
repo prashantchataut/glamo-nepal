@@ -35,8 +35,13 @@ dev.pid
 .env
 .env*.local
 
-# vercel
+# vercel (migrated to netlify)
 .vercel
+vercel.json
+.vercelignore
+
+# netlify
+.netlify
 
 # typescript
 *.tsbuildinfo

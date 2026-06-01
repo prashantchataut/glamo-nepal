@@ -13,9 +13,10 @@ import { useAdminData } from "@/lib/hooks/useAdminData";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
-import { Package, Tag, DollarSign, BarChart3, Image as ImageIcon, Upload, X } from "lucide-react";
+import { Package, Tag, DollarSign, BarChart3, Image as ImageIcon, Upload, X, Plus, Trash2, Pencil } from "lucide-react";
 import NextImage from "next/image";
 import { toast } from "sonner";
+import { useAdminMutation } from "@/lib/hooks/useAdminData";
 
 function getStockStatus(quantity: number, threshold: number): string {
   if (quantity <= 0) return "out of stock";

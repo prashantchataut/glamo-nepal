@@ -423,13 +423,13 @@ export const adminApi = {
 
   // Product Variants
   addVariant: (productId: string, data: { name: string; sku?: string; price: number; salePrice?: number; stockQuantity?: number; attributes?: Record<string, string> }) =>
-    apiRequest<AdminProduct["variants"] extends Array<infer V> | undefined ? V : never>(`/products/${productId}/variants`, {
+    apiRequest<{ id: string; name: string; sku?: string; price: number; sale_price?: number; stock_quantity: number; attributes?: string; is_active: number }>(`/products/${productId}/variants`, {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   updateVariant: (productId: string, variantId: string, data: { name?: string; sku?: string; price?: number; salePrice?: number | null; stockQuantity?: number; attributes?: Record<string, string>; isActive?: boolean }) =>
-    apiRequest<AdminProduct["variants"] extends Array<infer V> | undefined ? V : never>(`/products/${productId}/variants/${variantId}`, {
+    apiRequest<{ id: string; name: string; sku?: string; price: number; sale_price?: number; stock_quantity: number; attributes?: string; is_active: number }>(`/products/${productId}/variants/${variantId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
