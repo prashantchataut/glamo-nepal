@@ -9,7 +9,7 @@ import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
-import { ComingSoonTooltip } from "@/components/ui/ComingSoonTooltip";
+import { RestockModal } from "@/components/admin/inventory/RestockModal";
 import { Boxes, AlertTriangle, Store, RefreshCw } from "lucide-react";
 import type { ComponentType } from "react";
 import { useState } from "react";
@@ -54,6 +54,7 @@ const PAGE_SIZE = 20;
 export function InventoryView() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [restockTarget, setRestockTarget] = useState<{ id: string; name: string; stock: number } | null>(null);
 
   const fetchStockReport = useCallback(
     () => adminApi.getStockReport({ page, limit: PAGE_SIZE, search: search || undefined }),
@@ -127,12 +128,13 @@ export function InventoryView() {
     {
       key: "actions",
       header: "",
-      render: () => (
-        <ComingSoonTooltip>
-          <button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">
-            Restock
-          </button>
-        </ComingSoonTooltip>
+      render: (row) => (
+        <button
+          onClick={() => setRestockTarget({ id: row.id, name: row.name, stock: row.stock_quantity })}
+          className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white"
+        >
+          Restock
+        </button>
       ),
     },
   ];
@@ -217,11 +219,12 @@ export function InventoryView() {
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusPill variant={stockStatusToVariant(status)}>{status}</StatusPill>
-                    <ComingSoonTooltip>
-                      <button disabled className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed">
-                        Restock
-                      </button>
-                    </ComingSoonTooltip>
+                    <button
+                      onClick={() => setRestockTarget({ id: item.id, name: item.name, stock: item.stock_quantity })}
+                      className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Restock
+                    </button>
                   </div>
                 </div>
               );
@@ -231,6 +234,17 @@ export function InventoryView() {
           <EmptyState icon={Boxes} title="All stock healthy" description="No low stock alerts right now." />
         )}
       </div>
+
+      {restockTarget && (
+        <RestockModal
+          open={!!restockTarget}
+          onOpenChange={(open) => { if (!open) setRestockTarget(null); }}
+          productId={restockTarget.id}
+          productName={restockTarget.name}
+          currentStock={restockTarget.stock}
+          onRestocked={() => { refetchStock(); refetchLowStock(); }}
+        />
+      )}
     </section>
   );
 }

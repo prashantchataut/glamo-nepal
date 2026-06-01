@@ -8,7 +8,8 @@ export type AdminSection =
   | "banners"
   | "customers"
   | "analytics"
-  | "settings";
+  | "settings"
+  | "audit";
 
 interface AdminState {
   activeSection: AdminSection;
@@ -17,6 +18,7 @@ interface AdminState {
   orderStatusFilter: string;
   customerSearch: string;
   orderDateRange: { start: string; end: string } | null;
+  globalSearch: string;
 }
 
 interface AdminActions {
@@ -27,6 +29,7 @@ interface AdminActions {
   setOrderStatusFilter: (status: string) => void;
   setCustomerSearch: (query: string) => void;
   setOrderDateRange: (range: { start: string; end: string } | null) => void;
+  setGlobalSearch: (query: string) => void;
 }
 
 export const useAdminStore = create<AdminState & AdminActions>((set) => ({
@@ -36,6 +39,7 @@ export const useAdminStore = create<AdminState & AdminActions>((set) => ({
   orderStatusFilter: "",
   customerSearch: "",
   orderDateRange: null,
+  globalSearch: "",
 
   setActiveSection: (section) => set({ activeSection: section, sidebarOpen: false }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
@@ -44,4 +48,5 @@ export const useAdminStore = create<AdminState & AdminActions>((set) => ({
   setOrderStatusFilter: (status) => set({ orderStatusFilter: status }),
   setCustomerSearch: (query) => set({ customerSearch: query }),
   setOrderDateRange: (range) => set({ orderDateRange: range }),
+  setGlobalSearch: (query) => set({ globalSearch: query }),
 }));

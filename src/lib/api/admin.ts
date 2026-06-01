@@ -411,6 +411,32 @@ export const adminApi = {
   deleteProductImage: (id: string, imageId: string) =>
     apiRequest<{ message: string }>(`/products/${id}/images/${imageId}`, { method: "DELETE" }),
 
+  adjustStock: (productId: string, change: number, reason?: string, variantId?: string) => {
+    const path = variantId
+      ? `/products/${productId}/variants/${variantId}/stock`
+      : `/products/${productId}/variants/_/stock`;
+    return apiRequest<{ message: string }>(path, {
+      method: "PATCH",
+      body: JSON.stringify({ change, reason }),
+    });
+  },
+
+  // Product Variants
+  addVariant: (productId: string, data: { name: string; sku?: string; price: number; salePrice?: number; stockQuantity?: number; attributes?: Record<string, string> }) =>
+    apiRequest<AdminProduct["variants"] extends Array<infer V> | undefined ? V : never>(`/products/${productId}/variants`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateVariant: (productId: string, variantId: string, data: { name?: string; sku?: string; price?: number; salePrice?: number | null; stockQuantity?: number; attributes?: Record<string, string>; isActive?: boolean }) =>
+    apiRequest<AdminProduct["variants"] extends Array<infer V> | undefined ? V : never>(`/products/${productId}/variants/${variantId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteVariant: (productId: string, variantId: string) =>
+    apiRequest<{ message: string }>(`/products/${productId}/variants/${variantId}`, { method: "DELETE" }),
+
   // Orders
   listOrders: (params?: {
     page?: number;
@@ -527,6 +553,15 @@ export const adminApi = {
       method: "PATCH",
       body: JSON.stringify({ orders }),
     }),
+
+  uploadBannerImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    return apiRequest<{ url: string; publicId: string }>("/banners/upload", {
+      method: "POST",
+      body: formData,
+    });
+  },
 
   // Customers / Users
   listUsers: (params?: {

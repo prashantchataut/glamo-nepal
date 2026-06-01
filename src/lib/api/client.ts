@@ -26,7 +26,8 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   }
 
   const headers = new Headers(init?.headers);
-  if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  const isFormData = init?.body instanceof FormData;
+  if (!headers.has("Content-Type") && !isFormData) headers.set("Content-Type", "application/json");
 
   let response: Response;
   try {

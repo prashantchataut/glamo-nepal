@@ -18,6 +18,8 @@ import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { adminApi, type AdminProduct } from "@/lib/api/admin";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { useAdminStore } from "@/store/useAdminStore";
+import { ProductFormModal } from "@/components/admin/products/ProductForm";
+import { ProductDetailModal } from "@/components/admin/products/ProductDetailModal";
 
 const PAGE_SIZE = 20;
 
@@ -25,6 +27,9 @@ export function ProductsView() {
   const { productSearch, setProductSearch } = useAdminStore();
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState<AdminProduct | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const { data, error, isLoading, refetch } = useAdminData(
     useCallback(
@@ -146,14 +151,14 @@ export function ProductsView() {
           <button
             aria-label="View product"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
-            onClick={() => {/* TODO: open product detail modal */}}
+            onClick={() => setDetailId(product.id)}
           >
             <Eye size={15} />
           </button>
           <button
             aria-label="Edit product"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
-            onClick={() => {/* TODO: open product edit modal */}}
+            onClick={() => { setEditProduct(product); setFormOpen(true); }}
           >
             <Pencil size={15} />
           </button>
@@ -185,7 +190,7 @@ export function ProductsView() {
             <Download size={15} /> Export
           </button>
           <button
-            onClick={() => {/* TODO: open product create modal */}}
+            onClick={() => { setEditProduct(null); setFormOpen(true); }}
             className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
           >
             <Plus size={15} /> Add product
@@ -234,6 +239,19 @@ export function ProductsView() {
         variant="destructive"
         isLoading={deleteMutation.isLoading}
         onConfirm={handleDelete}
+      />
+
+      <ProductFormModal
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        product={editProduct}
+        onSaved={refetch}
+      />
+
+      <ProductDetailModal
+        open={detailId !== null}
+        onOpenChange={(open) => { if (!open) setDetailId(null); }}
+        productId={detailId}
       />
     </section>
   );

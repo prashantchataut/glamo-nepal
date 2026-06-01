@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { AppError, handleSupabaseError } from '../../utils/supabase'
 import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
+import { uploadImageToCloudinary } from '../../utils/upload'
+import type { CloudflareBindings } from '../../types/bindings'
 
 interface BannerRow {
   id: string
@@ -268,4 +270,9 @@ export async function reorderBanners(
   if (error) handleSupabaseError(error, 'reorderBanners')
 
   return (banners || []).map((row: BannerRow) => formatBanner(row))
+}
+
+export async function uploadBannerImage(file: File, env: CloudflareBindings): Promise<{ url: string; publicId: string }> {
+  const result = await uploadImageToCloudinary(file, 'banners', env)
+  return { url: result.url, publicId: result.publicId }
 }

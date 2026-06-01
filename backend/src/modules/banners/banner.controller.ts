@@ -4,6 +4,26 @@ import { AppError } from '../../utils/supabase'
 import { ApiResponse } from '../../utils/response'
 import * as BannerService from './banner.service'
 
+export async function uploadBannerImage(c: Context<AppEnv>) {
+  try {
+    const formData = await c.req.parseBody()
+    const file = formData['image']
+
+    if (!file || !(file instanceof File)) {
+      return ApiResponse.error(c, 'No image file provided', 400)
+    }
+
+    const env = c.env
+    const result = await BannerService.uploadBannerImage(file, env)
+    return ApiResponse.success(c, 'Image uploaded successfully', result)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
+    return ApiResponse.error(c, error.message || 'Failed to upload image', 500)
+  }
+}
+
 export async function getBanners(c: Context<AppEnv>) {
   try {
     const supabase = c.get('supabase')

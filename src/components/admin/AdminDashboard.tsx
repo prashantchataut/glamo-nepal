@@ -11,6 +11,7 @@ import { BannersView } from "@/components/admin/banners/BannersView";
 import { CustomersView } from "@/components/admin/customers/CustomersView";
 import { AnalyticsView } from "@/components/admin/analytics/AnalyticsView";
 import { SettingsView } from "@/components/admin/settings/SettingsView";
+import { AuditLogView } from "@/components/admin/audit/AuditLogView";
 
 export function AdminDashboard() {
   const { activeSection, setActiveSection, sidebarOpen } = useAdminStore();
@@ -28,6 +29,7 @@ export function AdminDashboard() {
     banners: <BannersView />,
     customers: <CustomersView />,
     analytics: <AnalyticsView />,
+    audit: <AuditLogView />,
     settings: <SettingsView />,
   };
 

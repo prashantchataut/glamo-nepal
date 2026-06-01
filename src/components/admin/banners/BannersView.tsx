@@ -121,7 +121,7 @@ export function BannersView() {
       const result = await createMutation.mutate({
         title: formData.title,
         subtitle: formData.subtitle || undefined,
-        image_url: formData.image_url || "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&q=85&fit=crop",
+        image_url: formData.image_url,
         link_url: formData.link_url || undefined,
         position: formData.position || "hero",
         is_active: formData.is_active ? 1 : 0,
@@ -169,7 +169,7 @@ export function BannersView() {
     }
   }
 
-  function handleBannerUpload(event: ChangeEvent<HTMLInputElement>, slot: BannerSlot) {
+  async function handleBannerUpload(event: ChangeEvent<HTMLInputElement>, slot: BannerSlot) {
     const file = event.target.files?.[0];
     setUploadError("");
     if (!file) return;
@@ -181,13 +181,18 @@ export function BannersView() {
       setUploadError("Keep banner files under 3 MB for faster mobile loading.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      setFormData((prev) => ({ ...prev, image_url: result }));
-      toast.success(`${slot === "desktop" ? "Desktop" : "Mobile"} banner uploaded. Actual server upload coming soon.`);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const result = await adminApi.uploadBannerImage(file);
+      const imageUrl = result.data?.url;
+      if (!imageUrl) {
+        setUploadError("Upload failed. No URL returned.");
+        return;
+      }
+      setFormData((prev) => ({ ...prev, image_url: imageUrl }));
+      toast.success(`${slot === "desktop" ? "Desktop" : "Mobile"} banner uploaded`);
+    } catch {
+      setUploadError("Upload failed. Please try again.");
+    }
   }
 
   const selectedBanner = banners?.find((b) => b.id === selectedId);
