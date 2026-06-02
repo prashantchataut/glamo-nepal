@@ -1,54 +1,41 @@
 "use client";
 
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import NextImage from "next/image";
 import Link from "next/link";
-import { Save, Upload, Smartphone, RefreshCw, Trash2, Plus } from "lucide-react";
+import { Save, Upload, Smartphone, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { adminApi, type AdminBanner, type CreateBannerInput, type UpdateBannerInput } from "@/lib/api/admin";
+import { useBanners } from "@/lib/hooks/useConvexQueries";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { toast } from "sonner";
 
 type BannerSlot = "desktop" | "mobile";
+type BannerItem = NonNullable<ReturnType<typeof useBanners>>[number];
 
-const allowedBannerTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
-
-function BannerPreview({ banner }: { banner: AdminBanner }) {
+function BannerPreview({ banner }: { banner: BannerItem }) {
   return (
     <div className="overflow-hidden rounded-[2rem] border border-white/20 bg-brand-bgDark text-white shadow-lg">
       <div className="grid min-h-[180px] md:grid-cols-[1.1fr_0.9fr]">
         <div className="flex flex-col justify-center p-5 md:p-6">
           <span className={cn(
             "font-label w-fit rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.18em]",
-            banner.is_active ? "bg-white/20 text-white/90" : "bg-white/10 text-white/60"
+            banner.isActive ? "bg-white/20 text-white/90" : "bg-white/10 text-white/60"
           )}>
-            {banner.is_active ? "Published" : "Paused"}
+            {banner.isActive ? "Published" : "Paused"}
           </span>
           <h3 className="mt-3 font-display text-2xl font-semibold leading-tight md:text-3xl">{banner.title}</h3>
           {banner.subtitle && <p className="mt-2 text-sm leading-6 text-white/70">{banner.subtitle}</p>}
-          {banner.link_url && (
-            <Link href={banner.link_url} className="mt-4 w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-brand-primary">
+          {banner.linkUrl && (
+            <Link href={banner.linkUrl} className="mt-4 w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-brand-primary">
               View
             </Link>
           )}
         </div>
         <div className="relative min-h-[180px] bg-white/10">
-          <NextImage src={banner.image_url} alt={banner.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 40vw" unoptimized />
+          <NextImage src={banner.imageUrl} alt={banner.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 40vw" unoptimized />
         </div>
       </div>
-    </div>
-  );
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <p className="text-sm text-brand-textMuted">{message}</p>
-      <button onClick={onRetry} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
-        <RefreshCw size={14} /> Retry
-      </button>
     </div>
   );
 }
@@ -75,24 +62,15 @@ export function BannersView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<BannerFormData>(defaultFormData);
-  const [uploadError, setUploadError] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<AdminBanner | null>(null);
+  const [uploadError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<BannerItem | null>(null);
+  const [isSaving] = useState(false);
 
-  const { data: banners, error, isLoading, isError, refetch } = useAdminData(
-    useCallback(() => adminApi.listAdminBanners(), [])
-  );
-
-  const createMutation = useAdminMutation<AdminBanner, CreateBannerInput>(
-    useCallback((data: CreateBannerInput) => adminApi.createBanner(data), [])
-  );
-
-  const updateMutation = useAdminMutation<AdminBanner, { id: string; data: UpdateBannerInput }>(
-    useCallback(({ id, data }) => adminApi.updateBanner(id, data), [])
-  );
-
-  const deleteMutation = useAdminMutation<{ message: string }, string>(
-    useCallback((id: string) => adminApi.deleteBanner(id), [])
-  );
+  const banners = useBanners();
+  const isLoading = banners === undefined;
+  const isError = banners === null;
+  const bannerList = useMemo(() => (banners ?? []) as BannerItem[], [banners]);
+  const selectedBanner = bannerList.find((b) => b.id === selectedId);
 
   useEffect(() => {
     if (banners && banners.length > 0 && !selectedId && !isCreating) {
@@ -101,107 +79,46 @@ export function BannersView() {
   }, [banners, selectedId, isCreating]);
 
   useEffect(() => {
-    if (selectedId && banners) {
-      const banner = banners.find((b) => b.id === selectedId);
+    if (selectedId && bannerList.length > 0) {
+      const banner = bannerList.find((b) => b.id === selectedId);
       if (banner) {
         setFormData({
           title: banner.title,
-          subtitle: banner.subtitle || "",
-          link_url: banner.link_url || "",
-          is_active: !!banner.is_active,
+          subtitle: banner.subtitle ?? "",
+          link_url: banner.linkUrl ?? "",
+          is_active: !!banner.isActive,
           position: banner.position,
-          image_url: banner.image_url,
+          image_url: banner.imageUrl,
         });
       }
     }
-  }, [selectedId, banners]);
+  }, [selectedId, bannerList]);
 
   async function handleSave() {
-    if (isCreating) {
-      const result = await createMutation.mutate({
-        title: formData.title,
-        subtitle: formData.subtitle || undefined,
-        image_url: formData.image_url,
-        link_url: formData.link_url || undefined,
-        position: formData.position || "hero",
-        is_active: formData.is_active ? 1 : 0,
-      });
-      if (result) {
-        toast.success("Banner created");
-        setIsCreating(false);
-        setSelectedId(result.id);
-        refetch();
-      } else {
-        toast.error(createMutation.error || "Failed to create banner");
-      }
-    } else if (selectedId) {
-      const result = await updateMutation.mutate({
-        id: selectedId,
-        data: {
-          title: formData.title,
-          subtitle: formData.subtitle || undefined,
-          link_url: formData.link_url || undefined,
-          is_active: formData.is_active ? 1 : 0,
-          position: formData.position,
-        },
-      });
-      if (result) {
-        toast.success("Banner updated");
-        refetch();
-      } else {
-        toast.error(updateMutation.error || "Failed to update banner");
-      }
+    if (!formData.title.trim()) {
+      toast.error("Title is required");
+      return;
     }
+    toast.info("Banner CRUD mutations are coming soon — data is read-only for now");
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
-    const result = await deleteMutation.mutate(deleteTarget.id);
-    if (result) {
-      toast.success("Banner deleted");
-      setDeleteTarget(null);
-      if (selectedId === deleteTarget.id) {
-        setSelectedId(null);
-      }
-      refetch();
-    } else {
-      toast.error(deleteMutation.error || "Failed to delete banner");
-    }
+    toast.info("Banner deletion is coming soon — data is read-only for now");
+    setDeleteTarget(null);
   }
 
-  async function handleBannerUpload(event: ChangeEvent<HTMLInputElement>, slot: BannerSlot) {
-    const file = event.target.files?.[0];
-    setUploadError("");
-    if (!file) return;
-    if (!allowedBannerTypes.includes(file.type)) {
-      setUploadError("Use PNG, JPG, WebP or SVG only.");
-      return;
-    }
-    if (file.size > 3 * 1024 * 1024) {
-      setUploadError("Keep banner files under 3 MB for faster mobile loading.");
-      return;
-    }
-    try {
-      const result = await adminApi.uploadBannerImage(file);
-      const imageUrl = result.data?.url;
-      if (!imageUrl) {
-        setUploadError("Upload failed. No URL returned.");
-        return;
-      }
-      setFormData((prev) => ({ ...prev, image_url: imageUrl }));
-      toast.success(`${slot === "desktop" ? "Desktop" : "Mobile"} banner uploaded`);
-    } catch {
-      setUploadError("Upload failed. Please try again.");
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function handleBannerUpload(_event: ChangeEvent<HTMLInputElement>, _slot: BannerSlot) {
+    toast.info("Banner image upload is coming soon — data is read-only for now");
   }
-
-  const selectedBanner = banners?.find((b) => b.id === selectedId);
-  const isSaving = createMutation.isLoading || updateMutation.isLoading;
 
   if (isError && !banners) {
     return (
       <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-        <ErrorState message={error || "Failed to load banners"} onRetry={refetch} />
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm text-brand-textMuted">Failed to load banners</p>
+        </div>
       </div>
     );
   }
@@ -238,9 +155,9 @@ export function BannersView() {
                 <div key={i} className="h-20 animate-pulse rounded-xl bg-brand-bgLight" />
               ))}
             </div>
-          ) : banners && banners.length > 0 ? (
+          ) : bannerList.length > 0 ? (
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {banners.map((banner) => (
+              {bannerList.map((banner) => (
                 <button
                   key={banner.id}
                   onClick={() => { setSelectedId(banner.id); setIsCreating(false); }}
@@ -251,7 +168,7 @@ export function BannersView() {
                 >
                   <p className="font-semibold">{banner.title}</p>
                   <p className="mt-0.5 text-[11px] text-brand-textMuted">
-                    {banner.is_active ? "Published" : "Paused"} · Updated {banner.updated_at?.slice(0, 10)}
+                    {banner.isActive ? "Published" : "Paused"}
                   </p>
                 </button>
               ))}
@@ -364,7 +281,7 @@ export function BannersView() {
         description={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         confirmLabel="Delete"
         variant="destructive"
-        isLoading={deleteMutation.isLoading}
+        isLoading={false}
         onConfirm={handleDelete}
       />
     </section>

@@ -1,19 +1,34 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { formatNPR } from "@/lib/utils";
 
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
-import { adminApi, type AdminOrder } from "@/lib/api/admin";
-import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import {
+  useOrders,
+  useUpdateOrderStatus,
+  useCancelOrder,
+} from "@/lib/hooks/useConvexQueries";
+import type { Id } from "convex/_generated/dataModel";
 import { OrderDetailModal } from "@/components/admin/orders/OrderDetailModal";
 import { toast } from "sonner";
 
 const ORDER_STATUSES = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"] as const;
 const PAGE_SIZE = 20;
+
+interface OrderRow {
+  id: string;
+  order_number: string;
+  created_at: string;
+  items: { name: string; quantity: number; price: number }[];
+  payment_method: string | null;
+  shipping_address: string;
+  total_amount: number;
+  status: string;
+}
 
 export function OrdersView() {
   const [page, setPage] = useState(1);
@@ -23,58 +38,57 @@ export function OrdersView() {
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
 
-  const { data, error, isLoading, refetch } = useAdminData(
-    useCallback(
-      () => adminApi.listOrders({
-        page,
-        limit: PAGE_SIZE,
-        status: statusFilter || undefined,
-        search: searchQuery || undefined,
-      }),
-      [page, statusFilter, searchQuery]
-    )
-  );
+  const ordersData = useOrders({
+    status: statusFilter || undefined,
+    search: searchQuery || undefined,
+    page,
+    limit: PAGE_SIZE,
+  });
 
-  const statusMutation = useAdminMutation(
-    useCallback(
-      (params: { id: string; status: string }) => adminApi.updateOrderStatus(params.id, params.status),
-      [],
-    ),
-  );
+  const updateStatus = useUpdateOrderStatus();
+  const cancelOrder = useCancelOrder();
 
-  const cancelMutation = useAdminMutation(
-    useCallback(
-      (params: { id: string; reason?: string }) => adminApi.cancelOrder(params.id, params.reason),
-      [],
-    ),
-  );
+  const orders: OrderRow[] = (() => {
+    if (!ordersData) return [];
+    if (Array.isArray(ordersData)) return ordersData as OrderRow[];
+    return ((ordersData as Record<string, unknown>).orders ?? []) as OrderRow[];
+  })();
 
-  const orders = data?.orders ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = data?.totalPages ?? 1;
+  const total = (() => {
+    if (!ordersData) return 0;
+    if (Array.isArray(ordersData)) return ordersData.length;
+    return (ordersData as Record<string, unknown>).total as number ?? 0;
+  })();
+  const totalPages = (() => {
+    if (!ordersData) return 1;
+    if (Array.isArray(ordersData)) return Math.max(1, Math.ceil(ordersData.length / PAGE_SIZE));
+    return (ordersData as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+  })();
+  const isLoading = ordersData === undefined;
+  const error = ordersData === null ? "Failed to load orders" : null;
 
-  const handleStatusChange = useCallback(
-    async (orderId: string, newStatus: string) => {
-      await statusMutation.mutate({ id: orderId, status: newStatus });
-      refetch();
-    },
-    [statusMutation, refetch],
-  );
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      await updateStatus({ id: orderId as Id<"orders">, status: newStatus });
+      toast.success("Order status updated");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status");
+    }
+  };
 
-  const handleCancelOrder = useCallback(async () => {
+  const handleCancelOrder = async () => {
     if (!cancelOrderId) return;
     try {
-      await cancelMutation.mutate({ id: cancelOrderId, reason: cancelReason || undefined });
+      await cancelOrder({ id: cancelOrderId as Id<"orders">, reason: cancelReason || undefined });
       toast.success("Order cancelled");
       setCancelOrderId(null);
       setCancelReason("");
-      refetch();
     } catch {
       toast.error("Failed to cancel order");
     }
-  }, [cancelOrderId, cancelReason, cancelMutation, refetch]);
+  };
 
-  const columns: Column<AdminOrder>[] = [
+  const columns: Column<OrderRow>[] = [
     {
       key: "order_number",
       header: "Order",
@@ -121,7 +135,6 @@ export function OrdersView() {
             aria-label="Order status"
             value={order.status}
             onChange={(e) => handleStatusChange(order.id, e.target.value)}
-            disabled={statusMutation.isLoading}
             className="rounded-full border border-brand-border bg-white px-3 py-2 text-xs font-medium outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
           >
             {ORDER_STATUSES.map((s) => (
@@ -213,7 +226,7 @@ export function OrdersView() {
         description="This will mark the order as cancelled. This action cannot be undone."
         confirmLabel="Cancel order"
         variant="destructive"
-        isLoading={cancelMutation.isLoading}
+        isLoading={false}
         onConfirm={handleCancelOrder}
       >
         <label className="mt-2 block space-y-2 text-sm font-medium">

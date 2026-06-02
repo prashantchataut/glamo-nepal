@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { adminApi, type AdminUserList } from "@/lib/api/admin";
+import { useState } from "react";
+import { useUsers, useUpdateUserStatus } from "@/lib/hooks/useConvexQueries";
+import type { Id } from "convex/_generated/dataModel";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { StatusPill } from "@/components/admin/shared/StatusPill";
 import { Pagination } from "@/components/admin/shared/Pagination";
@@ -29,16 +29,19 @@ function roleLabel(role: string): string {
   }
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <Users size={32} className="text-admin-error" />
-      <p className="mt-3 text-sm text-brand-textMuted">{message}</p>
-      <button onClick={onRetry} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
-        <RefreshCw size={14} /> Retry
-      </button>
-    </div>
-  );
+function cn(...classes: (string | undefined | false)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+interface UserRow {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  role: string;
+  is_active: number;
+  orderCount?: number;
+  created_at?: string;
 }
 
 export function CustomersView() {
@@ -46,29 +49,40 @@ export function CustomersView() {
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const fetchUsers = useCallback(
-    () => adminApi.listUsers({ page, limit: PAGE_SIZE, search: search || undefined }),
-    [page, search]
-  );
+  const usersData = useUsers({ search: search || undefined, page, limit: PAGE_SIZE });
+  const updateStatus = useUpdateUserStatus();
 
-  const { data, error, isLoading, isError, refetch } = useAdminData<AdminUserList>(fetchUsers);
+  const users: UserRow[] = (() => {
+    if (!usersData) return [];
+    if (Array.isArray(usersData)) return usersData as UserRow[];
+    return ((usersData as Record<string, unknown>).users ?? []) as UserRow[];
+  })();
 
-  const statusMutation = useAdminMutation<{ message: string }, { id: string; isActive: boolean }>(
-    useCallback(({ id, isActive }) => adminApi.updateUserStatus(id, isActive), [])
-  );
+  const total = (() => {
+    if (!usersData) return 0;
+    if (Array.isArray(usersData)) return usersData.length;
+    return (usersData as Record<string, unknown>).total as number ?? 0;
+  })();
+  const totalPages = (() => {
+    if (!usersData) return 1;
+    if (Array.isArray(usersData)) return Math.max(1, Math.ceil(usersData.length / PAGE_SIZE));
+    return (usersData as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+  })();
+  const isLoading = usersData === undefined;
+  const isError = usersData === null;
+  const error = isError ? "Failed to load customers" : null;
 
-  async function toggleStatus(user: { id: string; first_name?: string; last_name?: string; email: string; is_active: number }) {
+  async function toggleStatus(user: UserRow) {
     const newActive = user.is_active === 0;
-    const result = await statusMutation.mutate({ id: user.id, isActive: newActive });
-    if (result) {
+    try {
+      await updateStatus({ userId: user.id as Id<"userProfiles">, isActive: newActive });
       toast.success(`${user.first_name || user.email} is now ${newActive ? "active" : "inactive"}`);
-      refetch();
-    } else {
-      toast.error(statusMutation.error || "Failed to update status");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status");
     }
   }
 
-  const columns: Column<AdminUserList["users"][number]>[] = [
+  const columns: Column<UserRow>[] = [
     {
       key: "name",
       header: "Name",
@@ -100,7 +114,6 @@ export function CustomersView() {
       render: (row) => (
         <button
           onClick={() => toggleStatus(row)}
-          disabled={statusMutation.isLoading}
           className={cn(
             "rounded-full px-3 py-1 text-xs font-semibold ring-1 transition",
             row.is_active
@@ -136,8 +149,16 @@ export function CustomersView() {
     },
   ];
 
-  if (isError && !data) {
-    return <ErrorState message={error || "Failed to load customers"} onRetry={refetch} />;
+  if (isError && !usersData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <Users size={32} className="text-admin-error" />
+        <p className="mt-3 text-sm text-brand-textMuted">{error}</p>
+        <button onClick={() => window.location.reload()} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
+          <RefreshCw size={14} /> Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -153,7 +174,7 @@ export function CustomersView() {
       <div className="mt-5">
         <DataTable
           columns={columns}
-          data={data?.users ?? []}
+          data={users}
           keyExtractor={(row) => row.id}
           caption="Customer list"
           isLoading={isLoading}
@@ -162,11 +183,11 @@ export function CustomersView() {
         />
       </div>
 
-      {data && data.totalPages > 1 && (
+      {totalPages > 1 && (
         <Pagination
           page={page}
-          totalPages={data.totalPages}
-          total={data.total}
+          totalPages={totalPages}
+          total={total}
           pageSize={PAGE_SIZE}
           onPageChange={setPage}
         />
@@ -179,8 +200,4 @@ export function CustomersView() {
       />
     </section>
   );
-}
-
-function cn(...classes: (string | undefined | false)[]) {
-  return classes.filter(Boolean).join(" ");
 }

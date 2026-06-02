@@ -1,12 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { adminApi } from "@/lib/api/admin";
-import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import { useEffect, useRef, useState } from "react";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/lib/hooks/useConvexQueries";
 import { Bell, Check, CheckCheck } from "lucide-react";
 
-function formatTimeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+interface NotificationData {
+  _id: string;
+  userId?: string;
+  type: string;
+  title: string;
+  message: string;
+  data?: string;
+  isRead: boolean;
+  _creationTime: number;
+}
+
+function formatTimeAgo(timestamp: number): string {
+  const diff = Date.now() - timestamp;
   const minutes = Math.floor(diff / 60000);
   if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes}m ago`;
@@ -28,17 +38,9 @@ export function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, refetch } = useAdminData(
-    useCallback(() => adminApi.getNotifications({ limit: 20 }), []),
-  );
-
-  const markRead = useAdminMutation(
-    useCallback((id: string) => adminApi.markNotificationRead(id), []),
-  );
-
-  const markAllRead = useAdminMutation(
-    useCallback(() => adminApi.markAllNotificationsRead(), []),
-  );
+  const result = useNotifications({ limit: 20 });
+  const markReadMutation = useMarkNotificationRead();
+  const markAllReadMutation = useMarkAllNotificationsRead();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -50,17 +52,16 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const notifications = data?.notifications ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const notifications = (result?.notifications ?? []) as NotificationData[];
+  const unreadCount = result?.unreadCount ?? 0;
+  const isLoading = result === undefined;
 
   const handleMarkRead = async (id: string) => {
-    await markRead.mutate(id);
-    refetch();
+    await markReadMutation({ id: id as never });
   };
 
   const handleMarkAllRead = async () => {
-    await markAllRead.mutate(undefined as unknown as void);
-    refetch();
+    await markAllReadMutation({});
   };
 
   return (
@@ -85,7 +86,6 @@ export function NotificationDropdown() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                disabled={markAllRead.isLoading}
                 className="flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline disabled:opacity-50"
               >
                 <CheckCheck size={12} /> Mark all read
@@ -107,18 +107,18 @@ export function NotificationDropdown() {
             ) : (
               notifications.map((n) => (
                 <div
-                  key={n.id}
-                  className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${n.is_read ? "opacity-60" : ""}`}
+                  key={n._id}
+                  className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${n.isRead ? "opacity-60" : ""}`}
                 >
                   <span className="mt-0.5 text-base">{TYPE_ICONS[n.type] ?? "🔔"}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug">{n.title}</p>
                     <p className="mt-0.5 text-xs text-brand-textMuted line-clamp-2">{n.message}</p>
-                    <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(n.created_at)}</p>
+                    <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(n._creationTime)}</p>
                   </div>
-                  {!n.is_read && (
+                  {!n.isRead && (
                     <button
-                      onClick={() => handleMarkRead(n.id)}
+                      onClick={() => handleMarkRead(n._id)}
                       className="mt-1 shrink-0 text-brand-textMuted hover:text-brand-primary"
                       aria-label="Mark as read"
                     >

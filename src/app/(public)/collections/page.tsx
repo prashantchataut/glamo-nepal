@@ -13,7 +13,7 @@ export const metadata = createMetadata({
 
 export default function CollectionsPage() {
   return (
-    <main className="min-h-screen bg-brand-bgLight">
+    <main className="min-h-screen bg-brand-bgLight pb-20 md:pb-0">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Collections", path: "/collections" }])} />
       <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_48%,#F7F1EA_100%)] py-10 md:py-14">
         <div className="container mx-auto px-4 md:px-6">

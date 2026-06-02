@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,14 +8,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { adminApi } from "@/lib/api/admin";
-import { useAdminMutation } from "@/lib/hooks/useAdminData";
+import { useAdjustStock } from "@/lib/hooks/useConvexQueries";
+import type { Id } from "convex/_generated/dataModel";
 import { toast } from "sonner";
 
 interface RestockModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  productId: string;
+  productId: Id<"products">;
   productName: string;
   currentStock: number;
   onRestocked?: () => void;
@@ -25,20 +25,14 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
   const [quantity, setQuantity] = useState(0);
   const [reason, setReason] = useState("");
 
-  const mutation = useAdminMutation(
-    useCallback(
-      (params: { productId: string; change: number; reason?: string }) =>
-        adminApi.adjustStock(params.productId, params.change, params.reason),
-      [],
-    ),
-  );
+  const adjustStock = useAdjustStock();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (quantity === 0) return;
 
     try {
-      await mutation.mutate({ productId, change: quantity, reason: reason || undefined });
+      await adjustStock({ productId, change: quantity, reason: reason || undefined });
       toast.success(quantity > 0 ? "Stock restocked successfully" : "Stock adjusted successfully");
       setQuantity(0);
       setReason("");
@@ -48,6 +42,8 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
       toast.error("Failed to update stock. Please try again.");
     }
   };
+
+  const isLoading = adjustStock !== undefined;
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { setQuantity(0); setReason(""); } }}>
@@ -123,10 +119,10 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
             </button>
             <button
               type="submit"
-              disabled={quantity === 0 || mutation.isLoading}
+              disabled={quantity === 0 || isLoading}
               className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {mutation.isLoading ? "Updating..." : quantity > 0 ? `Add ${quantity} units` : `Remove ${Math.abs(quantity)} units`}
+              {isLoading ? "Updating..." : quantity > 0 ? `Add ${quantity} units` : `Remove ${Math.abs(quantity)} units`}
             </button>
           </div>
         </form>

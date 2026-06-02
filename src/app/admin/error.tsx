@@ -2,7 +2,6 @@
 
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function AdminError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bgLight px-4">

@@ -1,21 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { ADMIN_SESSION_COOKIE, LEGACY_AUTH_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
-import { checkRateLimit } from "@/lib/rate-limit";
 
 const protectedPrefixes = ["/account"];
 const authPages = ["/login", "/register"];
-const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
 
 function isPathOrChild(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-function getClientIp(request: NextRequest): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || request.headers.get("x-real-ip")
-    || "unknown";
-}
+const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
 
 function generateCsrfToken(): string {
   const array = new Uint8Array(32);
@@ -30,7 +23,7 @@ function addSecurityHeaders(response: NextResponse) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com",
-    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
+    "connect-src 'self' https://honorable-gnu-383.convex.cloud https://honorable-gnu-383.convex.site https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -49,25 +42,11 @@ function addSecurityHeaders(response: NextResponse) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const ip = getClientIp(request);
   const method = request.method.toUpperCase();
 
   if (pathname.startsWith("/api/")) {
-    const rateResult = checkRateLimit(pathname, ip);
-    if (!rateResult.allowed) {
-      const response = NextResponse.json(
-        { status: "error", message: "Too many requests. Please try again later.", code: "RATE_LIMITED" },
-        { status: 429 }
-      );
-      response.headers.set("Retry-After", String(Math.ceil(rateResult.retryAfterMs / 1000)));
-      response.headers.set("X-RateLimit-Limit", String(rateResult.limit));
-      response.headers.set("X-RateLimit-Remaining", "0");
-      response.headers.set("X-RateLimit-Reset", String(Math.ceil(rateResult.resetAt / 1000)));
-      return addSecurityHeaders(response);
-    }
-
     if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
-      if (pathname === "/api/contact" || pathname === "/api/admin/login" || pathname === "/api/admin/logout" || pathname === "/api/newsletter" || pathname === "/api/checkout" || pathname === "/api/orders/create") {
+      if (pathname === "/api/contact" || pathname === "/api/newsletter" || pathname === "/api/checkout" || pathname === "/api/orders/create") {
         const csrfCookie = request.cookies.get(CSRF_TOKEN_COOKIE)?.value;
         const csrfHeader = request.headers.get("x-csrf-token");
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
@@ -82,17 +61,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const adminToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value || request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
-  const isProtected = protectedPrefixes.some((prefix) => isPathOrChild(pathname, prefix));
-  const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
   const isAdminPath = isPathOrChild(pathname, "/admin");
   const isAdminLogin = isPathOrChild(pathname, "/admin/login");
+  const isProtected = protectedPrefixes.some((prefix) => isPathOrChild(pathname, prefix));
+  const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
 
   const csrfToken = generateCsrfToken();
 
   if (isAdminPath && !isAdminLogin) {
-    const adminSession = await verifyAdminSessionToken(adminToken);
-    if (!adminSession) {
+    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
+    if (!hasAuth) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
@@ -121,8 +99,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAdminLogin) {
-    const adminSession = await verifyAdminSessionToken(adminToken);
-    if (adminSession) return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
+    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
+    if (hasAuth) {
+      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
+    }
     const response = addSecurityHeaders(NextResponse.next());
     if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
       response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
@@ -136,18 +116,20 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const glamoAuthToken = request.cookies.get("glamo-auth-token")?.value;
-  const legacyAuthCookie = request.cookies.get(LEGACY_AUTH_COOKIE)?.value;
-  const hasAuthSession = Boolean(glamoAuthToken) || Boolean(legacyAuthCookie);
-
-  if (isProtected && !hasAuthSession) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return addSecurityHeaders(NextResponse.redirect(loginUrl));
+  if (isProtected) {
+    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
+    if (!hasAuth) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return addSecurityHeaders(NextResponse.redirect(loginUrl));
+    }
   }
 
-  if (isAuthPage && hasAuthSession) {
-    return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
+  if (isAuthPage) {
+    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
+    if (hasAuth) {
+      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
+    }
   }
 
   const response = addSecurityHeaders(NextResponse.next());

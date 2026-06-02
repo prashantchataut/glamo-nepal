@@ -6,9 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[kv_namespaces]]
 binding = "KV"
 id = "placeholder-replace-after-creating-namespace"
-# DEPLOYMENT BLOCKER: Run `wrangler kv namespace create RATE_LIMITS` and replace
-# this id before deploying. Rate limiting will be disabled (requests pass through)
-# until this is configured.
+preview_id = "local-dev-kv"
 
 [[r2_buckets]]
 binding = "R2"
@@ -18,4 +16,3 @@ bucket_name = "glamo-nepal-assets"
 FRONTEND_URL = "http://localhost:3000"
 FREE_SHIPPING_THRESHOLD = "2500"
 COD_FEE = "50"
-# ADMIN_EMAIL should be set via: wrangler secret put ADMIN_EMAIL

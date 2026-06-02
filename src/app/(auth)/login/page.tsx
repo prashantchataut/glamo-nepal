@@ -11,8 +11,8 @@ export const metadata = createMetadata({
 
 export default function LoginPage() {
   return (
-    <main className="bg-[#fbf7f3] py-10 md:py-16">
-      <div className="container mx-auto px-4 md:px-6">
+    <main className="bg-[#fbf7f3] px-4 py-8 pb-24 md:px-6 md:py-12 md:pb-16">
+      <div className="container mx-auto">
         <Suspense fallback={<div className="mx-auto max-w-5xl bg-white p-8 text-neutral-400">Loading secure login...</div>}>
           <AuthForm mode="login" />
         </Suspense>

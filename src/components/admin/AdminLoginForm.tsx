@@ -1,13 +1,15 @@
 ﻿"use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Eye, EyeOff } from "lucide-react";
 
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = useMemo(() => searchParams.get("redirect") || "/admin", [searchParams]);
+  const redirectTo = searchParams.get("redirect") || "/admin";
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -20,27 +22,20 @@ export function AdminLoginForm() {
     setIsSubmitting(true);
 
     try {
-      const csrfToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("glamo-csrf-token="))
-        ?.split("=")[1] || "";
-      const response = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-csrf-token": csrfToken,
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const payload = await response.json().catch(() => null) as { ok?: boolean; message?: string } | null;
-      if (!response.ok || !payload?.ok) {
-        setError(payload?.message || "Admin sign in failed.");
+      const result = await signIn("password", { email, password, flow: "signIn" });
+      if (!result) {
+        setError("Invalid admin email or password.");
         return;
       }
       router.push(redirectTo.startsWith("/admin") ? redirectTo : "/admin");
       router.refresh();
-    } catch {
-      setError("Unable to reach the admin login service. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to complete admin login.";
+      if (message.includes("Invalid credentials") || message.includes("password")) {
+        setError("Invalid admin email or password.");
+      } else {
+        setError(message);
+      }
     } finally {
       setIsSubmitting(false);
     }

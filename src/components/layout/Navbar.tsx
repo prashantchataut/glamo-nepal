@@ -31,6 +31,11 @@ const SUPPORT_LINKS = [
   { name: "Contact", href: "/contact" },
 ];
 
+const AUTH_LINKS = [
+  { name: "Sign in", href: "/login" },
+  { name: "Create account", href: "/register" },
+];
+
 function isActivePath(pathname: string | null, href: string) {
   if (!pathname) return false;
   const cleanHref = href.split("?")[0];
@@ -147,39 +152,46 @@ export function Navbar() {
               GLAMO
             </Link>
 
-            <div className="flex items-center justify-end gap-1.5">
-              <button
-                type="button"
-                onClick={openSearchModal}
-                className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
-                aria-label="Search products"
-              >
-                <Search size={18} strokeWidth={1.7} />
-              </button>
-              <Link
-                href="/wishlist"
-                className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex"
-                aria-label="Wishlist"
-              >
-                <Heart size={18} strokeWidth={1.7} />
-                <CountBubble count={wishlistCount} />
-              </Link>
-              <Link
-                href="/account"
-                className="hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex"
-                aria-label="Account"
-              >
-                <User size={18} strokeWidth={1.7} />
-              </Link>
-              <Link
-                href="/cart"
-                className="relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
-                aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
-              >
-                <ShoppingBag size={19} strokeWidth={1.7} />
-                <CountBubble count={cartCount} />
-              </Link>
-            </div>
+<div className="flex items-center justify-end gap-1.5">
+               <button
+                 type="button"
+                 onClick={openSearchModal}
+                 className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
+                 aria-label="Search products"
+               >
+                 <Search size={18} strokeWidth={1.7} />
+               </button>
+               <Link
+                 href="/login"
+                 className="hidden min-h-10 min-w-10 items-center justify-center rounded-full text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary lg:flex"
+                 aria-label="Sign in"
+               >
+                 Sign in
+               </Link>
+               <Link
+                 href="/wishlist"
+                 className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex"
+                 aria-label="Wishlist"
+               >
+                 <Heart size={18} strokeWidth={1.7} />
+                 <CountBubble count={wishlistCount} />
+               </Link>
+               <Link
+                 href="/account"
+                 className="hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex"
+                 aria-label="Account"
+               >
+                 <User size={18} strokeWidth={1.7} />
+               </Link>
+               <Link
+                 href="/cart"
+                 className="relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
+                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
+               >
+                 <ShoppingBag size={19} strokeWidth={1.7} />
+                 <CountBubble count={cartCount} />
+               </Link>
+             </div>
           </div>
 
           <div className="pb-3 lg:pb-4">
@@ -285,6 +297,13 @@ export function Navbar() {
         </div>
 
         <div className="mt-auto border-t border-neutral-200 px-5 py-5">
+          <div className="mb-4 grid grid-cols-2 gap-2">
+            {AUTH_LINKS.map((link) => (
+              <Link key={link.name} href={link.href} className="rounded-2xl bg-primary px-3 py-3 text-center text-xs font-semibold text-white transition hover:bg-primary-dark">
+                {link.name}
+              </Link>
+            ))}
+          </div>
           <div className="grid grid-cols-3 gap-2 pb-5">
             <Link href="/account" className="rounded-2xl bg-white px-3 py-3 text-center text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
               Account

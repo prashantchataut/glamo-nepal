@@ -13,6 +13,7 @@ import {
   Gift,
   LockKeyhole,
   MapPin,
+  ShieldCheck,
   ShoppingBag,
   Truck,
 } from "lucide-react";
@@ -20,7 +21,7 @@ import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChe
 import type { PaymentMethodCode } from "@/lib/api/contracts";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
-import { calculateDeliveryFee, getDeliveryRule } from "@/lib/delivery";
+import { calculateDeliveryFee, getDeliveryRule, FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import {
   PROVINCES,
   getDistrictsForProvince,
@@ -102,6 +103,7 @@ export function CheckoutPageClient() {
   const { placeOrder } = useCheckoutStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -158,10 +160,10 @@ export function CheckoutPageClient() {
   );
 
   const inputClass =
-    "w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15";
+    "w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm";
   const labelClass =
-    "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500";
-  const errorClass = "mt-1.5 text-xs text-error";
+    "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500 md:mb-2";
+  const errorClass = "mt-1 text-xs text-error";
 
   function updateProvince(province: string) {
     const districts = getDistrictsForProvince(province as Province);
@@ -185,6 +187,7 @@ export function CheckoutPageClient() {
 
   async function onSubmit(data: CheckoutFormData) {
     setIsSubmitting(true);
+    setSubmitError(null);
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
       value: total,
@@ -250,6 +253,7 @@ export function CheckoutPageClient() {
     } catch {
       setIsSubmitting(false);
       const checkoutError = useCheckoutStore.getState().error;
+      setSubmitError(checkoutError || "Something went wrong. Please try again.");
       toast.error(checkoutError || "Order placement failed. Please try again.");
       return;
     }
@@ -260,12 +264,12 @@ export function CheckoutPageClient() {
 
   if (!items.length) {
     return (
-      <main className="bg-[#fffaf7] py-16 md:py-24">
-        <div className="mx-auto max-w-lg px-4 text-center">
+      <main className="bg-[#fffaf7] px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+        <div className="mx-auto max-w-lg text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f6e6f4] text-primary">
             <ShoppingBag size={30} />
           </div>
-          <h1 className="mt-6 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-neutral-950">
+          <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
             Your bag is empty
           </h1>
           <p className="mt-4 text-sm leading-7 text-neutral-500">
@@ -283,14 +287,14 @@ export function CheckoutPageClient() {
   }
 
   return (
-    <main className="bg-[#fffaf7] px-4 py-8 md:px-6 md:py-12 lg:px-8">
+    <main className="bg-[#fffaf7] px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 rounded-[2.5rem] bg-[#f6e6f4] px-5 py-6 md:px-8">
+        <div className="mb-6 rounded-[2rem] bg-[#f6e6f4] px-4 py-5 md:mb-8 md:rounded-[2.5rem] md:px-8 md:py-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
             Secure checkout
           </p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-neutral-950 md:text-7xl">
+            <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-7xl">
               Confirm your beauty bag.
             </h1>
             <p className="max-w-sm text-sm leading-7 text-neutral-600">
@@ -300,30 +304,32 @@ export function CheckoutPageClient() {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px] lg:items-start">
-          <section className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-7">
-            <div className="mb-8 grid grid-cols-4 gap-2">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
+          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:rounded-[2.25rem] md:p-7">
+            <div className="mb-6 flex items-center justify-between gap-2 md:mb-8">
               {steps.map((step, i) => {
                 const Icon = step.icon;
+                const isActive = currentStep === i;
+                const isCompleted = i < currentStep;
                 return (
                   <button
                     key={step.label}
                     type="button"
                     onClick={() => setCurrentStep(i)}
-                    className="text-left"
-                    aria-current={currentStep === i ? "step" : undefined}
+                    className="flex flex-col items-center gap-1.5"
+                    aria-current={isActive ? "step" : undefined}
                   >
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full transition ${stepButton(i)}`}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full transition md:h-10 md:w-10 ${stepButton(i)}`}
                     >
-                      {i < currentStep ? (
+                      {isCompleted ? (
                         <CheckCircle2 size={17} />
                       ) : (
                         <Icon size={17} />
                       )}
                     </div>
                     <span
-                      className={`mt-2 hidden text-xs font-semibold uppercase tracking-[0.12em] sm:block ${i <= currentStep ? "text-neutral-950" : "text-neutral-400"}`}
+                      className={`text-[10px] font-semibold uppercase tracking-[0.08em] md:text-xs md:tracking-[0.12em] ${isActive || isCompleted ? "text-neutral-950" : "text-neutral-400"}`}
                     >
                       {step.label}
                     </span>
@@ -334,11 +340,11 @@ export function CheckoutPageClient() {
 
             <form onSubmit={handleSubmit(onSubmit)}>
               {currentStep === 0 && (
-                <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                <div className="space-y-4 md:space-y-5">
+                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Contact & shipping
                   </h2>
-                  <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2 md:gap-5">
                     <div>
                       <label htmlFor="name" className={labelClass}>
                         Full name
@@ -348,6 +354,7 @@ export function CheckoutPageClient() {
                         {...register("name")}
                         className={inputClass}
                         placeholder="Your full name"
+                        autoComplete="name"
                       />
                       {errors.name && (
                         <p className={errorClass}>{errors.name.message}</p>
@@ -362,6 +369,7 @@ export function CheckoutPageClient() {
                         {...register("phone")}
                         className={inputClass}
                         placeholder="98XXXXXXXX"
+                        autoComplete="tel"
                       />
                       {errors.phone && (
                         <p className={errorClass}>{errors.phone.message}</p>
@@ -378,13 +386,14 @@ export function CheckoutPageClient() {
                       {...register("email")}
                       className={inputClass}
                       placeholder="your@email.com"
+                      autoComplete="email"
                     />
                     {errors.email && (
                       <p className={errorClass}>{errors.email.message}</p>
                     )}
                     <p className="mt-1 text-[11px] text-neutral-500">For order confirmation and delivery updates.</p>
                   </div>
-                  <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2 md:gap-5">
                     <div>
                       <label htmlFor="province" className={labelClass}>
                         Province
@@ -423,7 +432,7 @@ export function CheckoutPageClient() {
                       )}
                     </div>
                   </div>
-                  <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2 md:gap-5">
                     <div>
                       <label htmlFor="city" className={labelClass}>
                         City / municipality
@@ -452,6 +461,7 @@ export function CheckoutPageClient() {
                         {...register("ward")}
                         className={inputClass}
                         placeholder="Ward number"
+                        autoComplete="address-line2"
                       />
                       {errors.ward && (
                         <p className={errorClass}>{errors.ward.message}</p>
@@ -467,6 +477,7 @@ export function CheckoutPageClient() {
                       {...register("address")}
                       className={inputClass}
                       placeholder="House no., street, locality"
+                      autoComplete="street-address"
                     />
                     {errors.address && (
                       <p className={errorClass}>{errors.address.message}</p>
@@ -478,7 +489,7 @@ export function CheckoutPageClient() {
                       const valid = await trigger(["name", "phone", "province", "district", "city", "ward", "address"]);
                       if (valid) setCurrentStep(1);
                     }}
-                    className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    className="w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300 md:w-auto"
                   >
                     Continue to delivery
                   </button>
@@ -486,11 +497,11 @@ export function CheckoutPageClient() {
               )}
 
               {currentStep === 1 && (
-                <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                <div className="space-y-4 md:space-y-5">
+                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Delivery method
                   </h2>
-                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.5rem] border border-primary bg-[#fffaf7] p-5">
+                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.25rem] border border-primary bg-[#fffaf7] p-4 md:rounded-[1.5rem] md:p-5">
                     <input
                       type="radio"
                       name="delivery"
@@ -514,7 +525,7 @@ export function CheckoutPageClient() {
                     district={form.district}
                     province={form.province}
                   />
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                     <button
                       type="button"
                       onClick={() => setCurrentStep(0)}
@@ -534,8 +545,8 @@ export function CheckoutPageClient() {
               )}
 
               {currentStep === 2 && (
-                <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                <div className="space-y-4 md:space-y-5">
+                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Payment method
                   </h2>
                   <div className="grid gap-3">
@@ -544,7 +555,7 @@ export function CheckoutPageClient() {
                       return (
                         <label
                           key={method}
-                          className={`flex cursor-pointer items-center gap-4 rounded-[1.5rem] border p-5 transition ${form.payment === method ? "border-primary bg-[#fffaf7]" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
+                          className={`flex cursor-pointer items-center gap-4 rounded-[1.25rem] border p-4 transition md:rounded-[1.5rem] md:p-5 ${form.payment === method ? "border-primary bg-[#fffaf7]" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
                         >
                           <input
                             type="radio"
@@ -568,7 +579,7 @@ export function CheckoutPageClient() {
                       );
                     })}
                   </div>
-                  <label className="flex items-center gap-3 rounded-[1.5rem] border border-neutral-200 p-5 text-sm text-neutral-700">
+                  <label className="flex items-center gap-3 rounded-[1.25rem] border border-neutral-200 p-4 text-sm text-neutral-700 md:rounded-[1.5rem] md:p-5">
                     <input
                       type="checkbox"
                       {...register("giftWrap")}
@@ -584,11 +595,11 @@ export function CheckoutPageClient() {
                     <textarea
                       id="notes"
                       {...register("notes")}
-                      className={`${inputClass} min-h-28`}
+                      className={`${inputClass} min-h-24 md:min-h-28`}
                       placeholder="Delivery note, gift message or preferred call time"
                     />
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                     <button
                       type="button"
                       onClick={() => setCurrentStep(1)}
@@ -611,23 +622,23 @@ export function CheckoutPageClient() {
               )}
 
               {currentStep === 3 && (
-                <div className="space-y-5">
-                  <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] text-neutral-950">
+                <div className="space-y-4 md:space-y-5">
+                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Review order
                   </h2>
-                  <div className="divide-y divide-neutral-200 rounded-[1.5rem] border border-neutral-200">
+                  <div className="divide-y divide-neutral-200 rounded-[1.25rem] border border-neutral-200 md:rounded-[1.5rem]">
                     {items.map((item) => (
                       <div
                         key={`${item.product.id}-${item.selectedShade || "base"}`}
-                        className="flex gap-4 p-4"
+                        className="flex gap-3 p-3 md:gap-4 md:p-4"
                       >
-                        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
+                        <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-20 md:w-16 md:rounded-[1rem]">
                           <Image
                             src={item.product.image}
                             alt={item.product.name}
                             fill
                             className="object-cover"
-                            sizes="64px"
+                            sizes="(max-width: 768px) 56px, 64px"
                           />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -654,7 +665,7 @@ export function CheckoutPageClient() {
                       </div>
                     ))}
                   </div>
-                  <div className="rounded-[1.5rem] border border-neutral-200 bg-[#fffaf7] p-5">
+                  <div className="rounded-[1.25rem] border border-neutral-200 bg-[#fffaf7] p-4 md:rounded-[1.5rem] md:p-5">
                     <OrderSummary
                       subtotal={subtotal}
                       deliveryFee={deliveryFee}
@@ -662,7 +673,7 @@ export function CheckoutPageClient() {
                       total={total}
                     />
                   </div>
-                  <div className="rounded-[1.5rem] border border-neutral-200 p-5 text-sm leading-7 text-neutral-600">
+                  <div className="rounded-[1.25rem] border border-neutral-200 p-4 text-sm leading-7 text-neutral-600 md:rounded-[1.5rem] md:p-5">
                     <p className="font-semibold text-neutral-950">
                       Shipping to
                     </p>
@@ -676,7 +687,12 @@ export function CheckoutPageClient() {
                       Payment: {form.payment}
                     </p>
                   </div>
-                  <div className="flex gap-3">
+                  {submitError && (
+                    <div role="alert" className="rounded-[1rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error md:rounded-[1.25rem]">
+                      {submitError}
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
@@ -687,7 +703,7 @@ export function CheckoutPageClient() {
                     <button
                       type="submit"
                       disabled={!canSubmit || isSubmitting}
-                      className="flex-1 rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                      className="flex-1 rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
                     >
                       {isSubmitting ? "Placing order..." : "Place order"}
                     </button>
@@ -697,26 +713,26 @@ export function CheckoutPageClient() {
             </form>
           </section>
 
-          <aside className="rounded-[2.25rem] border border-neutral-200 bg-white p-6 shadow-editorial lg:sticky lg:top-24">
+          <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-editorial md:rounded-[2.25rem] md:p-6 lg:sticky lg:top-24">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
               Bag summary
             </p>
-            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-neutral-950">
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-neutral-950 md:text-4xl">
               {itemCount} item{itemCount === 1 ? "" : "s"}
             </h2>
-            <div className="mt-5 max-h-[360px] space-y-3 overflow-auto pr-1">
+            <div className="mt-4 max-h-[280px] space-y-2.5 overflow-auto pr-1 md:mt-5 md:max-h-[360px] md:space-y-3">
               {items.map((item) => (
                 <div
                   key={`${item.product.id}-${item.selectedShade || "base"}-summary`}
-                  className="flex gap-3 rounded-[1.25rem] bg-[#fffaf7] p-3"
+                  className="flex gap-3 rounded-[1rem] bg-[#fffaf7] p-2.5 md:rounded-[1.25rem] md:p-3"
                 >
-                  <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[1rem] bg-neutral-100">
+                  <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-16 md:w-14 md:rounded-[1rem]">
                     <Image
                       src={item.product.image}
                       alt={item.product.name}
                       fill
                       className="object-cover"
-                      sizes="56px"
+                      sizes="(max-width: 768px) 48px, 56px"
                     />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -730,7 +746,7 @@ export function CheckoutPageClient() {
                 </div>
               ))}
             </div>
-            <div className="mt-6 border-t border-neutral-200 pt-5">
+            <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-6 md:pt-5">
               <OrderSummary
                 subtotal={subtotal}
                 deliveryFee={deliveryFee}
@@ -738,12 +754,25 @@ export function CheckoutPageClient() {
                 total={total}
               />
             </div>
-            <div className="mt-5 flex gap-3 rounded-[1.25rem] bg-neutral-950 p-4 text-white">
-              <LockKeyhole size={18} className="mt-0.5 text-[#f0d3f3]" />
+            <div className="mt-4 flex gap-3 rounded-[1rem] bg-neutral-950 p-3.5 text-white md:rounded-[1.25rem] md:p-4">
+              <LockKeyhole size={18} className="mt-0.5 shrink-0 text-[#f0d3f3]" />
               <p className="text-xs leading-5 text-white/75">
-                Checkout stores only necessary order details and redirects to
-                confirmation after API order creation.
+                Secure checkout. Your details are encrypted and never shared.
               </p>
+            </div>
+            <div className="mt-3 space-y-2 text-xs leading-5 text-neutral-500">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={14} className="shrink-0 text-primary" />
+                <span>Authentic products, verified before dispatch</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Truck size={14} className="shrink-0 text-primary" />
+                <span>Free delivery on orders over {formatNPR(FREE_DELIVERY_THRESHOLD)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Gift size={14} className="shrink-0 text-primary" />
+                <span>Gift wrap available at checkout</span>
+              </div>
             </div>
           </aside>
         </div>

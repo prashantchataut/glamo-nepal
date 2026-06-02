@@ -134,7 +134,7 @@ export default function ShopPageContent() {
   }, [filters.category]);
 
   return (
-    <div className="min-h-screen bg-[#fffaf7]">
+    <div className="min-h-screen bg-[#fffaf7] pb-20 md:pb-0">
       {/* Page header */}
       <section className="bg-[#f6e6f4] py-12 md:py-18">
         <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">

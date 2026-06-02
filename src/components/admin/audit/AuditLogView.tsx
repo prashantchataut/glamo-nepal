@@ -1,11 +1,21 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
-import { adminApi, type AuditLog } from "@/lib/api/admin";
-import { useAdminData } from "@/lib/hooks/useAdminData";
-import { RefreshCw } from "lucide-react";
+import { useAuditLogs } from "@/lib/hooks/useConvexQueries";
+
+interface AuditLog {
+  _id: string;
+  _creationTime: number;
+  userId?: string;
+  action: string;
+  entity: string;
+  entityId?: string;
+  changes?: Record<string, unknown>;
+  ipAddress?: string;
+  userAgent?: string;
+}
 
 const ENTITY_LABELS: Record<string, string> = {
   products: "Product",
@@ -22,43 +32,30 @@ const ENTITY_LABELS: Record<string, string> = {
 
 const PAGE_SIZE = 20;
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <p className="text-sm text-brand-textMuted">{message}</p>
-      <button onClick={onRetry} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
-        <RefreshCw size={14} /> Retry
-      </button>
-    </div>
-  );
-}
-
 export function AuditLogView() {
   const [page, setPage] = useState(1);
   const [entityFilter, setEntityFilter] = useState("");
 
-  const { data, error, isLoading, isError, refetch } = useAdminData(
-    useCallback(
-      () => adminApi.getAuditLogs({
-        page,
-        limit: PAGE_SIZE,
-        entity: entityFilter || undefined,
-      }),
-      [page, entityFilter],
-    ),
-  );
+  const result = useAuditLogs({
+    page,
+    limit: PAGE_SIZE,
+    entity: entityFilter || undefined,
+  });
 
-  const logs = data?.logs ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = data?.totalPages ?? 1;
+  const logs = (result?.logs ?? []) as AuditLog[];
+  const total = result?.total ?? 0;
+  const totalPages = result?.totalPages ?? 1;
+  const isLoading = result === undefined;
+  const isError = result === null;
+  const error = isError ? "Failed to load audit logs" : null;
 
   const columns: Column<AuditLog>[] = [
     {
-      key: "created_at",
+      key: "_creationTime",
       header: "Time",
       render: (log) => (
         <span className="text-xs text-brand-textMuted">
-          {new Date(log.created_at).toLocaleString()}
+          {new Date(log._creationTime).toLocaleString()}
         </span>
       ),
     },
@@ -82,8 +79,8 @@ export function AuditLogView() {
       render: (log) => (
         <div>
           <span className="text-sm font-medium">{ENTITY_LABELS[log.entity] ?? log.entity}</span>
-          {log.entity_id && (
-            <span className="ml-1 font-mono text-xs text-brand-textMuted">#{log.entity_id.slice(0, 8)}</span>
+          {log.entityId && (
+            <span className="ml-1 font-mono text-xs text-brand-textMuted">#{log.entityId.slice(0, 8)}</span>
           )}
         </div>
       ),
@@ -95,7 +92,7 @@ export function AuditLogView() {
         if (!log.changes) return <span className="text-brand-textMuted">—</span>;
         try {
           const parsed = typeof log.changes === "string" ? JSON.parse(log.changes) : log.changes;
-          const keys = Object.keys(parsed);
+          const keys = Object.keys(parsed as Record<string, unknown>);
           if (keys.length === 0) return <span className="text-brand-textMuted">No changes</span>;
           return (
             <div className="max-w-[300px] truncate text-xs text-brand-textMuted">
@@ -108,27 +105,29 @@ export function AuditLogView() {
       },
     },
     {
-      key: "user_id",
+      key: "userId",
       header: "User",
       render: (log) => (
         <span className="font-mono text-xs text-brand-textMuted">
-          {log.user_id ? log.user_id.slice(0, 8) + "..." : "System"}
+          {log.userId ? log.userId.slice(0, 8) + "..." : "System"}
         </span>
       ),
     },
     {
-      key: "ip",
+      key: "ipAddress",
       header: "IP",
       render: (log) => (
-        <span className="font-mono text-xs text-brand-textMuted">{log.ip_address ?? "—"}</span>
+        <span className="font-mono text-xs text-brand-textMuted">{log.ipAddress ?? "—"}</span>
       ),
     },
   ];
 
-  if (isError && !data) {
+  if (isError && !result) {
     return (
       <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-        <ErrorState message={error || "Failed to load audit logs"} onRetry={refetch} />
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm text-brand-textMuted">{error}</p>
+        </div>
       </div>
     );
   }
@@ -161,7 +160,7 @@ export function AuditLogView() {
         <DataTable
           columns={columns}
           data={logs}
-          keyExtractor={(log) => log.id}
+          keyExtractor={(log) => log._id}
           caption="Audit log"
           isLoading={isLoading}
           emptyMessage={error ? `Error: ${error}` : "No audit logs found."}

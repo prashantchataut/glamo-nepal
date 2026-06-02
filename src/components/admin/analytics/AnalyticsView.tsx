@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { useAdminData } from "@/lib/hooks/useAdminData";
-import { adminApi, type DashboardStats, type SalesReport } from "@/lib/api/admin";
+import { useMemo, useState } from "react";
+import { useDashboardStats, useSalesReport } from "@/lib/hooks/useConvexQueries";
 import { formatNPR } from "@/lib/utils";
-import { RefreshCw, TrendingUp, ShoppingCart, Package } from "lucide-react";
+import { TrendingUp, ShoppingCart, Package } from "lucide-react";
 import type { ComponentType } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
@@ -46,13 +45,10 @@ function MiniBar({ label, value, max }: { label: string; value: number; max: num
   );
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <p className="text-sm text-brand-textMuted">{message}</p>
-      <button onClick={onRetry} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
-        <RefreshCw size={14} /> Retry
-      </button>
     </div>
   );
 }
@@ -76,17 +72,16 @@ function StatCard({ label, value, note, icon: Icon }: { label: string; value: st
 export function AnalyticsView() {
   const [dateRange, setDateRange] = useState<DateRange>("30d");
 
-  const fetchDashboard = useCallback(() => adminApi.dashboardStats(), []);
-  const { data: stats, error: statsError, isLoading: statsLoading, isError: isStatsError, refetch: refetchStats } = useAdminData<DashboardStats>(fetchDashboard);
+  const stats = useDashboardStats();
+  const { start, end } = getDateRange(dateRange);
+  const sales = useSalesReport(start, end, "day");
 
-  const fetchSales = useCallback(() => {
-    const { start, end } = getDateRange(dateRange);
-    return adminApi.getSalesReport(start, end, "day");
-  }, [dateRange]);
+  const statsLoading = stats === undefined;
+  const statsError = stats === null ? "Failed to load analytics" : null;
+  const salesLoading = sales === undefined;
+  const salesError = sales === null ? "Failed to load sales data" : null;
 
-  const { data: sales, error: salesError, isLoading: salesLoading, isError: isSalesError, refetch: refetchSales } = useAdminData<SalesReport>(fetchSales);
-
-const revenueChartData = useMemo(() => {
+  const revenueChartData = useMemo(() => {
     if (!sales) return [];
     return Object.entries(sales.revenueByPeriod)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -110,18 +105,20 @@ const revenueChartData = useMemo(() => {
     }));
   }, [stats]);
 
-  const topProducts = useMemo(() => stats?.topPerformers?.products ?? [], [stats]);
-  const maxSold = useMemo(() => Math.max(...topProducts.map((p) => p.totalSold), 1), [topProducts]);
+  const topProducts = useMemo(() => (stats as Record<string, unknown> | undefined)?.topPerformers && typeof (stats as Record<string, unknown>).topPerformers === "object" ? ((stats as Record<string, unknown>).topPerformers as Record<string, unknown>)?.products as Record<string, unknown>[] ?? [] : [], [stats]);
+  const maxSold = useMemo(() => Math.max(...topProducts.map((p) => (p as Record<string, unknown>).totalSold as number ?? 0), 1), [topProducts]);
 
   const categoryBreakdown = useMemo(() => {
-    if (!stats?.topPerformers?.categories) return [];
-    return Object.entries(stats.topPerformers.categories).sort(([, a], [, b]) => b - a);
+    const cats = (stats as Record<string, unknown>)?.topPerformers && typeof (stats as Record<string, unknown>).topPerformers === "object"
+      ? ((stats as Record<string, unknown>).topPerformers as Record<string, number>) : null;
+    if (!cats) return [];
+    return Object.entries(cats).sort(([, a], [, b]) => b - a);
   }, [stats]);
 
   const maxCategory = useMemo(() => Math.max(...categoryBreakdown.map(([, v]) => v), 1), [categoryBreakdown]);
 
-  if (isStatsError && !stats) {
-    return <ErrorState message={statsError || "Failed to load analytics"} onRetry={refetchStats} />;
+  if (statsError && !stats) {
+    return <ErrorState message={statsError} />;
   }
 
   return (
@@ -171,8 +168,8 @@ const revenueChartData = useMemo(() => {
           <h3 className="font-display text-xl font-semibold">Revenue trend</h3>
           {salesLoading ? (
             <div className="mt-4 h-64 animate-pulse rounded bg-brand-bgLight" />
-          ) : isSalesError ? (
-            <ErrorState message={salesError || "Failed to load revenue data"} onRetry={refetchSales} />
+          ) : salesError ? (
+            <ErrorState message={salesError} />
           ) : revenueChartData.length > 0 ? (
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -231,8 +228,8 @@ const revenueChartData = useMemo(() => {
               </div>
             ) : topProducts.length > 0 ? (
               <div className="mt-4 space-y-3">
-                {topProducts.map((product) => (
-                  <MiniBar key={product.id} label={product.name} value={product.totalSold} max={maxSold} />
+                {topProducts.map((product, i) => (
+                  <MiniBar key={i} label={String((product as Record<string, unknown>).name ?? "")} value={Number((product as Record<string, unknown>).totalSold ?? 0)} max={maxSold} />
                 ))}
               </div>
             ) : (
@@ -251,7 +248,7 @@ const revenueChartData = useMemo(() => {
             ) : categoryBreakdown.length > 0 ? (
               <div className="mt-4 space-y-3">
                 {categoryBreakdown.map(([category, count]) => (
-                  <MiniBar key={category} label={category} value={count} max={maxCategory} />
+                  <MiniBar key={category} label={category} value={count as number} max={maxCategory} />
                 ))}
               </div>
             ) : (

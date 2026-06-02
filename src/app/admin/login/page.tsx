@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = createMetadata({
   title: "Sign In — GLAMO NEPAL",
   description: "Sign in to your workspace.",
-  robots: { index: false, follow: false },
-};
+  path: "/admin/login",
+  noIndex: true,
+});
 
 export default function AdminLoginPage() {
   return (

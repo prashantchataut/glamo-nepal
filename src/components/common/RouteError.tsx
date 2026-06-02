@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AlertTriangle, RefreshCcw, ShoppingBag } from "lucide-react";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function RouteError({ title = "This GLAMO page needs a refresh", description = "Something interrupted this section. Try again or continue shopping.", reset, error }: { title?: string; description?: string; reset?: () => void; error?: Error & { digest?: string } }) {
+export function RouteError({ title = "This GLAMO page needs a refresh", description = "Something interrupted this section. Try again or continue shopping.", reset, error: _error }: { title?: string; description?: string; reset?: () => void; error?: Error & { digest?: string } }) {
   return (
     <main className="min-h-[70vh] bg-brand-bgLight px-4 py-16">
       <div className="mx-auto max-w-3xl overflow-hidden rounded-[2.25rem] border border-brand-border bg-white text-center shadow-editorial">

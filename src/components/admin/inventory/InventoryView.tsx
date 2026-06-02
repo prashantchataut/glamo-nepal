@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
-import { useAdminData } from "@/lib/hooks/useAdminData";
-import { adminApi, type StockReport } from "@/lib/api/admin";
+import { useMemo, useState } from "react";
+import { useInventoryReport, useLowStockAlerts } from "@/lib/hooks/useConvexQueries";
+import type { Id } from "convex/_generated/dataModel";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
@@ -12,7 +12,6 @@ import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { RestockModal } from "@/components/admin/inventory/RestockModal";
 import { Boxes, AlertTriangle, Store, RefreshCw } from "lucide-react";
 import type { ComponentType } from "react";
-import { useState } from "react";
 
 function StatCard({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: ComponentType<{ size?: number | string; className?: string }> }) {
   return (
@@ -51,47 +50,49 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 const PAGE_SIZE = 20;
 
+interface InventoryRow {
+  id: Id<"products">;
+  name: string;
+  sku: string | null;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  category: { name: string } | null;
+}
+
 export function InventoryView() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [restockTarget, setRestockTarget] = useState<{ id: string; name: string; stock: number } | null>(null);
+  const [restockTarget, setRestockTarget] = useState<{ id: Id<"products">; name: string; stock: number } | null>(null);
 
-  const fetchStockReport = useCallback(
-    () => adminApi.getStockReport({ page, limit: PAGE_SIZE, search: search || undefined }),
-    [page, search]
-  );
+  const stockReport = useInventoryReport({ page, limit: PAGE_SIZE, search: search || undefined });
+  const lowStockData = useLowStockAlerts();
 
-  const fetchLowStock = useCallback(() => adminApi.getLowStockAlerts(), []);
-
-  const {
-    data: stockReport,
-    error: stockError,
-    isLoading: stockLoading,
-    isError: isStockError,
-    refetch: refetchStock,
-  } = useAdminData<StockReport>(fetchStockReport);
-
-  const {
-    data: lowStockAlerts,
-    error: lowStockError,
-    isLoading: lowStockLoading,
-    isError: isLowStockError,
-    refetch: refetchLowStock,
-  } = useAdminData(fetchLowStock);
-
-  const totalUnits = useMemo(() => {
-    if (!stockReport) return 0;
-    return stockReport.products.reduce((sum, p) => sum + p.stock_quantity, 0);
+  const products: InventoryRow[] = useMemo(() => {
+    if (!stockReport) return [];
+    if (Array.isArray(stockReport)) return stockReport as InventoryRow[];
+    return ((stockReport as Record<string, unknown>).products ?? []) as InventoryRow[];
   }, [stockReport]);
 
-  const inventoryValue = useMemo(() => {
+  const total = useMemo(() => {
     if (!stockReport) return 0;
-    return stockReport.products.reduce((sum, p) => sum + p.stock_quantity, 0);
+    if (Array.isArray(stockReport)) return stockReport.length;
+    return (stockReport as Record<string, unknown>).total as number ?? 0;
   }, [stockReport]);
 
-  const lowStockCount = lowStockAlerts?.length ?? 0;
+  const lowStockAlerts = useMemo(() => {
+    if (!lowStockData) return [];
+    if (Array.isArray(lowStockData)) return lowStockData;
+    return [];
+  }, [lowStockData]);
 
-  const columns: Column<StockReport["products"][number]>[] = [
+  const totalUnits = useMemo(() => products.reduce((sum, p) => sum + p.stock_quantity, 0), [products]);
+  const inventoryValue = useMemo(() => products.reduce((sum, p) => sum + p.stock_quantity, 0), [products]);
+  const lowStockCount = lowStockAlerts.length;
+
+  const isStockLoading = stockReport === undefined;
+  const isStockError = stockReport === null;
+
+  const columns: Column<InventoryRow>[] = [
     {
       key: "name",
       header: "Product",
@@ -139,8 +140,8 @@ export function InventoryView() {
     },
   ];
 
-  if (isStockError && !stockReport) {
-    return <ErrorState message={stockError || "Failed to load inventory data"} onRetry={refetchStock} />;
+  if (isStockError) {
+    return <ErrorState message="Failed to load inventory data" onRetry={() => window.location.reload()} />;
   }
 
   return (
@@ -153,7 +154,7 @@ export function InventoryView() {
           </div>
         </div>
 
-        {stockLoading || lowStockLoading ? (
+        {isStockLoading ? (
           <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="rounded-[2rem] border border-brand-border bg-white p-6">
@@ -178,19 +179,19 @@ export function InventoryView() {
         <div className="mt-4">
           <DataTable
             columns={columns}
-            data={stockReport?.products ?? []}
+            data={products}
             keyExtractor={(row) => row.id}
             caption="Stock report"
-            isLoading={stockLoading}
+            isLoading={isStockLoading}
             emptyMessage="No products found."
           />
         </div>
 
-        {stockReport && Math.ceil(stockReport.total / PAGE_SIZE) > 1 && (
+        {Math.ceil(total / PAGE_SIZE) > 1 && (
           <Pagination
             page={page}
-            totalPages={Math.ceil(stockReport.total / PAGE_SIZE)}
-            total={stockReport.total}
+            totalPages={Math.ceil(total / PAGE_SIZE)}
+            total={total}
             pageSize={PAGE_SIZE}
             onPageChange={setPage}
           />
@@ -199,17 +200,17 @@ export function InventoryView() {
 
       <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
         <h3 className="font-display text-xl font-semibold">Low stock alerts</h3>
-        {lowStockLoading ? (
+        {lowStockData === undefined ? (
           <div className="mt-4 space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="h-16 animate-pulse rounded-xl bg-brand-bgLight" />
             ))}
           </div>
-        ) : isLowStockError ? (
-          <ErrorState message={lowStockError || "Failed to load alerts"} onRetry={refetchLowStock} />
-        ) : lowStockAlerts && lowStockAlerts.length > 0 ? (
+        ) : lowStockData === null ? (
+          <ErrorState message="Failed to load alerts" onRetry={() => window.location.reload()} />
+        ) : lowStockAlerts.length > 0 ? (
           <div className="mt-4 space-y-2">
-            {lowStockAlerts.map((item) => {
+            {lowStockAlerts.map((item: { id: Id<"products">; name: string; sku: string; stock_quantity: number; low_stock_threshold: number }) => {
               const status = getStockStatus(item.stock_quantity, item.low_stock_threshold);
               return (
                 <div key={item.id} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -239,10 +240,10 @@ export function InventoryView() {
         <RestockModal
           open={!!restockTarget}
           onOpenChange={(open) => { if (!open) setRestockTarget(null); }}
-          productId={restockTarget.id}
+          productId={restockTarget.id as Id<"products">}
           productName={restockTarget.name}
           currentStock={restockTarget.stock}
-          onRestocked={() => { refetchStock(); refetchLowStock(); }}
+          onRestocked={() => {}}
         />
       )}
     </section>

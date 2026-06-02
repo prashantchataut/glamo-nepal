@@ -18,7 +18,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <main className="bg-neutral-50">
+    <main className="bg-neutral-50 pb-20 md:pb-0">
       <EditorialHero
         eyebrow="Our story"
         title="Beauty curated with Nepal in mind."

@@ -113,8 +113,8 @@ export function CartPageClient() {
   }
 
   return (
-    <main className="bg-[#fffaf7] py-8 md:py-12">
-      <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+    <main className="bg-[#fffaf7] px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12">
+      <div className="mx-auto max-w-7xl">
         <Link
           href="/shop"
           className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-neutral-500 transition hover:text-primary"
@@ -122,21 +122,21 @@ export function CartPageClient() {
           <ArrowLeft size={16} /> Continue shopping
         </Link>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_410px] lg:items-start">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section>
-            <div className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:p-8">
+            <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:rounded-[2.25rem] md:p-5 md:shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                 Shopping bag
               </p>
               <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <h1 className="font-display text-5xl font-semibold leading-none tracking-[-0.05em] text-neutral-950 md:text-6xl">
+                <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl md:tracking-[-0.05em]">
                   Ready for checkout
                 </h1>
                 <p className="text-sm text-neutral-500">
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>
               </div>
-              <div className="mt-7 rounded-[1.5rem] border border-neutral-200 bg-[#fffaf7] p-4">
+              <div className="mt-5 rounded-[1.25rem] border border-neutral-200 bg-[#fffaf7] p-3.5 md:mt-7 md:rounded-[1.5rem] md:p-4">
                 <div className="flex items-center gap-3 text-sm text-neutral-700">
                   <Truck size={18} className="text-primary" />{" "}
                   {remainingForFreeDelivery === 0
@@ -145,22 +145,22 @@ export function CartPageClient() {
                 </div>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-neutral-200">
                   <div
-                    className="h-full rounded-full bg-primary"
+                    className="h-full rounded-full bg-primary transition-all duration-500"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="mt-4 space-y-3 md:mt-5 md:space-y-4">
               {items.map((item) => (
                 <article
                   key={`${item.product.id}-${item.selectedShade || "base"}`}
-                  className="grid grid-cols-[104px_minmax(0,1fr)] gap-4 rounded-[2rem] border border-neutral-200 bg-white p-4 shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:p-5"
+                  className="grid grid-cols-[80px_minmax(0,1fr)] gap-3 rounded-[1.5rem] border border-neutral-200 bg-white p-3 shadow-[0_18px_60px_-52px_rgba(26,21,18,0.35)] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:rounded-[2rem] sm:p-5 sm:shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)]"
                 >
                   <Link
                     href={`/products/${item.product.slug}`}
-                    className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#f8f0ec]"
+                    className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#f8f0ec] sm:rounded-[1.5rem]"
                   >
                     <Image
                       src={item.product.image}
@@ -171,19 +171,19 @@ export function CartPageClient() {
                     />
                   </Link>
                   <div className="min-w-0">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start justify-between gap-2 sm:gap-3">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
                           {item.product.brand}
                         </p>
                         <Link
                           href={`/products/${item.product.slug}`}
-                          className="mt-1 block font-display text-2xl font-semibold leading-none tracking-[-0.03em] text-neutral-950 transition hover:text-primary"
+                          className="mt-1 block font-display text-xl font-semibold leading-none tracking-[-0.03em] text-neutral-950 transition hover:text-primary sm:text-2xl"
                         >
                           {item.product.name}
                         </Link>
                         {item.selectedShade ? (
-                          <p className="mt-2 text-sm text-neutral-500">
+                          <p className="mt-1.5 text-xs text-neutral-500 sm:mt-2">
                             Shade: {item.selectedShade}
                           </p>
                         ) : null}
@@ -192,13 +192,13 @@ export function CartPageClient() {
                         onClick={() =>
                           removeItem(item.product.id, item.selectedShade)
                         }
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-error"
+                        className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-error sm:min-h-11 sm:min-w-11"
                         aria-label={`Remove ${item.product.name}`}
                       >
                         <X size={18} />
                       </button>
                     </div>
-                    <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
                       <div className="inline-flex w-fit items-center rounded-full border border-neutral-200 bg-neutral-50">
                         <button
                           type="button"
@@ -210,7 +210,7 @@ export function CartPageClient() {
                               item.selectedShade,
                             )
                           }
-                          className="flex min-h-11 min-w-11 items-center justify-center text-neutral-700 transition hover:text-primary disabled:opacity-35"
+                          className="flex min-h-10 min-w-10 items-center justify-center text-neutral-700 transition hover:text-primary disabled:opacity-35 sm:min-h-11 sm:min-w-11"
                           aria-label="Decrease quantity"
                         >
                           <Minus size={15} />
@@ -227,14 +227,14 @@ export function CartPageClient() {
                               item.selectedShade,
                             )
                           }
-                          className="flex min-h-11 min-w-11 items-center justify-center text-neutral-700 transition hover:text-primary"
+                          className="flex min-h-10 min-w-10 items-center justify-center text-neutral-700 transition hover:text-primary sm:min-h-11 sm:min-w-11"
                           aria-label="Increase quantity"
                         >
                           <Plus size={15} />
                         </button>
                       </div>
                       <div className="text-left sm:text-right">
-                        <p className="font-display text-2xl font-semibold leading-none text-neutral-950">
+                        <p className="font-display text-xl font-semibold leading-none text-neutral-950 sm:text-2xl">
                           {formatNPR(item.product.price * item.quantity)}
                         </p>
                         <p className="mt-1 text-xs text-neutral-400">
@@ -248,11 +248,11 @@ export function CartPageClient() {
             </div>
           </section>
 
-          <aside className="rounded-[2.25rem] border border-neutral-200 bg-white p-6 shadow-editorial lg:sticky lg:top-24">
+          <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-editorial md:rounded-[2.25rem] md:p-6 lg:sticky lg:top-24">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
               Order summary
             </p>
-            <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.04em] text-neutral-950">
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-neutral-950 md:text-4xl">
               Your total
             </h2>
             <div className="mt-6 space-y-4 border-b border-neutral-200 pb-5">

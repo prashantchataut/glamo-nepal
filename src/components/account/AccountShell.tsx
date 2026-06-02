@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { clearAuthCookies } from "@/lib/auth-cookies";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 const navLinks = [
   { name: "Dashboard", href: "/account", icon: LayoutDashboard },
@@ -26,11 +26,12 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuthStore((state) => state);
   const clearCart = useCartStore((state) => state.clearCart);
   const resetCheckout = useCheckoutStore((state) => state.reset);
+  const { signOut } = useAuthActions();
 
   const isLoading = !user;
 
-  const handleLogout = () => {
-    clearAuthCookies();
+  const handleLogout = async () => {
+    await signOut();
     logout();
     clearCart();
     resetCheckout();
@@ -53,7 +54,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-brand-bgLight">
+    <div className="min-h-screen bg-brand-bgLight pb-20 md:pb-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <nav className="lg:hidden flex overflow-x-auto gap-1 pb-4 no-scrollbar" aria-label="Account navigation">
           {navLinks.map(({ name, href, icon: Icon }) => {

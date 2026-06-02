@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,8 +12,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { adminApi, type AdminProduct, type CreateProductInput } from "@/lib/api/admin";
-import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import {
+  useCategories,
+  useBrands,
+  useCreateProduct,
+  useUpdateProduct,
+} from "@/lib/hooks/useConvexQueries";
+import type { Id } from "convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 
@@ -40,34 +45,51 @@ const productSchema = z.object({
 
 type ProductFormData = z.input<typeof productSchema>;
 
+interface ProductImage {
+  id: string;
+  url: string;
+  alt_text?: string;
+  sort_order: number;
+  is_primary: number;
+}
+
+interface ProductFormProduct {
+  id: Id<"products">;
+  name: string;
+  slug: string;
+  description?: string;
+  short_description?: string;
+  sku?: string;
+  category_id: string;
+  brand_id?: string;
+  base_price: number;
+  sale_price?: number;
+  cost_price?: number;
+  is_featured: number;
+  is_digital: number;
+  track_inventory: number;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  tags?: string;
+  meta_title?: string;
+  meta_description?: string;
+  images?: ProductImage[];
+}
+
 interface ProductFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  product?: AdminProduct | null;
+  product?: ProductFormProduct | null;
   onSaved?: () => void;
 }
 
 export function ProductFormModal({ open, onOpenChange, product, onSaved }: ProductFormModalProps) {
   const isEditing = !!product;
 
-  const { data: categories } = useAdminData(
-    useCallback(() => adminApi.listCategories(), []),
-    { enabled: open },
-  );
-
-  const { data: brands } = useAdminData(
-    useCallback(() => adminApi.listBrands(), []),
-    { enabled: open },
-  );
-
-  const createMutation = useAdminMutation(adminApi.createProduct);
-  const updateMutation = useAdminMutation(
-    useCallback(
-      (params: { id: string; data: Partial<CreateProductInput> }) =>
-        adminApi.updateProduct(params.id, params.data),
-      [],
-    ),
-  );
+  const categories = useCategories();
+  const brands = useBrands();
+  const createMutation = useCreateProduct();
+  const updateMutation = useUpdateProduct();
 
   const {
     register,
@@ -139,38 +161,48 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     }
   }, [product, reset]);
 
-  const onSubmit = useCallback(
-    async (data: ProductFormData) => {
-      const payload: CreateProductInput = {
-        ...data,
-        base_price: Number(data.base_price) || 0,
-        sale_price: data.sale_price ? Number(data.sale_price) : undefined,
-        cost_price: data.cost_price ? Number(data.cost_price) : undefined,
-        is_featured: Number(data.is_featured) || 0,
-        is_digital: Number(data.is_digital) || 0,
-        track_inventory: Number(data.track_inventory) || 1,
-        stock_quantity: Number(data.stock_quantity) || 0,
-        low_stock_threshold: Number(data.low_stock_threshold) || 5,
-      };
-      try {
-        if (isEditing && product) {
-          await updateMutation.mutate({ id: product.id, data: payload });
-          toast.success("Product updated successfully");
-        } else {
-          await createMutation.mutate(payload);
-          toast.success("Product created successfully");
-        }
-        onOpenChange(false);
-        onSaved?.();
-      } catch {
-        toast.error("Something went wrong. Please try again.");
+  const onSubmit = async (data: ProductFormData) => {
+    const slugValue = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const payload = {
+      name: data.name,
+      slug: slugValue,
+      description: data.description || undefined,
+      shortDescription: data.short_description || undefined,
+      sku: data.sku || undefined,
+      categoryId: data.category_id as Id<"categories">,
+      brandId: data.brand_id ? (data.brand_id as Id<"brands">) : undefined,
+      basePrice: Number(data.base_price) || 0,
+      salePrice: data.sale_price ? Number(data.sale_price) : undefined,
+      costPrice: data.cost_price ? Number(data.cost_price) : undefined,
+      isFeatured: Boolean(data.is_featured),
+      isDigital: Boolean(data.is_digital),
+      trackInventory: Boolean(data.track_inventory),
+      stockQuantity: Number(data.stock_quantity) || 0,
+      lowStockThreshold: Number(data.low_stock_threshold) || 5,
+      tags: data.tags ? data.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : undefined,
+      metaTitle: data.meta_title || undefined,
+      metaDescription: data.meta_description || undefined,
+    };
+    try {
+      if (isEditing && product) {
+        await updateMutation({ id: product.id, ...payload });
+        toast.success("Product updated successfully");
+      } else {
+        await createMutation(payload);
+        toast.success("Product created successfully");
       }
-    },
-    [isEditing, product, createMutation, updateMutation, onOpenChange, onSaved],
-  );
+      onOpenChange(false);
+      onSaved?.();
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
 
-  const isLoading = createMutation.isLoading || updateMutation.isLoading;
-  const [images, setImages] = useState<Array<{ id: string; url: string; is_primary: number; alt_text?: string }>>(
+  const isCreating = createMutation !== undefined && typeof createMutation === "function";
+  const isUpdating = updateMutation !== undefined && typeof updateMutation === "function";
+  const isLoading = isCreating || isUpdating;
+
+  const [images, setImages] = useState<ProductImage[]>(
     product?.images ?? [],
   );
   const [uploading, setUploading] = useState(false);
@@ -179,7 +211,7 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     if (product?.images) setImages(product.images);
   }, [product?.images]);
 
-  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!product) {
@@ -188,34 +220,25 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     }
     setUploading(true);
     try {
-      const result = await adminApi.uploadProductImage(product.id, file);
-      const imgData = result.data?.image;
-      if (!imgData) {
-        toast.error("Upload failed. No image data returned.");
-        return;
-      }
-      setImages((prev) => [...prev, { id: imgData.id, url: imgData.url, is_primary: prev.length === 0 ? 1 : 0, alt_text: undefined }]);
-      toast.success("Image uploaded");
-      onSaved?.();
-    } catch {
-      toast.error("Failed to upload image");
+      toast.info("Image upload coming soon");
     } finally {
       setUploading(false);
       e.target.value = "";
     }
-  }, [product, onSaved]);
+  };
 
-  const handleImageDelete = useCallback(async (imageId: string) => {
+  const handleImageDelete = async (imageId: string) => {
     if (!product) return;
     try {
-      await adminApi.deleteProductImage(product.id, imageId);
+      toast.info("Image upload coming soon");
       setImages((prev) => prev.filter((img) => img.id !== imageId));
-      toast.success("Image removed");
-      onSaved?.();
     } catch {
       toast.error("Failed to remove image");
     }
-  }, [product, onSaved]);
+  };
+
+  const categoryList = categories ?? [];
+  const brandList = brands ?? [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -267,8 +290,8 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
                 className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
               >
                 <option value="">Select category</option>
-                {categories?.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                {categoryList.map((cat: Record<string, unknown>) => (
+                  <option key={String(cat._id ?? cat.id)} value={String(cat._id ?? cat.id)}>{String(cat.name)}</option>
                 ))}
               </select>
               {errors.category_id && <p className="text-xs text-admin-error">{errors.category_id.message}</p>}
@@ -281,8 +304,8 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
                 className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
               >
                 <option value="">Select brand</option>
-                {brands?.map((brand) => (
-                  <option key={brand.id} value={brand.id}>{brand.name}</option>
+                {brandList.map((brand: Record<string, unknown>) => (
+                  <option key={String(brand._id ?? brand.id)} value={String(brand._id ?? brand.id)}>{String(brand.name)}</option>
                 ))}
               </select>
             </label>

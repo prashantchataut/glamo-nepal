@@ -160,7 +160,7 @@ export default function ProductDetailClient({
   }
 
   return (
-    <main className="bg-[#fffaf7]">
+    <main className="bg-[#fffaf7] pb-20 md:pb-0">
       <section className="border-b border-neutral-200 bg-[#f6e6f4] px-4 py-4 md:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav

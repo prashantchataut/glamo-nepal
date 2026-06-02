@@ -37,7 +37,13 @@ export function useAdminData<T>(
       setData(result.data);
     } catch (err) {
       if (err instanceof GlamoApiError) {
-        setError(err.message);
+        if (err.code === "API_BASE_URL_MISSING") {
+          setError("The API backend is not configured. Start the backend with `wrangler dev` or set NEXT_PUBLIC_API_BASE_URL in .env.local.");
+        } else if (err.code === "NETWORK_ERROR") {
+          setError("Could not reach the API backend. Make sure the backend is running (wrangler dev) and NEXT_PUBLIC_API_BASE_URL is correct.");
+        } else {
+          setError(err.message);
+        }
       } else if (err instanceof Error) {
         setError(err.message);
       } else {

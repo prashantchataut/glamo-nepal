@@ -5,6 +5,7 @@ import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
@@ -62,9 +63,11 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
-        <ComponentErrorBoundary name="RootLayout">
-          <AppShell>{children}</AppShell>
-        </ComponentErrorBoundary>
+        <ConvexClientProvider>
+          <ComponentErrorBoundary name="RootLayout">
+            <AppShell>{children}</AppShell>
+          </ComponentErrorBoundary>
+        </ConvexClientProvider>
         <ConditionalAnalytics />
       </body>
     </html>

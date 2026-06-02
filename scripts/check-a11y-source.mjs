@@ -19,13 +19,13 @@ function lineFor(source, index) {
 
 function collectOpeningTags(source, tagName) {
   const tags = [];
-  let index = 0;
-  const needle = `<${tagName}`;
-  while ((index = source.indexOf(needle, index)) !== -1) {
-    const end = source.indexOf(">", index);
-    if (end === -1) break;
-    tags.push({ text: source.slice(index, end + 1), index });
-    index = end + 1;
+  const regex = new RegExp(`<${tagName}(?:\\s|>|\\/)`, "g");
+  let match;
+  while ((match = regex.exec(source)) !== null) {
+    const start = match.index;
+    const end = source.indexOf(">", start);
+    if (end === -1) continue;
+    tags.push({ text: source.slice(start, end + 1), index: start });
   }
   return tags;
 }
