@@ -24,6 +24,7 @@ interface RestockModalProps {
 export function RestockModal({ open, onOpenChange, productId, productName, currentStock, onRestocked }: RestockModalProps) {
   const [quantity, setQuantity] = useState(0);
   const [reason, setReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const adjustStock = useAdjustStock();
 
@@ -31,6 +32,7 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
     e.preventDefault();
     if (quantity === 0) return;
 
+    setIsSubmitting(true);
     try {
       await adjustStock({ productId, change: quantity, reason: reason || undefined });
       toast.success(quantity > 0 ? "Stock restocked successfully" : "Stock adjusted successfully");
@@ -40,10 +42,10 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
       onRestocked?.();
     } catch {
       toast.error("Failed to update stock. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  const isLoading = adjustStock !== undefined;
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { setQuantity(0); setReason(""); } }}>
@@ -119,10 +121,10 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
             </button>
             <button
               type="submit"
-              disabled={quantity === 0 || isLoading}
+              disabled={quantity === 0 || isSubmitting}
               className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {isLoading ? "Updating..." : quantity > 0 ? `Add ${quantity} units` : `Remove ${Math.abs(quantity)} units`}
+              {isSubmitting ? "Updating..." : quantity > 0 ? `Add ${quantity} units` : `Remove ${Math.abs(quantity)} units`}
             </button>
           </div>
         </form>

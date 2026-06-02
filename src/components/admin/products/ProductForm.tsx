@@ -91,6 +91,8 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -183,6 +185,7 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
       metaTitle: data.meta_title || undefined,
       metaDescription: data.meta_description || undefined,
     };
+    setIsSubmitting(true);
     try {
       if (isEditing && product) {
         await updateMutation({ id: product.id, ...payload });
@@ -195,12 +198,10 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
       onSaved?.();
     } catch {
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  const isCreating = createMutation !== undefined && typeof createMutation === "function";
-  const isUpdating = updateMutation !== undefined && typeof updateMutation === "function";
-  const isLoading = isCreating || isUpdating;
 
   const [images, setImages] = useState<ProductImage[]>(
     product?.images ?? [],
@@ -445,10 +446,10 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {isLoading ? "Saving..." : isEditing ? "Update product" : "Create product"}
+              {isSubmitting ? "Saving..." : isEditing ? "Update product" : "Create product"}
             </button>
           </div>
         </form>
