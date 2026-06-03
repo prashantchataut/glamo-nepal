@@ -140,7 +140,7 @@ export default defineSchema({
     discountAmount: v.number(),
     totalAmount: v.number(),
     couponId: v.optional(v.id("coupons")),
-    shippingAddress: v.object({
+shippingAddress: v.object({
       fullName: v.string(),
       phone: v.string(),
       addressLine1: v.string(),
@@ -149,7 +149,9 @@ export default defineSchema({
       district: v.optional(v.string()),
       province: v.optional(v.string()),
       postalCode: v.optional(v.string()),
-      country: v.string(),
+      country: v.optional(v.string()),
+      label: v.optional(v.string()),
+      isDefault: v.optional(v.boolean()),
     }),
     billingAddress: v.optional(v.object({
       fullName: v.string(),
@@ -160,7 +162,9 @@ export default defineSchema({
       district: v.optional(v.string()),
       province: v.optional(v.string()),
       postalCode: v.optional(v.string()),
-      country: v.string(),
+      country: v.optional(v.string()),
+      label: v.optional(v.string()),
+      isDefault: v.optional(v.boolean()),
     })),
     notes: v.optional(v.string()),
     cancelledAt: v.optional(v.number()),
@@ -308,11 +312,7 @@ export default defineSchema({
     action: v.string(),
     entity: v.string(),
     entityId: v.optional(v.string()),
-    changes: v.optional(v.object({
-      field: v.string(),
-      oldValue: v.optional(v.string()),
-      newValue: v.optional(v.string()),
-    })),
+    changes: v.optional(v.string()),
     ipAddress: v.optional(v.string()),
     userAgent: v.optional(v.string()),
   })

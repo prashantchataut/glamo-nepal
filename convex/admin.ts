@@ -266,7 +266,7 @@ export const createAuditLog = mutation({
     action: v.string(),
     entity: v.string(),
     entityId: v.optional(v.string()),
-    changes: v.optional(v.any()),
+    changes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();

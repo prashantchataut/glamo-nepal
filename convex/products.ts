@@ -276,7 +276,7 @@ export const update = mutation({
       action: "UPDATE",
       entity: "products",
       entityId: id,
-      changes: cleaned,
+      changes: JSON.stringify(Object.entries(cleaned).map(([field, newValue]) => ({ field, newValue: String(newValue) }))),
     });
 
     return id;

@@ -180,7 +180,7 @@ export const updateOrderStatus = mutation({
       action: "UPDATE_STATUS",
       entity: "orders",
       entityId: args.id,
-      changes: { status: args.status },
+      changes: JSON.stringify([{ field: "status", newValue: String(args.status) }]),
     });
 
     return { message: "Order status updated" };
@@ -220,7 +220,7 @@ export const cancelOrder = mutation({
       action: "CANCEL",
       entity: "orders",
       entityId: args.id,
-      changes: { reason: args.reason },
+      changes: JSON.stringify([{ field: "status", newValue: "CANCELLED" }, ...(args.reason ? [{ field: "cancelReason", newValue: args.reason }] : [])]),
     });
 
     return { message: "Order cancelled" };
@@ -295,8 +295,30 @@ export const createOrder = mutation({
       shippingCharge: args.shippingCharge,
       discountAmount: args.discountAmount ?? 0,
       totalAmount: args.totalAmount,
-      shippingAddress: args.shippingAddress,
-      billingAddress: args.billingAddress,
+      shippingAddress: {
+        fullName: args.shippingAddress.fullName,
+        phone: args.shippingAddress.phone,
+        addressLine1: args.shippingAddress.addressLine1,
+        addressLine2: args.shippingAddress.addressLine2,
+        city: args.shippingAddress.city,
+        district: args.shippingAddress.district,
+        province: args.shippingAddress.province,
+        postalCode: args.shippingAddress.postalCode,
+        country: args.shippingAddress.country ?? "Nepal",
+      },
+      billingAddress: args.billingAddress
+        ? {
+            fullName: args.billingAddress.fullName,
+            phone: args.billingAddress.phone,
+            addressLine1: args.billingAddress.addressLine1,
+            addressLine2: args.billingAddress.addressLine2,
+            city: args.billingAddress.city,
+            district: args.billingAddress.district,
+            province: args.billingAddress.province,
+            postalCode: args.billingAddress.postalCode,
+            country: args.billingAddress.country ?? "Nepal",
+          }
+        : undefined,
       notes: args.notes,
       couponId: args.couponId,
     });
