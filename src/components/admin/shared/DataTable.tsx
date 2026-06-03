@@ -64,7 +64,8 @@ export function DataTable<T>({
                   type="checkbox"
                   checked={allSelected}
                   ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
-                  onChange={() => {
+                  onChange={(e) => {
+                    e.stopPropagation();
                     if (allSelected) {
                       onSelectionChange(new Set());
                     } else {
@@ -93,11 +94,12 @@ export function DataTable<T>({
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => {
-                    const next = new Set(selectedIds);
-                    if (isSelected) { next.delete(rowKey); } else { next.add(rowKey); }
-                    onSelectionChange(next);
-                  }}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        const next = new Set(selectedIds);
+                        if (isSelected) { next.delete(rowKey); } else { next.add(rowKey); }
+                        onSelectionChange(next);
+                      }}
                       className="h-4 w-4 rounded border-brand-border accent-brand-primary"
                     />
                   </td>

@@ -23,7 +23,7 @@ function addSecurityHeaders(response: NextResponse) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com",
-    "connect-src 'self' https://honorable-gnu-383.convex.cloud https://honorable-gnu-383.convex.site https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
+    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",

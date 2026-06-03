@@ -69,7 +69,7 @@ export function OrdersView() {
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      await updateStatus({ id: orderId as Id<"orders">, status: newStatus });
+      await updateStatus({ id: orderId as Id<"orders">, status: newStatus as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
       toast.success("Order status updated");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");

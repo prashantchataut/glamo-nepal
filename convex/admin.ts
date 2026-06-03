@@ -197,7 +197,7 @@ export const listUsers = query({
 });
 
 export const updateUserRole = mutation({
-  args: { userId: v.id("userProfiles"), role: v.string() },
+  args: { userId: v.id("userProfiles"), role: v.union(v.literal("CUSTOMER"), v.literal("STAFF"), v.literal("ADMIN"), v.literal("SUPER_ADMIN")) },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
@@ -205,7 +205,6 @@ export const updateUserRole = mutation({
       .query("userProfiles")
       .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
       .first();
-    requireRole(profile, ["SUPER_ADMIN"]);
     const validRoles = ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"];
     if (!validRoles.includes(args.role)) throw new Error("Invalid role");
     await ctx.db.patch(args.userId, { role: args.role as "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN" });
@@ -273,8 +272,15 @@ export const createAuditLog = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .first();
+    requireRole(profile, ["ADMIN", "SUPER_ADMIN", "STAFF"]);
+
     await ctx.db.insert("auditLogs", {
-      userId: identity?.subject as any ?? undefined,
+      userId: identity.subject as any,
       action: args.action,
       entity: args.entity,
       entityId: args.entityId,

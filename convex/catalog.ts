@@ -124,6 +124,13 @@ export const addToCart = mutation({
 export const updateCartItem = mutation({
   args: { id: v.id("cartItems"), quantity: v.number() },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const item = await ctx.db.get(args.id);
+    if (!item) throw new Error("Cart item not found");
+    if (item.userId !== (identity.subject as any)) throw new Error("Not your cart item");
+
     if (args.quantity <= 0) {
       await ctx.db.delete(args.id);
       return { message: "Item removed" };
@@ -136,6 +143,13 @@ export const updateCartItem = mutation({
 export const removeFromCart = mutation({
   args: { id: v.id("cartItems") },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const item = await ctx.db.get(args.id);
+    if (!item) throw new Error("Cart item not found");
+    if (item.userId !== (identity.subject as any)) throw new Error("Not your cart item");
+
     await ctx.db.delete(args.id);
     return { message: "Item removed" };
   },

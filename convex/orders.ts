@@ -151,7 +151,7 @@ export const getOrder = query({
 });
 
 export const updateOrderStatus = mutation({
-  args: { id: v.id("orders"), status: v.string() },
+  args: { id: v.id("orders"), status: v.union(v.literal("PENDING"), v.literal("CONFIRMED"), v.literal("PROCESSING"), v.literal("SHIPPED"), v.literal("DELIVERED"), v.literal("CANCELLED"), v.literal("REFUNDED")) },
   handler: async (ctx, args) => {
     const identity = requireAuth(ctx);
     const profile = await ctx.db
@@ -240,8 +240,32 @@ export const createOrder = mutation({
         imageUrl: v.optional(v.string()),
       })
     ),
-    shippingAddress: v.any(),
-    billingAddress: v.optional(v.any()),
+    shippingAddress: v.object({
+      fullName: v.string(),
+      phone: v.string(),
+      addressLine1: v.string(),
+      addressLine2: v.optional(v.string()),
+      city: v.string(),
+      district: v.optional(v.string()),
+      province: v.optional(v.string()),
+      postalCode: v.optional(v.string()),
+      country: v.optional(v.string()),
+      label: v.optional(v.string()),
+      isDefault: v.optional(v.boolean()),
+    }),
+    billingAddress: v.optional(v.object({
+      fullName: v.string(),
+      phone: v.string(),
+      addressLine1: v.string(),
+      addressLine2: v.optional(v.string()),
+      city: v.string(),
+      district: v.optional(v.string()),
+      province: v.optional(v.string()),
+      postalCode: v.optional(v.string()),
+      country: v.optional(v.string()),
+      label: v.optional(v.string()),
+      isDefault: v.optional(v.boolean()),
+    })),
     paymentMethod: v.union(
       v.literal("CASH_ON_DELIVERY"),
       v.literal("KHALTI"),

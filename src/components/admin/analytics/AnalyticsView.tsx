@@ -177,7 +177,7 @@ export function AnalyticsView() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
                   <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
-                  <Tooltip formatter={((value: any) => formatNPR(Number(value))) as any} labelFormatter={((label: any) => label) as any} />
+                  <Tooltip formatter={(value) => [formatNPR(Number(value)), "Revenue"]} labelFormatter={(label) => label} />
                   <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -201,7 +201,7 @@ export function AnalyticsView() {
                         <Cell key={entry.name} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={((value: any) => `${value} orders`) as any} />
+                    <Tooltip formatter={(value) => [`${value} orders`, "Orders"]} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">

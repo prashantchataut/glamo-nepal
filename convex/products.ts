@@ -308,6 +308,14 @@ export const remove = mutation({
 export const toggleVisibility = mutation({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .first();
+    requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
+
     const product = await ctx.db.get(args.id);
     if (!product) throw new Error("Product not found");
     await ctx.db.patch(args.id, { isActive: !product.isActive });
@@ -318,6 +326,14 @@ export const toggleVisibility = mutation({
 export const toggleFeatured = mutation({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .first();
+    requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
+
     const product = await ctx.db.get(args.id);
     if (!product) throw new Error("Product not found");
     await ctx.db.patch(args.id, { isFeatured: !product.isFeatured });
@@ -341,6 +357,7 @@ export const adjustStock = mutation({
 
     const previousStock = product.stockQuantity;
     const newStock = previousStock + args.change;
+    if (newStock < 0) throw new Error(`Insufficient stock. Current: ${previousStock}, attempted change: ${args.change}`);
 
     await ctx.db.patch(args.productId, { stockQuantity: newStock });
 
