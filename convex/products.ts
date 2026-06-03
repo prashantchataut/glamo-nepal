@@ -1,6 +1,16 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+function assertString(value: unknown, field: string, min = 1, max = 500) {
+  if (typeof value !== "string" || value.length < min || value.length > max) {
+    throw new Error(`${field} must be ${min}-${max} characters`);
+  }
+}
+
+function assertNonNegative(value: number, field: string) {
+  if (value < 0) throw new Error(`${field} must be non-negative`);
+}
+
 export const list = query({
   args: {
     page: v.optional(v.number()),
@@ -191,6 +201,15 @@ export const create = mutation({
     metaDescription: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    assertString(args.name, "name", 1, 500);
+    assertString(args.slug, "slug", 1, 500);
+    if (args.shortDescription) assertString(args.shortDescription, "shortDescription", 0, 500);
+    if (args.sku) assertString(args.sku, "sku", 0, 50);
+    assertNonNegative(args.basePrice, "basePrice");
+    if (args.salePrice !== undefined) assertNonNegative(args.salePrice, "salePrice");
+    if (args.costPrice !== undefined) assertNonNegative(args.costPrice, "costPrice");
+    if (args.stockQuantity !== undefined) assertNonNegative(args.stockQuantity, "stockQuantity");
+    if (args.lowStockThreshold !== undefined) assertNonNegative(args.lowStockThreshold, "lowStockThreshold");
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db

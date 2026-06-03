@@ -1,6 +1,26 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+function assertString(value: unknown, field: string, min = 1, max = 500) {
+  if (typeof value !== "string" || value.length < min || value.length > max) {
+    throw new Error(`${field} must be ${min}-${max} characters`);
+  }
+}
+
+function assertNonNegative(value: number, field: string) {
+  if (value < 0) throw new Error(`${field} must be non-negative`);
+}
+
+function assertRange(value: number, field: string, min: number, max: number) {
+  if (value < min || value > max) throw new Error(`${field} must be ${min}-${max}`);
+}
+
+function assertMinLength(value: string, field: string, min: number, max: number) {
+  if (value.length < min || value.length > max) {
+    throw new Error(`${field} must be ${min}-${max} characters`);
+  }
+}
+
 function requireAuth(ctx: any) {
   const identity = ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Not authenticated");
@@ -280,6 +300,28 @@ export const createOrder = mutation({
     couponId: v.optional(v.id("coupons")),
   },
   handler: async (ctx, args) => {
+    for (const item of args.items) {
+      assertMinLength(item.name, "item name", 1, 500);
+      assertRange(item.quantity, "quantity", 1, 99);
+      assertNonNegative(item.unitPrice, "unitPrice");
+      assertNonNegative(item.totalPrice, "totalPrice");
+    }
+    assertMinLength(args.shippingAddress.fullName, "fullName", 1, 200);
+    assertMinLength(args.shippingAddress.phone, "phone", 1, 30);
+    assertMinLength(args.shippingAddress.addressLine1, "addressLine1", 1, 500);
+    assertMinLength(args.shippingAddress.city, "city", 1, 100);
+    if (args.billingAddress) {
+      assertMinLength(args.billingAddress.fullName, "fullName", 1, 200);
+      assertMinLength(args.billingAddress.phone, "phone", 1, 30);
+      assertMinLength(args.billingAddress.addressLine1, "addressLine1", 1, 500);
+      assertMinLength(args.billingAddress.city, "city", 1, 100);
+    }
+    assertNonNegative(args.subtotal, "subtotal");
+    assertNonNegative(args.shippingCharge, "shippingCharge");
+    assertNonNegative(args.totalAmount, "totalAmount");
+    if (args.discountAmount) assertNonNegative(args.discountAmount, "discountAmount");
+    if (args.notes) assertString(args.notes, "notes", 1, 2000);
+
     const identity = requireAuth(ctx);
 
     const orderCount = (await ctx.db.query("orders").collect()).length;

@@ -1,6 +1,26 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+function assertString(value: unknown, field: string, min = 1, max = 500) {
+  if (typeof value !== "string" || value.length < min || value.length > max) {
+    throw new Error(`${field} must be ${min}-${max} characters`);
+  }
+}
+
+function assertEmail(value: string) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || value.length > 320) {
+    throw new Error("Invalid email address");
+  }
+}
+
+function assertNonNegative(value: number, field: string) {
+  if (value < 0) throw new Error(`${field} must be non-negative`);
+}
+
+function assertRange(value: number, field: string, min: number, max: number) {
+  if (value < min || value > max) throw new Error(`${field} must be ${min}-${max}`);
+}
+
 export const getCategories = query({
   args: {},
   handler: async (ctx) => {
@@ -53,6 +73,11 @@ export const getBanners = query({
 export const submitContact = mutation({
   args: { name: v.string(), email: v.string(), phone: v.optional(v.string()), subject: v.string(), message: v.string() },
   handler: async (ctx, args) => {
+    assertString(args.name, "name", 1, 200);
+    assertEmail(args.email);
+    if (args.phone) assertString(args.phone, "phone", 1, 30);
+    assertString(args.subject, "subject", 1, 200);
+    assertString(args.message, "message", 1, 5000);
     await ctx.db.insert("contactSubmissions", args);
     return { message: "Contact form submitted successfully" };
   },
@@ -61,6 +86,7 @@ export const submitContact = mutation({
 export const subscribeNewsletter = mutation({
   args: { email: v.string() },
   handler: async (ctx, args) => {
+    assertEmail(args.email);
     const existing = await ctx.db
       .query("newsletterSubscribers")
       .withIndex("email", (q) => q.eq("email", args.email))
@@ -95,6 +121,7 @@ export const getCart = query({
 export const addToCart = mutation({
   args: { productId: v.id("products"), variantId: v.optional(v.id("productVariants")), quantity: v.number() },
   handler: async (ctx, args) => {
+    assertRange(args.quantity, "quantity", 1, 99);
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
 
@@ -124,6 +151,7 @@ export const addToCart = mutation({
 export const updateCartItem = mutation({
   args: { id: v.id("cartItems"), quantity: v.number() },
   handler: async (ctx, args) => {
+    if (args.quantity > 0) assertRange(args.quantity, "quantity", 1, 99);
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
 
@@ -245,6 +273,11 @@ export const addAddress = mutation({
     isDefault: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    assertString(args.fullName, "fullName", 1, 200);
+    assertString(args.phone, "phone", 1, 30);
+    assertString(args.addressLine1, "addressLine1", 1, 500);
+    assertString(args.city, "city", 1, 100);
+    if (args.label) assertString(args.label, "label", 1, 50);
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
 
