@@ -26,7 +26,7 @@ import {
   useToggleProductVisibility,
 } from "@/lib/hooks/useConvexQueries";
 import { useAdminStore } from "@/store/useAdminStore";
-import { ProductFormModal } from "@/components/admin/products/ProductForm";
+import { ProductFormModal, type ProductFormProduct } from "@/components/admin/products/ProductForm";
 import { ProductDetailModal } from "@/components/admin/products/ProductDetailModal";
 import type { Id } from "convex/_generated/dataModel";
 
@@ -35,16 +35,51 @@ const PAGE_SIZE = 20;
 interface ProductRow {
   id: string;
   name: string;
+  slug: string;
+  description?: string;
+  shortDescription?: string;
   sku: string | null;
-  base_price: number;
-  sale_price: number | null;
-  stock_quantity: number;
-  low_stock_threshold: number;
-  is_active: boolean;
-  is_featured: boolean;
-  brand: { name: string } | null;
-  category: { name: string } | null;
-  images: { url: string; is_primary: boolean }[];
+  categoryId: string;
+  brandId?: string;
+  basePrice: number;
+  salePrice: number | null;
+  costPrice?: number;
+  isFeatured: boolean;
+  isDigital: boolean;
+  trackInventory: boolean;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  isActive: boolean;
+  brand: { id: string; name: string; slug: string } | null;
+  category: { id: string; name: string; slug: string } | null;
+  images: { id: string; url: string; alt_text?: string; sort_order: number; is_primary: number }[];
+  tags?: string[];
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
+function toFormProduct(p: ProductRow): ProductFormProduct {
+  return {
+    id: p.id as Id<"products">,
+    name: p.name,
+    slug: p.slug,
+    description: p.description,
+    short_description: p.shortDescription,
+    sku: p.sku ?? undefined,
+    category_id: p.categoryId,
+    brand_id: p.brandId,
+    base_price: p.basePrice,
+    sale_price: p.salePrice ?? undefined,
+    cost_price: p.costPrice,
+    is_featured: p.isFeatured ? 1 : 0,
+    is_digital: p.isDigital ? 1 : 0,
+    track_inventory: p.trackInventory ? 1 : 0,
+    stock_quantity: p.stockQuantity,
+    low_stock_threshold: p.lowStockThreshold,
+    tags: p.tags?.join(", "),
+    meta_title: p.metaTitle,
+    meta_description: p.metaDescription,
+  };
 }
 
 export function ProductsView() {
@@ -52,7 +87,7 @@ export function ProductsView() {
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [editProduct, setEditProduct] = useState<ProductRow | null>(null);
+  const [editProduct, setEditProduct] = useState<ProductFormProduct | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
@@ -127,9 +162,9 @@ export function ProductsView() {
         p.name,
         p.brand?.name ?? "",
         p.category?.name ?? "",
-        String(p.base_price),
-        String(p.stock_quantity),
-        p.is_active ? "active" : "inactive",
+        String(p.basePrice),
+        String(p.stockQuantity),
+        p.isActive ? "active" : "inactive",
       ]),
     ].map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","));
     const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
@@ -147,9 +182,9 @@ export function ProductsView() {
       header: "Product",
       render: (product) => (
         <div className="flex items-center gap-4">
-          {product.images?.find((img) => img.is_primary)?.url ? (
+          {product.images?.find((img) => img.is_primary === 1)?.url ? (
             <NextImage
-              src={product.images.find((img) => img.is_primary)?.url ?? ""}
+              src={product.images.find((img) => img.is_primary === 1)?.url ?? ""}
               alt={product.name}
               width={40}
               height={40}
@@ -182,9 +217,9 @@ export function ProductsView() {
       header: "Price",
       render: (product) => (
         <div>
-          <span className="font-semibold">{formatNPR(product.base_price)}</span>
-          {product.sale_price && product.sale_price < product.base_price && (
-            <span className="ml-2 text-xs text-brand-textMuted line-through">{formatNPR(product.base_price)}</span>
+          <span className="font-semibold">{formatNPR(product.basePrice)}</span>
+          {product.salePrice && product.salePrice < product.basePrice && (
+            <span className="ml-2 text-xs text-brand-textMuted line-through">{formatNPR(product.basePrice)}</span>
           )}
         </div>
       ),
@@ -192,13 +227,13 @@ export function ProductsView() {
     {
       key: "stock",
       header: "Stock",
-      render: (product) => <span>{product.stock_quantity} pcs</span>,
+      render: (product) => <span>{product.stockQuantity} pcs</span>,
     },
     {
       key: "status",
       header: "Status",
       render: (product) => {
-        const status = product.stock_quantity <= 0 ? "Out" : product.stock_quantity <= product.low_stock_threshold ? "Low" : "Active";
+        const status = product.stockQuantity <= 0 ? "Out" : product.stockQuantity <= product.lowStockThreshold ? "Low" : "Active";
         return <StatusPill variant={stockStatusToVariant(status)}>{status}</StatusPill>;
       },
     },
@@ -217,7 +252,7 @@ export function ProductsView() {
           <button
             aria-label="Edit product"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
-            onClick={() => { setEditProduct(product); setFormOpen(true); }}
+            onClick={() => { setEditProduct(toFormProduct(product)); setFormOpen(true); }}
           >
             <Pencil size={15} />
           </button>
@@ -354,7 +389,7 @@ export function ProductsView() {
       <ProductFormModal
         open={formOpen}
         onOpenChange={setFormOpen}
-        product={editProduct as any}
+        product={editProduct}
         onSaved={() => {}}
       />
 

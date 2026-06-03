@@ -53,7 +53,7 @@ interface ProductImage {
   is_primary: number;
 }
 
-interface ProductFormProduct {
+export interface ProductFormProduct {
   id: Id<"products">;
   name: string;
   slug: string;

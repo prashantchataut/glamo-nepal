@@ -205,9 +205,7 @@ export const updateUserRole = mutation({
       .query("userProfiles")
       .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
       .first();
-    const validRoles = ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"];
-    if (!validRoles.includes(args.role)) throw new Error("Invalid role");
-    await ctx.db.patch(args.userId, { role: args.role as "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN" });
+    await ctx.db.patch(args.userId, { role: args.role });
     return { message: "Role updated" };
   },
 });
