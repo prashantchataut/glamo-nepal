@@ -63,7 +63,8 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
         toast.success("Signed in successfully.");
       }
       const redirectTo = params.get("redirect") || "/account";
-      router.push(redirectTo.startsWith("/") ? redirectTo : "/account");
+      const safeRedirect = /^\/[a-zA-Z0-9/_-]*$/.test(redirectTo) ? redirectTo : "/account";
+      router.push(safeRedirect);
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Authentication failed. Please try again.";

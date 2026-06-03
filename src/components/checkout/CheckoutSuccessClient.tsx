@@ -11,10 +11,14 @@ import { JsonLd } from "@/components/seo/JsonLd";
 export function CheckoutSuccessClient() {
   const order = useCheckoutStore((state) => state.lastOrder);
 
-  function copyOrderNumber() {
+  async function copyOrderNumber() {
     if (!order?.orderNumber) return;
-    navigator.clipboard?.writeText(order.orderNumber);
-    toast.success("Order number copied");
+    try {
+      await navigator.clipboard.writeText(order.orderNumber);
+      toast.success("Order number copied");
+    } catch {
+      toast.error("Could not copy — please select and copy manually");
+    }
   }
 
   if (!order) {
