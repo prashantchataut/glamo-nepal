@@ -90,7 +90,12 @@ export default defineSchema({
     price: v.number(),
     salePrice: v.optional(v.number()),
     stockQuantity: v.number(),
-    attributes: v.optional(v.any()),
+    attributes: v.optional(v.object({
+      color: v.optional(v.string()),
+      size: v.optional(v.string()),
+      material: v.optional(v.string()),
+      weight: v.optional(v.string()),
+    })),
     isActive: v.boolean(),
   })
     .index("productId", ["productId"]),
@@ -135,8 +140,28 @@ export default defineSchema({
     discountAmount: v.number(),
     totalAmount: v.number(),
     couponId: v.optional(v.id("coupons")),
-    shippingAddress: v.any(),
-    billingAddress: v.optional(v.any()),
+    shippingAddress: v.object({
+      fullName: v.string(),
+      phone: v.string(),
+      addressLine1: v.string(),
+      addressLine2: v.optional(v.string()),
+      city: v.string(),
+      district: v.optional(v.string()),
+      province: v.optional(v.string()),
+      postalCode: v.optional(v.string()),
+      country: v.string(),
+    }),
+    billingAddress: v.optional(v.object({
+      fullName: v.string(),
+      phone: v.string(),
+      addressLine1: v.string(),
+      addressLine2: v.optional(v.string()),
+      city: v.string(),
+      district: v.optional(v.string()),
+      province: v.optional(v.string()),
+      postalCode: v.optional(v.string()),
+      country: v.string(),
+    })),
     notes: v.optional(v.string()),
     cancelledAt: v.optional(v.number()),
     cancelReason: v.optional(v.string()),
@@ -260,14 +285,19 @@ export default defineSchema({
     type: v.string(),
     title: v.string(),
     message: v.string(),
-    data: v.optional(v.any()),
+    data: v.optional(v.object({
+      url: v.optional(v.string()),
+      orderId: v.optional(v.id("orders")),
+      productId: v.optional(v.id("products")),
+      message: v.optional(v.string()),
+    })),
     isRead: v.boolean(),
   })
     .index("userId", ["userId"]),
 
   siteSettings: defineTable({
     key: v.string(),
-    value: v.any(),
+    value: v.union(v.string(), v.number(), v.boolean()),
     groupName: v.string(),
   })
     .index("key", ["key"])
@@ -278,7 +308,11 @@ export default defineSchema({
     action: v.string(),
     entity: v.string(),
     entityId: v.optional(v.string()),
-    changes: v.optional(v.any()),
+    changes: v.optional(v.object({
+      field: v.string(),
+      oldValue: v.optional(v.string()),
+      newValue: v.optional(v.string()),
+    })),
     ipAddress: v.optional(v.string()),
     userAgent: v.optional(v.string()),
   })
