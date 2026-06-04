@@ -23,7 +23,24 @@ export class ComponentErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(`[ErrorBoundary${this.props.name ? `:${this.props.name}` : ""}]`, error, errorInfo);
+    const label = this.props.name ? `:${this.props.name}` : "";
+    console.error(`[ErrorBoundary${label}]`, error, errorInfo);
+
+    if (process.env.NODE_ENV === "production" && typeof window !== "undefined" && typeof fetch === "function") {
+      const endpoint = "/api/error-report";
+      fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          boundary: this.props.name || "unknown",
+          url: window.location.href,
+          timestamp: new Date().toISOString(),
+        }),
+      }).catch(() => {});
+    }
   }
 
   render() {

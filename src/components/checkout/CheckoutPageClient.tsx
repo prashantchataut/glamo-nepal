@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -104,6 +104,13 @@ export function CheckoutPageClient() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !document.cookie.includes("glamo-auth-token") && !document.cookie.includes("__host-auth-token")) {
+      const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+      router.replace(`/login?redirect=${redirect}`);
+    }
+  }, [router]);
 
   const {
     register,

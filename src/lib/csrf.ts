@@ -2,10 +2,16 @@ const CSRF_COOKIE_NAME = "glamo-csrf-token";
 
 export function getCsrfToken(): string {
   if (typeof document === "undefined") return "";
-  const match = document.cookie.split("; ").find((row) => row.startsWith(`${CSRF_COOKIE_NAME}=`));
-  return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : "";
+  const cookies = document.cookie.split("; ");
+  for (const row of cookies) {
+    if (row.startsWith(`${CSRF_COOKIE_NAME}=`)) {
+      return decodeURIComponent(row.split("=").slice(1).join("="));
+    }
+  }
+  return "";
 }
 
 export function csrfHeaders(): Record<string, string> {
-  return { "x-csrf-token": getCsrfToken() };
+  const token = getCsrfToken();
+  return token ? { "x-csrf-token": token } : {};
 }

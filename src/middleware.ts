@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedPrefixes = ["/account"];
+const protectedPrefixes = ["/account", "/checkout"];
 const authPages = ["/login", "/register"];
 
 function isPathOrChild(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
+function hasValidAuthToken(request: NextRequest): boolean {
+  const hostToken = request.cookies.get("__host-auth-token")?.value;
+  const legacyToken = request.cookies.get("glamo-auth-token")?.value;
+  const token = hostToken || legacyToken;
+  if (!token) return false;
+  return token.length >= 16;
 }
 
 const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
@@ -15,6 +23,7 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_AUTH = 10;
 const RATE_LIMIT_MAX_API = 100;
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 function checkRateLimit(ip: string, key: string, maxRequests: number): NextResponse | null {
   const limitKey = `${ip}:${key}`;
@@ -101,8 +110,7 @@ export async function middleware(request: NextRequest) {
   const csrfToken = generateCsrfToken();
 
   if (isAdminPath && !isAdminLogin) {
-    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
-    if (!hasAuth) {
+    if (!hasValidAuthToken(request)) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
@@ -110,7 +118,7 @@ export async function middleware(request: NextRequest) {
         response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
           httpOnly: false,
           sameSite: "lax",
-          secure: process.env.NODE_ENV === "production",
+          secure: IS_PRODUCTION,
           path: "/",
           maxAge: 60 * 60 * 24,
         });
@@ -122,7 +130,7 @@ export async function middleware(request: NextRequest) {
       response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
         httpOnly: false,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: IS_PRODUCTION,
         path: "/",
         maxAge: 60 * 60 * 24,
       });
@@ -131,8 +139,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAdminLogin) {
-    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
-    if (hasAuth) {
+    if (hasValidAuthToken(request)) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
     const response = addSecurityHeaders(NextResponse.next());
@@ -140,7 +147,7 @@ export async function middleware(request: NextRequest) {
       response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
         httpOnly: false,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: IS_PRODUCTION,
         path: "/",
         maxAge: 60 * 60 * 24,
       });
@@ -149,8 +156,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtected) {
-    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
-    if (!hasAuth) {
+    if (!hasValidAuthToken(request)) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return addSecurityHeaders(NextResponse.redirect(loginUrl));
@@ -158,8 +164,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAuthPage) {
-    const hasAuth = request.cookies.get("__host-auth-token")?.value || request.cookies.get("glamo-auth-token")?.value;
-    if (hasAuth) {
+    if (hasValidAuthToken(request)) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
     }
   }
@@ -169,7 +174,7 @@ export async function middleware(request: NextRequest) {
     response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
       httpOnly: false,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: IS_PRODUCTION,
       path: "/",
       maxAge: 60 * 60 * 24,
     });

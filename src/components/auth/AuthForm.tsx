@@ -63,15 +63,19 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
         toast.success("Signed in successfully.");
       }
       const redirectTo = params.get("redirect") || "/account";
-      const safeRedirect = /^\/[a-zA-Z0-9/_-]*$/.test(redirectTo) ? redirectTo : "/account";
+      const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
       router.push(safeRedirect);
       router.refresh();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Authentication failed. Please try again.";
-      if (message.includes("Invalid credentials") || message.includes("password")) {
-        setError(mode === "register" ? "An account with this email may already exist." : "Invalid email or password.");
+      if (err instanceof Error) {
+        const msg = err.message.toLowerCase();
+        if (msg.includes("invalid credentials") || msg.includes("password") || msg.includes("unauthorized")) {
+          setError(mode === "register" ? "An account with this email may already exist." : "Invalid email or password.");
+        } else {
+          setError("Something went wrong. Please try again.");
+        }
       } else {
-        setError(message);
+        setError("Something went wrong. Please try again.");
       }
     } finally {
       setIsLoading(false);
