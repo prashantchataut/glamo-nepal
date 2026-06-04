@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `subagent-driven-development` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Migrate GLAMO Nepal from Supabase + Convex to Turso + Firebase exclusively, deploy the backend to Fly.io, and have a fully working production system with zero data loss.
+**Goal:** Migrate GLAMO Nepal from Supabase + Convex to Turso + Firebase exclusively, deploy the backend to Netlify Functions, and have a fully working production system with zero data loss.
 
-**Architecture:** Hono backend on Fly.io → Turso (libSQL with edge replicas) for all data, Firebase for customer auth, custom HMAC for admin auth. No Supabase, no Convex, no pausing databases.
+**Architecture:** Hono backend on Netlify Functions → Turso (libSQL with edge replicas) for all data, Firebase for customer auth, custom HMAC for admin auth. No Supabase, no Convex, no pausing databases.
 
-**Tech Stack:** Hono, @libsql/client, Firebase Auth (client-side), jose (JWT verification on edge), Turso, Fly.io, Cloudinary (images), Cloudflare R2 (file storage)
+**Tech Stack:** Hono, @libsql/client, Firebase Auth (client-side), jose (JWT verification on edge), Turso, Netlify Functions, Cloudinary (images), Cloudflare R2 (file storage)
 
 ---
 
@@ -33,7 +33,7 @@
 | Backend Auth Validation | **jose** (JWT verification) | No Supabase dependency, verify Firebase ID tokens directly |
 | Admin Dashboard Data | **Hono API** (same backend) | Single source of truth, no Convex |
 | Frontend ↔ Backend | `NEXT_PUBLIC_API_BASE_URL` = Fly.io URL | Fixed, deployed |
-| Backend Hosting | **Fly.io** | Never pauses, close to Turso, free tier sufficient |
+| Backend Hosting | **Netlify Functions** | Already using Netlify for frontend; deploy backend as Netlify Functions. Same platform, same deploy pipeline. No pausing. |
 | Image Storage | **Cloudinary** | Stays, just needs real credentials |
 
 ---
@@ -45,6 +45,8 @@
 - [ ] Delete the current token (it was shared in chat — compromised)
 - [ ] Generate a new token
 - [ ] Put it in `backend/.env` as `TURSO_AUTH_TOKEN=eyJ...` (this file is gitignored)
+- [ ] **Also rotate Cloudinary API Secret** — it was shared in chat. Go to Cloudinary dashboard → Settings → API Keys → regenerate secret
+- [ ] Set the new secret in Netlify dashboard environment variables (never in code)
 
 ### P1: Turso Database Setup
 - [ ] Turso database created: `glamo-nepal` ✅ (already done)
@@ -53,15 +55,16 @@
 - [ ] Run the schema migration (Task 1)
 
 ### P2: Cloudinary Account
-- [ ] Go to cloudinary.com, sign up (free tier: 25GB storage, 25K transformations/month)
-- [ ] Get: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- [ ] Add to `backend/.env`
+- [x] Cloudinary account created ✅
+- [x] `CLOUDINARY_CLOUD_NAME` = `dxy90vpw5`
+- [x] `CLOUDINARY_API_KEY` = `839582812544965`
+- [ ] `CLOUDINARY_API_SECRET` — set in Netlify dashboard (never in code)
+- [ ] Add to `backend/.env` for local development
 
-### P3: Fly.io Account
-- [ ] Go to fly.io, sign up
-- [ ] Install CLI: `curl -L https://fly.io/install.sh | sh` (macOS/Linux) or `powershell -Command "iwr https://fly.io/install.ps1 | iex"` (Windows)
-- [ ] Run `fly auth login`
-- [ ] Add billing info (required for deployment, but free tier available)
+### P3: Netlify Deployment
+- [ ] Frontend already deployed on Netlify ✅
+- [ ] Backend will deploy as Netlify Functions (same platform)
+- [ ] Set environment variables in Netlify dashboard (see Task 5)
 
 ### P4: Firebase Project
 - [ ] Firebase project `ankura-studio` already exists ✅
@@ -240,53 +243,60 @@ export async function verifyFirebaseToken(token: string): Promise<{ uid: string;
 
 ## Phase 2: Backend Deployment (Fly.io)
 
-### Task 5: Deploy Hono Backend to Fly.io
+### Task 5: Deploy Hono Backend to Netlify Functions
 
-**Description:** Create a Dockerfile for the Hono backend and deploy to Fly.io. The backend runs as a Node.js server (not Cloudflare Workers) since we're using Turso's HTTP client.
+**Description:** The frontend is already on Netlify. Deploy the Hono backend as Netlify Functions so both run on the same platform. Hono has first-class Netlify adapter support.
 
 **Files:**
-- Create: `backend/Dockerfile` — Multi-stage Node.js build
-- Create: `backend/fly.toml` — Fly.io configuration
-- Create: `backend/.dockerignore`
+- Create: `backend/netlify.toml` — Netlify configuration
+- Create: `backend/netlify/functions/api.ts` — Netlify Function entry point
+- Modify: `backend/package.json` — Add Netlify build scripts
 
-**Dockerfile pattern:**
+**Netlify adapter for Hono:**
 
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN corepack enable && pnpm install --frozen-lockfile
-COPY . .
-RUN pnpm build
+```typescript
+// backend/netlify/functions/api.ts
+import { app } from '../../src/index'
+import { handle } from 'hono/netlify'
 
-FROM node:20-alpine AS runner
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
+export default handle(app)
+export const config = { path: '/api/*' }
 ```
 
-**Note:** The Hono backend currently uses `src/index.ts` as entry point with Cloudflare Workers bindings. We need to add a Node.js adapter:
+**netlify.toml:**
 
-**Files to modify:**
-- Modify: `backend/src/index.ts` — Add `@hono/node-server` adapter for Fly.io
-- Create: `backend/src/server.ts` — Node.js entry point (alternative to Workers entry)
+```toml
+[build]
+  command = "cd backend && pnpm build"
+  publish = "../.next"
 
-**Fly.io deployment steps:**
-- [ ] `fly launch --name glamo-nepal-api --region sin` (Singapore, close to `aws-ap-south-1`)
-- [ ] Set secrets: `fly secrets set TURSO_DB_URL=libsql://... TURSO_AUTH_TOKEN=eyJ... FIREBASE_PROJECT_ID=ankura-studio CLOUDINARY_CLOUD_NAME=... CLOUDINARY_API_KEY=... CLOUDINARY_API_SECRET=...`
-- [ ] `fly deploy`
-- [ ] Verify: `curl https://glamo-nepal-api.fly.dev/api/v1/categories` returns JSON
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
+```
+
+**Environment variables to set in Netlify dashboard:**
+- `TURSO_DB_URL` = `libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io`
+- `TURSO_AUTH_TOKEN` = (rotated token — not in code)
+- `FIREBASE_PROJECT_ID` = `ankura-studio`
+- `CLOUDINARY_CLOUD_NAME` = `dxy90vpw5`
+- `CLOUDINARY_API_KEY` = `839582812544965`
+- `CLOUDINARY_API_SECRET` = (set in Netlify dashboard, not in code)
+- `FRONTEND_URL` = `https://glamo-nepal.netlify.app` (or custom domain)
+
+**Important:** The Hono backend currently uses Cloudflare Workers bindings (KV, R2) in `wrangler.toml`. For Netlify, we need to adapt these:
+- KV → Netlify's built-in key-value store or Turso (for caching)
+- R2 → Cloudinary (already using for images)
 
 **Verification:**
-- [ ] Backend responds at `https://glamo-nepal-api.fly.dev/api/v1/categories`
-- [ ] Health check endpoint works
-- [ ] Turso connection works from Fly.io
-- [ ] Firebase token verification works from Fly.io
-
-**Skills:** `devops-engineer` (Docker, deployment), `security-and-hardening` (secrets management)
+- [ ] Backend deploys to Netlify Functions
+- [ ] `https://glamo-nepal.netlify.app/api/v1/categories` returns JSON
+- [ ] Turso connection works from Netlify Functions
+- [ ] Firebase token verification works from Netlify Functions
 
 ---
 
@@ -371,7 +381,7 @@ export function useProducts(params?: ProductListParams) {
 **Description:** Set `NEXT_PUBLIC_API_BASE_URL` to point to the deployed backend. This fixes the "API backend is not configured" error.
 
 **Files:**
-- Modify: `.env.local` — Add `NEXT_PUBLIC_API_BASE_URL=https://glamo-nepal-api.fly.dev/api/v1`
+- Modify: `.env.local` — Add `NEXT_PUBLIC_API_BASE_URL=https://glamo-nepal.netlify.app/api/v1` (or custom domain)
 - Modify: `.env.example` — Add `NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1` (for local dev)
 - Modify: `backend/.env` — Add Turso and Cloudinary vars
 
