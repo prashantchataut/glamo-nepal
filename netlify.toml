@@ -23,3 +23,7 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[secrets_scan]
+  omit_keys = ["NEXT_PUBLIC_INSTAGRAM_URL", "NEXT_PUBLIC_FACEBOOK_URL", "ADMIN_EMAIL"]
+  omit_paths = [".env.example", "README.md", "SETUP.md", "supabase/migrations/", "backend/supabase/migrations/", "backend/migrations/", "scripts/", "src/lib/config.ts", "src/lib/env.ts", "src/test/"]
