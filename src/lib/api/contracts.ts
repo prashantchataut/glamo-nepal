@@ -24,6 +24,10 @@ export interface ApiErrorResponse {
   fieldErrors?: Record<string, string[]>;
 }
 
+export function isApiErrorResponse(response: ApiResponse<unknown> | ApiErrorResponse): response is ApiErrorResponse {
+  return response.status === "error";
+}
+
 export interface Brand {
   id: string;
   name: string;
