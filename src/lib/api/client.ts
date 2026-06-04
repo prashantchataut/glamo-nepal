@@ -1,7 +1,5 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-
 export class GlamoApiError extends Error {
   code?: string;
   fieldErrors?: Record<string, string[]>;
@@ -16,8 +14,13 @@ export class GlamoApiError extends Error {
   }
 }
 
+function getApiBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_API_BASE_URL || "";
+}
+
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
-  if (!API_BASE_URL) {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
     throw new GlamoApiError({
       status: "error",
       code: "API_BASE_URL_MISSING",
@@ -31,7 +34,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
 
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
+    response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
       ...init,
       headers,
       credentials: "include",

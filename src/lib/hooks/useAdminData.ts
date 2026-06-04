@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { GlamoApiError } from "@/lib/api/client";
 import type { ApiResponse } from "@/lib/api/contracts";
 
+const RETRYING_MESSAGE = "Retrying...";
+
 interface UseAdminDataOptions {
   refreshInterval?: number;
   enabled?: boolean;
@@ -26,8 +28,19 @@ function isRetryableError(err: unknown): boolean {
   return err instanceof GlamoApiError && err.code === "NETWORK_ERROR";
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getErrorMessage(err: unknown): string {
+  if (err instanceof GlamoApiError) {
+    switch (err.code) {
+      case "API_BASE_URL_MISSING":
+        return "The API backend is not configured. Start the backend with `wrangler dev` or set NEXT_PUBLIC_API_BASE_URL in .env.local.";
+      case "NETWORK_ERROR":
+        return "Could not reach the API backend. Make sure the backend is running (wrangler dev) and NEXT_PUBLIC_API_BASE_URL is correct.";
+      default:
+        return err.message;
+    }
+  }
+  if (err instanceof Error) return err.message;
+  return "An unexpected error occurred";
 }
 
 export function useAdminData<T>(
@@ -42,6 +55,7 @@ export function useAdminData<T>(
   const [currentRetryCount, setCurrentRetryCount] = useState(0);
   const mountedRef = useRef(true);
   const fetcherRef = useRef(fetcher);
+  const abortRef = useRef(false);
   fetcherRef.current = fetcher;
   const hasDataRef = useRef(false);
 
@@ -49,17 +63,21 @@ export function useAdminData<T>(
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      abortRef.current = true;
     };
   }, []);
 
   const fetchData = useCallback(async () => {
     if (!mountedRef.current) return;
+    abortRef.current = false;
     setIsLoading(true);
     setError(null);
     setIsRetrying(false);
     setCurrentRetryCount(0);
 
-    const attemptFetch = async (attempt: number): Promise<void> => {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      if (!mountedRef.current || abortRef.current) return;
+
       try {
         const result = await fetcherRef.current();
         if (!mountedRef.current) return;
@@ -68,42 +86,39 @@ export function useAdminData<T>(
         setIsLoading(false);
         setIsRetrying(false);
         setCurrentRetryCount(0);
+        return;
       } catch (err) {
+        if (!mountedRef.current || abortRef.current) return;
+
         if (maxRetries > 0 && isRetryableError(err) && attempt < maxRetries) {
-          if (mountedRef.current) {
-            setError("Retrying...");
-            setIsRetrying(true);
-            setCurrentRetryCount(attempt + 1);
-            if (!hasDataRef.current) {
-              setIsLoading(true);
-            }
-          }
+          setError(RETRYING_MESSAGE);
+          setIsRetrying(true);
+          setCurrentRetryCount(attempt + 1);
+          if (!hasDataRef.current) setIsLoading(true);
+
           const delay = baseDelay * Math.pow(2, attempt) * (0.5 + Math.random() * 0.5);
-          await sleep(delay);
-          return attemptFetch(attempt + 1);
+          await new Promise<void>((resolve) => {
+            const timer = setTimeout(resolve, delay);
+            const check = () => {
+              if (!mountedRef.current || abortRef.current) {
+                clearTimeout(timer);
+                resolve();
+              }
+            };
+            setTimeout(check, 50);
+          });
+
+          if (!mountedRef.current || abortRef.current) return;
+          continue;
         }
 
-        if (!mountedRef.current) return;
         setIsRetrying(false);
         setCurrentRetryCount(0);
-        if (err instanceof GlamoApiError) {
-          if (err.code === "API_BASE_URL_MISSING") {
-            setError("The API backend is not configured. Start the backend with `wrangler dev` or set NEXT_PUBLIC_API_BASE_URL in .env.local.");
-          } else if (err.code === "NETWORK_ERROR") {
-            setError("Could not reach the API backend. Make sure the backend is running (wrangler dev) and NEXT_PUBLIC_API_BASE_URL is correct.");
-          } else {
-            setError(err.message);
-          }
-        } else if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
+        setError(getErrorMessage(err));
         setIsLoading(false);
+        return;
       }
-    };
-
-    await attemptFetch(0);
+    }
   }, [maxRetries, baseDelay]);
 
   useEffect(() => {
@@ -126,7 +141,7 @@ export function useAdminData<T>(
     data,
     error,
     isLoading,
-    isError: error !== null && error !== "Retrying...",
+    isError: error !== null && error !== RETRYING_MESSAGE,
     isRetrying,
     retryCount: currentRetryCount,
     refetch: fetchData,
@@ -149,29 +164,25 @@ export function useAdminMutation<TData, TVariables>(
   const [data, setData] = useState<TData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const mutationFnRef = useRef(mutationFn);
+  mutationFnRef.current = mutationFn;
 
   const mutate = useCallback(
     async (variables: TVariables): Promise<TData | null> => {
       setIsLoading(true);
       setError(null);
       try {
-        const result = await mutationFn(variables);
+        const result = await mutationFnRef.current(variables);
         setData(result.data);
         return result.data;
       } catch (err) {
-        if (err instanceof GlamoApiError) {
-          setError(err.message);
-        } else if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
+        setError(getErrorMessage(err));
         return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [mutationFn]
+    []
   );
 
   const reset = useCallback(() => {

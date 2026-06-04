@@ -5,8 +5,12 @@ import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
-import { ConvexClientProvider } from "./ConvexClientProvider";
+import dynamic from "next/dynamic";
 
+const ConvexClientProvider = dynamic(
+  () => import("./ConvexClientProvider").then((m) => m.ConvexClientProvider),
+  { ssr: false },
+);
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 

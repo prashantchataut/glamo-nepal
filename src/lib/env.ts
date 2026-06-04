@@ -19,6 +19,7 @@ function statusFor(value: string | undefined): EnvStatus {
 
 export function getPublicEnvChecks(): PublicEnvCheck[] {
   const checks: Array<Omit<PublicEnvCheck, "status">> = [
+    { key: "NEXT_PUBLIC_CONVEX_URL", label: "Convex deployment URL", requiredForProduction: true, value: process.env.NEXT_PUBLIC_CONVEX_URL, ownerAction: "Run `npx convex dev` and copy the URL from .env.local, or set it in the hosting dashboard." },
     { key: "NEXT_PUBLIC_SITE_URL", label: "Canonical site URL", requiredForProduction: true, value: process.env.NEXT_PUBLIC_SITE_URL, ownerAction: "Set the production domain, usually https://glamonepal.com." },
     { key: "NEXT_PUBLIC_API_BASE_URL", label: "API base URL", requiredForProduction: true, value: process.env.NEXT_PUBLIC_API_BASE_URL, ownerAction: "Provide the real API URL once it is ready." },
     { key: "NEXT_PUBLIC_KHALTI_PUBLIC_KEY", label: "Khalti public key", requiredForProduction: true, value: process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY, ownerAction: "Add live/test Khalti public key after merchant setup." },
