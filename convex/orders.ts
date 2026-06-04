@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 function assertString(value: unknown, field: string, min = 1, max = 500) {
   if (typeof value !== "string" || value.length < min || value.length > max) {
@@ -176,7 +177,7 @@ export const updateOrderStatus = mutation({
     const identity = requireAuth(ctx);
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     if (!profile || !["ADMIN", "SUPER_ADMIN", "STAFF"].includes(profile.role)) {
       throw new Error("Insufficient permissions");
@@ -188,15 +189,15 @@ export const updateOrderStatus = mutation({
     const validStatuses = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"];
     if (!validStatuses.includes(args.status)) throw new Error("Invalid status");
 
-    await ctx.db.patch(args.id, { status: args.status as any });
+    await ctx.db.patch(args.id, { status: args.status });
     await ctx.db.insert("orderStatusHistories", {
       orderId: args.id,
       status: args.status,
-      changedBy: identity.subject as any,
+      changedBy: identity.subject as Id<"users">,
     });
 
     await ctx.db.insert("auditLogs", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       action: "UPDATE_STATUS",
       entity: "orders",
       entityId: args.id,
@@ -213,7 +214,7 @@ export const cancelOrder = mutation({
     const identity = requireAuth(ctx);
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
 
     const order = await ctx.db.get(args.id);
@@ -232,11 +233,11 @@ export const cancelOrder = mutation({
       orderId: args.id,
       status: "CANCELLED",
       comment: args.reason,
-      changedBy: identity.subject as any,
+      changedBy: identity.subject as Id<"users">,
     });
 
     await ctx.db.insert("auditLogs", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       action: "CANCEL",
       entity: "orders",
       entityId: args.id,
@@ -329,7 +330,7 @@ export const createOrder = mutation({
 
     const orderId = await ctx.db.insert("orders", {
       orderNumber: orderNumber,
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       status: "PENDING",
       paymentStatus: args.paymentMethod === "CASH_ON_DELIVERY" ? "PENDING" : "PENDING",
       paymentMethod: args.paymentMethod,
@@ -381,7 +382,7 @@ export const createOrder = mutation({
     await ctx.db.insert("orderStatusHistories", {
       orderId,
       status: "PENDING",
-      changedBy: identity.subject as any,
+      changedBy: identity.subject as Id<"users">,
     });
 
     return { orderId, orderNumber };
@@ -393,7 +394,7 @@ export const getMyOrders = query({
   handler: async (ctx) => {
     const identity = requireAuth(ctx);
     const orders = await ctx.db.query("orders").collect();
-    const myOrders = orders.filter((o) => o.userId === (identity.subject as any));
+    const myOrders = orders.filter((o) => o.userId === (identity.subject as Id<"users">));
 
     const enriched = await Promise.all(
       myOrders.map(async (o) => {
@@ -433,7 +434,7 @@ export const cancelMyOrder = mutation({
     const identity = requireAuth(ctx);
     const order = await ctx.db.get(args.id);
     if (!order) throw new Error("Order not found");
-    if (order.userId !== (identity.subject as any)) throw new Error("Not your order");
+    if (order.userId !== (identity.subject as Id<"users">)) throw new Error("Not your order");
     if (order.status === "CANCELLED") throw new Error("Order already cancelled");
     if (order.status === "DELIVERED" || order.status === "SHIPPED") {
       throw new Error("Cannot cancel a shipped or delivered order");
@@ -449,7 +450,7 @@ export const cancelMyOrder = mutation({
       orderId: args.id,
       status: "CANCELLED",
       comment: args.reason ?? "Cancelled by customer",
-      changedBy: identity.subject as any,
+      changedBy: identity.subject as Id<"users">,
     });
 
     return { message: "Order cancelled" };

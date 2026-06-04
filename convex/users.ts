@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 export const getProfile = query({
   args: { userId: v.optional(v.id("users")) },
@@ -8,7 +9,7 @@ export const getProfile = query({
     if (!userId) return null;
     return await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", userId as any))
+      .withIndex("userId", (q) => q.eq("userId", userId as Id<"users">))
       .first();
   },
 });
@@ -46,7 +47,7 @@ export const updateProfile = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     if (!profile) throw new Error("Profile not found");
     const updates: any = {};
@@ -64,7 +65,7 @@ export const getMe = query({
     if (!identity) return null;
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     if (!profile) return null;
     return {
@@ -85,7 +86,7 @@ export const getUserRole = query({
     if (!identity) return null;
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     return profile?.role ?? null;
   },

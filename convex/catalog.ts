@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 function assertString(value: unknown, field: string, min = 1, max = 500) {
   if (typeof value !== "string" || value.length < min || value.length > max) {
@@ -113,7 +114,7 @@ export const getCart = query({
     if (!identity) return [];
     return await ctx.db
       .query("cartItems")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
   },
 });
@@ -127,7 +128,7 @@ export const addToCart = mutation({
 
     const existing = await ctx.db
       .query("cartItems")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
 
     const match = existing.find(
@@ -140,7 +141,7 @@ export const addToCart = mutation({
     }
 
     return await ctx.db.insert("cartItems", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       productId: args.productId,
       variantId: args.variantId,
       quantity: args.quantity,
@@ -157,7 +158,7 @@ export const updateCartItem = mutation({
 
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Cart item not found");
-    if (item.userId !== (identity.subject as any)) throw new Error("Not your cart item");
+    if (item.userId !== (identity.subject as Id<"users">)) throw new Error("Not your cart item");
 
     if (args.quantity <= 0) {
       await ctx.db.delete(args.id);
@@ -176,7 +177,7 @@ export const removeFromCart = mutation({
 
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Cart item not found");
-    if (item.userId !== (identity.subject as any)) throw new Error("Not your cart item");
+    if (item.userId !== (identity.subject as Id<"users">)) throw new Error("Not your cart item");
 
     await ctx.db.delete(args.id);
     return { message: "Item removed" };
@@ -190,7 +191,7 @@ export const clearCart = mutation({
     if (!identity) throw new Error("Not authenticated");
     const items = await ctx.db
       .query("cartItems")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
     for (const item of items) await ctx.db.delete(item._id);
     return { message: "Cart cleared" };
@@ -204,7 +205,7 @@ export const getWishlist = query({
     if (!identity) return [];
     return await ctx.db
       .query("wishlistItems")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
   },
 });
@@ -217,12 +218,12 @@ export const addToWishlist = mutation({
 
     const existing = await ctx.db
       .query("wishlistItems")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
     if (existing.find((i) => i.productId === args.productId)) return { message: "Already in wishlist" };
 
     await ctx.db.insert("wishlistItems", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       productId: args.productId,
     });
     return { message: "Added to wishlist" };
@@ -237,7 +238,7 @@ export const removeFromWishlist = mutation({
 
     const items = await ctx.db
       .query("wishlistItems")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
     const match = items.find((i) => i.productId === args.productId);
     if (match) await ctx.db.delete(match._id);
@@ -252,7 +253,7 @@ export const getAddresses = query({
     if (!identity) return [];
     return await ctx.db
       .query("addresses")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .collect();
   },
 });
@@ -284,7 +285,7 @@ export const addAddress = mutation({
     if (args.isDefault) {
       const existing = await ctx.db
         .query("addresses")
-        .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+        .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
         .collect();
       for (const addr of existing) {
         if (addr.isDefault) await ctx.db.patch(addr._id, { isDefault: false });
@@ -292,7 +293,7 @@ export const addAddress = mutation({
     }
 
     return await ctx.db.insert("addresses", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       label: args.label,
       fullName: args.fullName,
       phone: args.phone,
@@ -316,7 +317,7 @@ export const getInventoryReport = query({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     if (!profile || !["ADMIN", "SUPER_ADMIN"].includes(profile.role)) throw new Error("Insufficient permissions");
 

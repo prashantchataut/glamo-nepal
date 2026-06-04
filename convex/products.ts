@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 function assertString(value: unknown, field: string, min = 1, max = 500) {
   if (typeof value !== "string" || value.length < min || value.length > max) {
@@ -214,7 +215,7 @@ export const create = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
@@ -244,7 +245,7 @@ export const create = mutation({
     });
 
     await ctx.db.insert("auditLogs", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       action: "CREATE",
       entity: "products",
       entityId: productId,
@@ -282,7 +283,7 @@ export const update = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
@@ -291,7 +292,7 @@ export const update = mutation({
     await ctx.db.patch(id, cleaned);
 
     await ctx.db.insert("auditLogs", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       action: "UPDATE",
       entity: "products",
       entityId: id,
@@ -309,13 +310,13 @@ export const remove = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
     await ctx.db.delete(args.id);
     await ctx.db.insert("auditLogs", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       action: "DELETE",
       entity: "products",
       entityId: args.id,
@@ -331,7 +332,7 @@ export const toggleVisibility = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
@@ -349,7 +350,7 @@ export const toggleFeatured = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
@@ -388,7 +389,7 @@ export const adjustStock = mutation({
       previousStock,
       newStock,
       reason: args.reason,
-      performedBy: identity.subject as any,
+      performedBy: identity.subject as Id<"users">,
     });
 
     return { message: "Stock adjusted", previousStock, newStock };

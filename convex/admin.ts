@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 
 function requireAdmin(ctx: any) {
   const identity = ctx.auth.getUserIdentity();
@@ -22,7 +23,7 @@ export const getDashboardStats = query({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
@@ -156,7 +157,7 @@ export const listUsers = query({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
@@ -203,7 +204,7 @@ export const updateUserRole = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     await ctx.db.patch(args.userId, { role: args.role });
     return { message: "Role updated" };
@@ -217,7 +218,7 @@ export const updateUserStatus = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
     await ctx.db.patch(args.userId, { isActive: args.isActive });
@@ -237,7 +238,7 @@ export const getAuditLogs = query({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["SUPER_ADMIN"]);
 
@@ -273,12 +274,12 @@ export const createAuditLog = mutation({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN", "STAFF"]);
 
     await ctx.db.insert("auditLogs", {
-      userId: identity.subject as any,
+      userId: identity.subject as Id<"users">,
       action: args.action,
       entity: args.entity,
       entityId: args.entityId,
@@ -352,7 +353,7 @@ export const getSalesReport = query({
     if (!identity) throw new Error("Not authenticated");
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("userId", (q) => q.eq("userId", identity.subject as any))
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
       .first();
     requireRole(profile, ["ADMIN", "SUPER_ADMIN"]);
 
