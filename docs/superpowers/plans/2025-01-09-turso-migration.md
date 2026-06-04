@@ -50,16 +50,16 @@
 
 ### P1: Turso Database Setup
 - [ ] Turso database created: `glamo-nepal` ✅ (already done)
-- [ ] Turso DB URL: `libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io`
+- [ ] Turso DB URL: (in .env, not in git)
 - [ ] Turso Auth Token: (rotate per P0, then add to `.env`)
 - [ ] Run the schema migration (Task 1)
 
 ### P2: Cloudinary Account
 - [x] Cloudinary account created ✅
-- [x] `CLOUDINARY_CLOUD_NAME` = `dxy90vpw5`
-- [x] `CLOUDINARY_API_KEY` = `839582812544965`
-- [ ] `CLOUDINARY_API_SECRET` — set in Netlify dashboard (never in code)
-- [ ] Add to `backend/.env` for local development
+- [x] `CLOUDINARY_CLOUD_NAME` = (set in Netlify dashboard)
+- [x] `CLOUDINARY_API_KEY` = (set in Netlify dashboard)
+- [ ] `CLOUDINARY_API_SECRET` = (set in Netlify dashboard, never in code)
+- [ ] Add all three to `backend/.env` for local development
 
 ### P3: Netlify Deployment
 - [ ] Frontend already deployed on Netlify ✅
@@ -280,12 +280,12 @@ export const config = { path: '/api/*' }
 ```
 
 **Environment variables to set in Netlify dashboard:**
-- `TURSO_DB_URL` = `libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io`
-- `TURSO_AUTH_TOKEN` = (rotated token — not in code)
+- `TURSO_DB_URL` = (set in Netlify dashboard and .env)
+- `TURSO_AUTH_TOKEN` = (set in Netlify dashboard and .env — NEVER in git)
 - `FIREBASE_PROJECT_ID` = `ankura-studio`
-- `CLOUDINARY_CLOUD_NAME` = `dxy90vpw5`
-- `CLOUDINARY_API_KEY` = `839582812544965`
-- `CLOUDINARY_API_SECRET` = (set in Netlify dashboard, not in code)
+- `CLOUDINARY_CLOUD_NAME` = (set in Netlify dashboard and .env)
+- `CLOUDINARY_API_KEY` = (set in Netlify dashboard and .env)
+- `CLOUDINARY_API_SECRET` = (set in Netlify dashboard only — NEVER in git)
 - `FRONTEND_URL` = `https://glamo-nepal.netlify.app` (or custom domain)
 
 **Important:** The Hono backend currently uses Cloudflare Workers bindings (KV, R2) in `wrangler.toml`. For Netlify, we need to adapt these:
