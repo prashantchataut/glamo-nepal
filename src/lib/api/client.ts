@@ -1,4 +1,5 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
+import { auth } from "@/lib/firebase";
 
 export class GlamoApiError extends Error {
   code?: string;
@@ -18,6 +19,16 @@ function getApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_BASE_URL || "";
 }
 
+async function getAuthToken(): Promise<string | null> {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      return await currentUser.getIdToken();
+    }
+  } catch {}
+  return null;
+}
+
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
   const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) {
@@ -31,6 +42,11 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   const headers = new Headers(init?.headers);
   const isFormData = init?.body instanceof FormData;
   if (!headers.has("Content-Type") && !isFormData) headers.set("Content-Type", "application/json");
+
+  const token = await getAuthToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   let response: Response;
   try {
@@ -57,7 +73,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   return payload as ApiResponse<T>;
 }
 
-function normalizeApiPayload<T>(payload: unknown): ApiResponse<T> | ApiErrorResponse {
+export function normalizeApiPayload<T>(payload: unknown): ApiResponse<T> | ApiErrorResponse {
   if (payload && typeof payload === "object") {
     const record = payload as Record<string, unknown>;
 

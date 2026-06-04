@@ -23,5 +23,5 @@ export const authApi = {
   forgotPassword: (email: string) => apiRequest<{ queued: boolean }>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
   resetPassword: (token: string, password: string) => apiRequest<{ updated: boolean }>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
   logout: () => apiRequest<{ ok: true }>("/auth/logout", { method: "POST" }),
-  session: () => apiRequest<AuthSession>("/auth/session"),
+  me: () => apiRequest<Customer>("/auth/me"),
 };

@@ -48,6 +48,7 @@
     "dompurify": "^3.4.3",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^12.14.0",
     "framer-motion": "^12.38.0",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",

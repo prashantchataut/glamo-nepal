@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 
 const protectedPrefixes = ["/account", "/checkout"];
 const authPages = ["/login", "/register"];
@@ -8,12 +9,18 @@ function isPathOrChild(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-function hasValidAuthToken(request: NextRequest): boolean {
-  const hostToken = request.cookies.get("__host-auth-token")?.value;
-  const legacyToken = request.cookies.get("glamo-auth-token")?.value;
-  const token = hostToken || legacyToken;
+async function hasValidAdminToken(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
   if (!token) return false;
-  return token.length >= 16;
+
+  const payload = await verifyAdminSessionToken(token);
+  return payload !== null;
+}
+
+function hasFirebaseAuthToken(request: NextRequest): boolean {
+  const token = request.cookies.get("glamo-access-token")?.value;
+  if (!token) return false;
+  return token.length > 0;
 }
 
 const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
@@ -36,7 +43,7 @@ function addSecurityHeaders(response: NextResponse) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com",
-    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com",
+    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com https://www.googleapis.com https://securetoken.googleapis.com https://ankura-studio.firebaseapp.com",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -76,7 +83,8 @@ export async function middleware(request: NextRequest) {
   const csrfToken = generateCsrfToken();
 
   if (isAdminPath && !isAdminLogin) {
-    if (!hasValidAuthToken(request)) {
+    const isValid = await hasValidAdminToken(request);
+    if (!isValid) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
@@ -89,7 +97,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAdminLogin) {
-    if (hasValidAuthToken(request)) {
+    const isValid = await hasValidAdminToken(request);
+    if (isValid) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
     const response = addSecurityHeaders(NextResponse.next());
@@ -98,7 +107,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtected) {
-    if (!hasValidAuthToken(request)) {
+    if (!hasFirebaseAuthToken(request)) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return addSecurityHeaders(NextResponse.redirect(loginUrl));
@@ -106,7 +115,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAuthPage) {
-    if (hasValidAuthToken(request)) {
+    if (hasFirebaseAuthToken(request)) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
     }
   }

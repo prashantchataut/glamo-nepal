@@ -325,6 +325,16 @@ export const createOrder = mutation({
 
     const identity = requireAuth(ctx);
 
+    const recentOrders = await ctx.db
+      .query("orders")
+      .withIndex("userId", (q) => q.eq("userId", identity.subject as Id<"users">))
+      .collect();
+    const oneHourAgo = Date.now() - 3600000;
+    const recentCount = recentOrders.filter((o) => o._creationTime > oneHourAgo).length;
+    if (recentCount >= 5) {
+      throw new Error("Too many orders. Please try again later.");
+    }
+
     const orderCount = (await ctx.db.query("orders").collect()).length;
     const orderNumber = `GLM-${String(orderCount + 1).padStart(6, "0")}`;
 

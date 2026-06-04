@@ -1,6 +1,8 @@
 "use client";
 
 import { create } from "zustand";
+import { firebaseSignOut } from "@/lib/firebase";
+import { customerApi, type ProfileUpdatePayload } from "@/lib/api/customer";
 
 export interface AuthUser {
   id: string;
@@ -41,7 +43,13 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   logout: async () => {
-    set({ user: null, error: null });
+    try {
+      await firebaseSignOut();
+    } catch {}
+    if (typeof document !== "undefined") {
+      document.cookie = "glamo-access-token=; path=/; max-age=0; samesite=lax";
+    }
+    set({ user: null, error: null, isLoading: false });
   },
 
   updateProfile: async (profile) => {
@@ -50,14 +58,33 @@ export const useAuthStore = create<AuthState>()((set) => ({
       set({ error: "Please sign in before updating your profile." });
       return;
     }
-    set({
-      user: {
-        ...currentUser,
-        name: profile.name || currentUser.name,
-        email: profile.email || currentUser.email,
-      },
-      error: null,
-    });
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const nameParts = (profile.name || currentUser.name || "").trim().split(/\s+/);
+      const payload: ProfileUpdatePayload = {};
+      if (nameParts.length > 0) payload.firstName = nameParts[0];
+      if (nameParts.length > 1) payload.lastName = nameParts.slice(1).join(" ");
+
+      const response = await customerApi.updateProfile(payload);
+      const updated = response.data;
+
+      set({
+        user: {
+          ...currentUser,
+          name: [updated.firstName, updated.lastName].filter(Boolean).join(" ") || currentUser.name,
+          email: updated.email || currentUser.email,
+          phone: updated.phone || currentUser.phone,
+        },
+        isLoading: false,
+        error: null,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update profile";
+      set({ error: message, isLoading: false });
+      throw err;
+    }
   },
 
   clearError: () => set({ error: null }),

@@ -1,5 +1,5 @@
 import { BLOG_POSTS, getBlogBySlug as getBlogBySlugFromCatalog, getRelatedPosts as getRelatedPostsFromCatalog, type BlogPost } from "@/lib/data/blog-content";
-import { fetchBlogPosts, fetchBlogPost, fetchRelatedPosts } from "@/lib/api/blog";
+import { fetchBlogPosts, fetchBlogPost } from "@/lib/api/blog";
 
 let apiAvailable: boolean | null = null;
 let apiCheckExpiry = 0;
@@ -50,14 +50,6 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
 }
 
 export async function getRelatedPosts(slug: string, limit = 3): Promise<BlogPost[]> {
-  if (await checkApiAvailable()) {
-    try {
-      return await fetchRelatedPosts(slug, limit);
-    } catch {
-      apiAvailable = false;
-      apiCheckExpiry = Date.now() + API_CHECK_TTL;
-    }
-  }
   return getRelatedPostsFromCatalog(slug, limit);
 }
 

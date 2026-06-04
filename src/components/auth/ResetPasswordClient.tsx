@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { confirmPasswordReset } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 
 export function ResetPasswordClient() {
-  const { signIn } = useAuthActions();
   const searchParams = useSearchParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,19 +29,24 @@ export function ResetPasswordClient() {
       return;
     }
 
+    const oobCode = searchParams.get("oobCode");
+    if (!oobCode) {
+      setError("Invalid or expired password reset link. Please request a new one.");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const email = searchParams.get("email") || "";
-      await signIn("password", {
-        email,
-        password: newPassword,
-        flow: "reset-verification",
-      });
+      await confirmPasswordReset(auth, oobCode, newPassword);
       setSuccess(true);
       toast.success("Password reset successfully!");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to reset password. The link may have expired.";
-      setError(message);
+      if (message.includes("expired") || message.includes("invalid")) {
+        setError("This password reset link has expired. Please request a new one.");
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }

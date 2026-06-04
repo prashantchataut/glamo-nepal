@@ -2,14 +2,13 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { Eye, EyeOff } from "lucide-react";
+import { csrfHeaders } from "@/lib/csrf";
 
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/admin";
-  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,20 +21,24 @@ export function AdminLoginForm() {
     setIsSubmitting(true);
 
     try {
-      const result = await signIn("password", { email, password, flow: "signIn" });
-      if (!result) {
-        setError("Invalid admin email or password.");
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success) {
+        setError(data?.message || "Invalid admin email or password.");
         return;
       }
-      router.push(redirectTo.startsWith("/admin") ? redirectTo : "/admin");
+
+      const safeRedirect = redirectTo.startsWith("/admin") ? redirectTo : "/admin";
+      router.push(safeRedirect);
       router.refresh();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to complete admin login.";
-      if (message.includes("Invalid credentials") || message.includes("password")) {
-        setError("Invalid admin email or password.");
-      } else {
-        setError(message);
-      }
+    } catch {
+      setError("Unable to complete admin login. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

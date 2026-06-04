@@ -412,10 +412,10 @@ export const adminApi = {
     apiRequest<{ message: string }>(`/products/${id}/images/${imageId}`, { method: "DELETE" }),
 
   adjustStock: (productId: string, change: number, reason?: string, variantId?: string) => {
-    const path = variantId
-      ? `/products/${productId}/variants/${variantId}/stock`
-      : `/products/${productId}/variants/_/stock`;
-    return apiRequest<{ message: string }>(path, {
+    if (!variantId) {
+      return Promise.reject(new Error("variantId is required for stock adjustment"));
+    }
+    return apiRequest<{ message: string }>(`/products/${productId}/variants/${variantId}/stock`, {
       method: "PATCH",
       body: JSON.stringify({ change, reason }),
     });

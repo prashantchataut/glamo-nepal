@@ -8,6 +8,8 @@ export const metadata = createMetadata({
   noIndex: true,
 });
 
+export const dynamic = "force-dynamic";
+
 export default function AdminPage() {
   return <AdminDashboard />;
 }

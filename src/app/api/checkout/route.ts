@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { validateCsrf } from "@/lib/csrf";
 
 const orderItemSchema = z.object({
   productId: z.string().min(1),
@@ -54,6 +55,11 @@ function getApiBaseUrl(): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const csrf = validateCsrf(request);
+  if (!csrf.valid) {
+    return NextResponse.json({ success: false, status: "error", message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
+  }
+
   try {
     const parsed = checkoutOrderSchema.safeParse(await request.json());
     if (!parsed.success) {

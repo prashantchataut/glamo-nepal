@@ -67,8 +67,12 @@ export interface Wishlist {
 export interface Customer {
   id: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   phone: string;
+  avatarUrl?: string;
+  role?: string;
   loyaltyPoints?: number;
   defaultAddressId?: string;
 }

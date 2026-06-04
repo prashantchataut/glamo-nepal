@@ -6,8 +6,6 @@ export interface AdminSessionPayload {
 }
 
 export const ADMIN_SESSION_COOKIE = "__Host-glamo-admin-session";
-export const LEGACY_AUTH_COOKIE = "glamo-auth-token";
-export const LEGACY_ROLE_COOKIE = "glamo-user-role";
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 function getSecret() {

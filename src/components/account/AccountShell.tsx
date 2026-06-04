@@ -1,5 +1,4 @@
 ﻿"use client";
-// Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { useAuthActions } from "@convex-dev/auth/react";
 
 const navLinks = [
   { name: "Dashboard", href: "/account", icon: LayoutDashboard },
@@ -26,13 +24,11 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuthStore((state) => state);
   const clearCart = useCartStore((state) => state.clearCart);
   const resetCheckout = useCheckoutStore((state) => state.reset);
-  const { signOut } = useAuthActions();
 
   const isLoading = !user;
 
   const handleLogout = async () => {
-    await signOut();
-    logout();
+    await logout();
     clearCart();
     resetCheckout();
     toast.success("Logged out of GLAMO account.");

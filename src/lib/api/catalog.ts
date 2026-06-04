@@ -1,6 +1,7 @@
-import { PRODUCTS, CATEGORIES, getProductBySlug, getRelatedProducts, searchProducts } from "@/lib/data/catalog-products";
+import { PRODUCTS, CATEGORIES, getProductBySlug as getProductBySlugLocal, getRelatedProducts, searchProducts as searchProductsLocal } from "@/lib/data/catalog-products";
 import type { ApiResponse, Category, PaymentMethod } from "./contracts";
 import type { Product } from "@/types/product";
+import { apiRequest } from "./client";
 
 const ok = <T>(data: T, meta?: ApiResponse<T>["meta"]): ApiResponse<T> => ({ status: "success", data, meta });
 
@@ -39,8 +40,32 @@ function sortProducts(products: Product[], sort: ProductListParams["sort"] = "fe
 }
 
 export async function listProducts(params: ProductListParams = {}): Promise<ApiResponse<Product[]>> {
-  let products = params.query ? searchProducts(params.query) : [...PRODUCTS];
+  if (params.query) {
+    try {
+      const apiResult = await apiRequest<Product[]>(`/products/search?q=${encodeURIComponent(params.query)}`);
+      if (apiResult.status === "success" && apiResult.data && apiResult.data.length > 0) {
+        return apiResult;
+      }
+    } catch {}
+    return ok(searchProductsLocal(params.query));
+  }
 
+  try {
+    const queryParams = new URLSearchParams();
+    if (params.category) queryParams.set("category", params.category);
+    if (params.brand) queryParams.set("brand", params.brand);
+    if (params.sort) queryParams.set("sort", params.sort);
+    if (params.page) queryParams.set("page", String(params.page));
+    if (params.perPage) queryParams.set("perPage", String(params.perPage));
+    if (params.inStock !== undefined) queryParams.set("inStock", String(params.inStock));
+
+    const apiResult = await apiRequest<Product[]>(`/products?${queryParams.toString()}`);
+    if (apiResult.status === "success" && apiResult.data && apiResult.data.length > 0) {
+      return apiResult;
+    }
+  } catch {}
+
+  let products = [...PRODUCTS];
   if (params.category) products = products.filter((p) => p.category === params.category);
   if (params.brand) products = products.filter((p) => p.brand === params.brand);
   if (params.concern) products = products.filter((p) => p.concernTags.includes(params.concern as string));
@@ -59,15 +84,27 @@ export async function listProducts(params: ProductListParams = {}): Promise<ApiR
 }
 
 export async function getProduct(slug: string): Promise<ApiResponse<Product | null>> {
-  return ok(getProductBySlug(slug) || null);
+  try {
+    const apiResult = await apiRequest<Product>(`/products/${slug}`);
+    if (apiResult.status === "success" && apiResult.data) {
+      return apiResult;
+    }
+  } catch {}
+  return ok(getProductBySlugLocal(slug) || null);
 }
 
 export async function listRelatedProducts(slug: string, limit = 4): Promise<ApiResponse<Product[]>> {
-  const product = getProductBySlug(slug);
-  return ok(product ? getRelatedProducts(product, limit) : []);
+  const localProduct = getProductBySlugLocal(slug);
+  return ok(localProduct ? getRelatedProducts(localProduct, limit) : []);
 }
 
 export async function listCategories(): Promise<ApiResponse<Category[]>> {
+  try {
+    const apiResult = await apiRequest<Category[]>("/categories");
+    if (apiResult.status === "success" && apiResult.data && apiResult.data.length > 0) {
+      return apiResult;
+    }
+  } catch {}
   return ok(CATEGORIES.map((c) => ({ id: c.slug, name: c.name, slug: c.slug, description: c.description, image: c.image })));
 }
 

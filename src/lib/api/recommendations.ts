@@ -90,7 +90,7 @@ export async function fetchRecommendations(
     if (params.user_id) queryParams.set("user_id", params.user_id);
 
     const response = await apiRequest<RecommendedProduct[]>(
-      `recommendations?${queryParams.toString()}`
+      `/recommendations?${queryParams.toString()}`
     );
 
     if (response.status === "success" && response.data) {
@@ -111,7 +111,7 @@ export async function fetchTrending(params?: TrendingParams): Promise<Product[]>
     if (params?.category) queryParams.set("category", params.category);
 
     const response = await apiRequest<TrendingProduct[]>(
-      `recommendations/trending?${queryParams.toString()}`
+      `/recommendations/trending?${queryParams.toString()}`
     );
 
     if (response.status === "success" && response.data) {

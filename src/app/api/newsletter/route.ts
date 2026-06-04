@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { validateCsrf } from "@/lib/csrf";
 
 const newsletterSchema = z.object({
   email: z.string().email().max(254),
@@ -11,6 +12,11 @@ function getApiBaseUrl(): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const csrf = validateCsrf(request);
+  if (!csrf.valid) {
+    return NextResponse.json({ success: false, status: "error", message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
+  }
+
   try {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
     const limit = checkRateLimit("/api/newsletter", ip);

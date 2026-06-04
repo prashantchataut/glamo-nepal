@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { sendPasswordResetEmail } from "@/lib/firebase";
 import { toast } from "sonner";
 import Link from "next/link";
 
 export function ForgotPasswordClient() {
-  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -17,7 +16,7 @@ export function ForgotPasswordClient() {
     setError("");
     setIsLoading(true);
     try {
-      await signIn("password", { email, flow: "reset" });
+      await sendPasswordResetEmail(email);
       setSent(true);
       toast.success("If an account with that email exists, a reset link has been sent.");
     } catch (err: unknown) {

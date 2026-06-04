@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { useAdminStore } from "@/store/useAdminStore";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
@@ -17,13 +16,12 @@ import { AuditLogView } from "@/components/admin/audit/AuditLogView";
 
 export function AdminDashboard() {
   const { activeSection, setActiveSection, sidebarOpen } = useAdminStore();
-  const { signOut } = useAuthActions();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   async function handleLogout() {
     setIsLoggingOut(true);
     try {
-      await signOut();
+      await fetch("/api/admin/login", { method: "DELETE" });
     } catch {}
     window.location.href = "/admin/login";
   }
