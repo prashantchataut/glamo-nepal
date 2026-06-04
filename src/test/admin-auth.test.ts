@@ -8,7 +8,7 @@ describe("admin-auth", () => {
     process.env = { ...originalEnv };
     process.env.ADMIN_SESSION_SECRET = "test-secret-for-vitest-min-32-chars";
     process.env.AUTH_SECRET = "test-auth-secret-for-vitest-min-32-chars";
-    process.env.ADMIN_EMAIL = "admin@glamonepal.com";
+    process.env.ADMIN_EMAIL = "test-admin@example.com";
     process.env.ADMIN_PASSWORD = "test-password-123";
   });
 
@@ -106,6 +106,17 @@ describe("admin-auth", () => {
       const [, signature] = token.split(".");
       const wrongRoleToken = `${newEncodedPayload}.${signature}`;
       expect(await verifyAdminSessionToken(wrongRoleToken)).toBeNull();
+    });
+
+    it("returns null for token with malformed JSON payload", async () => {
+      const token = await createAdminSessionToken("admin@test.com", "Test Admin");
+      const [, signature] = token.split(".");
+      const malformedToken = `not-valid-base64.${signature}`;
+      expect(await verifyAdminSessionToken(malformedToken)).toBeNull();
+    });
+
+    it("returns null for token with multiple dots (only first dot splits)", async () => {
+      expect(await verifyAdminSessionToken("a.b.c")).toBeNull();
     });
   });
 

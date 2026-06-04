@@ -2,7 +2,7 @@ PRAGMA foreign_keys = ON;
 
 -- Super Admin User
 INSERT INTO users (id, email, phone, password_hash, first_name, last_name, role, is_active, email_verified, phone_verified, google_id, created_at, updated_at) VALUES
-('u_admin_00000000', 'admin@glamonepal.com', '+977-9800000000', '$2a$12$LJ3m4ys3Lk0TSwMcMgPMOejM5V4sJIp9Gg0FDqQr5t1e2sGQ5XK6e', 'GLAMO', 'Admin', 'SUPER_ADMIN', 1, 1, 0, NULL, datetime('now'), datetime('now'));
+('u_admin_00000000', 'admin@example.com', '+977-9800000000', '$2a$12$LJ3m4ys3Lk0TSwMcMgPMOejM5V4sJIp9Gg0FDqQr5t1e2sGQ5XK6e', 'GLAMO', 'Admin', 'SUPER_ADMIN', 1, 1, 0, NULL, datetime('now'), datetime('now'));
 
 -- Categories (8 top-level + subcategories)
 INSERT INTO categories (id, name, slug, description, parent_id, sort_order, is_active, created_at, updated_at) VALUES

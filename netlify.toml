@@ -25,4 +25,4 @@
   package = "@netlify/plugin-nextjs"
 
 [secrets_scan]
-  enabled = false
+  omit_keys = ["NEXT_PUBLIC_INSTAGRAM_URL", "NEXT_PUBLIC_FACEBOOK_URL", "ADMIN_EMAIL"]

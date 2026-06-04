@@ -31,8 +31,8 @@ npm run dev
 
 # 5. Open admin panel
 # http://localhost:3000/admin/login
-# Email: admin@glamonepal.com
-# Password: ChangeMe@123
+# Email: <your-admin-email-from-env>
+# Password: <your-admin-password-from-env>
 ```
 
 ## Environment Variables
@@ -94,8 +94,8 @@ supabase db push
 The admin login uses HMAC-signed cookies. It does **not** require the backend to be running.
 
 ### Credentials
-- Email: `admin@glamonepal.com`
-- Password: `ChangeMe@123`
+- Email: (set via `ADMIN_EMAIL` in `.env.local`)
+- Password: (set via `ADMIN_PASSWORD` in `.env.local`)
 
 ### Flow
 1. Visit `/admin/login`
