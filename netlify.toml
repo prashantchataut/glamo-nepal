@@ -6,12 +6,14 @@
 # at build time. Setting them only at runtime will NOT work.
 #
 # Required build-time env vars:
-#   NEXT_PUBLIC_CONVEX_URL       — Convex deployment URL (e.g. https://xxx.convex.cloud)
-#   NEXT_PUBLIC_CONVEX_SITE_URL  — Convex site URL (e.g. https://xxx.convex.site)
-#   NEXT_PUBLIC_SITE_URL         — Production site URL (e.g. https://glamonepal.com)
-#
-# The app handles missing NEXT_PUBLIC_CONVEX_URL gracefully during build
-# (Convex features are disabled until the URL is available at runtime).
+#   NEXT_PUBLIC_API_BASE_URL       — Backend API URL (e.g. https://glamonepal.com/api/v1)
+#   NEXT_PUBLIC_SITE_URL           — Production site URL (e.g. https://glamonepal.com)
+#   NEXT_PUBLIC_FIREBASE_API_KEY   — Firebase Web API key
+#   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+#   NEXT_PUBLIC_FIREBASE_PROJECT_ID
+#   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+#   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+#   NEXT_PUBLIC_FIREBASE_APP_ID
 # ──────────────────────────────────────────────
 
 [build]
