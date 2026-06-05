@@ -1,24 +1,23 @@
 {
   "name": "glamo-nepal-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "GLAMO Nepal - Beauty Ecommerce API on Cloudflare Workers",
+  "description": "GLAMO Nepal - Beauty Ecommerce API",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "db:migrate:local": "wrangler d1 migrations apply glamo-nepal-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply glamo-nepal-db --remote",
-    "db:seed:local": "wrangler d1 execute glamo-nepal-db --local --file=migrations/0002_seed_data.sql",
-    "db:seed:prod": "wrangler d1 execute glamo-nepal-db --remote --file=migrations/0002_seed_data.sql",
-    "prisma:generate": "prisma generate",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:migrate": "tsx src/scripts/migrate.ts",
+    "db:seed": "tsx src/scripts/seed.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.105.1",
+    "@hono/node-server": "^1.13.8",
+    "@libsql/client": "^0.14.0",
     "bcryptjs": "^3.0.3",
     "hono": "^4.7.0",
     "jose": "^6.0.0",
@@ -28,11 +27,10 @@
     "node": "22.x"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.10",
-    "@cloudflare/workers-types": "^4.20250109.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.8.3",
-    "vitest": "^4.1.7",
-    "wrangler": "^4.0.0"
+    "vitest": "^4.1.7"
   }
 }

@@ -1,28 +1,32 @@
 # GLAMO Nepal Backend — Local Development Variables
-# Copy this file to .dev.vars (wrangler dev reads this automatically)
+# Copy this file to .env and fill in real values
 # NEVER commit real secrets to git!
 
-# ── Supabase (REQUIRED) ──────────────────────────────────────────────────
-# Get these from: Supabase Dashboard → Settings → API
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+# ── Turso Database (REQUIRED) ──────────────────────────────────────────────
+# Get these from: Turso Dashboard → Database → Settings
+TURSO_DB_URL=libsql://your-database.turso.io
+TURSO_AUTH_TOKEN=your-turso-auth-token
+
+# ── Firebase Auth (REQUIRED) ───────────────────────────────────────────────
+# Your Firebase project ID for JWT verification
+FIREBASE_PROJECT_ID=your-firebase-project-id
 
 # ── Cloudinary (REQUIRED for image uploads) ────────────────────────────────
-CLOUDINARY_CLOUD_NAME=YOUR_CLOUD_NAME
-CLOUDINARY_API_KEY=YOUR_API_KEY
-CLOUDINARY_API_SECRET=YOUR_API_SECRET
-
-# ── R2 Public URL (for Cloudflare R2 assets) ──────────────────────────────
-R2_PUBLIC_URL=http://localhost:8787/r2
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
 # ── Email (Resend) ────────────────────────────────────────────────────────
 RESEND_API_KEY=re_xxx
 
 # ── Payments ──────────────────────────────────────────────────────────────
-KHALTI_SECRET_KEY=live_secret_key_xxx
+KHALTI_SECRET_KEY=test_secret_key_xxx
 ESEWA_SECRET_KEY=xxx
 ESEWA_MERCHANT_CODE=xxx
 
-# ── Auth (JWT for Hono backend, separate from Next.js admin session) ──────
-JWT_PRIVATE_KEY=
-JWT_PUBLIC_KEY=
+# ── Frontend URL (for CORS) ──────────────────────────────────────────────
+FRONTEND_URL=http://localhost:3000
+
+# ── Pricing ───────────────────────────────────────────────────────────────
+FREE_SHIPPING_THRESHOLD=2500
+COD_FEE=50

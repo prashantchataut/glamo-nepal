@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, orderStatusToVariant, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
-import { useDashboardStats } from "@/lib/hooks/useConvexQueries";
+import { useAdminData } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { useAdminStore } from "@/store/useAdminStore";
 
 function StatCard({
@@ -74,14 +75,14 @@ function SkeletonCard() {
 }
 
 export function DashboardView() {
-  const stats = useDashboardStats();
+  const { data: stats, isLoading, isError } = useAdminData(() => adminApi.dashboardStats());
   const categoryCounts = useMemo(() => stats?.topPerformers?.categories ?? {}, [stats?.topPerformers?.categories]);
   const maxCategoryCount = useMemo(
     () => Math.max(...Object.values(categoryCounts), 0),
     [categoryCounts]
   );
 
-  if (stats === undefined) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
@@ -91,7 +92,7 @@ export function DashboardView() {
     );
   }
 
-  if (stats === null) {
+  if (isError && !stats) {
     return (
       <section className="rounded-[2rem] border border-red-200 bg-red-50 p-6 text-center">
         <p className="text-sm font-medium text-red-700">Failed to load dashboard data</p>

@@ -1,153 +1,150 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 
-interface SubscriberRow {
-  id: string
-  email: string
-  unsubscribe_token: string
-  is_active: boolean
-  subscribed_at: string
-  unsubscribed_at: string | null
+function formatSubscriber(row: any) {
+  return {
+    id: row.id,
+    email: row.email,
+    unsubscribeToken: row.unsubscribe_token,
+    isActive: fromSqliteBool(row.is_active),
+    subscribedAt: row.subscribed_at,
+    unsubscribedAt: row.unsubscribed_at,
+  }
 }
 
-export async function subscribe(supabase: SupabaseClient, email: string, ip: string, kv: KVNamespace) {
-  const rateLimitKey = `newsletter:subscribe:${ip}`
-  const currentCount = await kv.get(rateLimitKey)
-  const count = currentCount ? parseInt(currentCount, 10) : 0
-  if (count >= 3) {
-    throw new AppError('Too many subscription attempts. Please try again later.', 429, 'RATE_LIMITED')
-  }
+export async function subscribe(db: Client, email: string, ip: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM newsletter_subscribers WHERE email = ?`,
+    args: [email],
+  })
 
-  const { data: existing } = await supabase
-    .from('newsletter_subscribers')
-    .select('*')
-    .eq('email', email)
-    .single<SubscriberRow>()
+  const existing = existingResult.rows[0]
 
-  if (existing && existing.is_active) {
+  if (existing && fromSqliteBool(existing.is_active as number)) {
     return { message: 'Successfully subscribed' }
   }
 
-  if (existing && !existing.is_active) {
-    const { error: updateError } = await supabase
-      .from('newsletter_subscribers')
-      .update({ is_active: true, unsubscribed_at: null })
-      .eq('id', existing.id)
+  if (existing && !fromSqliteBool(existing.is_active as number)) {
+    await db.execute({
+      sql: `UPDATE newsletter_subscribers SET is_active = 1, unsubscribed_at = NULL WHERE id = ?`,
+      args: [existing.id],
+    })
 
-    if (updateError) throw new AppError('Failed to subscribe', 500)
     return { message: 'Successfully subscribed' }
   }
 
-  const { error: insertError } = await supabase
-    .from('newsletter_subscribers')
-    .insert({ email })
+  try {
+    const id = crypto.randomUUID()
+    const now = new Date().toISOString()
 
-  if (insertError) {
-    if (insertError.code === '23505') {
+    await db.execute({
+      sql: `INSERT INTO newsletter_subscribers (id, email, is_active, subscribed_at, created_at) VALUES (?, ?, 1, ?, ?)`,
+      args: [id, email, now, now],
+    })
+  } catch (error: any) {
+    if (error?.message?.includes('UNIQUE constraint')) {
       return { message: 'Successfully subscribed' }
     }
     throw new AppError('Failed to subscribe', 500)
   }
 
-  const newCount = count + 1
-  await kv.put(rateLimitKey, String(newCount), { expirationTtl: 3600 })
-
   return { message: 'Successfully subscribed' }
 }
 
-export async function unsubscribe(supabase: SupabaseClient, token: string) {
+export async function unsubscribe(db: Client, token: string) {
   if (!token) {
     return { message: 'Unsubscribed successfully' }
   }
 
-  const { data: subscriber, error } = await supabase
-    .from('newsletter_subscribers')
-    .select('*')
-    .eq('unsubscribe_token', token)
-    .single<SubscriberRow>()
+  const result = await db.execute({
+    sql: `SELECT * FROM newsletter_subscribers WHERE unsubscribe_token = ?`,
+    args: [token],
+  })
 
-  if (!subscriber || error) {
+  const subscriber = result.rows[0]
+
+  if (!subscriber) {
     return { message: 'Unsubscribed successfully' }
   }
 
-  if (!subscriber.is_active) {
+  if (!fromSqliteBool(subscriber.is_active as number)) {
     return { message: 'Unsubscribed successfully' }
   }
 
-  const { error: updateError } = await supabase
-    .from('newsletter_subscribers')
-    .update({ is_active: false, unsubscribed_at: new Date().toISOString() })
-    .eq('id', subscriber.id)
-
-  if (updateError) throw new AppError('Failed to unsubscribe', 500)
+  await db.execute({
+    sql: `UPDATE newsletter_subscribers SET is_active = 0, unsubscribed_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), subscriber.id],
+  })
 
   return { message: 'Unsubscribed successfully' }
 }
 
-export async function getSubscribers(supabase: SupabaseClient, filters: { isActive?: boolean; page: number; limit: number }) {
+export async function getSubscribers(db: Client, filters: { isActive?: boolean; page: number; limit: number }) {
   const { isActive, page, limit } = filters
-  const from = (page - 1) * limit
-  const to = from + limit - 1
+  const offset = (page - 1) * limit
 
-  let query = supabase
-    .from('newsletter_subscribers')
-    .select('*', { count: 'exact' })
-    .order('subscribed_at', { ascending: false })
-    .range(from, to)
+  const whereClauses: string[] = []
+  const args: any[] = []
 
   if (isActive !== undefined) {
-    query = query.eq('is_active', isActive)
+    whereClauses.push(`is_active = ${toSqliteBool(isActive)}`)
   }
 
-  const { data, error, count } = await query
+  const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
 
-  if (error) throw new AppError('Failed to fetch subscribers', 500)
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM newsletter_subscribers ${whereStr}`,
+    args,
+  })
+
+  const dataResult = await db.execute({
+    sql: `SELECT * FROM newsletter_subscribers ${whereStr} ORDER BY subscribed_at DESC LIMIT ? OFFSET ?`,
+    args: [...args, limit, offset],
+  })
+
+  const total = Number(countResult.rows[0]?.count ?? 0)
 
   return {
-    subscribers: data.map(formatSubscriber),
-    total: count ?? 0,
+    subscribers: dataResult.rows.map(formatSubscriber),
+    total,
     page,
     limit,
-    totalPages: Math.ceil((count ?? 0) / limit),
+    totalPages: Math.ceil(total / limit),
   }
 }
 
-export async function exportSubscribers(supabase: SupabaseClient) {
-  const { data, error } = await supabase
-    .from('newsletter_subscribers')
-    .select('email, is_active, subscribed_at, unsubscribed_at')
-    .order('subscribed_at', { ascending: false })
-
-  if (error) throw new AppError('Failed to export subscribers', 500)
+export async function exportSubscribers(db: Client) {
+  const result = await db.execute({
+    sql: `SELECT email, is_active, subscribed_at, unsubscribed_at FROM newsletter_subscribers ORDER BY subscribed_at DESC`,
+    args: [],
+  })
 
   const header = 'email,is_active,subscribed_at,unsubscribed_at'
-  const rows = (data as SubscriberRow[]).map(row =>
-    `"${row.email}","${row.is_active}","${row.subscribed_at}","${row.unsubscribed_at || ''}"`
+  const rows = result.rows.map(row =>
+    `"${row.email}","${fromSqliteBool(row.is_active as number)}","${row.subscribed_at}","${row.unsubscribed_at || ''}"`
   )
 
   return [header, ...rows].join('\n')
 }
 
-export async function deleteSubscriber(supabase: SupabaseClient, id: string, adminUserId: string) {
-  const { data: subscriber, error: fetchError } = await supabase
-    .from('newsletter_subscribers')
-    .select('*')
-    .eq('id', id)
-    .single<SubscriberRow>()
+export async function deleteSubscriber(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM newsletter_subscribers WHERE id = ?`,
+    args: [id],
+  })
 
-  if (!subscriber || fetchError) {
+  const subscriber = existingResult.rows[0]
+  if (!subscriber) {
     throw new AppError('Subscriber not found', 404, 'NOT_FOUND')
   }
 
-  const { error: deleteError } = await supabase
-    .from('newsletter_subscribers')
-    .delete()
-    .eq('id', id)
+  await db.execute({
+    sql: `DELETE FROM newsletter_subscribers WHERE id = ?`,
+    args: [id],
+  })
 
-  if (deleteError) throw new AppError('Failed to delete subscriber', 500)
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'DELETE',
     entity: 'newsletter_subscribers',
@@ -156,15 +153,4 @@ export async function deleteSubscriber(supabase: SupabaseClient, id: string, adm
   })
 
   return { message: 'Subscriber deleted successfully' }
-}
-
-function formatSubscriber(row: SubscriberRow) {
-  return {
-    id: row.id,
-    email: row.email,
-    unsubscribeToken: row.unsubscribe_token,
-    isActive: row.is_active,
-    subscribedAt: row.subscribed_at,
-    unsubscribedAt: row.unsubscribed_at,
-  }
 }

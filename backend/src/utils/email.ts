@@ -1,10 +1,10 @@
-import type { CloudflareBindings } from '../types/bindings'
+import type { NetlifyBindings } from '../types/bindings'
 
 async function sendEmail(
   to: string,
   subject: string,
   html: string,
-  env: CloudflareBindings
+  env: NetlifyBindings
 ): Promise<void> {
   await fetch('https://api.resend.com/emails', {
     method: 'POST',

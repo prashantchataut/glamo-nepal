@@ -1,17 +1,18 @@
-"use client";
+﻿"use client";
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import NextImage from "next/image";
 import Link from "next/link";
 import { Save, Upload, Smartphone, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useBanners } from "@/lib/hooks/useConvexQueries";
+import { useAdminData } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { toast } from "sonner";
 
 type BannerSlot = "desktop" | "mobile";
-type BannerItem = NonNullable<ReturnType<typeof useBanners>>[number];
+type BannerItem = { id: string; title: string; subtitle?: string; linkUrl?: string; isActive: boolean; position: string; imageUrl: string };
 
 function BannerPreview({ banner }: { banner: BannerItem }) {
   return (
@@ -66,10 +67,8 @@ export function BannersView() {
   const [deleteTarget, setDeleteTarget] = useState<BannerItem | null>(null);
   const [isSaving] = useState(false);
 
-  const banners = useBanners();
-  const isLoading = banners === undefined;
-  const isError = banners === null;
-  const bannerList = useMemo(() => (banners ?? []) as BannerItem[], [banners]);
+  const { data: banners, isLoading, isError } = useAdminData(() => adminApi.listAdminBanners());
+  const bannerList = useMemo(() => (banners ?? []) as unknown as BannerItem[], [banners]);
   const selectedBanner = bannerList.find((b) => b.id === selectedId);
 
   useEffect(() => {

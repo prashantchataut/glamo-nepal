@@ -1,6 +1,6 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { CloudflareBindings } from '../../types/bindings'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import type { NetlifyBindings } from '../../types/bindings'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool, safeJsonParse, safeJsonStringify } from '../../utils/turso-helpers'
 import { CACHE_TTL, getFromCache, setCache } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 import { generateUniqueSlug } from '../../utils/slug'
@@ -14,176 +14,176 @@ function calculateReadTime(content: string): number {
 }
 
 export async function getPublishedBlogs(
-  supabase: SupabaseClient,
-  kv: KVNamespace,
+  db: Client,
   filters: { category?: string; page: number; limit: number }
 ) {
   const cacheKey = `${CACHE_PREFIX}list:${filters.category || 'all'}:${filters.page}:${filters.limit}`
-  const cached = await getFromCache<any>(kv, cacheKey)
+  const cached = await getFromCache<any>(cacheKey)
   if (cached) return cached
 
-  const from = (filters.page - 1) * filters.limit
-  const to = from + filters.limit - 1
+  const offset = (filters.page - 1) * filters.limit
 
-  let query = supabase
-    .from('blogs')
-    .select('id, title, slug, excerpt, cover_image_url, category, tags, view_count, read_time_minutes, published_at, created_at', { count: 'exact' })
-    .eq('is_published', true)
-    .is('deleted_at', null)
-    .order('published_at', { ascending: false })
-    .range(from, to)
+  const whereClauses: string[] = ['is_published = 1', 'deleted_at IS NULL']
+  const args: any[] = []
 
   if (filters.category) {
-    query = query.eq('category', filters.category)
+    whereClauses.push('category = ?')
+    args.push(filters.category)
   }
 
-  const { data, error, count } = await query
+  const countArgs = [...args]
+  const whereStr = whereClauses.join(' AND ')
 
-  if (error) handleSupabaseError(error, 'getPublishedBlogs')
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM blogs WHERE ${whereStr}`,
+    args: countArgs,
+  })
+
+  const dataResult = await db.execute({
+    sql: `SELECT id, title, slug, excerpt, cover_image_url, category, tags, view_count, read_time_minutes, published_at, created_at FROM blogs WHERE ${whereStr} ORDER BY published_at DESC LIMIT ? OFFSET ?`,
+    args: [...args, filters.limit, offset],
+  })
+
+  const total = Number(countResult.rows[0]?.count ?? 0)
 
   const result = {
-    posts: data || [],
-    total: count || 0,
+    posts: dataResult.rows.map(row => ({
+      ...row,
+      tags: safeJsonParse(row.tags as string, []),
+      is_published: fromSqliteBool(row.is_published as number),
+    })),
+    total,
     page: filters.page,
     limit: filters.limit,
-    totalPages: Math.ceil((count || 0) / filters.limit),
+    totalPages: Math.ceil(total / filters.limit),
   }
 
-  await setCache(kv, cacheKey, result, CACHE_TTL.POPUP)
+  await setCache(cacheKey, result, CACHE_TTL.POPUP)
   return result
 }
 
-export async function getBlogCategories(supabase: SupabaseClient) {
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('category')
-    .eq('is_published', true)
-    .is('deleted_at', null)
-    .not('category', 'is', null)
+export async function getBlogCategories(db: Client) {
+  const result = await db.execute({
+    sql: `SELECT DISTINCT category FROM blogs WHERE is_published = 1 AND deleted_at IS NULL AND category IS NOT NULL`,
+    args: [],
+  })
 
-  if (error) handleSupabaseError(error, 'getBlogCategories')
-
-  const categories = [...new Set(data.map((row: any) => row.category).filter(Boolean))]
-  return categories
+  return result.rows.map(row => String(row.category)).filter(Boolean)
 }
 
-export async function getBlogBySlug(supabase: SupabaseClient, slug: string) {
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .is('deleted_at', null)
-    .single()
+export async function getBlogBySlug(db: Client, slug: string) {
+  const result = await db.execute({
+    sql: `SELECT * FROM blogs WHERE slug = ? AND is_published = 1 AND deleted_at IS NULL`,
+    args: [slug],
+  })
 
-  if (error) handleSupabaseError(error, 'getBlogBySlug')
+  const data = result.rows[0]
   if (!data) throw new AppError('Blog post not found', 404)
 
-  supabase
-    .from('blogs')
-    .update({ view_count: (data.view_count || 0) + 1 })
-    .eq('id', data.id)
-    .then(() => {})
+  db.execute({
+    sql: `UPDATE blogs SET view_count = view_count + 1 WHERE id = ?`,
+    args: [data.id],
+  }).catch(() => {})
 
-  const readTime = data.read_time_minutes || calculateReadTime(data.content || '')
+  const readTime = Number(data.read_time_minutes) || calculateReadTime(String(data.content || ''))
 
-  return { ...data, read_time_minutes: readTime }
+  return { ...data, tags: safeJsonParse(data.tags as string, []), read_time_minutes: readTime }
 }
 
-export async function createBlog(supabase: SupabaseClient, data: any, authorId: string) {
-  const { data: existingSlugs } = await supabase
-    .from('blogs')
-    .select('slug')
+export async function createBlog(db: Client, data: any, authorId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT slug FROM blogs`,
+    args: [],
+  })
 
-  const slugList = (existingSlugs || []).map((row: any) => row.slug)
+  const slugList = existingResult.rows.map(row => String(row.slug))
   const slug = generateUniqueSlug(data.title, slugList)
 
   const readTime = data.content ? calculateReadTime(data.content) : 1
-
   const tags = typeof data.tags === 'string'
     ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
     : data.tags
 
-  const insertData: Record<string, any> = {
-    title: data.title,
-    slug,
-    excerpt: data.excerpt ?? null,
-    content: data.content,
-    category: data.category ?? null,
-    meta_title: data.metaTitle ?? null,
-    meta_description: data.metaDescription ?? null,
-    tags: tags ?? null,
-    read_time_minutes: readTime,
-    author_id: authorId,
-    is_published: false,
-  }
+  const id = crypto.randomUUID()
+  const now = new Date().toISOString()
 
-  const { data: blog, error } = await supabase
-    .from('blogs')
-    .insert(insertData)
-    .select()
-    .single()
+  await db.execute({
+    sql: `INSERT INTO blogs (id, title, slug, excerpt, content, category, meta_title, meta_description, tags, read_time_minutes, author_id, is_published, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+    args: [
+      id, data.title, slug, data.excerpt ?? null, data.content, data.category ?? null,
+      data.metaTitle ?? null, data.metaDescription ?? null,
+      safeJsonStringify(tags ?? null), readTime, authorId, now, now,
+    ],
+  })
 
-  if (error) handleSupabaseError(error, 'createBlog')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: authorId,
     action: 'CREATE',
     entity: 'blog',
-    entityId: blog.id,
+    entityId: id,
     changes: data,
   })
 
-  return blog
+  const blogResult = await db.execute({
+    sql: `SELECT * FROM blogs WHERE id = ?`,
+    args: [id],
+  })
+
+  const blog = blogResult.rows[0]
+  return { ...blog, tags: safeJsonParse(blog.tags as string, []) }
 }
 
-export async function updateBlog(supabase: SupabaseClient, id: string, data: any, adminUserId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('blogs')
-    .select('id, slug, title, content')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function updateBlog(db: Client, id: string, data: any, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id, slug, title, content FROM blogs WHERE id = ? AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchBlogForUpdate')
+  const existing = existingResult.rows[0]
   if (!existing) throw new AppError('Blog post not found', 404)
 
-  const updateData: Record<string, any> = {}
+  const updates: string[] = []
+  const args: any[] = []
 
   if (data.title !== undefined) {
-    updateData.title = data.title
-    const { data: allSlugs } = await supabase
-      .from('blogs')
-      .select('slug')
-      .neq('id', id)
-    const slugList = (allSlugs || []).map((row: any) => row.slug)
-    updateData.slug = generateUniqueSlug(data.title, slugList)
+    const allSlugsResult = await db.execute({
+      sql: `SELECT slug FROM blogs WHERE id != ?`,
+      args: [id],
+    })
+    const slugList = allSlugsResult.rows.map(r => String(r.slug))
+    const newSlug = generateUniqueSlug(data.title, slugList)
+    updates.push('title = ?', 'slug = ?')
+    args.push(data.title, newSlug)
   }
-  if (data.excerpt !== undefined) updateData.excerpt = data.excerpt
+  if (data.excerpt !== undefined) { updates.push('excerpt = ?'); args.push(data.excerpt) }
   if (data.content !== undefined) {
-    updateData.content = data.content
-    updateData.read_time_minutes = calculateReadTime(data.content)
+    updates.push('content = ?', 'read_time_minutes = ?')
+    args.push(data.content, calculateReadTime(data.content))
   }
-  if (data.category !== undefined) updateData.category = data.category
-  if (data.metaTitle !== undefined) updateData.meta_title = data.metaTitle
-  if (data.metaDescription !== undefined) updateData.meta_description = data.metaDescription
+  if (data.category !== undefined) { updates.push('category = ?'); args.push(data.category) }
+  if (data.metaTitle !== undefined) { updates.push('meta_title = ?'); args.push(data.metaTitle) }
+  if (data.metaDescription !== undefined) { updates.push('meta_description = ?'); args.push(data.metaDescription) }
   if (data.tags !== undefined) {
-    updateData.tags = typeof data.tags === 'string'
+    const tags = typeof data.tags === 'string'
       ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
       : data.tags
+    updates.push('tags = ?')
+    args.push(safeJsonStringify(tags))
   }
-  if (data.isPublished !== undefined) updateData.is_published = data.isPublished
+  if (data.isPublished !== undefined) { updates.push('is_published = ?'); args.push(toSqliteBool(data.isPublished)) }
 
-  const { data: blog, error } = await supabase
-    .from('blogs')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single()
+  if (updates.length > 0) {
+    updates.push('updated_at = ?')
+    args.push(new Date().toISOString())
+    args.push(id)
 
-  if (error) handleSupabaseError(error, 'updateBlog')
+    await db.execute({
+      sql: `UPDATE blogs SET ${updates.join(', ')} WHERE id = ?`,
+      args,
+    })
+  }
 
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'blog',
@@ -191,88 +191,89 @@ export async function updateBlog(supabase: SupabaseClient, id: string, data: any
     changes: data,
   })
 
-  return blog
+  const blogResult = await db.execute({
+    sql: `SELECT * FROM blogs WHERE id = ?`,
+    args: [id],
+  })
+
+  const blog = blogResult.rows[0]
+  return { ...blog, tags: safeJsonParse(blog.tags as string, []) }
 }
 
-export async function publishBlog(supabase: SupabaseClient, id: string, adminUserId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('blogs')
-    .select('id, is_published')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function publishBlog(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id, is_published FROM blogs WHERE id = ? AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchBlogForPublish')
-  if (!existing) throw new AppError('Blog post not found', 404)
+  if (!existingResult.rows[0]) throw new AppError('Blog post not found', 404)
 
-  const { data: blog, error } = await supabase
-    .from('blogs')
-    .update({ is_published: true, published_at: new Date().toISOString() })
-    .eq('id', id)
-    .select()
-    .single()
+  const now = new Date().toISOString()
+  await db.execute({
+    sql: `UPDATE blogs SET is_published = 1, published_at = ?, updated_at = ? WHERE id = ?`,
+    args: [now, now, id],
+  })
 
-  if (error) handleSupabaseError(error, 'publishBlog')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'PUBLISH',
     entity: 'blog',
     entityId: id,
   })
 
-  return blog
+  const blogResult = await db.execute({
+    sql: `SELECT * FROM blogs WHERE id = ?`,
+    args: [id],
+  })
+
+  const blog = blogResult.rows[0]
+  return { ...blog, tags: safeJsonParse(blog.tags as string, []) }
 }
 
-export async function unpublishBlog(supabase: SupabaseClient, id: string, adminUserId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('blogs')
-    .select('id, is_published')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function unpublishBlog(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id, is_published FROM blogs WHERE id = ? AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchBlogForUnpublish')
-  if (!existing) throw new AppError('Blog post not found', 404)
+  if (!existingResult.rows[0]) throw new AppError('Blog post not found', 404)
 
-  const { data: blog, error } = await supabase
-    .from('blogs')
-    .update({ is_published: false, published_at: null })
-    .eq('id', id)
-    .select()
-    .single()
+  const now = new Date().toISOString()
+  await db.execute({
+    sql: `UPDATE blogs SET is_published = 0, published_at = NULL, updated_at = ? WHERE id = ?`,
+    args: [now, id],
+  })
 
-  if (error) handleSupabaseError(error, 'unpublishBlog')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UNPUBLISH',
     entity: 'blog',
     entityId: id,
   })
 
-  return blog
+  const blogResult = await db.execute({
+    sql: `SELECT * FROM blogs WHERE id = ?`,
+    args: [id],
+  })
+
+  const blog = blogResult.rows[0]
+  return { ...blog, tags: safeJsonParse(blog.tags as string, []) }
 }
 
-export async function deleteBlog(supabase: SupabaseClient, id: string, adminUserId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('blogs')
-    .select('id')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function deleteBlog(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id FROM blogs WHERE id = ? AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchBlogForDelete')
-  if (!existing) throw new AppError('Blog post not found', 404)
+  if (!existingResult.rows[0]) throw new AppError('Blog post not found', 404)
 
-  const { error } = await supabase
-    .from('blogs')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
+  await db.execute({
+    sql: `UPDATE blogs SET deleted_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), id],
+  })
 
-  if (error) handleSupabaseError(error, 'deleteBlog')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'DELETE',
     entity: 'blog',
@@ -281,22 +282,21 @@ export async function deleteBlog(supabase: SupabaseClient, id: string, adminUser
 }
 
 export async function uploadCoverImage(
-  supabase: SupabaseClient,
+  db: Client,
   id: string,
   file: File,
-  env: CloudflareBindings
+  env: NetlifyBindings
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('blogs')
-    .select('id, cover_image_url')
-    .eq('id', id)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT id, cover_image_url FROM blogs WHERE id = ?`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchBlogForCoverUpload')
+  const existing = existingResult.rows[0]
   if (!existing) throw new AppError('Blog post not found', 404)
 
   if (existing.cover_image_url) {
-    const publicId = existing.cover_image_url.split('/').slice(-2).join('/').replace(/\.[^.]+$/, '')
+    const publicId = String(existing.cover_image_url).split('/').slice(-2).join('/').replace(/\.[^.]+$/, '')
     try {
       await deleteFromCloudinary(publicId, env)
     } catch {}
@@ -304,14 +304,16 @@ export async function uploadCoverImage(
 
   const { url } = await uploadImageToCloudinary(file, 'blog', env)
 
-  const { data: blog, error } = await supabase
-    .from('blogs')
-    .update({ cover_image_url: url })
-    .eq('id', id)
-    .select()
-    .single()
+  await db.execute({
+    sql: `UPDATE blogs SET cover_image_url = ? WHERE id = ?`,
+    args: [url, id],
+  })
 
-  if (error) handleSupabaseError(error, 'updateBlogCoverImage')
+  const blogResult = await db.execute({
+    sql: `SELECT * FROM blogs WHERE id = ?`,
+    args: [id],
+  })
 
-  return blog
+  const blog = blogResult.rows[0]
+  return { ...blog, tags: safeJsonParse(blog.tags as string, []) }
 }

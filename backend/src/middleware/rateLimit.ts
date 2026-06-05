@@ -13,24 +13,33 @@ export const RATE_LIMITS = {
 
 export type RateLimitConfig = { max: number; window: number; keyGenerator?: (c: Context<AppEnv>) => string }
 
+const rateLimitStore = new Map<string, { count: number; expires: number }>()
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of rateLimitStore) {
+    if (entry.expires < now) {
+      rateLimitStore.delete(key)
+    }
+  }
+}, 60_000)
+
 export function rateLimit(config: RateLimitConfig) {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
     try {
-      if (!c.env.KV) {
-        console.warn('Rate limiting disabled: KV namespace not configured')
-        await next()
-        return
-      }
-
       const keyGenerator = config.keyGenerator ?? (() => {
-        const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+        const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
         return `ratelimit:${ip}:${c.req.path}`
       })
 
       const key = keyGenerator(c)
-      const current = await c.env.KV.get<string>(key)
+      const now = Date.now()
+      const entry = rateLimitStore.get(key)
 
-      const count = current ? parseInt(current, 10) : 0
+      let count = 0
+      if (entry && entry.expires > now) {
+        count = entry.count
+      }
 
       if (count >= config.max) {
         c.header('Retry-After', String(config.window))
@@ -42,7 +51,7 @@ export function rateLimit(config: RateLimitConfig) {
       }
 
       const newCount = count + 1
-      await c.env.KV.put(key, String(newCount), { expirationTtl: config.window })
+      rateLimitStore.set(key, { count: newCount, expires: now + config.window * 1000 })
 
       c.header('X-RateLimit-Limit', String(config.max))
       c.header('X-RateLimit-Remaining', String(config.max - newCount))
@@ -58,7 +67,7 @@ export const authRateLimit = rateLimit({
   max: RATE_LIMITS.auth.max,
   window: RATE_LIMITS.auth.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
     return `ratelimit:${ip}:auth`
   },
 })
@@ -67,7 +76,7 @@ export const passwordResetRateLimit = rateLimit({
   max: RATE_LIMITS.passwordReset.max,
   window: RATE_LIMITS.passwordReset.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
     return `ratelimit:${ip}:password-reset`
   },
 })
@@ -76,7 +85,7 @@ export const couponRateLimit = rateLimit({
   max: RATE_LIMITS.coupon.max,
   window: RATE_LIMITS.coupon.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
     return `ratelimit:${ip}:coupon`
   },
 })
@@ -86,7 +95,7 @@ export const paymentRateLimit = rateLimit({
   window: RATE_LIMITS.payment.window,
   keyGenerator: (c) => {
     const user = c.get('user')
-    const id = user?.id ?? c.req.header('cf-connecting-ip') ?? 'unknown'
+    const id = user?.id ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     return `ratelimit:${id}:payment`
   },
 })
@@ -100,7 +109,7 @@ export const eventRateLimit = rateLimit({
   max: RATE_LIMITS.event.max,
   window: RATE_LIMITS.event.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
+    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
     return `ratelimit:${ip}:event`
   },
 })
@@ -110,7 +119,7 @@ export const reviewRateLimit = rateLimit({
   window: RATE_LIMITS.review.window,
   keyGenerator: (c) => {
     const user = c.get('user')
-    const id = user?.id ?? c.req.header('cf-connecting-ip') ?? 'unknown'
+    const id = user?.id ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     return `ratelimit:${id}:review`
   },
 })

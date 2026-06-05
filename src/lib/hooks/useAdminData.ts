@@ -32,9 +32,9 @@ function getErrorMessage(err: unknown): string {
   if (err instanceof GlamoApiError) {
     switch (err.code) {
       case "API_BASE_URL_MISSING":
-        return "The API backend is not configured. Start the backend with `wrangler dev` or set NEXT_PUBLIC_API_BASE_URL in .env.local.";
+        return "The API backend is not configured. Set NEXT_PUBLIC_API_BASE_URL in .env.local.";
       case "NETWORK_ERROR":
-        return "Could not reach the API backend. Make sure the backend is running (wrangler dev) and NEXT_PUBLIC_API_BASE_URL is correct.";
+        return "Could not reach the API backend. Make sure the backend is running and NEXT_PUBLIC_API_BASE_URL is correct.";
       default:
         return err.message;
     }

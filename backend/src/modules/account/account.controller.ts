@@ -1,14 +1,14 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as AccountService from './account.service'
 
 export async function getProfile(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const result = await AccountService.getProfile(supabase, user.id)
+    const db = c.get('db')
+    const result = await AccountService.getProfile(db, user.id)
     return ApiResponse.success(c, 'Profile fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -22,8 +22,8 @@ export async function updateProfile(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await AccountService.updateProfile(supabase, user.id, data, user.id)
+    const db = c.get('db')
+    const result = await AccountService.updateProfile(db, user.id, data, user.id)
     return ApiResponse.success(c, 'Profile updated successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -36,13 +36,13 @@ export async function updateProfile(c: Context<AppEnv>) {
 export async function uploadAvatar(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const body = await c.req.parseBody()
     const file = body['avatar']
     if (!file || !(file instanceof File)) {
       return ApiResponse.error(c, 'No avatar file provided', 400)
     }
-    const result = await AccountService.uploadAvatar(supabase, user.id, file, c.env)
+    const result = await AccountService.uploadAvatar(db, user.id, file, c.env)
     return ApiResponse.success(c, 'Avatar uploaded successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -58,8 +58,8 @@ export async function uploadAvatar(c: Context<AppEnv>) {
 export async function getAddresses(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const result = await AccountService.getAddresses(supabase, user.id)
+    const db = c.get('db')
+    const result = await AccountService.getAddresses(db, user.id)
     return ApiResponse.success(c, 'Addresses fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -73,8 +73,8 @@ export async function createAddress(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await AccountService.createAddress(supabase, user.id, data)
+    const db = c.get('db')
+    const result = await AccountService.createAddress(db, user.id, data)
     return ApiResponse.success(c, 'Address created successfully', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -89,8 +89,8 @@ export async function updateAddress(c: Context<AppEnv>) {
     const user = c.get('user')
     const { id } = c.req.param()
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await AccountService.updateAddress(supabase, user.id, id, data)
+    const db = c.get('db')
+    const result = await AccountService.updateAddress(db, user.id, id, data)
     return ApiResponse.success(c, 'Address updated successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -104,8 +104,8 @@ export async function deleteAddress(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
-    await AccountService.deleteAddress(supabase, user.id, id)
+    const db = c.get('db')
+    await AccountService.deleteAddress(db, user.id, id)
     return ApiResponse.success(c, 'Address deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -119,8 +119,8 @@ export async function setDefaultAddress(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
-    const result = await AccountService.setDefaultAddress(supabase, user.id, id)
+    const db = c.get('db')
+    const result = await AccountService.setDefaultAddress(db, user.id, id)
     return ApiResponse.success(c, 'Default address set successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {

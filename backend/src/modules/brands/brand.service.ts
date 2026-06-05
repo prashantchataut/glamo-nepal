@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
 import { generateUniqueSlug } from '../../utils/slug'
@@ -11,21 +11,13 @@ interface BrandRow {
   description: string | null
   logo_url: string | null
   website: string | null
-  is_active: boolean
+  is_active: number
   created_at: string
   updated_at: string
   deleted_at: string | null
 }
 
-interface BrandWithProductCount extends BrandRow {
-  product_count: number
-}
-
-interface BrandFilters {
-  isActive?: boolean
-}
-
-function mapRowToBrand(row: BrandRow) {
+function mapRowToBrand(row: any) {
   return {
     id: row.id,
     name: row.name,
@@ -33,13 +25,13 @@ function mapRowToBrand(row: BrandRow) {
     description: row.description,
     logoUrl: row.logo_url,
     website: row.website,
-    isActive: row.is_active,
+    isActive: fromSqliteBool(row.is_active),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
 }
 
-function mapRowToBrandDetail(row: BrandWithProductCount) {
+function mapRowToBrandDetail(row: any, productCount: number) {
   return {
     id: row.id,
     name: row.name,
@@ -47,122 +39,99 @@ function mapRowToBrandDetail(row: BrandWithProductCount) {
     description: row.description,
     logoUrl: row.logo_url,
     website: row.website,
-    isActive: row.is_active,
-    productCount: row.product_count ?? 0,
+    isActive: fromSqliteBool(row.is_active),
+    productCount,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
 }
 
-async function invalidateBrandCache(kv: KVNamespace) {
+async function invalidateBrandCache() {
   await Promise.all([
-    deleteCache(kv, 'brands:all'),
-    deleteCacheByPrefix(kv, 'brands:slug:'),
+    deleteCache('brands:all'),
+    deleteCacheByPrefix('brands:slug:'),
   ])
 }
 
 export async function getAllBrandsCached(
-  supabase: SupabaseClient,
-  kv: KVNamespace,
-  filters?: BrandFilters
+  db: Client,
+  filters?: { isActive?: boolean }
 ): Promise<ReturnType<typeof mapRowToBrand>[]> {
   const cacheKey = filters?.isActive !== undefined
     ? `brands:all:${filters.isActive ? 'active' : 'inactive'}`
     : 'brands:all'
 
-  const cached = await getFromCache<ReturnType<typeof mapRowToBrand>[]>(kv, cacheKey)
+  const cached = await getFromCache<ReturnType<typeof mapRowToBrand>[]>(cacheKey)
   if (cached) return cached
 
-  let query = supabase
-    .from('brands')
-    .select('*')
-    .is('deleted_at', null)
+  const whereClauses: string[] = ['deleted_at IS NULL']
+  const args: any[] = []
 
   if (filters?.isActive !== undefined) {
-    query = query.eq('is_active', filters.isActive)
+    whereClauses.push(`is_active = ${toSqliteBool(filters.isActive)}`)
   }
 
-  query = query.order('name', { ascending: true })
+  const result = await db.execute({
+    sql: `SELECT * FROM brands WHERE ${whereClauses.join(' AND ')} ORDER BY name ASC`,
+    args,
+  })
 
-  const { data, error } = await query
-  if (error) throw new AppError('Failed to fetch brands', 500)
-
-  const mapped = (data as BrandRow[]).map(mapRowToBrand)
-  await setCache(kv, cacheKey, mapped, CACHE_TTL.BRANDS)
+  const mapped = result.rows.map(mapRowToBrand)
+  await setCache(cacheKey, mapped, CACHE_TTL.BRANDS)
   return mapped
 }
 
 export async function getBrandBySlug(
   slug: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ): Promise<ReturnType<typeof mapRowToBrandDetail> | null> {
   const cacheKey = `brands:slug:${slug}`
-  const cached = await getFromCache<ReturnType<typeof mapRowToBrandDetail>>(kv, cacheKey)
+  const cached = await getFromCache<ReturnType<typeof mapRowToBrandDetail>>(cacheKey)
   if (cached) return cached
 
-  const { data: brand, error } = await supabase
-    .from('brands')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .is('deleted_at', null)
-    .single()
-
-  if (error || !brand) return null
-
-  const brandRow = brand as BrandRow
-
-  const { count: productCount } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true })
-    .eq('brand_id', brandRow.id)
-    .eq('is_active', true)
-    .is('deleted_at', null)
-
-  const result = mapRowToBrandDetail({
-    ...brandRow,
-    product_count: productCount ?? 0,
+  const brandResult = await db.execute({
+    sql: `SELECT * FROM brands WHERE slug = ? AND is_active = 1 AND deleted_at IS NULL`,
+    args: [slug],
   })
 
-  await setCache(kv, cacheKey, result, CACHE_TTL.BRANDS)
+  const brand = brandResult.rows[0]
+  if (!brand) return null
+
+  const productCountResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM products WHERE brand_id = ? AND is_active = 1 AND deleted_at IS NULL`,
+    args: [brand.id],
+  })
+
+  const productCount = Number(productCountResult.rows[0]?.count ?? 0)
+  const result = mapRowToBrandDetail(brand, productCount)
+
+  await setCache(cacheKey, result, CACHE_TTL.BRANDS)
   return result
 }
 
 export async function createBrand(
-  supabase: SupabaseClient,
+  db: Client,
   data: { name: string; description?: string; logoUrl?: string; website?: string },
-  adminUserId: string,
-  kv: KVNamespace
+  adminUserId: string
 ) {
-  const { data: existingSlugs } = await supabase
-    .from('brands')
-    .select('slug')
-    .is('deleted_at', null)
+  const existingResult = await db.execute({
+    sql: `SELECT slug FROM brands WHERE deleted_at IS NULL`,
+    args: [],
+  })
 
-  const slug = generateUniqueSlug(data.name, (existingSlugs || []).map(r => r.slug))
+  const slug = generateUniqueSlug(data.name, existingResult.rows.map(r => String(r.slug)))
 
   const id = crypto.randomUUID()
   const now = new Date().toISOString()
 
-  const insertData: Record<string, unknown> = {
-    id,
-    name: data.name,
-    slug,
-    description: data.description ?? null,
-    logo_url: data.logoUrl ?? null,
-    website: data.website ?? null,
-    is_active: true,
-    created_at: now,
-    updated_at: now,
-  }
+  await db.execute({
+    sql: `INSERT INTO brands (id, name, slug, description, logo_url, website, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+    args: [id, data.name, slug, data.description ?? null, data.logoUrl ?? null, data.website ?? null, now, now],
+  })
 
-  const { error } = await supabase.from('brands').insert(insertData)
-  if (error) throw new AppError('Failed to create brand', 500)
+  await invalidateBrandCache()
 
-  await invalidateBrandCache(kv)
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'CREATE',
     entity: 'brands',
@@ -170,78 +139,76 @@ export async function createBrand(
     changes: data,
   })
 
-  const { data: created } = await supabase
-    .from('brands')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const createdResult = await db.execute({
+    sql: `SELECT * FROM brands WHERE id = ?`,
+    args: [id],
+  })
 
-  return mapRowToBrand(created as BrandRow)
+  return mapRowToBrand(createdResult.rows[0])
 }
 
 export async function updateBrand(
-  supabase: SupabaseClient,
+  db: Client,
   id: string,
   data: { name?: string; description?: string | null; logoUrl?: string; website?: string | null },
-  adminUserId: string,
-  kv: KVNamespace
+  adminUserId: string
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('brands')
-    .select('*')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM brands WHERE id = ? AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  if (fetchError || !existing) {
+  const existing = existingResult.rows[0]
+  if (!existing) {
     throw new AppError('BRAND_NOT_FOUND', 404)
   }
 
-  const row = existing as BrandRow
-  const updates: Record<string, unknown> = {}
-  let newSlug = row.slug
+  const updates: string[] = []
+  const args: any[] = []
+  let newSlug = String(existing.slug)
 
-  if (data.name !== undefined && data.name !== row.name) {
-    const { data: existingSlugs } = await supabase
-      .from('brands')
-      .select('slug')
-      .is('deleted_at', null)
-      .neq('id', id)
-
-    newSlug = generateUniqueSlug(data.name, (existingSlugs || []).map(r => r.slug))
-    updates.name = data.name
-    updates.slug = newSlug
+  if (data.name !== undefined && data.name !== existing.name) {
+    const existingSlugsResult = await db.execute({
+      sql: `SELECT slug FROM brands WHERE id != ? AND deleted_at IS NULL`,
+      args: [id],
+    })
+    newSlug = generateUniqueSlug(data.name, existingSlugsResult.rows.map(r => String(r.slug)))
+    updates.push('name = ?', 'slug = ?')
+    args.push(data.name, newSlug)
   }
 
   if (data.description !== undefined) {
-    updates.description = data.description ?? null
+    updates.push('description = ?')
+    args.push(data.description ?? null)
   }
 
   if (data.logoUrl !== undefined) {
-    updates.logo_url = data.logoUrl ?? null
+    updates.push('logo_url = ?')
+    args.push(data.logoUrl ?? null)
   }
 
   if (data.website !== undefined) {
-    updates.website = data.website ?? null
+    updates.push('website = ?')
+    args.push(data.website ?? null)
   }
 
-  if (Object.keys(updates).length > 0) {
-    updates.updated_at = new Date().toISOString()
+  if (updates.length > 0) {
+    updates.push('updated_at = ?')
+    args.push(new Date().toISOString())
+    args.push(id)
 
-    const { error: updateError } = await supabase
-      .from('brands')
-      .update(updates)
-      .eq('id', id)
-
-    if (updateError) throw new AppError('Failed to update brand', 500)
+    await db.execute({
+      sql: `UPDATE brands SET ${updates.join(', ')} WHERE id = ?`,
+      args,
+    })
   }
 
-  await invalidateBrandCache(kv)
-  if (newSlug !== row.slug) {
-    await deleteCache(kv, `brands:slug:${row.slug}`)
+  await invalidateBrandCache()
+  if (newSlug !== existing.slug) {
+    await deleteCache(`brands:slug:${existing.slug}`)
   }
 
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'brands',
@@ -249,61 +216,53 @@ export async function updateBrand(
     changes: data,
   })
 
-  const { data: updated } = await supabase
-    .from('brands')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const updatedResult = await db.execute({
+    sql: `SELECT * FROM brands WHERE id = ?`,
+    args: [id],
+  })
 
-  return mapRowToBrand(updated as BrandRow)
+  return mapRowToBrand(updatedResult.rows[0])
 }
 
 export async function deleteBrand(
-  supabase: SupabaseClient,
+  db: Client,
   id: string,
-  adminUserId: string,
-  kv: KVNamespace
+  adminUserId: string
 ): Promise<void> {
-  const { data: existing, error: fetchError } = await supabase
-    .from('brands')
-    .select('*')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM brands WHERE id = ? AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  if (fetchError || !existing) {
+  const existing = existingResult.rows[0]
+  if (!existing) {
     throw new AppError('BRAND_NOT_FOUND', 404)
   }
 
-  const row = existing as BrandRow
+  const productCountResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM products WHERE brand_id = ? AND is_active = 1 AND deleted_at IS NULL`,
+    args: [id],
+  })
 
-  const { count: productCount } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true })
-    .eq('brand_id', id)
-    .eq('is_active', true)
-    .is('deleted_at', null)
-
-  if (productCount && productCount > 0) {
+  const productCount = Number(productCountResult.rows[0]?.count ?? 0)
+  if (productCount > 0) {
     throw new AppError('BRAND_HAS_PRODUCTS', 409)
   }
 
   const now = new Date().toISOString()
-  const { error: deleteError } = await supabase
-    .from('brands')
-    .update({ deleted_at: now, is_active: false, updated_at: now })
-    .eq('id', id)
+  await db.execute({
+    sql: `UPDATE brands SET deleted_at = ?, is_active = 0, updated_at = ? WHERE id = ?`,
+    args: [now, now, id],
+  })
 
-  if (deleteError) throw new AppError('Failed to delete brand', 500)
+  await invalidateBrandCache()
+  await deleteCache(`brands:slug:${existing.slug}`)
 
-  await invalidateBrandCache(kv)
-  await deleteCache(kv, `brands:slug:${row.slug}`)
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'DELETE',
     entity: 'brands',
     entityId: id,
-    changes: { name: row.name },
+    changes: { name: existing.name },
   })
 }

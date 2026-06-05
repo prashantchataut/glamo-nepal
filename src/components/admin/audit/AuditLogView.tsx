@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
-import { useAuditLogs } from "@/lib/hooks/useConvexQueries";
+import { useAdminData } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 
 interface AuditLog {
   _id: string;
@@ -36,17 +37,15 @@ export function AuditLogView() {
   const [page, setPage] = useState(1);
   const [entityFilter, setEntityFilter] = useState("");
 
-  const result = useAuditLogs({
+  const { data: result, isLoading, isError } = useAdminData(() => adminApi.getAuditLogs({
     page,
     limit: PAGE_SIZE,
     entity: entityFilter || undefined,
-  });
+  }), { deps: [page, entityFilter] });
 
-  const logs = (result?.logs ?? []) as AuditLog[];
+  const logs = (result?.logs ?? []) as unknown as AuditLog[];
   const total = result?.total ?? 0;
   const totalPages = result?.totalPages ?? 1;
-  const isLoading = result === undefined;
-  const isError = result === null;
   const error = isError ? "Failed to load audit logs" : null;
 
   const columns: Column<AuditLog>[] = [
@@ -92,7 +91,7 @@ export function AuditLogView() {
         if (!log.changes) return <span className="text-brand-textMuted">—</span>;
         try {
           const parsed = typeof log.changes === "string" ? JSON.parse(log.changes) : log.changes;
-          const keys = Object.keys(parsed as Record<string, unknown>);
+          const keys = Object.keys(parsed as unknown as Record<string, unknown>);
           if (keys.length === 0) return <span className="text-brand-textMuted">No changes</span>;
           return (
             <div className="max-w-[300px] truncate text-xs text-brand-textMuted">

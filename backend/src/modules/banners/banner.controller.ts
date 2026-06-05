@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as BannerService from './banner.service'
 
@@ -26,9 +26,8 @@ export async function uploadBannerImage(c: Context<AppEnv>) {
 
 export async function getBanners(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const result = await BannerService.getActiveBanners(supabase, kv)
+    const db = c.get('db')
+    const result = await BannerService.getActiveBanners(db)
     return ApiResponse.success(c, 'Banners fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -41,9 +40,8 @@ export async function getBanners(c: Context<AppEnv>) {
 export async function getBannersByPosition(c: Context<AppEnv>) {
   try {
     const { pos } = c.req.param()
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const result = await BannerService.getActiveBanners(supabase, kv, pos)
+    const db = c.get('db')
+    const result = await BannerService.getActiveBanners(db, pos)
     return ApiResponse.success(c, 'Banners fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -57,9 +55,8 @@ export async function createBanner(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const result = await BannerService.createBanner(data, user.id, supabase, kv)
+    const db = c.get('db')
+    const result = await BannerService.createBanner(data, user.id, db)
     return ApiResponse.success(c, 'Banner created successfully', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -74,9 +71,8 @@ export async function updateBanner(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const result = await BannerService.updateBanner(id, data, user.id, supabase, kv)
+    const db = c.get('db')
+    const result = await BannerService.updateBanner(id, data, user.id, db)
     return ApiResponse.success(c, 'Banner updated successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -90,9 +86,8 @@ export async function deleteBanner(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    await BannerService.deleteBanner(id, user.id, supabase, kv)
+    const db = c.get('db')
+    await BannerService.deleteBanner(id, user.id, db)
     return ApiResponse.success(c, 'Banner deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -106,9 +101,8 @@ export async function reorderBanners(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const result = await BannerService.reorderBanners(data.items, user.id, supabase, kv)
+    const db = c.get('db')
+    const result = await BannerService.reorderBanners(data.items, user.id, db)
     return ApiResponse.success(c, 'Banners reordered successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -121,13 +115,13 @@ export async function reorderBanners(c: Context<AppEnv>) {
 export async function getAllBanners(c: Context<AppEnv>) {
   try {
     const query = c.get('validatedQuery') || c.req.query()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const filters = {
       position: query.position,
       page: Number(query.page) || 1,
       limit: Number(query.limit) || 20,
     }
-    const result = await BannerService.getAllBanners(filters, supabase)
+    const result = await BannerService.getAllBanners(filters, db)
     return ApiResponse.paginated(c, 'Banners fetched successfully', result.banners, result.total, result.page, result.limit)
   } catch (error: any) {
     if (error instanceof AppError) {

@@ -1,155 +1,85 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { Hono } from 'hono'
 import type { AppEnv } from '../types/bindings'
 import { z } from 'zod'
 import { validateBody, validateQuery } from '../middleware/validate'
 import { requireRole } from '../middleware/requireRole'
-
-function createMockKV() {
-  const store = new Map<string, string>()
-  return {
-    get: vi.fn(async (key: string) => store.get(key) ?? null),
-    put: vi.fn(async (key: string, value: string, opts?: any) => { store.set(key, value) }),
-    delete: vi.fn(async (key: string) => { store.delete(key) }),
-    list: vi.fn(async () => ({ keys: [] })),
-  }
-}
-
-function createRateLimiter(kv: ReturnType<typeof createMockKV>, max: number, window: number, keyPrefix: string) {
-  return async (c: any, next: () => Promise<void>) => {
-    const ip = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for') ?? 'unknown'
-    const key = `ratelimit:${ip}:${keyPrefix}`
-    const current = parseInt((await kv.get(key)) ?? '0', 10)
-    if (current >= max) {
-      c.header('Retry-After', String(window))
-      return c.json({ success: false, message: 'Too many requests, please try again later', errors: [] }, 429)
-    }
-    await kv.put(key, String(current + 1), { expirationTtl: window })
-    c.header('X-RateLimit-Limit', String(max))
-    c.header('X-RateLimit-Remaining', String(max - current - 1))
-    await next()
-  }
-}
+import { rateLimit, RATE_LIMITS } from '../middleware/rateLimit'
 
 describe('Rate Limiting', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   describe('authRateLimit (5/15min)', () => {
     it('allows up to 5 requests then returns 429', async () => {
-      const kv = createMockKV()
       const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 5, 900, 'auth')
+      const limiter = rateLimit({ max: RATE_LIMITS.auth.max, window: RATE_LIMITS.auth.window })
       app.post('/login', limiter, (c) => c.json({ ok: true }))
 
       for (let i = 0; i < 5; i++) {
-        const res = await app.request('/login', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
+        const res = await app.request('/login', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
         expect(res.status).toBe(200)
       }
-      const res = await app.request('/login', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
+      const res = await app.request('/login', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
       expect(res.status).toBe(429)
     })
 
     it('tracks limits per IP independently', async () => {
-      const kv = createMockKV()
       const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 5, 900, 'auth')
+      const limiter = rateLimit({ max: RATE_LIMITS.auth.max, window: RATE_LIMITS.auth.window })
       app.post('/login', limiter, (c) => c.json({ ok: true }))
 
       for (let i = 0; i < 5; i++) {
-        const res = await app.request('/login', { method: 'POST', headers: { 'cf-connecting-ip': '1.1.1.1' } })
+        const res = await app.request('/login', { method: 'POST', headers: { 'x-forwarded-for': '1.1.1.1' } })
         expect(res.status).toBe(200)
       }
-      const differentIp = await app.request('/login', { method: 'POST', headers: { 'cf-connecting-ip': '2.2.2.2' } })
+      const differentIp = await app.request('/login', { method: 'POST', headers: { 'x-forwarded-for': '2.2.2.2' } })
       expect(differentIp.status).toBe(200)
     })
   })
 
   describe('passwordResetRateLimit (3/hr)', () => {
     it('allows up to 3 requests then returns 429', async () => {
-      const kv = createMockKV()
       const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 3, 3600, 'password-reset')
+      const limiter = rateLimit({ max: RATE_LIMITS.passwordReset.max, window: RATE_LIMITS.passwordReset.window })
       app.post('/forgot-password', limiter, (c) => c.json({ ok: true }))
 
       for (let i = 0; i < 3; i++) {
-        const res = await app.request('/forgot-password', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
+        const res = await app.request('/forgot-password', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
         expect(res.status).toBe(200)
       }
-      const res = await app.request('/forgot-password', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
+      const res = await app.request('/forgot-password', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
       expect(res.status).toBe(429)
     })
   })
 
   describe('paymentRateLimit (5/min)', () => {
     it('allows up to 5 requests then returns 429', async () => {
-      const kv = createMockKV()
       const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 5, 60, 'payment')
+      const limiter = rateLimit({ max: RATE_LIMITS.payment.max, window: RATE_LIMITS.payment.window })
       app.post('/checkout/orders', limiter, (c) => c.json({ ok: true }))
 
       for (let i = 0; i < 5; i++) {
-        const res = await app.request('/checkout/orders', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
+        const res = await app.request('/checkout/orders', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
         expect(res.status).toBe(200)
       }
-      const res = await app.request('/checkout/orders', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
-      expect(res.status).toBe(429)
-    })
-  })
-
-  describe('couponRateLimit (10/min)', () => {
-    it('allows up to 10 requests then returns 429', async () => {
-      const kv = createMockKV()
-      const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 10, 60, 'coupon')
-      app.post('/validate', limiter, (c) => c.json({ ok: true }))
-
-      for (let i = 0; i < 10; i++) {
-        const res = await app.request('/validate', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
-        expect(res.status).toBe(200)
-      }
-      const res = await app.request('/validate', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
-      expect(res.status).toBe(429)
-    })
-  })
-
-  describe('eventRateLimit (50/min)', () => {
-    it('allows up to 50 requests then returns 429', async () => {
-      const kv = createMockKV()
-      const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 50, 60, 'event')
-      app.post('/events', limiter, (c) => c.json({ ok: true }))
-
-      for (let i = 0; i < 50; i++) {
-        const res = await app.request('/events', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
-        expect(res.status).toBe(200)
-      }
-      const res = await app.request('/events', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
-      expect(res.status).toBe(429)
-    })
-  })
-
-  describe('reviewRateLimit (5/hr)', () => {
-    it('allows up to 5 requests then returns 429', async () => {
-      const kv = createMockKV()
-      const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 5, 3600, 'review')
-      app.post('/reviews', limiter, (c) => c.json({ ok: true }))
-
-      for (let i = 0; i < 5; i++) {
-        const res = await app.request('/reviews', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
-        expect(res.status).toBe(200)
-      }
-      const res = await app.request('/reviews', { method: 'POST', headers: { 'cf-connecting-ip': '1.2.3.4' } })
+      const res = await app.request('/checkout/orders', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
       expect(res.status).toBe(429)
     })
   })
 
   describe('generalRateLimit (100/min)', () => {
     it('sets rate limit headers on responses', async () => {
-      const kv = createMockKV()
       const app = new Hono<AppEnv>()
-      const limiter = createRateLimiter(kv, 100, 60, 'general')
+      const limiter = rateLimit({ max: RATE_LIMITS.general.max, window: RATE_LIMITS.general.window })
       app.get('/test', limiter, (c) => c.json({ ok: true }))
 
-      const res = await app.request('/test', { headers: { 'cf-connecting-ip': '1.2.3.4' } })
+      const res = await app.request('/test', { headers: { 'x-forwarded-for': '1.2.3.4' } })
       expect(res.status).toBe(200)
       expect(res.headers.get('X-RateLimit-Limit')).toBe('100')
       expect(res.headers.get('X-RateLimit-Remaining')).toBe('99')

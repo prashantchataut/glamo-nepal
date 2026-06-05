@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/lib/hooks/useConvexQueries";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { Bell, Check, CheckCheck } from "lucide-react";
 
 interface NotificationData {
@@ -38,9 +39,9 @@ export function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const result = useNotifications({ limit: 20 });
-  const markReadMutation = useMarkNotificationRead();
-  const markAllReadMutation = useMarkAllNotificationsRead();
+  const { data: result, isLoading: notifLoading } = useAdminData(() => adminApi.getNotifications({ limit: 20 }));
+  const { mutate: markReadMutate } = useAdminMutation((vars: { id: string }) => adminApi.markNotificationRead(vars.id));
+  const { mutate: markAllReadMutate } = useAdminMutation(() => adminApi.markAllNotificationsRead());
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -52,16 +53,16 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const notifications = (result?.notifications ?? []) as NotificationData[];
+  const notifications = (result?.notifications ?? []) as unknown as NotificationData[];
   const unreadCount = result?.unreadCount ?? 0;
-  const isLoading = result === undefined;
+  const isLoading = notifLoading;
 
   const handleMarkRead = async (id: string) => {
-    await markReadMutation({ id: id as never });
+    await markReadMutate({ id });
   };
 
   const handleMarkAllRead = async () => {
-    await markAllReadMutation({});
+    await markAllReadMutate(undefined as never);
   };
 
   return (

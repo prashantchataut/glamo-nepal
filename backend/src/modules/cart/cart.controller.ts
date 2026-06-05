@@ -1,14 +1,14 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as CartService from './cart.service'
 
 export async function getCart(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const result = await CartService.getCart(supabase, user.id)
+    const db = c.get('db')
+    const result = await CartService.getCart(db, user.id)
     return ApiResponse.success(c, 'Cart fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -22,8 +22,8 @@ export async function addToCart(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await CartService.addItem(supabase, user.id, data)
+    const db = c.get('db')
+    const result = await CartService.addItem(db, user.id, data)
     return ApiResponse.success(c, 'Item added to cart', result, result.action === 'created' ? 201 : 200)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -38,8 +38,8 @@ export async function updateCartItem(c: Context<AppEnv>) {
     const user = c.get('user')
     const { id } = c.req.param()
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await CartService.updateItem(supabase, user.id, id, data.quantity)
+    const db = c.get('db')
+    const result = await CartService.updateItem(db, user.id, id, data.quantity)
     return ApiResponse.success(c, 'Cart item updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -53,8 +53,8 @@ export async function removeCartItem(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
-    await CartService.removeItem(supabase, user.id, id)
+    const db = c.get('db')
+    await CartService.removeItem(db, user.id, id)
     return ApiResponse.success(c, 'Cart item removed', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -67,8 +67,8 @@ export async function removeCartItem(c: Context<AppEnv>) {
 export async function clearCart(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    await CartService.clearCart(supabase, user.id)
+    const db = c.get('db')
+    await CartService.clearCart(db, user.id)
     return ApiResponse.success(c, 'Cart cleared', null)
   } catch (error: any) {
     if (error instanceof AppError) {

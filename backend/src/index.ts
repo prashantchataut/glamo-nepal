@@ -4,7 +4,7 @@ import { logger } from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
 import type { AppEnv } from './types/bindings'
 import { generalRateLimit } from './middleware/rateLimit'
-import { supabaseMiddleware } from './middleware/supabase'
+import { tursoMiddleware } from './middleware/turso'
 import { authRoutes } from './modules/auth/auth.routes'
 import { accountRoutes } from './modules/account/account.routes'
 import { categoryRoutes } from './modules/categories/category.routes'
@@ -53,15 +53,14 @@ app.use('*', async (c, next) => {
   c.header('X-Frame-Options', 'DENY', { append: false })
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin', { append: false })
 })
-app.use('*', supabaseMiddleware)
+app.use('*', tursoMiddleware)
 app.use('*', generalRateLimit)
 
 app.onError((err, c) => {
   console.error('Unhandled error:', err)
-  const isDev = !c.env?.SUPABASE_URL || c.env.SUPABASE_URL.includes('localhost')
   return c.json({
     success: false,
-    message: isDev ? err.message : 'Internal server error',
+    message: err.message || 'Internal server error',
     errors: [],
   }, 500)
 })

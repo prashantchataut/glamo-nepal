@@ -8,40 +8,40 @@ export const CACHE_TTL = {
   BRANDS: 1800,
 } as const
 
-export async function getFromCache<T>(
-  kv: KVNamespace,
-  key: string
-): Promise<T | null> {
-  const value = await kv.get(key, 'json')
-  return value as T | null
-}
+const memoryCache = new Map<string, { value: unknown; expires: number }>()
 
-export async function setCache<T>(
-  kv: KVNamespace,
-  key: string,
-  value: T,
-  ttl: number
-): Promise<void> {
-  await kv.put(key, JSON.stringify(value), { expirationTtl: ttl })
-}
-
-export async function deleteCache(
-  kv: KVNamespace,
-  key: string
-): Promise<void> {
-  await kv.delete(key)
-}
-
-export async function deleteCacheByPrefix(
-  kv: KVNamespace,
-  prefix: string
-): Promise<void> {
-  let cursor: string | undefined
-  do {
-    const list = await kv.list({ prefix, cursor })
-    for (const key of list.keys) {
-      await kv.delete(key.name)
+// Periodically clean up expired entries
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of memoryCache) {
+    if (entry.expires < now) {
+      memoryCache.delete(key)
     }
-    cursor = list.list_complete ? undefined : list.cursor
-  } while (cursor)
+  }
+}, 60_000)
+
+export async function getFromCache<T>(key: string): Promise<T | null> {
+  const entry = memoryCache.get(key)
+  if (!entry) return null
+  if (entry.expires < Date.now()) {
+    memoryCache.delete(key)
+    return null
+  }
+  return entry.value as T
+}
+
+export async function setCache<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
+  memoryCache.set(key, { value, expires: Date.now() + ttlSeconds * 1000 })
+}
+
+export async function deleteCache(key: string): Promise<void> {
+  memoryCache.delete(key)
+}
+
+export async function deleteCacheByPrefix(prefix: string): Promise<void> {
+  for (const key of memoryCache.keys()) {
+    if (key.startsWith(prefix)) {
+      memoryCache.delete(key)
+    }
+  }
 }

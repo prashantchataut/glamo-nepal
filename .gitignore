@@ -28,8 +28,11 @@ yarn-error.log*
 # lock files (pnpm is primary)
 package-lock.json
 
-# dev server pid
+# backend dev server
 dev.pid
+
+# backend build output
+backend/dist/
 
 # env files
 .env
@@ -52,9 +55,6 @@ next-env.d.ts
 
 # superpowers specs
 docs/superpowers/
-
-# convex local dev
-/.convex/
 
 # binary archives
 *.zip

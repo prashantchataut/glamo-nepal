@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import { Client, type InValue } from '@libsql/client'
+import { AppError, handleDbError, assertFound, fromSqliteBool } from '../../utils/turso-helpers'
 import { toDisplayPrice } from '../../utils/price'
 
 interface CartItemRow {
@@ -18,15 +18,15 @@ interface ProductRow {
   slug: string
   base_price: number
   sale_price: number | null
-  is_active: boolean
-  track_inventory: boolean
+  is_active: number
+  track_inventory: number
   stock_quantity: number
 }
 
 interface ProductImageRow {
   product_id: string
   url: string
-  is_primary: boolean
+  is_primary: number
 }
 
 interface VariantRow {
@@ -35,7 +35,7 @@ interface VariantRow {
   price: number
   sale_price: number | null
   stock_quantity: number
-  is_active: boolean
+  is_active: number
 }
 
 const MAX_QUANTITY = 10
@@ -76,52 +76,42 @@ function formatCartItem(
   }
 }
 
-export async function getCart(supabase: SupabaseClient, userId: string) {
-  const { data: items, error } = await supabase
-    .from('cart_items')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: true })
+export async function getCart(db: Client, userId: string) {
+  const itemsResult = await db.execute({
+    sql: 'SELECT * FROM cart_items WHERE user_id = ? ORDER BY created_at ASC',
+    args: [userId],
+  })
 
-  if (error) handleSupabaseError(error, 'getCart')
-
-  if (!items || items.length === 0) {
+  if (itemsResult.rows.length === 0) {
     return { items: [], total: 0 }
   }
 
-  const cartItems = items as CartItemRow[]
+  const cartItems = itemsResult.rows as unknown as CartItemRow[]
   const productIds = [...new Set(cartItems.map((i) => i.product_id))]
 
-  const { data: products, error: productsError } = await supabase
-    .from('products')
-    .select('id, name, slug, base_price, sale_price, is_active, track_inventory, stock_quantity')
-    .in('id', productIds)
+  const placeholders = productIds.map(() => '?').join(',')
+  const productsResult = await db.execute({
+    sql: `SELECT id, name, slug, base_price, sale_price, is_active, track_inventory, stock_quantity FROM products WHERE id IN (${placeholders}) AND deleted_at IS NULL`,
+    args: productIds,
+  })
+  const productMap = new Map((productsResult.rows as unknown as ProductRow[]).map((p) => [p.id, p]))
 
-  if (productsError) handleSupabaseError(productsError, 'getCart.products')
-
-  const productMap = new Map((products as ProductRow[]).map((p) => [p.id, p]))
-
-  const { data: images, error: imagesError } = await supabase
-    .from('product_images')
-    .select('product_id, url, is_primary')
-    .in('product_id', productIds)
-    .eq('is_primary', true)
-
-  if (imagesError) handleSupabaseError(imagesError, 'getCart.images')
-
-  const imageMap = new Map((images as ProductImageRow[]).map((i) => [i.product_id, i.url]))
+  const imagesResult = await db.execute({
+    sql: `SELECT product_id, url, is_primary FROM product_images WHERE product_id IN (${placeholders}) AND is_primary = 1`,
+    args: productIds,
+  })
+  const imageMap = new Map((imagesResult.rows as unknown as ProductImageRow[]).map((i) => [i.product_id, i.url]))
 
   const variantIds = cartItems.filter((i) => i.variant_id).map((i) => i.variant_id!)
 
   let variantMap = new Map<string, VariantRow>()
   if (variantIds.length > 0) {
-    const { data: variants, error: variantsError } = await supabase
-      .from('product_variants')
-      .select('id, name, price, sale_price, stock_quantity, is_active')
-      .in('id', variantIds)
-
-    if (variantsError) handleSupabaseError(variantsError, 'getCart.variants')
-    variantMap = new Map((variants as VariantRow[]).map((v) => [v.id, v]))
+    const variantPlaceholders = variantIds.map(() => '?').join(',')
+    const variantsResult = await db.execute({
+      sql: `SELECT id, name, price, sale_price, stock_quantity, is_active FROM product_variants WHERE id IN (${variantPlaceholders}) AND deleted_at IS NULL`,
+      args: variantIds,
+    })
+    variantMap = new Map((variantsResult.rows as unknown as VariantRow[]).map((v) => [v.id, v]))
   }
 
   let total = 0
@@ -130,9 +120,7 @@ export async function getCart(supabase: SupabaseClient, userId: string) {
     const variant = item.variant_id ? (variantMap.get(item.variant_id) ?? null) : null
     const imageUrl = imageMap.get(item.product_id) || null
 
-    if (!product) {
-      return null
-    }
+    if (!product) return null
 
     const effectivePrice = variant
       ? (variant.sale_price ?? variant.price)
@@ -146,138 +134,122 @@ export async function getCart(supabase: SupabaseClient, userId: string) {
   return { items: formatted, total: toDisplayPrice(total) }
 }
 
-export async function addItem(supabase: SupabaseClient, userId: string, data: { productId: string; variantId?: string; quantity: number }) {
-  const { data: product, error: productError } = await supabase
-    .from('products')
-    .select('id, name, slug, base_price, sale_price, is_active, track_inventory, stock_quantity')
-    .eq('id', data.productId)
-    .single<ProductRow>()
-
-  if (productError) handleSupabaseError(productError, 'addItem.product')
-  if (!product) throw new AppError('Product not found', 404, 'PRODUCT_NOT_FOUND')
-  if (!product.is_active) throw new AppError('Product is not available', 400, 'PRODUCT_UNAVAILABLE')
+export async function addItem(db: Client, userId: string, data: { productId: string; variantId?: string; quantity: number }) {
+  const productResult = await db.execute({
+    sql: 'SELECT id, name, slug, base_price, sale_price, is_active, track_inventory, stock_quantity FROM products WHERE id = ? AND deleted_at IS NULL LIMIT 1',
+    args: [data.productId],
+  })
+  if (productResult.rows.length === 0) throw new AppError('Product not found', 404, 'PRODUCT_NOT_FOUND')
+  const product = productResult.rows[0] as unknown as ProductRow
+  if (!fromSqliteBool(product.is_active)) throw new AppError('Product is not available', 400, 'PRODUCT_UNAVAILABLE')
 
   let variant: VariantRow | null = null
   if (data.variantId) {
-    const { data: v, error: variantError } = await supabase
-      .from('product_variants')
-      .select('id, name, price, sale_price, stock_quantity, is_active')
-      .eq('id', data.variantId)
-      .eq('product_id', data.productId)
-      .single<VariantRow>()
-
-    if (variantError) handleSupabaseError(variantError, 'addItem.variant')
-    if (!v) throw new AppError('Variant not found', 404, 'VARIANT_NOT_FOUND')
-    if (!v.is_active) throw new AppError('Variant is not available', 400, 'VARIANT_UNAVAILABLE')
+    const variantResult = await db.execute({
+      sql: 'SELECT id, name, price, sale_price, stock_quantity, is_active FROM product_variants WHERE id = ? AND product_id = ? AND deleted_at IS NULL LIMIT 1',
+      args: [data.variantId, data.productId],
+    })
+    if (variantResult.rows.length === 0) throw new AppError('Variant not found', 404, 'VARIANT_NOT_FOUND')
+    const v = variantResult.rows[0] as unknown as VariantRow
+    if (!fromSqliteBool(v.is_active)) throw new AppError('Variant is not available', 400, 'VARIANT_UNAVAILABLE')
     variant = v
   }
 
   const availableStock = variant ? variant.stock_quantity : product.stock_quantity
-  if (product.track_inventory && availableStock < data.quantity) {
+  if (fromSqliteBool(product.track_inventory) && availableStock < data.quantity) {
     throw new AppError('Insufficient stock', 400, 'INSUFFICIENT_STOCK')
   }
 
-  const filter: Record<string, string> = { user_id: userId, product_id: data.productId }
+  let existingQuery: string
+  let existingArgs: InValue[]
   if (data.variantId) {
-    filter.variant_id = data.variantId
-  }
-
-  let existingQuery = supabase
-    .from('cart_items')
-    .select('id, quantity')
-    .eq('user_id', userId)
-    .eq('product_id', data.productId)
-
-  if (data.variantId) {
-    existingQuery = existingQuery.eq('variant_id', data.variantId)
+    existingQuery = 'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ? AND variant_id = ? LIMIT 1'
+    existingArgs = [userId, data.productId, data.variantId]
   } else {
-    existingQuery = existingQuery.is('variant_id', null)
+    existingQuery = 'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ? AND variant_id IS NULL LIMIT 1'
+    existingArgs = [userId, data.productId]
   }
 
-  const { data: existing } = await existingQuery.maybeSingle<CartItemRow>()
+  const existingResult = await db.execute({ sql: existingQuery, args: existingArgs })
 
-  if (existing) {
+  if (existingResult.rows.length > 0) {
+    const existing = existingResult.rows[0] as unknown as CartItemRow
     const newQuantity = Math.min(existing.quantity + data.quantity, MAX_QUANTITY)
-    const { data: updated, error: updateError } = await supabase
-      .from('cart_items')
-      .update({ quantity: newQuantity })
-      .eq('id', existing.id)
-      .select()
-      .single<CartItemRow>()
+    const updateResult = await db.execute({
+      sql: 'UPDATE cart_items SET quantity = ? WHERE id = ?',
+      args: [newQuantity, existing.id],
+    })
 
-    if (updateError) handleSupabaseError(updateError, 'addItem.update')
-    return { id: updated!.id, quantity: updated!.quantity, action: 'updated' }
+    const refreshed = await db.execute({
+      sql: 'SELECT id, quantity FROM cart_items WHERE id = ?',
+      args: [existing.id],
+    })
+    const updated = refreshed.rows[0] as unknown as CartItemRow
+    return { id: updated.id, quantity: updated.quantity, action: 'updated' as const }
   }
 
-  const { data: cartItem, error: insertError } = await supabase
-    .from('cart_items')
-    .insert({
-      user_id: userId,
-      product_id: data.productId,
-      variant_id: data.variantId || null,
-      quantity: Math.min(data.quantity, MAX_QUANTITY),
+  const insertId = crypto.randomUUID()
+  try {
+    await db.execute({
+      sql: 'INSERT INTO cart_items (id, user_id, product_id, variant_id, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?, datetime(\'now\'), datetime(\'now\'))',
+      args: [insertId, userId, data.productId, data.variantId || null, Math.min(data.quantity, MAX_QUANTITY)],
     })
-    .select()
-    .single<CartItemRow>()
+  } catch (error) {
+    handleDbError(error, 'addItem.insert')
+  }
 
-  if (insertError) handleSupabaseError(insertError, 'addItem.insert')
-
-  return { id: cartItem!.id, quantity: cartItem!.quantity, action: 'created' }
+  return { id: insertId, quantity: Math.min(data.quantity, MAX_QUANTITY), action: 'created' as const }
 }
 
-export async function updateItem(supabase: SupabaseClient, userId: string, itemId: string, quantity: number) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('cart_items')
-    .select('*')
-    .eq('id', itemId)
-    .eq('user_id', userId)
-    .single<CartItemRow>()
-
-  if (fetchError) handleSupabaseError(fetchError, 'updateItem.fetch')
-  if (!existing) throw new AppError('Cart item not found', 404, 'CART_ITEM_NOT_FOUND')
+export async function updateItem(db: Client, userId: string, itemId: string, quantity: number) {
+  const fetchResult = await db.execute({
+    sql: 'SELECT * FROM cart_items WHERE id = ? AND user_id = ? LIMIT 1',
+    args: [itemId, userId],
+  })
+  if (fetchResult.rows.length === 0) throw new AppError('Cart item not found', 404, 'CART_ITEM_NOT_FOUND')
 
   const clampedQuantity = Math.min(quantity, MAX_QUANTITY)
 
-  const { data: updated, error } = await supabase
-    .from('cart_items')
-    .update({ quantity: clampedQuantity })
-    .eq('id', itemId)
-    .select()
-    .single<CartItemRow>()
+  try {
+    await db.execute({
+      sql: 'UPDATE cart_items SET quantity = ? WHERE id = ?',
+      args: [clampedQuantity, itemId],
+    })
+  } catch (error) {
+    handleDbError(error, 'updateItem')
+  }
 
-  if (error) handleSupabaseError(error, 'updateItem')
-
-  return { id: updated!.id, quantity: updated!.quantity }
+  return { id: itemId, quantity: clampedQuantity }
 }
 
-export async function removeItem(supabase: SupabaseClient, userId: string, itemId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('cart_items')
-    .select('id')
-    .eq('id', itemId)
-    .eq('user_id', userId)
-    .maybeSingle()
+export async function removeItem(db: Client, userId: string, itemId: string) {
+  const fetchResult = await db.execute({
+    sql: 'SELECT id FROM cart_items WHERE id = ? AND user_id = ? LIMIT 1',
+    args: [itemId, userId],
+  })
+  if (fetchResult.rows.length === 0) throw new AppError('Cart item not found', 404, 'CART_ITEM_NOT_FOUND')
 
-  if (fetchError) handleSupabaseError(fetchError, 'removeItem.fetch')
-  if (!existing) throw new AppError('Cart item not found', 404, 'CART_ITEM_NOT_FOUND')
-
-  const { error } = await supabase
-    .from('cart_items')
-    .delete()
-    .eq('id', itemId)
-
-  if (error) handleSupabaseError(error, 'removeItem')
+  try {
+    await db.execute({
+      sql: 'DELETE FROM cart_items WHERE id = ?',
+      args: [itemId],
+    })
+  } catch (error) {
+    handleDbError(error, 'removeItem')
+  }
 
   return { deleted: true }
 }
 
-export async function clearCart(supabase: SupabaseClient, userId: string) {
-  const { error } = await supabase
-    .from('cart_items')
-    .delete()
-    .eq('user_id', userId)
-
-  if (error) handleSupabaseError(error, 'clearCart')
+export async function clearCart(db: Client, userId: string) {
+  try {
+    await db.execute({
+      sql: 'DELETE FROM cart_items WHERE user_id = ?',
+      args: [userId],
+    })
+  } catch (error) {
+    handleDbError(error, 'clearCart')
+  }
 
   return { cleared: true }
 }

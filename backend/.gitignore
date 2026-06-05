@@ -1,8 +1,7 @@
 node_modules/
 dist/
 .env
-.dev.vars
 *.log
-.wrangler/
+.netlify/
 .DS_Store
 *.pem

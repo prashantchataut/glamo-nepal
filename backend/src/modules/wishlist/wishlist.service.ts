@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool } from '../../utils/turso-helpers'
 import { toDisplayPrice } from '../../utils/price'
 
 interface WishlistItemRow {
@@ -15,13 +15,13 @@ interface ProductRow {
   slug: string
   base_price: number
   sale_price: number | null
-  is_active: boolean
+  is_active: number
 }
 
 interface ProductImageRow {
   product_id: string
   url: string
-  is_primary: boolean
+  is_primary: number
 }
 
 function formatWishlistItem(
@@ -38,46 +38,37 @@ function formatWishlistItem(
       basePrice: toDisplayPrice(product.base_price),
       salePrice: product.sale_price !== null ? toDisplayPrice(product.sale_price) : null,
       imageUrl,
-      isActive: product.is_active,
+      isActive: fromSqliteBool(product.is_active),
     },
     createdAt: item.created_at,
   }
 }
 
-export async function getWishlist(supabase: SupabaseClient, userId: string) {
-  const { data: items, error } = await supabase
-    .from('wishlist_items')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+export async function getWishlist(db: Client, userId: string) {
+  const itemsResult = await db.execute({
+    sql: 'SELECT * FROM wishlist_items WHERE user_id = ? ORDER BY created_at DESC',
+    args: [userId],
+  })
 
-  if (error) handleSupabaseError(error, 'getWishlist')
-
-  if (!items || items.length === 0) {
+  if (itemsResult.rows.length === 0) {
     return { items: [] }
   }
 
-  const wishlistItems = items as WishlistItemRow[]
+  const wishlistItems = itemsResult.rows as unknown as WishlistItemRow[]
   const productIds = [...new Set(wishlistItems.map((i) => i.product_id))]
 
-  const { data: products, error: productsError } = await supabase
-    .from('products')
-    .select('id, name, slug, base_price, sale_price, is_active')
-    .in('id', productIds)
+  const placeholders = productIds.map(() => '?').join(',')
+  const productsResult = await db.execute({
+    sql: `SELECT id, name, slug, base_price, sale_price, is_active FROM products WHERE id IN (${placeholders}) AND deleted_at IS NULL`,
+    args: productIds,
+  })
+  const productMap = new Map((productsResult.rows as unknown as ProductRow[]).map((p) => [p.id, p]))
 
-  if (productsError) handleSupabaseError(productsError, 'getWishlist.products')
-
-  const productMap = new Map((products as ProductRow[]).map((p) => [p.id, p]))
-
-  const { data: images, error: imagesError } = await supabase
-    .from('product_images')
-    .select('product_id, url, is_primary')
-    .in('product_id', productIds)
-    .eq('is_primary', true)
-
-  if (imagesError) handleSupabaseError(imagesError, 'getWishlist.images')
-
-  const imageMap = new Map((images as ProductImageRow[]).map((i) => [i.product_id, i.url]))
+  const imagesResult = await db.execute({
+    sql: `SELECT product_id, url, is_primary FROM product_images WHERE product_id IN (${placeholders}) AND is_primary = 1`,
+    args: productIds,
+  })
+  const imageMap = new Map((imagesResult.rows as unknown as ProductImageRow[]).map((i) => [i.product_id, i.url]))
 
   const formatted = wishlistItems.map((item) => {
     const product = productMap.get(item.product_id)
@@ -89,66 +80,58 @@ export async function getWishlist(supabase: SupabaseClient, userId: string) {
   return { items: formatted }
 }
 
-export async function addItem(supabase: SupabaseClient, userId: string, productId: string) {
-  const { data: product } = await supabase
-    .from('products')
-    .select('id')
-    .eq('id', productId)
-    .maybeSingle()
-
-  if (!product) {
+export async function addItem(db: Client, userId: string, productId: string) {
+  const productResult = await db.execute({
+    sql: 'SELECT id FROM products WHERE id = ? AND deleted_at IS NULL LIMIT 1',
+    args: [productId],
+  })
+  if (productResult.rows.length === 0) {
     throw new Error('PRODUCT_NOT_FOUND')
   }
 
-  const { data: existing } = await supabase
-    .from('wishlist_items')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('product_id', productId)
-    .maybeSingle()
+  const existingResult = await db.execute({
+    sql: 'SELECT id FROM wishlist_items WHERE user_id = ? AND product_id = ? LIMIT 1',
+    args: [userId, productId],
+  })
 
-  if (existing) {
-    return { id: existing.id, productId, action: 'already_exists' }
+  if (existingResult.rows.length > 0) {
+    return { id: (existingResult.rows[0] as any).id, productId, action: 'already_exists' as const }
   }
 
-  const { data: item, error } = await supabase
-    .from('wishlist_items')
-    .insert({
-      user_id: userId,
-      product_id: productId,
+  const insertId = crypto.randomUUID()
+  try {
+    await db.execute({
+      sql: `INSERT INTO wishlist_items (id, user_id, product_id, created_at) VALUES (?, ?, ?, datetime('now'))`,
+      args: [insertId, userId, productId],
     })
-    .select()
-    .single<WishlistItemRow>()
-
-  if (error) {
-    if (error.code === '23505') {
-      return { id: null, productId, action: 'already_exists' }
+  } catch (error: any) {
+    if (error?.message?.includes('UNIQUE constraint')) {
+      return { id: null, productId, action: 'already_exists' as const }
     }
-    handleSupabaseError(error, 'addItem')
+    handleDbError(error, 'addItem')
   }
 
-  return { id: item!.id, productId, action: 'created' }
+  return { id: insertId, productId, action: 'created' as const }
 }
 
-export async function removeItem(supabase: SupabaseClient, userId: string, productId: string) {
-  const { error } = await supabase
-    .from('wishlist_items')
-    .delete()
-    .eq('user_id', userId)
-    .eq('product_id', productId)
-
-  if (error) handleSupabaseError(error, 'removeItem')
+export async function removeItem(db: Client, userId: string, productId: string) {
+  try {
+    await db.execute({
+      sql: 'DELETE FROM wishlist_items WHERE user_id = ? AND product_id = ?',
+      args: [userId, productId],
+    })
+  } catch (error) {
+    handleDbError(error, 'removeItem')
+  }
 
   return { removed: true }
 }
 
-export async function checkItem(supabase: SupabaseClient, userId: string, productId: string) {
-  const { data: existing } = await supabase
-    .from('wishlist_items')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('product_id', productId)
-    .maybeSingle()
+export async function checkItem(db: Client, userId: string, productId: string) {
+  const result = await db.execute({
+    sql: 'SELECT id FROM wishlist_items WHERE user_id = ? AND product_id = ? LIMIT 1',
+    args: [userId, productId],
+  })
 
-  return { inWishlist: !!existing }
+  return { inWishlist: result.rows.length > 0 }
 }

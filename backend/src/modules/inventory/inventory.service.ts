@@ -1,76 +1,72 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { handleDbError } from '../../utils/turso-helpers'
 import { parsePagination } from '../../utils/pagination'
 import { toDisplayPrice } from '../../utils/price'
 
 export async function getStockReport(
-  supabase: SupabaseClient,
+  db: Client,
   filters?: { lowStockOnly?: boolean; outOfStockOnly?: boolean; page?: number; limit?: number }
 ) {
-  const query = supabase
-    .from('products')
-    .select('id, name, slug, base_price, cost_price, stock_quantity, low_stock_threshold, is_active, categories(name)', { count: 'exact' })
-    .is('deleted_at', null)
-    .order('name', { ascending: true })
+  const productsResult = await db.execute({
+    sql: `SELECT p.id, p.name, p.slug, p.base_price, p.cost_price, p.stock_quantity, p.low_stock_threshold, p.is_active, c.name as category_name
+          FROM products p
+          LEFT JOIN categories c ON c.id = p.category_id
+          WHERE p.deleted_at IS NULL
+          ORDER BY p.name ASC`,
+    args: [],
+  })
 
-  const { data: products, error: prodError } = await query
-
-  if (prodError) handleSupabaseError(prodError, 'getStockReport')
-
-  const productList = (products || []) as any[]
-
-  const productIds = productList.map((p: any) => p.id)
+  const productList = productsResult.rows
 
   let variants: any[] = []
-  if (productIds.length > 0) {
-    const { data: variantData, error: varError } = await supabase
-      .from('product_variants')
-      .select('*')
-      .in('product_id', productIds)
-      .is('deleted_at', null)
-      .eq('is_active', true)
+  if (productList.length > 0) {
+    const productIds = productList.map((p: any) => p.id)
+    const placeholders = productIds.map(() => '?').join(',')
 
-    if (varError) handleSupabaseError(varError, 'getStockReport.variants')
-    variants = variantData || []
+    const variantsResult = await db.execute({
+      sql: `SELECT * FROM product_variants WHERE product_id IN (${placeholders}) AND deleted_at IS NULL AND is_active = 1`,
+      args: productIds,
+    })
+    variants = variantsResult.rows as any[]
   }
 
   const filteredProducts = productList.filter((p: any) => {
-    if (filters?.lowStockOnly && !(p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold)) return false
-    if (filters?.outOfStockOnly && p.stock_quantity !== 0) return false
+    if (filters?.lowStockOnly && !(Number(p.stock_quantity) > 0 && Number(p.stock_quantity) <= Number(p.low_stock_threshold))) return false
+    if (filters?.outOfStockOnly && Number(p.stock_quantity) !== 0) return false
     return true
   })
 
-  const inStock = productList.filter((p: any) => p.stock_quantity > p.low_stock_threshold)
-  const lowStock = productList.filter((p: any) => p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold)
-  const outOfStock = productList.filter((p: any) => p.stock_quantity === 0)
+  const inStock = productList.filter((p: any) => Number(p.stock_quantity) > Number(p.low_stock_threshold))
+  const lowStock = productList.filter((p: any) => Number(p.stock_quantity) > 0 && Number(p.stock_quantity) <= Number(p.low_stock_threshold))
+  const outOfStock = productList.filter((p: any) => Number(p.stock_quantity) === 0)
 
-  const totalValue = productList.reduce((sum: number, p: any) => sum + p.cost_price * p.stock_quantity, 0)
+  const totalValue = productList.reduce((sum: number, p: any) => sum + Number(p.cost_price) * Number(p.stock_quantity), 0)
 
   const byCategory: Record<string, { count: number; totalStock: number; totalValue: number }> = {}
   for (const p of productList) {
-    const cat = p.categories?.name || 'Uncategorized'
+    const cat = (p.category_name as string) || 'Uncategorized'
     if (!byCategory[cat]) {
       byCategory[cat] = { count: 0, totalStock: 0, totalValue: 0 }
     }
     byCategory[cat].count++
-    byCategory[cat].totalStock += p.stock_quantity
-    byCategory[cat].totalValue += p.cost_price * p.stock_quantity
+    byCategory[cat].totalStock += Number(p.stock_quantity)
+    byCategory[cat].totalValue += Number(p.cost_price) * Number(p.stock_quantity)
   }
 
   const formattedProducts = filteredProducts.map((p: any) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
-    basePrice: toDisplayPrice(p.base_price),
-    costPrice: toDisplayPrice(p.cost_price),
-    stockQuantity: p.stock_quantity,
-    lowStockThreshold: p.low_stock_threshold,
+    basePrice: toDisplayPrice(Number(p.base_price)),
+    costPrice: toDisplayPrice(Number(p.cost_price)),
+    stockQuantity: Number(p.stock_quantity),
+    lowStockThreshold: Number(p.low_stock_threshold),
     isActive: p.is_active,
-    categoryName: p.categories?.name || null,
+    categoryName: p.category_name || null,
     status:
-      p.stock_quantity === 0
+      Number(p.stock_quantity) === 0
         ? 'out_of_stock'
-        : p.stock_quantity <= p.low_stock_threshold
+        : Number(p.stock_quantity) <= Number(p.low_stock_threshold)
           ? 'low_stock'
           : 'in_stock',
   }))
@@ -79,9 +75,9 @@ export async function getStockReport(
     id: v.id,
     productId: v.product_id,
     name: v.name,
-    price: toDisplayPrice(v.price),
-    salePrice: v.sale_price ? toDisplayPrice(v.sale_price) : null,
-    stockQuantity: v.stock_quantity,
+    price: toDisplayPrice(Number(v.price)),
+    salePrice: v.sale_price ? toDisplayPrice(Number(v.sale_price)) : null,
+    stockQuantity: Number(v.stock_quantity),
   }))
 
   return {
@@ -103,49 +99,52 @@ export async function getStockReport(
   }
 }
 
-export async function getLowStockAlerts(supabase: SupabaseClient) {
-  const { data: products, error: prodError } = await supabase
-    .from('products')
-    .select('id, name, slug, stock_quantity, low_stock_threshold, is_active, categories(name)')
-    .eq('is_active', true)
-    .is('deleted_at', null)
+export async function getLowStockAlerts(db: Client) {
+  const productsResult = await db.execute({
+    sql: `SELECT p.id, p.name, p.slug, p.stock_quantity, p.low_stock_threshold, p.is_active, c.name as category_name
+          FROM products p
+          LEFT JOIN categories c ON c.id = p.category_id
+          WHERE p.is_active = 1 AND p.deleted_at IS NULL`,
+    args: [],
+  })
 
-  if (prodError) handleSupabaseError(prodError, 'getLowStockAlerts')
-
-  const lowStockProducts = ((products || []) as any[]).filter(
-    (p: any) => p.stock_quantity <= p.low_stock_threshold
+  const lowStockProducts = productsResult.rows.filter(
+    (p: any) => Number(p.stock_quantity) <= Number(p.low_stock_threshold)
   )
 
   const productIds = lowStockProducts.map((p: any) => p.id)
-
   let variants: any[] = []
+
   if (productIds.length > 0) {
-    const { data: variantData, error: varError } = await supabase
-      .from('product_variants')
-      .select('id, product_id, name, stock_quantity, is_active, products(name, slug, low_stock_threshold)')
-      .in('product_id', productIds)
-      .eq('is_active', true)
-      .is('deleted_at', null)
+    const placeholders = productIds.map(() => '?').join(',')
+    const variantsResult = await db.execute({
+      sql: `SELECT pv.id, pv.product_id, pv.name, pv.stock_quantity, pv.is_active,
+            p.name as product_name, p.slug as product_slug, p.low_stock_threshold as product_low_stock_threshold
+            FROM product_variants pv
+            JOIN products p ON p.id = pv.product_id
+            WHERE pv.product_id IN (${placeholders}) AND pv.is_active = 1 AND pv.deleted_at IS NULL`,
+      args: productIds,
+    })
 
-    if (varError) handleSupabaseError(varError, 'getLowStockAlerts.variants')
-
-    variants = (variantData || []).filter((v: any) => v.stock_quantity <= (v.products?.low_stock_threshold || 0))
+    variants = (variantsResult.rows as any[]).filter(
+      (v: any) => Number(v.stock_quantity) <= Number(v.product_low_stock_threshold || 0)
+    )
   }
 
   const formattedProducts = lowStockProducts
-    .sort((a: any, b: any) => a.stock_quantity - b.stock_quantity)
+    .sort((a: any, b: any) => Number(a.stock_quantity) - Number(b.stock_quantity))
     .map((p: any) => ({
       id: p.id,
       name: p.name,
       slug: p.slug,
-      stockQuantity: p.stock_quantity,
-      lowStockThreshold: p.low_stock_threshold,
-      categoryName: p.categories?.name || null,
+      stockQuantity: Number(p.stock_quantity),
+      lowStockThreshold: Number(p.low_stock_threshold),
+      categoryName: p.category_name || null,
       type: 'product' as const,
       urgency:
-        p.stock_quantity === 0
+        Number(p.stock_quantity) === 0
           ? 'critical'
-          : p.stock_quantity <= Math.floor(p.low_stock_threshold / 2)
+          : Number(p.stock_quantity) <= Math.floor(Number(p.low_stock_threshold) / 2)
             ? 'high'
             : 'medium',
     }))
@@ -154,15 +153,15 @@ export async function getLowStockAlerts(supabase: SupabaseClient) {
     id: v.id,
     productId: v.product_id,
     name: v.name,
-    productName: v.products?.name,
-    productSlug: v.products?.slug,
-    stockQuantity: v.stock_quantity,
-    lowStockThreshold: v.products?.low_stock_threshold,
+    productName: v.product_name,
+    productSlug: v.product_slug,
+    stockQuantity: Number(v.stock_quantity),
+    lowStockThreshold: Number(v.product_low_stock_threshold || 0),
     type: 'variant' as const,
     urgency:
-      v.stock_quantity === 0
+      Number(v.stock_quantity) === 0
         ? 'critical'
-        : v.stock_quantity <= Math.floor((v.products?.low_stock_threshold || 0) / 2)
+        : Number(v.stock_quantity) <= Math.floor(Number(v.product_low_stock_threshold || 0) / 2)
           ? 'high'
           : 'medium',
   }))
@@ -175,7 +174,7 @@ export async function getLowStockAlerts(supabase: SupabaseClient) {
 }
 
 export async function getInventoryLogs(
-  supabase: SupabaseClient,
+  db: Client,
   filters: {
     productId?: string
     changeType?: string
@@ -185,32 +184,50 @@ export async function getInventoryLogs(
     limit: number
   }
 ) {
-  let query = supabase
-    .from('inventory_logs')
-    .select('*, products(name), product_variants(name)', { count: 'exact' })
-    .order('created_at', { ascending: false })
+  const { page, limit, skip } = parsePagination({ page: String(filters.page), limit: String(filters.limit) })
+
+  const whereClauses: string[] = []
+  const args: any[] = []
 
   if (filters.productId) {
-    query = query.eq('product_id', filters.productId)
+    whereClauses.push('il.product_id = ?')
+    args.push(filters.productId)
   }
   if (filters.changeType) {
-    query = query.eq('change_type', filters.changeType)
+    whereClauses.push('il.change_type = ?')
+    args.push(filters.changeType)
   }
   if (filters.startDate) {
-    query = query.gte('created_at', filters.startDate)
+    whereClauses.push('il.created_at >= ?')
+    args.push(filters.startDate)
   }
   if (filters.endDate) {
-    query = query.lte('created_at', filters.endDate)
+    whereClauses.push('il.created_at <= ?')
+    args.push(filters.endDate)
   }
 
-  const { page, limit, skip } = parsePagination({ page: String(filters.page), limit: String(filters.limit) })
-  query = query.range(skip, skip + limit - 1)
+  const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
 
-  const { data, error, count } = await query
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM inventory_logs il ${whereStr}`,
+    args,
+  })
 
-  if (error) handleSupabaseError(error, 'getInventoryLogs')
+  const dataResult = await db.execute({
+    sql: `SELECT il.*, p.name as product_name, pv.name as variant_name
+          FROM inventory_logs il
+          LEFT JOIN products p ON p.id = il.product_id
+          LEFT JOIN product_variants pv ON pv.id = il.variant_id
+          ${whereStr}
+          ORDER BY il.created_at DESC
+          LIMIT ? OFFSET ?`,
+    args: [...args, limit, skip],
+  })
 
-  const logs = (data || []).map((log: any) => ({
+  const total = Number(countResult.rows[0]?.count ?? 0)
+  const totalPages = Math.ceil(total / limit)
+
+  const logs = dataResult.rows.map((log: any) => ({
     id: log.id,
     productId: log.product_id,
     variantId: log.variant_id,
@@ -221,12 +238,9 @@ export async function getInventoryLogs(
     reason: log.reason,
     performedBy: log.performed_by,
     createdAt: log.created_at,
-    productName: log.products?.name ?? null,
-    variantName: log.product_variants?.name ?? null,
+    productName: log.product_name ?? null,
+    variantName: log.variant_name ?? null,
   }))
-
-  const total = count ?? 0
-  const totalPages = Math.ceil(total / limit)
 
   return {
     logs,

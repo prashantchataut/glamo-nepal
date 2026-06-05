@@ -13,12 +13,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  useCategories,
-  useBrands,
-  useCreateProduct,
-  useUpdateProduct,
-} from "@/lib/hooks/useConvexQueries";
-import type { Id } from "convex/_generated/dataModel";
+  useAdminData,
+  useAdminMutation,
+} from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 
@@ -54,7 +52,7 @@ interface ProductImage {
 }
 
 export interface ProductFormProduct {
-  id: Id<"products">;
+  id: string;
   name: string;
   slug: string;
   description?: string;
@@ -86,10 +84,10 @@ interface ProductFormModalProps {
 export function ProductFormModal({ open, onOpenChange, product, onSaved }: ProductFormModalProps) {
   const isEditing = !!product;
 
-  const categories = useCategories();
-  const brands = useBrands();
-  const createMutation = useCreateProduct();
-  const updateMutation = useUpdateProduct();
+  const { data: categories } = useAdminData(() => adminApi.listCategories());
+  const { data: brands } = useAdminData(() => adminApi.listBrands());
+  const { mutate: createMutation } = useAdminMutation((payload: Record<string, unknown>) => adminApi.createProduct(payload as never));
+  const { mutate: updateMutation } = useAdminMutation(({ id, data }: { id: string; data: Record<string, unknown> }) => adminApi.updateProduct(id, data as never));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -171,8 +169,8 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
       description: data.description || undefined,
       shortDescription: data.short_description || undefined,
       sku: data.sku || undefined,
-      categoryId: data.category_id as Id<"categories">,
-      brandId: data.brand_id ? (data.brand_id as Id<"brands">) : undefined,
+      categoryId: data.category_id,
+      brandId: data.brand_id || undefined,
       basePrice: Number(data.base_price) || 0,
       salePrice: data.sale_price ? Number(data.sale_price) : undefined,
       costPrice: data.cost_price ? Number(data.cost_price) : undefined,
@@ -188,7 +186,7 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     setIsSubmitting(true);
     try {
       if (isEditing && product) {
-        await updateMutation({ id: product.id, ...payload });
+        await updateMutation({ id: product.id, data: payload as Record<string, unknown> });
         toast.success("Product updated successfully");
       } else {
         await createMutation(payload);

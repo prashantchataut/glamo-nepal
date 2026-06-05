@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { handleDbError } from '../../utils/turso-helpers'
 
 interface EventItem {
   type: string
@@ -12,20 +12,23 @@ export async function trackEvents(
   sessionId: string,
   userId: string | undefined,
   events: EventItem[],
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const eventsJson = events.map((evt) => ({
-    type: evt.type,
-    entity_id: evt.entity_id || null,
-    session_id: sessionId,
-    user_id: userId || null,
-    metadata: evt.metadata || {},
-    timestamp: evt.timestamp || new Date().toISOString(),
-  }))
+  for (const evt of events) {
+    const id = crypto.randomUUID()
+    const now = evt.timestamp || new Date().toISOString()
 
-  const { error } = await supabase.rpc('track_events', {
-    p_events: eventsJson,
-  })
-
-  if (error) handleSupabaseError(error, 'trackEvents')
+    await db.execute({
+      sql: `INSERT INTO events (id, type, entity_id, session_id, user_id, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        id,
+        evt.type,
+        evt.entity_id || null,
+        sessionId,
+        userId || null,
+        evt.metadata ? JSON.stringify(evt.metadata) : null,
+        now,
+      ],
+    })
+  }
 }

@@ -1,15 +1,15 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as OrderService from './order.service'
 
 export async function createOrder(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = safeUser(c)
-    const order = await OrderService.createOrder(data, supabase, user?.id)
+    const order = await OrderService.createOrder(data, db, user?.id)
     return ApiResponse.success(c, 'Order created successfully', order, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -32,8 +32,8 @@ export async function verifyCheckoutPayment(c: Context<AppEnv>) {
     const body = await c.req.json().catch(() => ({})) as { token?: string; pidx?: string; refId?: string; transactionId?: string }
     const token = body.token || body.pidx || body.refId || body.transactionId
     if (!token) return ApiResponse.error(c, 'Payment token is required', 400)
-    const supabase = c.get('supabase')
-    const order = await OrderService.verifyCheckoutPayment(id, provider, token, supabase)
+    const db = c.get('db')
+    const order = await OrderService.verifyCheckoutPayment(id, provider, token, db)
     return ApiResponse.success(c, 'Payment verified', order)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -47,7 +47,7 @@ export async function verifyCheckoutPayment(c: Context<AppEnv>) {
 export async function listOrders(c: Context<AppEnv>) {
   try {
     const query = c.req.query()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
     const result = await OrderService.listOrders({
       status: query.status,
@@ -58,7 +58,7 @@ export async function listOrders(c: Context<AppEnv>) {
       endDate: query.endDate,
       page: Number(query.page) || 1,
       limit: Number(query.limit) || 20,
-    }, supabase, user)
+    }, db, user)
     return ApiResponse.paginated(c, 'Orders fetched successfully', result.orders, result.pagination.total, result.pagination.page, result.pagination.limit)
   } catch (error: any) {
     if (error instanceof AppError) return ApiResponse.error(c, error.message, error.statusCode)
@@ -69,9 +69,9 @@ export async function listOrders(c: Context<AppEnv>) {
 export async function getOrder(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
-    const order = await OrderService.getOrder(id, supabase, user)
+    const order = await OrderService.getOrder(id, db, user)
     return ApiResponse.success(c, 'Order fetched successfully', order)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -87,9 +87,9 @@ export async function updateOrderStatus(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
-    const order = await OrderService.updateOrderStatus(id, data, supabase, user.id)
+    const order = await OrderService.updateOrderStatus(id, data, db, user.id)
     return ApiResponse.success(c, 'Order status updated', order)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -103,10 +103,10 @@ export async function updateOrderStatus(c: Context<AppEnv>) {
 export async function cancelOrder(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
     const body = await c.req.json().catch(() => ({})) as { reason?: string }
-    const order = await OrderService.cancelOrder(id, supabase, user, body.reason)
+    const order = await OrderService.cancelOrder(id, db, user, body.reason)
     return ApiResponse.success(c, 'Order cancelled', order)
   } catch (error: any) {
     if (error instanceof AppError) {

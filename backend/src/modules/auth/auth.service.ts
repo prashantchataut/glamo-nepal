@@ -1,225 +1,188 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import { Client, type InValue } from '@libsql/client'
+import { AppError, handleDbError, assertSingle, fromSqliteBool } from '../../utils/turso-helpers'
 
-interface ProfileRow {
+interface UserRow {
   id: string
+  email: string | null
   phone: string | null
   first_name: string | null
   last_name: string | null
   avatar_url: string | null
   role: string
-  is_active: boolean
+  is_active: number
+  email_verified: number
+  phone_verified: number
+  google_id: string | null
   created_at: string
   updated_at: string
+  deleted_at: string | null
 }
 
-function formatProfile(profile: ProfileRow, email: string) {
+function formatUser(row: Record<string, unknown>) {
   return {
-    id: profile.id,
-    email,
-    phone: profile.phone,
-    firstName: profile.first_name,
-    lastName: profile.last_name,
-    avatarUrl: profile.avatar_url,
-    role: profile.role,
-    isActive: profile.is_active,
-    createdAt: profile.created_at,
-    updatedAt: profile.updated_at,
+    id: row.id as string,
+    email: row.email as string | null,
+    phone: row.phone as string | null,
+    firstName: row.first_name as string | null,
+    lastName: row.last_name as string | null,
+    avatarUrl: row.avatar_url as string | null,
+    role: row.role as string,
+    isActive: fromSqliteBool(row.is_active as number),
+    emailVerified: fromSqliteBool(row.email_verified as number),
+    phoneVerified: fromSqliteBool(row.phone_verified as number),
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   }
 }
 
 export async function register(
   data: {
+    uid: string
     email: string
-    password: string
     firstName?: string
     lastName?: string
     phone?: string
   },
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const { data: authData, error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
-    options: {
-      data: {
-        first_name: data.firstName ?? null,
-        last_name: data.lastName ?? null,
-      },
-    },
-  })
+  try {
+    await db.execute({
+      sql: `INSERT INTO users (id, email, first_name, last_name, phone, role, is_active, email_verified, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, 'CUSTOMER', 1, 1, datetime('now'), datetime('now'))`,
+      args: [
+        data.uid,
+        data.email,
+        data.firstName ?? null,
+        data.lastName ?? null,
+        data.phone ?? null,
+      ],
+    })
 
-  if (error) {
-    if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+    const result = await db.execute({
+      sql: 'SELECT * FROM users WHERE id = ?',
+      args: [data.uid],
+    })
+
+    const user = assertSingle(result.rows, 'User')
+    return { user: formatUser(user) }
+  } catch (error: any) {
+    if (error?.message?.includes('UNIQUE constraint')) {
       throw new AppError('Email already registered', 409, 'EMAIL_EXISTS')
     }
-    handleSupabaseError(error, 'register')
-  }
-
-  if (!authData.user) {
-    throw new AppError('Registration failed', 500)
-  }
-
-  if (data.phone) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ phone: data.phone })
-      .eq('id', authData.user.id)
-
-    if (profileError) {
-      handleSupabaseError(profileError, 'register.updatePhone')
-    }
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', authData.user.id)
-    .single<ProfileRow>()
-
-  if (profileError) {
-    handleSupabaseError(profileError, 'register.fetchProfile')
-  }
-
-  return {
-    user: formatProfile(profile!, authData.user.email ?? data.email),
-    accessToken: authData.session?.access_token ?? null,
-    refreshToken: authData.session?.refresh_token ?? null,
+    handleDbError(error, 'register')
   }
 }
 
-export async function login(
-  data: { email: string; password: string },
-  supabase: SupabaseClient
-) {
-  const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email: data.email,
-    password: data.password,
+export async function getMe(userId: string, db: Client) {
+  const result = await db.execute({
+    sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+    args: [userId],
   })
 
-  if (error) {
-    throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS')
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', authData.user.id)
-    .single<ProfileRow>()
-
-  if (profileError) {
-    handleSupabaseError(profileError, 'login.fetchProfile')
-  }
-
-  if (!profile?.is_active) {
-    throw new AppError('Account is disabled', 403, 'ACCOUNT_DISABLED')
-  }
-
-  return {
-    user: formatProfile(profile, authData.user.email ?? data.email),
-    accessToken: authData.session.access_token,
-    refreshToken: authData.session.refresh_token,
-  }
-}
-
-export async function refreshToken(
-  refreshToken: string,
-  supabase: SupabaseClient
-) {
-  const { data: authData, error } = await supabase.auth.refreshSession({
-    refresh_token: refreshToken,
-  })
-
-  if (error) {
-    throw new AppError('Invalid or expired refresh token', 401, 'INVALID_TOKEN')
-  }
-
-  if (!authData.user || !authData.session) {
-    throw new AppError('Invalid or expired refresh token', 401, 'INVALID_TOKEN')
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', authData.user.id)
-    .single<ProfileRow>()
-
-  if (profileError) {
-    handleSupabaseError(profileError, 'refreshToken.fetchProfile')
-  }
-
-  if (!profile?.is_active) {
-    throw new AppError('User not found or inactive', 404, 'USER_NOT_FOUND')
-  }
-
-  return {
-    user: formatProfile(profile, authData.user.email ?? ''),
-    accessToken: authData.session.access_token,
-    refreshToken: authData.session.refresh_token,
-  }
-}
-
-export async function logout(
-  accessToken: string,
-  supabase: SupabaseClient
-) {
-  const { error } = await supabase.auth.admin.signOut(accessToken)
-
-  if (error) {
-    handleSupabaseError(error, 'logout')
-  }
-}
-
-export async function forgotPassword(
-  email: string,
-  supabase: SupabaseClient,
-  frontendUrl: string
-) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${frontendUrl}/reset-password`,
-  })
-
-  if (error) {
-    handleSupabaseError(error, 'forgotPassword')
-  }
-}
-
-export async function resetPassword(
-  password: string,
-  supabase: SupabaseClient
-) {
-  const { error } = await supabase.auth.updateUser({
-    password,
-  })
-
-  if (error) {
-    handleSupabaseError(error, 'resetPassword')
-  }
-}
-
-export async function getMe(
-  userId: string,
-  supabase: SupabaseClient
-) {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single<ProfileRow>()
-
-  if (error) {
-    handleSupabaseError(error, 'getMe')
-  }
-
-  if (!profile) {
+  const user = result.rows[0]
+  if (!user) {
     throw new AppError('User not found', 404, 'USER_NOT_FOUND')
   }
 
-  const { data: { user }, error: authError } = await supabase.auth.admin.getUserById(userId)
+  return formatUser(user)
+}
 
-  if (authError) {
-    handleSupabaseError(authError, 'getMe.fetchAuthUser')
+export async function findOrCreateUser(
+  params: { uid: string; email: string; firstName?: string; lastName?: string },
+  db: Client
+) {
+  const existing = await db.execute({
+    sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+    args: [params.uid],
+  })
+
+  if (existing.rows.length > 0) {
+    return formatUser(existing.rows[0])
   }
 
-  return formatProfile(profile, user?.email ?? '')
+  try {
+    await db.execute({
+      sql: `INSERT INTO users (id, email, first_name, last_name, role, is_active, email_verified, created_at, updated_at)
+            VALUES (?, ?, ?, ?, 'CUSTOMER', 1, 1, datetime('now'), datetime('now'))`,
+      args: [params.uid, params.email, params.firstName ?? null, params.lastName ?? null],
+    })
+  } catch (error: any) {
+    if (error?.message?.includes('UNIQUE constraint')) {
+      const retry = await db.execute({
+        sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+        args: [params.uid],
+      })
+      if (retry.rows.length > 0) {
+        return formatUser(retry.rows[0])
+      }
+      const byEmail = await db.execute({
+        sql: 'SELECT * FROM users WHERE email = ? AND deleted_at IS NULL',
+        args: [params.email],
+      })
+      if (byEmail.rows.length > 0) {
+        return formatUser(byEmail.rows[0])
+      }
+    }
+    handleDbError(error, 'findOrCreateUser')
+  }
+
+  const created = await db.execute({
+    sql: 'SELECT * FROM users WHERE id = ?',
+    args: [params.uid],
+  })
+
+  return formatUser(assertSingle(created.rows, 'User'))
+}
+
+export async function updateUserProfile(
+  userId: string,
+  data: { firstName?: string; lastName?: string; phone?: string; avatarUrl?: string },
+  db: Client
+) {
+  const sets: string[] = []
+  const args: InValue[] = []
+
+  if (data.firstName !== undefined) {
+    sets.push('first_name = ?')
+    args.push(data.firstName)
+  }
+  if (data.lastName !== undefined) {
+    sets.push('last_name = ?')
+    args.push(data.lastName)
+  }
+  if (data.phone !== undefined) {
+    sets.push('phone = ?')
+    args.push(data.phone || null)
+  }
+  if (data.avatarUrl !== undefined) {
+    sets.push('avatar_url = ?')
+    args.push(data.avatarUrl)
+  }
+
+  if (sets.length === 0) {
+    const existing = await db.execute({
+      sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+      args: [userId],
+    })
+    const user = existing.rows[0]
+    if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND')
+    return formatUser(user)
+  }
+
+  sets.push("updated_at = datetime('now')")
+  args.push(userId)
+
+  await db.execute({
+    sql: `UPDATE users SET ${sets.join(', ')} WHERE id = ?`,
+    args,
+  })
+
+  const result = await db.execute({
+    sql: 'SELECT * FROM users WHERE id = ?',
+    args: [userId],
+  })
+
+  const user = result.rows[0]
+  if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND')
+  return formatUser(user)
 }

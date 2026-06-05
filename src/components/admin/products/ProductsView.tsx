@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useMemo, useState } from "react";
 import NextImage from "next/image";
@@ -19,15 +19,11 @@ import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
-import {
-  useProducts,
-  useDeleteProduct,
-  useToggleProductVisibility,
-} from "@/lib/hooks/useConvexQueries";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { useAdminStore } from "@/store/useAdminStore";
 import { ProductFormModal, type ProductFormProduct } from "@/components/admin/products/ProductForm";
 import { ProductDetailModal } from "@/components/admin/products/ProductDetailModal";
-import type { Id } from "convex/_generated/dataModel";
 
 const PAGE_SIZE = 20;
 
@@ -59,7 +55,7 @@ interface ProductRow {
 
 function toFormProduct(p: ProductRow): ProductFormProduct {
   return {
-    id: p.id as Id<"products">,
+    id: p.id,
     name: p.name,
     slug: p.slug,
     description: p.description,
@@ -91,35 +87,34 @@ export function ProductsView() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const productsData = useProducts({
+  const { data: productsData, isLoading, isError: hasError } = useAdminData(() => adminApi.listProducts({
     page,
     limit: PAGE_SIZE,
     search: productSearch || undefined,
-  });
+  }));
 
-  const deleteProduct = useDeleteProduct();
-  const toggleVisibility = useToggleProductVisibility();
+  const { mutate: deleteProduct } = useAdminMutation((vars: { id: string }) => adminApi.deleteProduct(vars.id));
+  const { mutate: toggleVisibility } = useAdminMutation((vars: { id: string }) => adminApi.toggleProductVisibility(vars.id));
 
   const products: ProductRow[] = useMemo(() => {
     if (!productsData) return [];
-    if (Array.isArray(productsData)) return productsData as ProductRow[];
-    return ((productsData as Record<string, unknown>).products ?? []) as ProductRow[];
+    if (Array.isArray(productsData)) return productsData as unknown as ProductRow[];
+    return ((productsData as unknown as Record<string, unknown>).products ?? []) as unknown as ProductRow[];
   }, [productsData]);
 
   const total = useMemo(() => {
     if (!productsData) return 0;
     if (Array.isArray(productsData)) return productsData.length;
-    return (productsData as Record<string, unknown>).total as number ?? 0;
+    return (productsData as unknown as Record<string, unknown>).total as number ?? 0;
   }, [productsData]);
 
   const totalPages = useMemo(() => {
     if (!productsData) return 1;
     if (Array.isArray(productsData)) return Math.max(1, Math.ceil(productsData.length / PAGE_SIZE));
-    return (productsData as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+    return (productsData as unknown as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
   }, [productsData, total]);
 
-  const isLoading = productsData === undefined;
-  const error = productsData === null ? "Failed to load products" : null;
+  const error = hasError ? "Failed to load products" : null;
 
   const handleSearch = useCallback(
     (query: string) => {
@@ -132,7 +127,7 @@ export function ProductsView() {
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;
     try {
-      await deleteProduct({ id: deleteId as Id<"products"> });
+      await deleteProduct({ id: deleteId });
       toast.success("Product deleted");
       setDeleteId(null);
     } catch (err: unknown) {
@@ -144,7 +139,7 @@ export function ProductsView() {
     if (selectedIds.size === 0) return;
     const ids = Array.from(selectedIds);
     try {
-      await Promise.all(ids.map((id) => toggleVisibility({ id: id as Id<"products"> })));
+      await Promise.all(ids.map((id) => toggleVisibility({ id })));
       toast.success(`${ids.length} product${ids.length > 1 ? "s" : ""} ${isActive ? "activated" : "deactivated"}`);
       setSelectedIds(new Set());
     } catch (err: unknown) {

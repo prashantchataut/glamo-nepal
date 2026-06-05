@@ -1,90 +1,84 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 
 const CACHE_PREFIX = 'gallery:'
 
 export async function getGalleryItems(
-  supabase: SupabaseClient,
-  kv: KVNamespace,
+  db: Client,
   filters?: { category?: string }
 ) {
   const cacheKey = `${CACHE_PREFIX}list:${filters?.category || 'all'}`
-  const cached = await getFromCache<any>(kv, cacheKey)
+  const cached = await getFromCache<any>(cacheKey)
   if (cached) return cached
 
-  let query = supabase
-    .from('gallery_items')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true })
+  const whereClauses: string[] = ['is_active = 1']
+  const args: any[] = []
 
   if (filters?.category) {
-    query = query.eq('category', filters.category)
+    whereClauses.push('category = ?')
+    args.push(filters.category)
   }
 
-  const { data, error } = await query
+  const result = await db.execute({
+    sql: `SELECT * FROM gallery_items WHERE ${whereClauses.join(' AND ')} ORDER BY sort_order ASC`,
+    args,
+  })
 
-  if (error) handleSupabaseError(error, 'getGalleryItems')
-
-  await setCache(kv, cacheKey, data || [], CACHE_TTL.BANNERS)
-  return data || []
+  await setCache(cacheKey, result.rows, CACHE_TTL.BANNERS)
+  return result.rows
 }
 
-export async function createGalleryItem(supabase: SupabaseClient, data: any, adminUserId: string, kv: KVNamespace) {
-  const insertData: Record<string, any> = {
-    title: data.title,
-    description: data.description ?? null,
-    image_url: data.imageUrl,
-    category: data.category ?? null,
-    sort_order: data.sortOrder ?? 0,
-    is_active: true,
-  }
+export async function createGalleryItem(db: Client, data: any, adminUserId: string) {
+  const id = crypto.randomUUID()
 
-  const { data: item, error } = await supabase
-    .from('gallery_items')
-    .insert(insertData)
-    .select()
-    .single()
+  await db.execute({
+    sql: `INSERT INTO gallery_items (id, title, description, image_url, category, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`,
+    args: [id, data.title, data.description ?? null, data.imageUrl, data.category ?? null, data.sortOrder ?? 0],
+  })
 
-  if (error) handleSupabaseError(error, 'createGalleryItem')
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
 
-  await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'CREATE',
     entity: 'gallery_item',
-    entityId: item.id,
+    entityId: id,
     changes: data,
   })
 
-  return item
+  const result = await db.execute({
+    sql: `SELECT * FROM gallery_items WHERE id = ?`,
+    args: [id],
+  })
+
+  return result.rows[0]
 }
 
-export async function updateGalleryItem(supabase: SupabaseClient, id: string, data: any, adminUserId: string) {
-  const updateData: Record<string, any> = {}
-  if (data.title !== undefined) updateData.title = data.title
-  if (data.description !== undefined) updateData.description = data.description
-  if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl
-  if (data.category !== undefined) updateData.category = data.category
-  if (data.sortOrder !== undefined) updateData.sort_order = data.sortOrder
+export async function updateGalleryItem(db: Client, id: string, data: any, adminUserId: string) {
+  const updates: string[] = []
+  const args: any[] = []
 
-  const { data: item, error } = await supabase
-    .from('gallery_items')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single()
+  if (data.title !== undefined) { updates.push('title = ?'); args.push(data.title) }
+  if (data.description !== undefined) { updates.push('description = ?'); args.push(data.description) }
+  if (data.imageUrl !== undefined) { updates.push('image_url = ?'); args.push(data.imageUrl) }
+  if (data.category !== undefined) { updates.push('category = ?'); args.push(data.category) }
+  if (data.sortOrder !== undefined) { updates.push('sort_order = ?'); args.push(data.sortOrder) }
 
-  if (error) handleSupabaseError(error, 'updateGalleryItem')
-  if (!item) throw new AppError('Gallery item not found', 404)
+  updates.push('updated_at = datetime(\'now\')')
+  args.push(id)
 
-  const kv = (supabase as any).kv as KVNamespace | undefined
-  if (kv) await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
+  const result = await db.execute({
+    sql: `UPDATE gallery_items SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
 
-  await createAuditLog(supabase, {
+  if (result.rowsAffected === 0) throw new AppError('Gallery item not found', 404)
+
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
+
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'gallery_item',
@@ -92,30 +86,30 @@ export async function updateGalleryItem(supabase: SupabaseClient, id: string, da
     changes: data,
   })
 
-  return item
+  const updatedResult = await db.execute({
+    sql: `SELECT * FROM gallery_items WHERE id = ?`,
+    args: [id],
+  })
+
+  return updatedResult.rows[0]
 }
 
-export async function deleteGalleryItem(supabase: SupabaseClient, id: string, adminUserId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('gallery_items')
-    .select('id')
-    .eq('id', id)
-    .single()
+export async function deleteGalleryItem(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id FROM gallery_items WHERE id = ?`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchGalleryItemForDelete')
-  if (!existing) throw new AppError('Gallery item not found', 404)
+  if (!existingResult.rows[0]) throw new AppError('Gallery item not found', 404)
 
-  const { error } = await supabase
-    .from('gallery_items')
-    .delete()
-    .eq('id', id)
+  await db.execute({
+    sql: `DELETE FROM gallery_items WHERE id = ?`,
+    args: [id],
+  })
 
-  if (error) handleSupabaseError(error, 'deleteGalleryItem')
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
 
-  const kv = (supabase as any).kv as KVNamespace | undefined
-  if (kv) await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'DELETE',
     entity: 'gallery_item',
@@ -123,23 +117,17 @@ export async function deleteGalleryItem(supabase: SupabaseClient, id: string, ad
   })
 }
 
-export async function reorderGalleryItems(supabase: SupabaseClient, items: { id: string; sortOrder: number }[], adminUserId: string) {
-  const updates = items.map(item =>
-    supabase
-      .from('gallery_items')
-      .update({ sort_order: item.sortOrder })
-      .eq('id', item.id)
-  )
-
-  const results = await Promise.all(updates)
-  for (const { error } of results) {
-    if (error) handleSupabaseError(error, 'reorderGalleryItems')
+export async function reorderGalleryItems(db: Client, items: { id: string; sortOrder: number }[], adminUserId: string) {
+  for (const item of items) {
+    await db.execute({
+      sql: `UPDATE gallery_items SET sort_order = ? WHERE id = ?`,
+      args: [item.sortOrder, item.id],
+    })
   }
 
-  const kv = (supabase as any).kv as KVNamespace | undefined
-  if (kv) await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
 
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'REORDER',
     entity: 'gallery_items',

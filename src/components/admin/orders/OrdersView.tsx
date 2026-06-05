@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { formatNPR } from "@/lib/utils";
@@ -7,12 +7,8 @@ import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
-import {
-  useOrders,
-  useUpdateOrderStatus,
-  useCancelOrder,
-} from "@/lib/hooks/useConvexQueries";
-import type { Id } from "convex/_generated/dataModel";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { OrderDetailModal } from "@/components/admin/orders/OrderDetailModal";
 import { toast } from "sonner";
 
@@ -38,38 +34,37 @@ export function OrdersView() {
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
 
-  const ordersData = useOrders({
+  const { data: ordersData, isLoading, isError: hasError } = useAdminData(() => adminApi.listOrders({
     status: statusFilter || undefined,
     search: searchQuery || undefined,
     page,
     limit: PAGE_SIZE,
-  });
+  }));
 
-  const updateStatus = useUpdateOrderStatus();
-  const cancelOrder = useCancelOrder();
+  const { mutate: updateStatus } = useAdminMutation((vars: { id: string; status: string }) => adminApi.updateOrderStatus(vars.id, vars.status));
+  const { mutate: cancelOrder } = useAdminMutation((vars: { id: string; reason?: string }) => adminApi.cancelOrder(vars.id, vars.reason));
 
   const orders: OrderRow[] = (() => {
     if (!ordersData) return [];
-    if (Array.isArray(ordersData)) return ordersData as OrderRow[];
-    return ((ordersData as Record<string, unknown>).orders ?? []) as OrderRow[];
+    if (Array.isArray(ordersData)) return ordersData as unknown as OrderRow[];
+    return ((ordersData as unknown as Record<string, unknown>).orders ?? []) as unknown as OrderRow[];
   })();
 
   const total = (() => {
     if (!ordersData) return 0;
     if (Array.isArray(ordersData)) return ordersData.length;
-    return (ordersData as Record<string, unknown>).total as number ?? 0;
+    return (ordersData as unknown as Record<string, unknown>).total as number ?? 0;
   })();
   const totalPages = (() => {
     if (!ordersData) return 1;
     if (Array.isArray(ordersData)) return Math.max(1, Math.ceil(ordersData.length / PAGE_SIZE));
-    return (ordersData as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+    return (ordersData as unknown as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
   })();
-  const isLoading = ordersData === undefined;
-  const error = ordersData === null ? "Failed to load orders" : null;
+  const error = hasError ? "Failed to load orders" : null;
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      await updateStatus({ id: orderId as Id<"orders">, status: newStatus as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
+      await updateStatus({ id: orderId, status: newStatus as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
       toast.success("Order status updated");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
@@ -79,7 +74,7 @@ export function OrdersView() {
   const handleCancelOrder = async () => {
     if (!cancelOrderId) return;
     try {
-      await cancelOrder({ id: cancelOrderId as Id<"orders">, reason: cancelReason || undefined });
+      await cancelOrder({ id: cancelOrderId, reason: cancelReason || undefined });
       toast.success("Order cancelled");
       setCancelOrderId(null);
       setCancelReason("");

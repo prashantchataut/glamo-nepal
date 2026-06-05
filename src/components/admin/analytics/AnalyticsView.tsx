@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useMemo, useState } from "react";
-import { useDashboardStats, useSalesReport } from "@/lib/hooks/useConvexQueries";
+import { useAdminData } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { formatNPR } from "@/lib/utils";
 import { TrendingUp, ShoppingCart, Package } from "lucide-react";
 import type { ComponentType } from "react";
@@ -72,14 +73,12 @@ function StatCard({ label, value, note, icon: Icon }: { label: string; value: st
 export function AnalyticsView() {
   const [dateRange, setDateRange] = useState<DateRange>("30d");
 
-  const stats = useDashboardStats();
+  const { data: stats, isLoading: statsLoading, isError: statsIsError } = useAdminData(() => adminApi.dashboardStats());
   const { start, end } = getDateRange(dateRange);
-  const sales = useSalesReport(start, end, "day");
+  const { data: sales, isLoading: salesLoading, isError: salesIsError } = useAdminData(() => adminApi.getSalesReport(start, end, "day"));
 
-  const statsLoading = stats === undefined;
-  const statsError = stats === null ? "Failed to load analytics" : null;
-  const salesLoading = sales === undefined;
-  const salesError = sales === null ? "Failed to load sales data" : null;
+  const statsError = statsIsError ? "Failed to load analytics" : null;
+  const salesError = salesIsError ? "Failed to load sales data" : null;
 
   const revenueChartData = useMemo(() => {
     if (!sales) return [];
@@ -105,12 +104,12 @@ export function AnalyticsView() {
     }));
   }, [stats]);
 
-  const topProducts = useMemo(() => (stats as Record<string, unknown> | undefined)?.topPerformers && typeof (stats as Record<string, unknown>).topPerformers === "object" ? ((stats as Record<string, unknown>).topPerformers as Record<string, unknown>)?.products as Record<string, unknown>[] ?? [] : [], [stats]);
-  const maxSold = useMemo(() => Math.max(...topProducts.map((p) => (p as Record<string, unknown>).totalSold as number ?? 0), 1), [topProducts]);
+  const topProducts = useMemo(() => (stats as unknown as Record<string, unknown> | undefined)?.topPerformers && typeof (stats as unknown as Record<string, unknown>).topPerformers === "object" ? ((stats as unknown as Record<string, unknown>).topPerformers as unknown as Record<string, unknown>)?.products as unknown as Record<string, unknown>[] ?? [] : [], [stats]);
+  const maxSold = useMemo(() => Math.max(...topProducts.map((p) => (p as unknown as Record<string, unknown>).totalSold as number ?? 0), 1), [topProducts]);
 
   const categoryBreakdown = useMemo(() => {
-    const cats = (stats as Record<string, unknown>)?.topPerformers && typeof (stats as Record<string, unknown>).topPerformers === "object"
-      ? ((stats as Record<string, unknown>).topPerformers as Record<string, number>) : null;
+    const cats = (stats as unknown as Record<string, unknown>)?.topPerformers && typeof (stats as unknown as Record<string, unknown>).topPerformers === "object"
+      ? ((stats as unknown as Record<string, unknown>).topPerformers as Record<string, number>) : null;
     if (!cats) return [];
     return Object.entries(cats).sort(([, a], [, b]) => b - a);
   }, [stats]);
@@ -129,7 +128,7 @@ export function AnalyticsView() {
           <p className="mt-0.5 text-sm text-brand-textMuted">Revenue, products and category performance.</p>
         </div>
         <div className="flex gap-2">
-          {(["7d", "30d", "month"] as DateRange[]).map((range) => (
+          {(["7d", "30d", "month"] as unknown as DateRange[]).map((range) => (
             <button
               key={range}
               onClick={() => setDateRange(range)}
@@ -229,7 +228,7 @@ export function AnalyticsView() {
             ) : topProducts.length > 0 ? (
               <div className="mt-4 space-y-3">
                 {topProducts.map((product, i) => (
-                  <MiniBar key={i} label={String((product as Record<string, unknown>).name ?? "")} value={Number((product as Record<string, unknown>).totalSold ?? 0)} max={maxSold} />
+                  <MiniBar key={i} label={String((product as unknown as Record<string, unknown>).name ?? "")} value={Number((product as unknown as Record<string, unknown>).totalSold ?? 0)} max={maxSold} />
                 ))}
               </div>
             ) : (

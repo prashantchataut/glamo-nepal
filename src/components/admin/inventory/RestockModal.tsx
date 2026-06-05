@@ -8,14 +8,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useAdjustStock } from "@/lib/hooks/useConvexQueries";
-import type { Id } from "convex/_generated/dataModel";
+import { useAdminMutation } from "@/lib/hooks/useAdminData";
+import { adminApi } from "@/lib/api/admin";
 import { toast } from "sonner";
 
 interface RestockModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  productId: Id<"products">;
+  productId: string;
   productName: string;
   currentStock: number;
   onRestocked?: () => void;
@@ -26,7 +26,7 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const adjustStock = useAdjustStock();
+  const { mutate: adjustStock } = useAdminMutation((vars: { productId: string; change: number; reason?: string }) => adminApi.adjustStock(vars.productId, vars.change, vars.reason));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

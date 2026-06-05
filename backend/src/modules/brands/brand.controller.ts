@@ -5,8 +5,7 @@ import * as BrandService from './brand.service'
 
 export async function getAllBrands(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
+    const db = c.get('db')
     const filters: { isActive?: boolean } = {}
 
     const isActiveQuery = c.req.query('isActive')
@@ -14,7 +13,7 @@ export async function getAllBrands(c: Context<AppEnv>) {
       filters.isActive = isActiveQuery === 'true'
     }
 
-    const brands = await BrandService.getAllBrandsCached(supabase, kv, Object.keys(filters).length > 0 ? filters : undefined)
+    const brands = await BrandService.getAllBrandsCached(db, Object.keys(filters).length > 0 ? filters : undefined)
     return ApiResponse.success(c, 'Brands fetched successfully', brands)
   } catch (error: any) {
     return ApiResponse.error(c, error.message || 'Failed to fetch brands', 500)
@@ -24,9 +23,8 @@ export async function getAllBrands(c: Context<AppEnv>) {
 export async function getBrandBySlug(c: Context<AppEnv>) {
   try {
     const { slug } = c.req.param()
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const brand = await BrandService.getBrandBySlug(slug, supabase, kv)
+    const db = c.get('db')
+    const brand = await BrandService.getBrandBySlug(slug, db)
 
     if (!brand) {
       return ApiResponse.error(c, 'Brand not found', 404)
@@ -42,10 +40,8 @@ export async function createBrand(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const brand = await BrandService.createBrand(supabase, data, user.id, kv)
+    const db = c.get('db')
+    const brand = await BrandService.createBrand(db, data, user.id)
     return ApiResponse.success(c, 'Brand created successfully', brand, 201)
   } catch (error: any) {
     return ApiResponse.error(c, error.message || 'Failed to create brand', 500)
@@ -57,10 +53,8 @@ export async function updateBrand(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const brand = await BrandService.updateBrand(supabase, id, data, user.id, kv)
+    const db = c.get('db')
+    const brand = await BrandService.updateBrand(db, id, data, user.id)
     return ApiResponse.success(c, 'Brand updated successfully', brand)
   } catch (error: any) {
     if (error.message === 'BRAND_NOT_FOUND') {
@@ -74,10 +68,8 @@ export async function deleteBrand(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    await BrandService.deleteBrand(supabase, id, user.id, kv)
+    const db = c.get('db')
+    await BrandService.deleteBrand(db, id, user.id)
     return ApiResponse.success(c, 'Brand deleted successfully', null)
   } catch (error: any) {
     if (error.message === 'BRAND_NOT_FOUND') {

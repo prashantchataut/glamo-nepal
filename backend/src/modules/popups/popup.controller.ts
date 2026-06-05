@@ -1,14 +1,13 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { ApiResponse } from '../../utils/response'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import * as PopupService from './popup.service'
 
 export async function getActivePopup(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const result = await PopupService.getActivePopup(supabase, kv)
+    const db = c.get('db')
+    const result = await PopupService.getActivePopup(db)
     return ApiResponse.success(c, 'Active popup fetched', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -20,8 +19,8 @@ export async function getActivePopup(c: Context<AppEnv>) {
 
 export async function getAllPopups(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const result = await PopupService.getAllPopups(supabase)
+    const db = c.get('db')
+    const result = await PopupService.getAllPopups(db)
     return ApiResponse.success(c, 'Popups fetched', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -34,10 +33,9 @@ export async function getAllPopups(c: Context<AppEnv>) {
 export async function createPopup(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
-    const kv = c.env.KV
-    const result = await PopupService.createPopup(supabase, data, user.id, kv)
+    const result = await PopupService.createPopup(db, data, user.id)
     return ApiResponse.success(c, 'Popup created', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -51,10 +49,9 @@ export async function updatePopup(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
-    const kv = c.env.KV
-    const result = await PopupService.updatePopup(supabase, id, data, user.id, kv)
+    const result = await PopupService.updatePopup(db, id, data, user.id)
     return ApiResponse.success(c, 'Popup updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -67,10 +64,9 @@ export async function updatePopup(c: Context<AppEnv>) {
 export async function deletePopup(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
-    const kv = c.env.KV
-    await PopupService.deletePopup(supabase, id, user.id, kv)
+    await PopupService.deletePopup(db, id, user.id)
     return ApiResponse.success(c, 'Popup deleted', null)
   } catch (error: any) {
     if (error instanceof AppError) {

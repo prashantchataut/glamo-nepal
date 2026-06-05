@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as ReviewService from './review.service'
 
@@ -9,8 +9,8 @@ export async function getProductReviews(c: Context<AppEnv>) {
     const { productId } = c.req.param()
     const page = Number(c.req.query('page')) || 1
     const limit = Number(c.req.query('limit')) || 20
-    const supabase = c.get('supabase')
-    const result = await ReviewService.getProductReviews(productId, page, limit, supabase)
+    const db = c.get('db')
+    const result = await ReviewService.getProductReviews(productId, page, limit, db)
     return ApiResponse.paginated(c, 'Reviews fetched successfully', result.reviews, result.total, result.page, result.limit)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -24,8 +24,8 @@ export async function createReview(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await ReviewService.createReview(user.id, data, supabase)
+    const db = c.get('db')
+    const result = await ReviewService.createReview(user.id, data, db)
     return ApiResponse.success(c, 'Review created successfully', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -40,8 +40,8 @@ export async function updateReview(c: Context<AppEnv>) {
     const user = c.get('user')
     const { id } = c.req.param()
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
-    const result = await ReviewService.updateReview(user.id, id, data, supabase)
+    const db = c.get('db')
+    const result = await ReviewService.updateReview(user.id, id, data, db)
     return ApiResponse.success(c, 'Review updated successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -55,9 +55,9 @@ export async function deleteReview(c: Context<AppEnv>) {
   try {
     const user = c.get('user')
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
-    await ReviewService.deleteReview(user.id, id, supabase, isAdmin)
+    await ReviewService.deleteReview(user.id, id, db, isAdmin)
     return ApiResponse.success(c, 'Review deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -70,14 +70,14 @@ export async function deleteReview(c: Context<AppEnv>) {
 export async function getAdminReviews(c: Context<AppEnv>) {
   try {
     const query = c.get('validatedQuery') || c.req.query()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const filters = {
       productId: query.productId,
       isApproved: query.isApproved,
       page: Number(query.page) || 1,
       limit: Number(query.limit) || 20,
     }
-    const result = await ReviewService.getAllReviews(filters, supabase)
+    const result = await ReviewService.getAllReviews(filters, db)
     return ApiResponse.paginated(c, 'Reviews fetched successfully', result.reviews, result.total, result.page, result.limit)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -91,8 +91,8 @@ export async function approveReview(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const result = await ReviewService.approveReview(id, user.id, supabase)
+    const db = c.get('db')
+    const result = await ReviewService.approveReview(id, user.id, db)
     return ApiResponse.success(c, 'Review approved successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -106,8 +106,8 @@ export async function rejectReview(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const result = await ReviewService.rejectReview(id, user.id, supabase)
+    const db = c.get('db')
+    const result = await ReviewService.rejectReview(id, user.id, db)
     return ApiResponse.success(c, 'Review rejected successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {

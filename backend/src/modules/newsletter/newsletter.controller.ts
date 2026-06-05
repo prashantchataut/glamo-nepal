@@ -1,15 +1,15 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { ApiResponse } from '../../utils/response'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import * as NewsletterService from './newsletter.service'
 
 export async function subscribe(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown'
-    const result = await NewsletterService.subscribe(supabase, data.email, ip, c.env.KV)
+    const result = await NewsletterService.subscribe(db, data.email, ip)
     return ApiResponse.success(c, result.message, null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -22,8 +22,8 @@ export async function subscribe(c: Context<AppEnv>) {
 export async function unsubscribe(c: Context<AppEnv>) {
   try {
     const token = c.req.query('token') || ''
-    const supabase = c.get('supabase')
-    const result = await NewsletterService.unsubscribe(supabase, token)
+    const db = c.get('db')
+    const result = await NewsletterService.unsubscribe(db, token)
     return ApiResponse.success(c, result.message, null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -36,11 +36,11 @@ export async function unsubscribe(c: Context<AppEnv>) {
 export async function getSubscribers(c: Context<AppEnv>) {
   try {
     const query = c.get('validatedQuery') || c.req.query()
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const isActive = query.isActive !== undefined ? query.isActive : undefined
     const page = Number(query.page) || 1
     const limit = Number(query.limit) || 20
-    const result = await NewsletterService.getSubscribers(supabase, { isActive, page, limit })
+    const result = await NewsletterService.getSubscribers(db, { isActive, page, limit })
     return ApiResponse.paginated(c, 'Subscribers fetched successfully', result.subscribers, result.total, result.page, result.limit)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -52,8 +52,8 @@ export async function getSubscribers(c: Context<AppEnv>) {
 
 export async function exportSubscribers(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const csv = await NewsletterService.exportSubscribers(supabase)
+    const db = c.get('db')
+    const csv = await NewsletterService.exportSubscribers(db)
     c.header('Content-Type', 'text/csv')
     c.header('Content-Disposition', 'attachment; filename=subscribers.csv')
     return c.body(csv)
@@ -69,8 +69,8 @@ export async function deleteSubscriber(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const result = await NewsletterService.deleteSubscriber(supabase, id, user.id)
+    const db = c.get('db')
+    const result = await NewsletterService.deleteSubscriber(db, id, user.id)
     return ApiResponse.success(c, result.message, null)
   } catch (error: any) {
     if (error instanceof AppError) {

@@ -1,66 +1,61 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 
-export async function getTeamMembers(supabase: SupabaseClient) {
-  const { data, error } = await supabase
-    .from('team_members')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true })
+export async function getTeamMembers(db: Client) {
+  const result = await db.execute({
+    sql: `SELECT * FROM team_members WHERE is_active = 1 ORDER BY sort_order ASC`,
+    args: [],
+  })
 
-  if (error) handleSupabaseError(error, 'getTeamMembers')
-  return data
+  return result.rows.map(row => ({ ...row, is_active: fromSqliteBool(row.is_active as number) }))
 }
 
-export async function createTeamMember(supabase: SupabaseClient, data: any, adminUserId: string) {
-  const insertData: Record<string, any> = {
-    name: data.name,
-    role: data.role,
-    bio: data.bio ?? null,
-    image_url: data.imageUrl ?? null,
-    sort_order: data.sortOrder ?? 0,
-    is_active: true,
-  }
+export async function createTeamMember(db: Client, data: any, adminUserId: string) {
+  const id = crypto.randomUUID()
 
-  const { data: member, error } = await supabase
-    .from('team_members')
-    .insert(insertData)
-    .select()
-    .single()
+  await db.execute({
+    sql: `INSERT INTO team_members (id, name, role, bio, image_url, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`,
+    args: [id, data.name, data.role, data.bio ?? null, data.imageUrl ?? null, data.sortOrder ?? 0],
+  })
 
-  if (error) handleSupabaseError(error, 'createTeamMember')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'CREATE',
     entity: 'team_member',
-    entityId: member.id,
+    entityId: id,
     changes: data,
   })
 
-  return member
+  const result = await db.execute({
+    sql: `SELECT * FROM team_members WHERE id = ?`,
+    args: [id],
+  })
+
+  return { ...result.rows[0], is_active: fromSqliteBool(result.rows[0].is_active as number) }
 }
 
-export async function updateTeamMember(supabase: SupabaseClient, id: string, data: any, adminUserId: string) {
-  const updateData: Record<string, any> = {}
-  if (data.name !== undefined) updateData.name = data.name
-  if (data.role !== undefined) updateData.role = data.role
-  if (data.bio !== undefined) updateData.bio = data.bio
-  if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl
-  if (data.sortOrder !== undefined) updateData.sort_order = data.sortOrder
+export async function updateTeamMember(db: Client, id: string, data: any, adminUserId: string) {
+  const updates: string[] = []
+  const args: any[] = []
 
-  const { data: member, error } = await supabase
-    .from('team_members')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single()
+  if (data.name !== undefined) { updates.push('name = ?'); args.push(data.name) }
+  if (data.role !== undefined) { updates.push('role = ?'); args.push(data.role) }
+  if (data.bio !== undefined) { updates.push('bio = ?'); args.push(data.bio) }
+  if (data.imageUrl !== undefined) { updates.push('image_url = ?'); args.push(data.imageUrl) }
+  if (data.sortOrder !== undefined) { updates.push('sort_order = ?'); args.push(data.sortOrder) }
 
-  if (error) handleSupabaseError(error, 'updateTeamMember')
-  if (!member) throw new AppError('Team member not found', 404)
+  updates.push('updated_at = datetime(\'now\')')
+  args.push(id)
 
-  await createAuditLog(supabase, {
+  const result = await db.execute({
+    sql: `UPDATE team_members SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
+
+  if (result.rowsAffected === 0) throw new AppError('Team member not found', 404)
+
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'team_member',
@@ -68,27 +63,28 @@ export async function updateTeamMember(supabase: SupabaseClient, id: string, dat
     changes: data,
   })
 
-  return member
+  const updatedResult = await db.execute({
+    sql: `SELECT * FROM team_members WHERE id = ?`,
+    args: [id],
+  })
+
+  return { ...updatedResult.rows[0], is_active: fromSqliteBool(updatedResult.rows[0].is_active as number) }
 }
 
-export async function deleteTeamMember(supabase: SupabaseClient, id: string, adminUserId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('team_members')
-    .select('id')
-    .eq('id', id)
-    .single()
+export async function deleteTeamMember(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id FROM team_members WHERE id = ?`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchTeamMemberForDelete')
-  if (!existing) throw new AppError('Team member not found', 404)
+  if (!existingResult.rows[0]) throw new AppError('Team member not found', 404)
 
-  const { error } = await supabase
-    .from('team_members')
-    .update({ is_active: false })
-    .eq('id', id)
+  await db.execute({
+    sql: `UPDATE team_members SET is_active = 0 WHERE id = ?`,
+    args: [id],
+  })
 
-  if (error) handleSupabaseError(error, 'deleteTeamMember')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'DELETE',
     entity: 'team_member',

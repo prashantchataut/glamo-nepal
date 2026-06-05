@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { authMiddleware } from '../../middleware/auth'
+import { authMiddleware } from '../../middleware/firebase-auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateQuery } from '../../middleware/validate'
 import { stockReportFilterSchema, inventoryLogFilterSchema } from './inventory.schema'

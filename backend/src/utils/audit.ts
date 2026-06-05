@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Client } from '@libsql/client'
 
 interface AuditLogParams {
   userId?: string
@@ -11,20 +11,24 @@ interface AuditLogParams {
 }
 
 export async function createAuditLog(
-  supabase: SupabaseClient,
+  db: Client,
   params: AuditLogParams
 ): Promise<void> {
   try {
-    const { error } = await supabase.from('audit_logs').insert({
-      user_id: params.userId ?? null,
-      action: params.action,
-      entity: params.entity,
-      entity_id: params.entityId ?? null,
-      changes: params.changes ?? null,
-      ip_address: params.ipAddress ?? null,
-      user_agent: params.userAgent ?? null,
+    await db.execute({
+      sql: `INSERT INTO audit_logs (id, user_id, action, entity, entity_id, changes, ip_address, user_agent, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+      args: [
+        crypto.randomUUID(),
+        params.userId ?? null,
+        params.action,
+        params.entity,
+        params.entityId ?? null,
+        params.changes ? JSON.stringify(params.changes) : null,
+        params.ipAddress ?? null,
+        params.userAgent ?? null,
+      ],
     })
-    if (error) console.error('Failed to create audit log:', error)
   } catch (error) {
     console.error('Failed to create audit log:', error)
   }

@@ -1,26 +1,11 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 import { uploadImageToCloudinary } from '../../utils/upload'
-import type { CloudflareBindings } from '../../types/bindings'
+import type { NetlifyBindings } from '../../types/bindings'
 
-interface BannerRow {
-  id: string
-  title: string
-  subtitle: string | null
-  image_url: string
-  link_url: string | null
-  position: string
-  sort_order: number
-  is_active: boolean
-  starts_at: string | null
-  expires_at: string | null
-  created_at: string
-  updated_at: string
-}
-
-function formatBanner(row: BannerRow) {
+function formatBanner(row: any) {
   return {
     id: row.id,
     title: row.title,
@@ -29,7 +14,7 @@ function formatBanner(row: BannerRow) {
     linkUrl: row.link_url,
     position: row.position,
     sortOrder: row.sort_order,
-    isActive: row.is_active,
+    isActive: fromSqliteBool(row.is_active),
     startsAt: row.starts_at,
     expiresAt: row.expires_at,
     createdAt: row.created_at,
@@ -37,74 +22,75 @@ function formatBanner(row: BannerRow) {
   }
 }
 
-async function bustBannerCache(kv: KVNamespace) {
-  await deleteCacheByPrefix(kv, 'banners:')
+async function bustBannerCache() {
+  await deleteCacheByPrefix('banners:')
 }
 
 export async function getActiveBanners(
-  supabase: SupabaseClient,
-  kv: KVNamespace,
+  db: Client,
   position?: string
 ) {
   const cacheKey = position ? `banners:position:${position}` : 'banners:list'
-  const cached = await getFromCache<BannerRow[]>(kv, cacheKey)
+  const cached = await getFromCache<any[]>(cacheKey)
   if (cached) {
     return cached.map(formatBanner)
   }
 
   const now = new Date().toISOString()
-  let query = supabase
-    .from('banners')
-    .select('*')
-    .eq('is_active', true)
-    .or(`starts_at.is.null,starts_at.lte.${now}`)
-    .or(`expires_at.is.null,expires_at.gte.${now}`)
-    .order('sort_order', { ascending: true })
+  const whereClauses: string[] = ['is_active = 1', `(starts_at IS NULL OR starts_at <= ?)`, `(expires_at IS NULL OR expires_at >= ?)`]
+  const args: any[] = [now, now]
 
   if (position) {
-    query = query.eq('position', position)
+    whereClauses.push('position = ?')
+    args.push(position)
   }
 
-  const { data, error } = await query
+  const result = await db.execute({
+    sql: `SELECT * FROM banners WHERE ${whereClauses.join(' AND ')} ORDER BY sort_order ASC`,
+    args,
+  })
 
-  if (error) handleSupabaseError(error, 'getActiveBanners')
-
-  const banners = (data || []) as BannerRow[]
-  await setCache(kv, cacheKey, banners, CACHE_TTL.BANNERS)
+  const banners = result.rows
+  await setCache(cacheKey, banners, CACHE_TTL.BANNERS)
 
   return banners.map(formatBanner)
 }
 
 export async function getAllBanners(
   filters: { position?: string; page: number; limit: number },
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const from = (filters.page - 1) * filters.limit
-  const to = from + filters.limit - 1
+  const offset = (filters.page - 1) * filters.limit
 
-  let query = supabase
-    .from('banners')
-    .select('*', { count: 'exact' })
+  const whereClauses: string[] = []
+  const args: any[] = []
 
   if (filters.position) {
-    query = query.eq('position', filters.position)
+    whereClauses.push('position = ?')
+    args.push(filters.position)
   }
 
-  const { data, error, count } = await query
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
-    .range(from, to)
+  const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
 
-  if (error) handleSupabaseError(error, 'getAllBanners')
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM banners ${whereStr}`,
+    args,
+  })
 
-  const banners = (data || []).map((row: BannerRow) => formatBanner(row))
+  const dataResult = await db.execute({
+    sql: `SELECT * FROM banners ${whereStr} ORDER BY sort_order ASC, created_at DESC LIMIT ? OFFSET ?`,
+    args: [...args, filters.limit, offset],
+  })
+
+  const total = Number(countResult.rows[0]?.count ?? 0)
+  const banners = dataResult.rows.map(formatBanner)
 
   return {
     banners,
-    total: count || 0,
+    total,
     page: filters.page,
     limit: filters.limit,
-    totalPages: Math.ceil((count || 0) / filters.limit),
+    totalPages: Math.ceil(total / filters.limit),
   }
 }
 
@@ -120,80 +106,72 @@ export async function createBanner(
     expiresAt?: string
   },
   adminUserId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const { data: banner, error } = await supabase
-    .from('banners')
-    .insert({
-      title: data.title,
-      subtitle: data.subtitle ?? null,
-      image_url: data.imageUrl,
-      link_url: data.linkUrl ?? null,
-      position: data.position,
-      sort_order: data.sortOrder ?? 0,
-      is_active: true,
-      starts_at: data.startsAt ?? null,
-      expires_at: data.expiresAt ?? null,
-    })
-    .select()
-    .single()
+  const id = crypto.randomUUID()
+  const now = new Date().toISOString()
 
-  if (error) handleSupabaseError(error, 'createBanner')
+  await db.execute({
+    sql: `INSERT INTO banners (id, title, subtitle, image_url, link_url, position, sort_order, is_active, starts_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
+    args: [id, data.title, data.subtitle ?? null, data.imageUrl, data.linkUrl ?? null, data.position, data.sortOrder ?? 0, data.startsAt ?? null, data.expiresAt ?? null, now, now],
+  })
 
-  await bustBannerCache(kv)
+  await bustBannerCache()
 
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'CREATE',
     entity: 'banners',
-    entityId: banner.id,
+    entityId: id,
     changes: data,
   })
 
-  return formatBanner(banner as BannerRow)
+  const result = await db.execute({
+    sql: `SELECT * FROM banners WHERE id = ?`,
+    args: [id],
+  })
+
+  return formatBanner(result.rows[0])
 }
 
 export async function updateBanner(
   id: string,
   data: Record<string, any>,
   adminUserId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('banners')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM banners WHERE id = ?`,
+    args: [id],
+  })
 
-  if (fetchError || !existing) {
+  if (!existingResult.rows[0]) {
     throw new AppError('Banner not found', 404, 'BANNER_NOT_FOUND')
   }
 
-  const updates: Record<string, any> = { updated_at: new Date().toISOString() }
-  if (data.title !== undefined) updates.title = data.title
-  if (data.subtitle !== undefined) updates.subtitle = data.subtitle
-  if (data.imageUrl !== undefined) updates.image_url = data.imageUrl
-  if (data.linkUrl !== undefined) updates.link_url = data.linkUrl
-  if (data.position !== undefined) updates.position = data.position
-  if (data.sortOrder !== undefined) updates.sort_order = data.sortOrder
-  if (data.isActive !== undefined) updates.is_active = data.isActive
-  if (data.startsAt !== undefined) updates.starts_at = data.startsAt
-  if (data.expiresAt !== undefined) updates.expires_at = data.expiresAt
+  const updates: string[] = ['updated_at = ?']
+  const args: any[] = [new Date().toISOString()]
 
-  const { data: banner, error } = await supabase
-    .from('banners')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
+  if (data.title !== undefined) { updates.push('title = ?'); args.push(data.title) }
+  if (data.subtitle !== undefined) { updates.push('subtitle = ?'); args.push(data.subtitle) }
+  if (data.imageUrl !== undefined) { updates.push('image_url = ?'); args.push(data.imageUrl) }
+  if (data.linkUrl !== undefined) { updates.push('link_url = ?'); args.push(data.linkUrl) }
+  if (data.position !== undefined) { updates.push('position = ?'); args.push(data.position) }
+  if (data.sortOrder !== undefined) { updates.push('sort_order = ?'); args.push(data.sortOrder) }
+  if (data.isActive !== undefined) { updates.push('is_active = ?'); args.push(toSqliteBool(data.isActive)) }
+  if (data.startsAt !== undefined) { updates.push('starts_at = ?'); args.push(data.startsAt) }
+  if (data.expiresAt !== undefined) { updates.push('expires_at = ?'); args.push(data.expiresAt) }
 
-  if (error) handleSupabaseError(error, 'updateBanner')
+  args.push(id)
 
-  await bustBannerCache(kv)
+  await db.execute({
+    sql: `UPDATE banners SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
 
-  await createAuditLog(supabase, {
+  await bustBannerCache()
+
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'banners',
@@ -201,35 +179,36 @@ export async function updateBanner(
     changes: data,
   })
 
-  return formatBanner(banner as BannerRow)
+  const result = await db.execute({
+    sql: `SELECT * FROM banners WHERE id = ?`,
+    args: [id],
+  })
+
+  return formatBanner(result.rows[0])
 }
 
 export async function deleteBanner(
   id: string,
   adminUserId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('banners')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM banners WHERE id = ?`,
+    args: [id],
+  })
 
-  if (fetchError || !existing) {
+  if (!existingResult.rows[0]) {
     throw new AppError('Banner not found', 404, 'BANNER_NOT_FOUND')
   }
 
-  const { error } = await supabase
-    .from('banners')
-    .update({ is_active: false, updated_at: new Date().toISOString() })
-    .eq('id', id)
+  await db.execute({
+    sql: `UPDATE banners SET is_active = 0, updated_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), id],
+  })
 
-  if (error) handleSupabaseError(error, 'deleteBanner')
+  await bustBannerCache()
 
-  await bustBannerCache(kv)
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'SOFT_DELETE',
     entity: 'banners',
@@ -240,39 +219,33 @@ export async function deleteBanner(
 export async function reorderBanners(
   items: { id: string; sortOrder: number }[],
   adminUserId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const updates = items.map((item) =>
-    supabase
-      .from('banners')
-      .update({ sort_order: item.sortOrder, updated_at: new Date().toISOString() })
-      .eq('id', item.id)
-  )
+  for (const item of items) {
+    await db.execute({
+      sql: `UPDATE banners SET sort_order = ?, updated_at = ? WHERE id = ?`,
+      args: [item.sortOrder, new Date().toISOString(), item.id],
+    })
+  }
 
-  await Promise.all(updates.map((q) => q))
+  await bustBannerCache()
 
-  await bustBannerCache(kv)
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'REORDER',
     entity: 'banners',
     changes: { items },
   })
 
-  const { data: banners, error } = await supabase
-    .from('banners')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true })
+  const result = await db.execute({
+    sql: `SELECT * FROM banners WHERE is_active = 1 ORDER BY sort_order ASC`,
+    args: [],
+  })
 
-  if (error) handleSupabaseError(error, 'reorderBanners')
-
-  return (banners || []).map((row: BannerRow) => formatBanner(row))
+  return result.rows.map(formatBanner)
 }
 
-export async function uploadBannerImage(file: File, env: CloudflareBindings): Promise<{ url: string; publicId: string }> {
+export async function uploadBannerImage(file: File, env: NetlifyBindings): Promise<{ url: string; publicId: string }> {
   const result = await uploadImageToCloudinary(file, 'banners', env)
   return { url: result.url, publicId: result.publicId }
 }

@@ -1,114 +1,108 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 
 const CACHE_PREFIX = 'popup:'
 
-export async function getActivePopup(supabase: SupabaseClient, kv: KVNamespace) {
+export async function getActivePopup(db: Client) {
   const cacheKey = `${CACHE_PREFIX}active`
-  const cached = await getFromCache<any>(kv, cacheKey)
+  const cached = await getFromCache<any>(cacheKey)
   if (cached) return cached
 
-  const { data, error } = await supabase
-    .from('popups')
-    .select('*')
-    .eq('is_active', true)
-    .or('starts_at.is.null,starts_at.lte.now()')
-    .or('expires_at.is.null,expires_at.gte.now()')
-    .limit(1)
-    .maybeSingle()
+  const now = new Date().toISOString()
 
-  if (error) handleSupabaseError(error, 'getActivePopup')
+  const result = await db.execute({
+    sql: `SELECT * FROM popups WHERE is_active = 1 AND (starts_at IS NULL OR starts_at <= ?) AND (expires_at IS NULL OR expires_at >= ?) ORDER BY sort_order ASC LIMIT 1`,
+    args: [now, now],
+  })
 
-  const result = data
-    ? { ...data, cookieDays: data.cookie_days }
+  const popup = result.rows[0] || null
+
+  const mapped = popup
+    ? { ...popup, cookieDays: popup.cookie_days }
     : null
 
-  if (result) {
-    await setCache(kv, cacheKey, result, CACHE_TTL.POPUP)
+  if (mapped) {
+    await setCache(cacheKey, mapped, CACHE_TTL.POPUP)
   }
 
-  return result
+  return mapped
 }
 
-export async function getAllPopups(supabase: SupabaseClient) {
-  const { data, error } = await supabase
-    .from('popups')
-    .select('*')
-    .order('created_at', { ascending: false })
+export async function getAllPopups(db: Client) {
+  const result = await db.execute({
+    sql: `SELECT * FROM popups ORDER BY created_at DESC`,
+    args: [],
+  })
 
-  if (error) handleSupabaseError(error, 'getAllPopups')
-  return data
+  return result.rows
 }
 
-export async function createPopup(supabase: SupabaseClient, data: any, adminUserId: string, kv: KVNamespace) {
-  const { error: deactivateError } = await supabase
-    .from('popups')
-    .update({ is_active: false })
-    .eq('is_active', true)
+export async function createPopup(db: Client, data: any, adminUserId: string) {
+  await db.execute({
+    sql: `UPDATE popups SET is_active = 0 WHERE is_active = 1`,
+    args: [],
+  })
 
-  if (deactivateError) handleSupabaseError(deactivateError, 'deactivatePopups')
+  const id = crypto.randomUUID()
+  const now = new Date().toISOString()
 
-  const insertData: Record<string, any> = {
-    title: data.title,
-    content: data.content,
-    image_url: data.imageUrl ?? null,
-    link_url: data.linkUrl ?? null,
-    trigger_type: data.triggerType ?? 'ON_LOAD',
-    delay_ms: data.delayMs ?? 0,
-    cookie_days: data.cookieDays ?? null,
-    starts_at: data.startsAt ?? null,
-    expires_at: data.expiresAt ?? null,
-    is_active: true,
-  }
+  await db.execute({
+    sql: `INSERT INTO popups (id, title, content, image_url, link_url, trigger_type, delay_ms, cookie_days, starts_at, expires_at, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+    args: [
+      id, data.title, data.content, data.imageUrl ?? null, data.linkUrl ?? null,
+      data.triggerType ?? 'ON_LOAD', data.delayMs ?? 0, data.cookieDays ?? null,
+      data.startsAt ?? null, data.expiresAt ?? null, now, now,
+    ],
+  })
 
-  const { data: popup, error } = await supabase
-    .from('popups')
-    .insert(insertData)
-    .select()
-    .single()
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
 
-  if (error) handleSupabaseError(error, 'createPopup')
-
-  await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'CREATE',
     entity: 'popup',
-    entityId: popup.id,
+    entityId: id,
     changes: data,
   })
 
-  return popup
+  const result = await db.execute({
+    sql: `SELECT * FROM popups WHERE id = ?`,
+    args: [id],
+  })
+
+  return result.rows[0]
 }
 
-export async function updatePopup(supabase: SupabaseClient, id: string, data: any, adminUserId: string, kv: KVNamespace) {
-  const updateData: Record<string, any> = {}
-  if (data.title !== undefined) updateData.title = data.title
-  if (data.content !== undefined) updateData.content = data.content
-  if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl
-  if (data.linkUrl !== undefined) updateData.link_url = data.linkUrl
-  if (data.triggerType !== undefined) updateData.trigger_type = data.triggerType
-  if (data.delayMs !== undefined) updateData.delay_ms = data.delayMs
-  if (data.cookieDays !== undefined) updateData.cookie_days = data.cookieDays
-  if (data.startsAt !== undefined) updateData.starts_at = data.startsAt
-  if (data.expiresAt !== undefined) updateData.expires_at = data.expiresAt
+export async function updatePopup(db: Client, id: string, data: any, adminUserId: string) {
+  const updates: string[] = []
+  const args: any[] = []
 
-  const { data: popup, error } = await supabase
-    .from('popups')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single()
+  if (data.title !== undefined) { updates.push('title = ?'); args.push(data.title) }
+  if (data.content !== undefined) { updates.push('content = ?'); args.push(data.content) }
+  if (data.imageUrl !== undefined) { updates.push('image_url = ?'); args.push(data.imageUrl) }
+  if (data.linkUrl !== undefined) { updates.push('link_url = ?'); args.push(data.linkUrl) }
+  if (data.triggerType !== undefined) { updates.push('trigger_type = ?'); args.push(data.triggerType) }
+  if (data.delayMs !== undefined) { updates.push('delay_ms = ?'); args.push(data.delayMs) }
+  if (data.cookieDays !== undefined) { updates.push('cookie_days = ?'); args.push(data.cookieDays) }
+  if (data.startsAt !== undefined) { updates.push('starts_at = ?'); args.push(data.startsAt) }
+  if (data.expiresAt !== undefined) { updates.push('expires_at = ?'); args.push(data.expiresAt) }
 
-  if (error) handleSupabaseError(error, 'updatePopup')
-  if (!popup) throw new AppError('Popup not found', 404)
+  updates.push('updated_at = ?')
+  args.push(new Date().toISOString())
+  args.push(id)
 
-  await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
+  const result = await db.execute({
+    sql: `UPDATE popups SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
 
-  await createAuditLog(supabase, {
+  if (result.rowsAffected === 0) throw new AppError('Popup not found', 404)
+
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
+
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'popup',
@@ -116,29 +110,30 @@ export async function updatePopup(supabase: SupabaseClient, id: string, data: an
     changes: data,
   })
 
-  return popup
+  const popupResult = await db.execute({
+    sql: `SELECT * FROM popups WHERE id = ?`,
+    args: [id],
+  })
+
+  return popupResult.rows[0]
 }
 
-export async function deletePopup(supabase: SupabaseClient, id: string, adminUserId: string, kv: KVNamespace) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('popups')
-    .select('id')
-    .eq('id', id)
-    .single()
+export async function deletePopup(db: Client, id: string, adminUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT id FROM popups WHERE id = ?`,
+    args: [id],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'fetchPopupForDelete')
-  if (!existing) throw new AppError('Popup not found', 404)
+  if (!existingResult.rows[0]) throw new AppError('Popup not found', 404)
 
-  const { error } = await supabase
-    .from('popups')
-    .delete()
-    .eq('id', id)
+  await db.execute({
+    sql: `DELETE FROM popups WHERE id = ?`,
+    args: [id],
+  })
 
-  if (error) handleSupabaseError(error, 'deletePopup')
+  await deleteCacheByPrefix(CACHE_PREFIX).catch(() => {})
 
-  await deleteCacheByPrefix(kv, CACHE_PREFIX).catch(() => {})
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'DELETE',
     entity: 'popup',

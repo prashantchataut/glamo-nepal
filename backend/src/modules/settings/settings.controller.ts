@@ -1,13 +1,13 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { ApiResponse } from '../../utils/response'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import * as SettingsService from './settings.service'
 
 export async function getPublicSettings(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const result = await SettingsService.getPublicSettings(supabase, c.env.KV)
+    const db = c.get('db')
+    const result = await SettingsService.getPublicSettings(db)
     return ApiResponse.success(c, 'Public settings fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -19,8 +19,8 @@ export async function getPublicSettings(c: Context<AppEnv>) {
 
 export async function getSettings(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const result = await SettingsService.getAllSettings(supabase)
+    const db = c.get('db')
+    const result = await SettingsService.getAllSettings(db)
     return ApiResponse.success(c, 'Settings fetched successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -33,9 +33,9 @@ export async function getSettings(c: Context<AppEnv>) {
 export async function updateSettings(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const user = c.get('user')
-    const result = await SettingsService.updateSettings(supabase, data.settings, user.id, c.env.KV)
+    const result = await SettingsService.updateSettings(db, data.settings, user.id)
     return ApiResponse.success(c, result.message, null)
   } catch (error: any) {
     if (error instanceof AppError) {

@@ -1,10 +1,10 @@
-export interface CloudflareBindings {
-  SUPABASE_URL: string
-  SUPABASE_SERVICE_ROLE_KEY: string
-  KV: KVNamespace
-  R2: R2Bucket
+import type { Client } from '@libsql/client'
+
+export interface NetlifyBindings {
+  TURSO_DB_URL: string
+  TURSO_AUTH_TOKEN: string
+  FIREBASE_PROJECT_ID: string
   RESEND_API_KEY: string
-  R2_PUBLIC_URL: string
   CLOUDINARY_CLOUD_NAME: string
   CLOUDINARY_API_KEY: string
   CLOUDINARY_API_SECRET: string
@@ -17,7 +17,7 @@ export interface CloudflareBindings {
 }
 
 export type AppEnv = {
-  Bindings: CloudflareBindings
+  Bindings: NetlifyBindings
   Variables: {
     user: {
       id: string
@@ -25,9 +25,9 @@ export type AppEnv = {
       role: string
       isActive: boolean
     }
+    db: Client
     validatedBody: any
     validatedQuery: any
     validatedParams: any
-    supabase: import('@supabase/supabase-js').SupabaseClient
   }
 }

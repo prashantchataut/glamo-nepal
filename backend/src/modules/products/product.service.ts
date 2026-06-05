@@ -1,12 +1,12 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import { Client, type InValue } from '@libsql/client'
+import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, toSqliteBool, fromSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
 import { slugify, generateUniqueSlug } from '../../utils/slug'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
 import { toDisplayPrice, toStoredPrice } from '../../utils/price'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
-import type { CloudflareBindings } from '../../types/bindings'
+import type { NetlifyBindings } from '../../types/bindings'
 
 interface ProductRow {
   id: string
@@ -21,17 +21,17 @@ interface ProductRow {
   sale_price: number | null
   cost_price: number | null
   currency: string
-  is_active: boolean
-  is_featured: boolean
-  is_digital: boolean
-  track_inventory: boolean
+  is_active: number
+  is_featured: number
+  is_digital: number
+  track_inventory: number
   stock_quantity: number
   low_stock_threshold: number
   weight: number | null
   dimensions: string | null
   meta_title: string | null
   meta_description: string | null
-  tags: string[] | null
+  tags: string | null
   search_vector: string | null
   created_at: string
   updated_at: string
@@ -45,7 +45,7 @@ interface ProductImageRow {
   public_id: string | null
   alt_text: string | null
   sort_order: number
-  is_primary: boolean
+  is_primary: number
   created_at: string
 }
 
@@ -57,8 +57,8 @@ interface VariantRow {
   price: number
   sale_price: number | null
   stock_quantity: number
-  attributes: Record<string, string> | null
-  is_active: boolean
+  attributes: string | null
+  is_active: number
   created_at: string
   updated_at: string
   deleted_at: string | null
@@ -67,6 +67,68 @@ interface VariantRow {
 interface ReviewSummaryRow {
   avgRating: number
   count: number
+}
+
+function mapProductRow(row: Record<string, unknown>): ProductRow {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    slug: row.slug as string,
+    description: row.description as string | null,
+    short_description: row.short_description as string | null,
+    sku: row.sku as string | null,
+    category_id: row.category_id as string,
+    brand_id: row.brand_id as string | null,
+    base_price: row.base_price as number,
+    sale_price: row.sale_price as number | null,
+    cost_price: row.cost_price as number | null,
+    currency: row.currency as string,
+    is_active: row.is_active as number,
+    is_featured: row.is_featured as number,
+    is_digital: row.is_digital as number,
+    track_inventory: row.track_inventory as number,
+    stock_quantity: row.stock_quantity as number,
+    low_stock_threshold: row.low_stock_threshold as number,
+    weight: row.weight as number | null,
+    dimensions: row.dimensions as string | null,
+    meta_title: row.meta_title as string | null,
+    meta_description: row.meta_description as string | null,
+    tags: row.tags as string | null,
+    search_vector: row.search_vector as string | null,
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+    deleted_at: row.deleted_at as string | null,
+  }
+}
+
+function mapImageRow(row: Record<string, unknown>): ProductImageRow {
+  return {
+    id: row.id as string,
+    product_id: row.product_id as string,
+    url: row.url as string,
+    public_id: row.public_id as string | null,
+    alt_text: row.alt_text as string | null,
+    sort_order: row.sort_order as number,
+    is_primary: row.is_primary as number,
+    created_at: row.created_at as string,
+  }
+}
+
+function mapVariantRow(row: Record<string, unknown>): VariantRow {
+  return {
+    id: row.id as string,
+    product_id: row.product_id as string,
+    name: row.name as string,
+    sku: row.sku as string | null,
+    price: row.price as number,
+    sale_price: row.sale_price as number | null,
+    stock_quantity: row.stock_quantity as number,
+    attributes: row.attributes as string | null,
+    is_active: row.is_active as number,
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+    deleted_at: row.deleted_at as string | null,
+  }
 }
 
 function formatProduct(row: ProductRow, images: ProductImageRow[] = [], variants: VariantRow[] = [], reviewSummary?: ReviewSummaryRow) {
@@ -83,17 +145,17 @@ function formatProduct(row: ProductRow, images: ProductImageRow[] = [], variants
     salePrice: row.sale_price !== null ? toDisplayPrice(row.sale_price) : null,
     costPrice: row.cost_price !== null ? toDisplayPrice(row.cost_price) : null,
     currency: row.currency,
-    isActive: row.is_active,
-    isFeatured: row.is_featured,
-    isDigital: row.is_digital,
-    trackInventory: row.track_inventory,
+    isActive: fromSqliteBool(row.is_active),
+    isFeatured: fromSqliteBool(row.is_featured),
+    isDigital: fromSqliteBool(row.is_digital),
+    trackInventory: fromSqliteBool(row.track_inventory),
     stockQuantity: row.stock_quantity,
     lowStockThreshold: row.low_stock_threshold,
     weight: row.weight,
     dimensions: row.dimensions,
     metaTitle: row.meta_title,
     metaDescription: row.meta_description,
-    tags: row.tags || [],
+    tags: safeJsonParse<string[]>(row.tags, []),
     images: images.map(formatImage),
     variants: variants.filter((v) => !v.deleted_at).map(formatVariant),
     reviewSummary: reviewSummary || null,
@@ -110,7 +172,7 @@ function formatImage(row: ProductImageRow) {
     publicId: row.public_id,
     altText: row.alt_text,
     sortOrder: row.sort_order,
-    isPrimary: row.is_primary,
+    isPrimary: fromSqliteBool(row.is_primary),
     createdAt: row.created_at,
   }
 }
@@ -124,51 +186,39 @@ function formatVariant(row: VariantRow) {
     price: toDisplayPrice(row.price),
     salePrice: row.sale_price !== null ? toDisplayPrice(row.sale_price) : null,
     stockQuantity: row.stock_quantity,
-    attributes: row.attributes || {},
-    isActive: row.is_active,
+    attributes: safeJsonParse<Record<string, string>>(row.attributes, {}),
+    isActive: fromSqliteBool(row.is_active),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
 }
 
-async function getCategoryFilter(supabase: SupabaseClient, category: string): Promise<string | null> {
-  const { data: bySlug } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('slug', category)
-    .is('deleted_at', null)
-    .single()
+async function getCategoryFilter(db: Client, category: string): Promise<string | null> {
+  const bySlug = await db.execute({
+    sql: "SELECT id FROM categories WHERE slug = ? AND deleted_at IS NULL",
+    args: [category],
+  })
+  if (bySlug.rows.length > 0) return bySlug.rows[0].id as string
 
-  if (bySlug) return bySlug.id
-
-  const { data: byId } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('id', category)
-    .is('deleted_at', null)
-    .single()
-
-  return byId?.id ?? null
+  const byId = await db.execute({
+    sql: "SELECT id FROM categories WHERE id = ? AND deleted_at IS NULL",
+    args: [category],
+  })
+  return byId.rows.length > 0 ? (byId.rows[0].id as string) : null
 }
 
-async function getBrandFilter(supabase: SupabaseClient, brand: string): Promise<string | null> {
-  const { data: bySlug } = await supabase
-    .from('brands')
-    .select('id')
-    .eq('slug', brand)
-    .is('deleted_at', null)
-    .single()
+async function getBrandFilter(db: Client, brand: string): Promise<string | null> {
+  const bySlug = await db.execute({
+    sql: "SELECT id FROM brands WHERE slug = ? AND deleted_at IS NULL",
+    args: [brand],
+  })
+  if (bySlug.rows.length > 0) return bySlug.rows[0].id as string
 
-  if (bySlug) return bySlug.id
-
-  const { data: byId } = await supabase
-    .from('brands')
-    .select('id')
-    .eq('id', brand)
-    .is('deleted_at', null)
-    .single()
-
-  return byId?.id ?? null
+  const byId = await db.execute({
+    sql: "SELECT id FROM brands WHERE id = ? AND deleted_at IS NULL",
+    args: [brand],
+  })
+  return byId.rows.length > 0 ? (byId.rows[0].id as string) : null
 }
 
 export async function getProducts(
@@ -186,105 +236,104 @@ export async function getProducts(
     limit: number
     isAdmin?: boolean
   },
-  supabase: SupabaseClient
+  db: Client
 ) {
-  let query = supabase
-    .from('products')
-    .select('*', { count: 'exact' })
-    .is('deleted_at', null)
+  const conditions: string[] = ['deleted_at IS NULL']
+  const args: InValue[] = []
 
   if (!filters.isAdmin) {
-    query = query.eq('is_active', true)
+    conditions.push('is_active = 1')
   }
 
   if (filters.category) {
-    const catId = await getCategoryFilter(supabase, filters.category)
+    const catId = await getCategoryFilter(db, filters.category)
     if (catId) {
-      query = query.eq('category_id', catId)
+      conditions.push('category_id = ?')
+      args.push(catId)
     }
   }
 
   if (filters.brand) {
-    const brandId = await getBrandFilter(supabase, filters.brand)
+    const brandId = await getBrandFilter(db, filters.brand)
     if (brandId) {
-      query = query.eq('brand_id', brandId)
+      conditions.push('brand_id = ?')
+      args.push(brandId)
     }
   }
 
   if (filters.search) {
     const terms = filters.search.trim().split(/\s+/)
     for (const term of terms) {
-      query = query.or(`name.ilike.%${term}%,short_description.ilike.%${term}%,tags.cs.{${term}}`)
+      conditions.push('(name LIKE ? OR short_description LIKE ? OR tags LIKE ?)')
+      args.push(`%${term}%`, `%${term}%`, `%"${term}"%`)
     }
   }
 
   if (filters.minPrice !== undefined) {
-    query = query.gte('base_price', toStoredPrice(filters.minPrice))
+    conditions.push('base_price >= ?')
+    args.push(toStoredPrice(filters.minPrice))
   }
 
   if (filters.maxPrice !== undefined) {
-    query = query.lte('base_price', toStoredPrice(filters.maxPrice))
+    conditions.push('base_price <= ?')
+    args.push(toStoredPrice(filters.maxPrice))
   }
 
   if (filters.inStock) {
-    query = query.gt('stock_quantity', 0)
+    conditions.push('stock_quantity > 0')
   }
 
   if (filters.featured) {
-    query = query.eq('is_featured', true)
+    conditions.push('is_featured = 1')
   }
 
   if (filters.tags) {
     const tagList = filters.tags.split(',').map((t) => t.trim()).filter(Boolean)
     for (const tag of tagList) {
-      query = query.contains('tags', [tag])
+      conditions.push('tags LIKE ?')
+      args.push(`%"${tag}"%`)
     }
   }
 
   const ALLOWED_SORT_COLUMNS = new Set(['newest', 'price-asc', 'price-desc', 'best-seller', 'most-reviewed', 'rating'])
   const sortKey = ALLOWED_SORT_COLUMNS.has(filters.sort || '') ? (filters.sort || 'newest') : 'newest'
-  switch (sortKey) {
-    case 'price-asc':
-      query = query.order('base_price', { ascending: true })
-      break
-    case 'price-desc':
-      query = query.order('base_price', { ascending: false })
-      break
-    default:
-      query = query.order('created_at', { ascending: false })
-  }
+  let orderBy = 'ORDER BY created_at DESC'
+  if (sortKey === 'price-asc') orderBy = 'ORDER BY base_price ASC'
+  else if (sortKey === 'price-desc') orderBy = 'ORDER BY base_price DESC'
 
   const { page, limit, skip } = parsePagination({ page: String(filters.page), limit: String(filters.limit) })
-  query = query.range(skip, skip + limit - 1)
 
-  const { data, error, count } = await query
-  if (error) handleSupabaseError(error, 'getProducts')
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
-  const products = (data || []) as ProductRow[]
-  const total = count ?? 0
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM products ${whereClause}`,
+    args,
+  })
+  const total = (countResult.rows[0].count as number) ?? 0
 
+  const dataResult = await db.execute({
+    sql: `SELECT * FROM products ${whereClause} ${orderBy} LIMIT ? OFFSET ?`,
+    args: [...args, limit, skip],
+  })
+
+  const products = dataResult.rows.map((row) => mapProductRow(row as Record<string, unknown>))
   const productIds = products.map((p) => p.id)
 
   let images: ProductImageRow[] = []
   let variants: VariantRow[] = []
 
   if (productIds.length > 0) {
-    const { data: imageData, error: imgError } = await supabase
-      .from('product_images')
-      .select('*')
-      .in('product_id', productIds)
-      .order('sort_order', { ascending: true })
-    if (imgError) handleSupabaseError(imgError, 'getProducts.images')
-    images = (imageData || []) as ProductImageRow[]
+    const imgResult = await db.execute({
+      sql: `SELECT * FROM product_images WHERE product_id IN (${productIds.map(() => '?').join(',')}) ORDER BY sort_order ASC`,
+      args: productIds,
+    })
+    images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
 
-    const { data: variantData, error: varError } = await supabase
-      .from('product_variants')
-      .select('*')
-      .in('product_id', productIds)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: true })
-    if (varError) handleSupabaseError(varError, 'getProducts.variants')
-    variants = (variantData || []) as VariantRow[]
+    const varResult = await db.execute({
+      sql: `SELECT * FROM product_variants WHERE product_id IN (${productIds.map(() => '?').join(',')}) AND deleted_at IS NULL ORDER BY created_at ASC`,
+      args: productIds,
+    })
+    variants = varResult.rows.map((row) => mapVariantRow(row as Record<string, unknown>))
   }
 
   const formatted = products.map((product) => {
@@ -300,54 +349,55 @@ export async function getProducts(
 
 export async function getProductsCached(
   filters: Parameters<typeof getProducts>[0],
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
   const sortedEntries = Object.entries(filters).sort(([a], [b]) => a.localeCompare(b))
   const filterKey = sortedEntries.map(([k, v]) => `${k}=${v}`).join('&')
   const cacheKey = `products:list:${filterKey}`
 
-  const cached = await getFromCache<{ products: ReturnType<typeof formatProduct>[]; pagination: ReturnType<typeof buildPaginationResult> }>(kv, cacheKey)
+  const cached = await getFromCache<{ products: ReturnType<typeof formatProduct>[]; pagination: ReturnType<typeof buildPaginationResult> }>(cacheKey)
   if (cached) return cached
 
-  const result = await getProducts(filters, supabase)
-  await setCache(kv, cacheKey, result, CACHE_TTL.PRODUCT_LIST)
+  const result = await getProducts(filters, db)
+  await setCache(cacheKey, result, CACHE_TTL.PRODUCT_LIST)
   return result
 }
 
-export async function searchProducts(query: string, page: number, limit: number, supabase: SupabaseClient) {
+export async function searchProducts(query: string, page: number, limit: number, db: Client) {
   const terms = query.trim().split(/\s+/)
   const { skip } = parsePagination({ page: String(page), limit: String(limit) })
 
-  let queryBuilder = supabase
-    .from('products')
-    .select('*', { count: 'exact' })
-    .is('deleted_at', null)
-    .eq('is_active', true)
+  const conditions: string[] = ['deleted_at IS NULL', 'is_active = 1']
+  const args: InValue[] = []
 
   for (const term of terms) {
-    queryBuilder = queryBuilder.or(`name.ilike.%${term}%,short_description.ilike.%${term}%,tags.cs.{${term}}`)
+    conditions.push('(name LIKE ? OR short_description LIKE ? OR tags LIKE ?)')
+    args.push(`%${term}%`, `%${term}%`, `%"${term}"%`)
   }
 
-  const { data, error, count } = await queryBuilder
-    .order('created_at', { ascending: false })
-    .range(skip, skip + limit - 1)
+  const whereClause = `WHERE ${conditions.join(' AND ')}`
 
-  if (error) handleSupabaseError(error, 'searchProducts')
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM products ${whereClause}`,
+    args,
+  })
+  const total = (countResult.rows[0].count as number) ?? 0
 
-  const products = (data || []) as ProductRow[]
-  const total = count ?? 0
+  const dataResult = await db.execute({
+    sql: `SELECT * FROM products ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+    args: [...args, limit, skip],
+  })
 
+  const products = dataResult.rows.map((row) => mapProductRow(row as Record<string, unknown>))
   const productIds = products.map((p) => p.id)
+
   let images: ProductImageRow[] = []
   if (productIds.length > 0) {
-    const { data: imageData, error: imgError } = await supabase
-      .from('product_images')
-      .select('*')
-      .in('product_id', productIds)
-      .order('sort_order', { ascending: true })
-    if (imgError) handleSupabaseError(imgError, 'searchProducts.images')
-    images = (imageData || []) as ProductImageRow[]
+    const imgResult = await db.execute({
+      sql: `SELECT * FROM product_images WHERE product_id IN (${productIds.map(() => '?').join(',')}) ORDER BY sort_order ASC`,
+      args: productIds,
+    })
+    images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
   }
 
   const formatted = products.map((product) => {
@@ -360,54 +410,47 @@ export async function searchProducts(query: string, page: number, limit: number,
   return { products: formatted, pagination }
 }
 
-export async function getProductBySlug(slug: string, supabase: SupabaseClient, kv: KVNamespace) {
+export async function getProductBySlug(slug: string, db: Client) {
   const cacheKey = `product:slug:${slug}`
-  const cached = await getFromCache<ReturnType<typeof formatProduct>>(kv, cacheKey)
+  const cached = await getFromCache<ReturnType<typeof formatProduct>>(cacheKey)
   if (cached) return cached
 
-  const { data: product, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('slug', slug)
-    .is('deleted_at', null)
-    .single()
+  const productResult = await db.execute({
+    sql: 'SELECT * FROM products WHERE slug = ? AND deleted_at IS NULL',
+    args: [slug],
+  })
 
-  if (error || !product) return null
+  if (productResult.rows.length === 0) return null
 
-  const productRow = product as ProductRow
+  const productRow = mapProductRow(productResult.rows[0] as Record<string, unknown>)
 
-  const { data: imageData } = await supabase
-    .from('product_images')
-    .select('*')
-    .eq('product_id', productRow.id)
-    .order('sort_order', { ascending: true })
+  const imgResult = await db.execute({
+    sql: 'SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order ASC',
+    args: [productRow.id],
+  })
 
-  const { data: variantData } = await supabase
-    .from('product_variants')
-    .select('*')
-    .eq('product_id', productRow.id)
-    .is('deleted_at', null)
-    .order('created_at', { ascending: true })
+  const varResult = await db.execute({
+    sql: 'SELECT * FROM product_variants WHERE product_id = ? AND deleted_at IS NULL ORDER BY created_at ASC',
+    args: [productRow.id],
+  })
 
-  const { data: reviewData } = await supabase
-    .from('reviews')
-    .select('rating')
-    .eq('product_id', productRow.id)
-    .eq('is_approved', true)
-    .is('deleted_at', null)
+  const reviewResult = await db.execute({
+    sql: "SELECT rating FROM reviews WHERE product_id = ? AND is_approved = 1 AND deleted_at IS NULL",
+    args: [productRow.id],
+  })
 
-  const reviewSummary = reviewData && reviewData.length > 0
+  const reviewSummary = reviewResult.rows.length > 0
     ? {
-        avgRating: reviewData.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewData.length,
-        count: reviewData.length,
+        avgRating: reviewResult.rows.reduce((sum, r) => sum + (r.rating as number), 0) / reviewResult.rows.length,
+        count: reviewResult.rows.length,
       }
     : { avgRating: 0, count: 0 }
 
-  const images = (imageData || []) as ProductImageRow[]
-  const variants = (variantData || []) as VariantRow[]
+  const images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
+  const variants = varResult.rows.map((row) => mapVariantRow(row as Record<string, unknown>))
 
   const result = formatProduct(productRow, images, variants, reviewSummary)
-  await setCache(kv, cacheKey, result, CACHE_TTL.PRODUCT)
+  await setCache(cacheKey, result, CACHE_TTL.PRODUCT)
   return result
 }
 
@@ -436,253 +479,249 @@ export async function createProduct(
     tags?: string[]
   },
   adminId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
   const baseSlug = slugify(data.name)
-  const { data: existingSlugs } = await supabase
-    .from('products')
-    .select('slug')
-    .like('slug', `${baseSlug}%`)
-  const slug = generateUniqueSlug(data.name, (existingSlugs || []).map((r: any) => r.slug))
+  const existingSlugsResult = await db.execute({
+    sql: "SELECT slug FROM products WHERE slug LIKE ?",
+    args: [`${baseSlug}%`],
+  })
+  const slug = generateUniqueSlug(data.name, existingSlugsResult.rows.map((r) => r.slug as string))
 
   const basePrice = toStoredPrice(data.basePrice)
   const salePrice = data.salePrice !== undefined ? toStoredPrice(data.salePrice) : null
   const costPrice = data.costPrice !== undefined ? toStoredPrice(data.costPrice) : null
 
-  const tags = data.tags && data.tags.length > 0 ? data.tags : null
+  const tags = safeJsonStringify(data.tags && data.tags.length > 0 ? data.tags : null)
   const searchVector = [data.name, data.shortDescription, ...(data.tags || [])].join(' ').toLowerCase()
 
-  const { data: product, error } = await supabase
-    .from('products')
-    .insert({
-      name: data.name,
+  const id = crypto.randomUUID()
+
+  await db.execute({
+    sql: `INSERT INTO products (id, name, slug, description, short_description, sku, category_id, brand_id, base_price, sale_price, cost_price, currency, is_active, is_featured, is_digital, track_inventory, stock_quantity, low_stock_threshold, weight, dimensions, meta_title, meta_description, tags, search_vector)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      id,
+      data.name,
       slug,
-      description: data.description ?? null,
-      short_description: data.shortDescription ?? null,
-      sku: data.sku ?? null,
-      category_id: data.categoryId,
-      brand_id: data.brandId ?? null,
-      base_price: basePrice,
-      sale_price: salePrice,
-      cost_price: costPrice,
-      currency: data.currency ?? 'NPR',
-      is_active: data.isActive !== false,
-      is_featured: data.isFeatured ?? false,
-      is_digital: data.isDigital ?? false,
-      track_inventory: data.trackInventory !== false,
-      stock_quantity: data.stockQuantity ?? 0,
-      low_stock_threshold: data.lowStockThreshold ?? 5,
-      weight: data.weight ?? null,
-      dimensions: data.dimensions ?? null,
-      meta_title: data.metaTitle ?? null,
-      meta_description: data.metaDescription ?? null,
+      data.description ?? null,
+      data.shortDescription ?? null,
+      data.sku ?? null,
+      data.categoryId,
+      data.brandId ?? null,
+      basePrice,
+      salePrice,
+      costPrice,
+      data.currency ?? 'NPR',
+      toSqliteBool(data.isActive !== false),
+      toSqliteBool(data.isFeatured ?? false),
+      toSqliteBool(data.isDigital ?? false),
+      toSqliteBool(data.trackInventory !== false),
+      data.stockQuantity ?? 0,
+      data.lowStockThreshold ?? 5,
+      data.weight ?? null,
+      data.dimensions ?? null,
+      data.metaTitle ?? null,
+      data.metaDescription ?? null,
       tags,
-      search_vector: searchVector,
-    })
-    .select()
-    .single()
+      searchVector,
+    ],
+  })
 
-  if (error) handleSupabaseError(error, 'createProduct')
+  const result = await db.execute({
+    sql: 'SELECT * FROM products WHERE id = ?',
+    args: [id],
+  })
 
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'CREATE', entity: 'products', entityId: product.id })
+  const product = mapProductRow(result.rows[0] as Record<string, unknown>)
 
-  return formatProduct(product as ProductRow)
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'CREATE', entity: 'products', entityId: product.id })
+
+  return formatProduct(product)
 }
 
 export async function updateProduct(
   id: string,
   data: Record<string, unknown>,
   adminId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('products')
-    .select('*')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: 'SELECT * FROM products WHERE id = ? AND deleted_at IS NULL',
+    args: [id],
+  })
 
-  if (fetchError || !existing) {
+  if (existingResult.rows.length === 0) {
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
-  const existingRow = existing as ProductRow
+  const existingRow = mapProductRow(existingResult.rows[0] as Record<string, unknown>)
   const oldSlug = existingRow.slug
-  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  const setClauses: string[] = ['updated_at = datetime(\'now\')']
+  const updateArgs: InValue[] = []
 
   if (data.name !== undefined) {
     const baseSlug = slugify(data.name as string)
-    const { data: existingSlugs } = await supabase
-      .from('products')
-      .select('slug')
-      .like('slug', `${baseSlug}%`)
-      .neq('id', id)
-    const newSlug = generateUniqueSlug(data.name as string, (existingSlugs || []).map((r: any) => r.slug))
-    updates.name = data.name
-    updates.slug = newSlug
+    const existingSlugsResult = await db.execute({
+      sql: "SELECT slug FROM products WHERE slug LIKE ? AND id != ?",
+      args: [`${baseSlug}%`, id],
+    })
+    const newSlug = generateUniqueSlug(data.name as string, existingSlugsResult.rows.map((r) => r.slug as string))
+    setClauses.push('name = ?', 'slug = ?')
+    updateArgs.push(data.name as InValue, newSlug)
   }
-  if (data.description !== undefined) updates.description = data.description
-  if (data.shortDescription !== undefined) updates.short_description = data.shortDescription
-  if (data.sku !== undefined) updates.sku = data.sku
-  if (data.categoryId !== undefined) updates.category_id = data.categoryId
-  if (data.brandId !== undefined) updates.brand_id = data.brandId
-  if (data.basePrice !== undefined) updates.base_price = toStoredPrice(data.basePrice as number)
-  if (data.salePrice !== undefined) updates.sale_price = data.salePrice !== null ? toStoredPrice(data.salePrice as number) : null
-  if (data.costPrice !== undefined) updates.cost_price = data.costPrice !== null ? toStoredPrice(data.costPrice as number) : null
-  if (data.currency !== undefined) updates.currency = data.currency
-  if (data.isActive !== undefined) updates.is_active = data.isActive as boolean
-  if (data.isFeatured !== undefined) updates.is_featured = data.isFeatured as boolean
-  if (data.isDigital !== undefined) updates.is_digital = data.isDigital as boolean
-  if (data.trackInventory !== undefined) updates.track_inventory = data.trackInventory as boolean
-  if (data.stockQuantity !== undefined) updates.stock_quantity = data.stockQuantity
-  if (data.lowStockThreshold !== undefined) updates.low_stock_threshold = data.lowStockThreshold
-  if (data.weight !== undefined) updates.weight = data.weight
-  if (data.dimensions !== undefined) updates.dimensions = data.dimensions
-  if (data.metaTitle !== undefined) updates.meta_title = data.metaTitle
-  if (data.metaDescription !== undefined) updates.meta_description = data.metaDescription
+  if (data.description !== undefined) { setClauses.push('description = ?'); updateArgs.push(data.description as InValue) }
+  if (data.shortDescription !== undefined) { setClauses.push('short_description = ?'); updateArgs.push(data.shortDescription as InValue) }
+  if (data.sku !== undefined) { setClauses.push('sku = ?'); updateArgs.push(data.sku as InValue) }
+  if (data.categoryId !== undefined) { setClauses.push('category_id = ?'); updateArgs.push(data.categoryId as InValue) }
+  if (data.brandId !== undefined) { setClauses.push('brand_id = ?'); updateArgs.push(data.brandId as InValue) }
+  if (data.basePrice !== undefined) { setClauses.push('base_price = ?'); updateArgs.push(toStoredPrice(data.basePrice as number)) }
+  if (data.salePrice !== undefined) { setClauses.push('sale_price = ?'); updateArgs.push(data.salePrice !== null ? toStoredPrice(data.salePrice as number) : null as InValue) }
+  if (data.costPrice !== undefined) { setClauses.push('cost_price = ?'); updateArgs.push(data.costPrice !== null ? toStoredPrice(data.costPrice as number) : null as InValue) }
+  if (data.currency !== undefined) { setClauses.push('currency = ?'); updateArgs.push(data.currency as InValue) }
+  if (data.isActive !== undefined) { setClauses.push('is_active = ?'); updateArgs.push(toSqliteBool(data.isActive as boolean)) }
+  if (data.isFeatured !== undefined) { setClauses.push('is_featured = ?'); updateArgs.push(toSqliteBool(data.isFeatured as boolean)) }
+  if (data.isDigital !== undefined) { setClauses.push('is_digital = ?'); updateArgs.push(toSqliteBool(data.isDigital as boolean)) }
+  if (data.trackInventory !== undefined) { setClauses.push('track_inventory = ?'); updateArgs.push(toSqliteBool(data.trackInventory as boolean)) }
+  if (data.stockQuantity !== undefined) { setClauses.push('stock_quantity = ?'); updateArgs.push(data.stockQuantity as InValue) }
+  if (data.lowStockThreshold !== undefined) { setClauses.push('low_stock_threshold = ?'); updateArgs.push(data.lowStockThreshold as InValue) }
+  if (data.weight !== undefined) { setClauses.push('weight = ?'); updateArgs.push(data.weight as InValue) }
+  if (data.dimensions !== undefined) { setClauses.push('dimensions = ?'); updateArgs.push(data.dimensions as InValue) }
+  if (data.metaTitle !== undefined) { setClauses.push('meta_title = ?'); updateArgs.push(data.metaTitle as InValue) }
+  if (data.metaDescription !== undefined) { setClauses.push('meta_description = ?'); updateArgs.push(data.metaDescription as InValue) }
   if (data.tags !== undefined) {
     const tags = data.tags as string[]
-    updates.tags = tags.length > 0 ? tags : null
+    setClauses.push('tags = ?')
+    updateArgs.push(safeJsonStringify(tags.length > 0 ? tags : null))
   }
 
-  const { data: product, error } = await supabase
-    .from('products')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
+  await db.execute({
+    sql: `UPDATE products SET ${setClauses.join(', ')} WHERE id = ?`,
+    args: [...updateArgs, id],
+  })
 
-  if (error) handleSupabaseError(error, 'updateProduct')
+  const updatedResult = await db.execute({
+    sql: 'SELECT * FROM products WHERE id = ?',
+    args: [id],
+  })
+  const product = mapProductRow(updatedResult.rows[0] as Record<string, unknown>)
 
-  await deleteCache(kv, `product:slug:${oldSlug}`)
+  await deleteCache(`product:slug:${oldSlug}`)
   if (data.name !== undefined) {
-    const newSlug = (product as ProductRow).slug
-    await deleteCache(kv, `product:slug:${newSlug}`)
+    await deleteCache(`product:slug:${product.slug}`)
   }
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'UPDATE', entity: 'products', entityId: id, changes: data as Record<string, unknown> })
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'UPDATE', entity: 'products', entityId: id, changes: data as Record<string, unknown> })
 
-  return formatProduct(product as ProductRow)
+  return formatProduct(product)
 }
 
-export async function toggleFeatured(id: string, adminId: string, supabase: SupabaseClient, kv: KVNamespace) {
-  const { data: product, error: fetchError } = await supabase
-    .from('products')
-    .select('id, slug, is_featured')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function toggleFeatured(id: string, adminId: string, db: Client) {
+  const productResult = await db.execute({
+    sql: 'SELECT id, slug, is_featured FROM products WHERE id = ? AND deleted_at IS NULL',
+    args: [id],
+  })
 
-  if (fetchError || !product) {
+  if (productResult.rows.length === 0) {
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
-  const newValue = !(product as any).is_featured
-  const { error } = await supabase
-    .from('products')
-    .update({ is_featured: newValue, updated_at: new Date().toISOString() })
-    .eq('id', id)
+  const currentFeatured = productResult.rows[0].is_featured as number
+  const newValue = !fromSqliteBool(currentFeatured)
 
-  if (error) handleSupabaseError(error, 'toggleFeatured')
+  await db.execute({
+    sql: "UPDATE products SET is_featured = ?, updated_at = datetime('now') WHERE id = ?",
+    args: [toSqliteBool(newValue), id],
+  })
 
-  await deleteCache(kv, `product:slug:${(product as any).slug}`)
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'TOGGLE_FEATURED', entity: 'products', entityId: id })
+  const slug = productResult.rows[0].slug as string
+  await deleteCache(`product:slug:${slug}`)
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'TOGGLE_FEATURED', entity: 'products', entityId: id })
 
   return { isFeatured: newValue }
 }
 
-export async function toggleHidden(id: string, adminId: string, supabase: SupabaseClient, kv: KVNamespace) {
-  const { data: product, error: fetchError } = await supabase
-    .from('products')
-    .select('id, slug, is_active')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function toggleHidden(id: string, adminId: string, db: Client) {
+  const productResult = await db.execute({
+    sql: 'SELECT id, slug, is_active FROM products WHERE id = ? AND deleted_at IS NULL',
+    args: [id],
+  })
 
-  if (fetchError || !product) {
+  if (productResult.rows.length === 0) {
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
-  const newValue = !(product as any).is_active
-  const { error } = await supabase
-    .from('products')
-    .update({ is_active: newValue, updated_at: new Date().toISOString() })
-    .eq('id', id)
+  const currentActive = productResult.rows[0].is_active as number
+  const newValue = !fromSqliteBool(currentActive)
 
-  if (error) handleSupabaseError(error, 'toggleHidden')
+  await db.execute({
+    sql: "UPDATE products SET is_active = ?, updated_at = datetime('now') WHERE id = ?",
+    args: [toSqliteBool(newValue), id],
+  })
 
-  await deleteCache(kv, `product:slug:${(product as any).slug}`)
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'TOGGLE_HIDDEN', entity: 'products', entityId: id })
+  const slug = productResult.rows[0].slug as string
+  await deleteCache(`product:slug:${slug}`)
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'TOGGLE_HIDDEN', entity: 'products', entityId: id })
 
   return { isActive: newValue }
 }
 
-export async function softDeleteProduct(id: string, adminId: string, supabase: SupabaseClient, kv: KVNamespace) {
-  const { data: product, error: fetchError } = await supabase
-    .from('products')
-    .select('id, slug')
-    .eq('id', id)
-    .is('deleted_at', null)
-    .single()
+export async function softDeleteProduct(id: string, adminId: string, db: Client) {
+  const productResult = await db.execute({
+    sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
+    args: [id],
+  })
 
-  if (fetchError || !product) {
+  if (productResult.rows.length === 0) {
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
-  const { error } = await supabase
-    .from('products')
-    .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-    .eq('id', id)
+  await db.execute({
+    sql: "UPDATE products SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+    args: [id],
+  })
 
-  if (error) handleSupabaseError(error, 'softDeleteProduct')
-
-  await deleteCache(kv, `product:slug:${(product as any).slug}`)
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'SOFT_DELETE', entity: 'products', entityId: id })
+  const slug = productResult.rows[0].slug as string
+  await deleteCache(`product:slug:${slug}`)
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'SOFT_DELETE', entity: 'products', entityId: id })
 }
 
 export async function uploadProductImages(
   productId: string,
   files: File[],
   adminId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace,
-  env: CloudflareBindings
+  db: Client,
+  env: NetlifyBindings
 ) {
-  const { data: product, error: fetchError } = await supabase
-    .from('products')
-    .select('id, slug')
-    .eq('id', productId)
-    .is('deleted_at', null)
-    .single()
+  const productResult = await db.execute({
+    sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
+    args: [productId],
+  })
 
-  if (fetchError || !product) {
+  if (productResult.rows.length === 0) {
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
-  const { count } = await supabase
-    .from('product_images')
-    .select('*', { count: 'exact', head: true })
-    .eq('product_id', productId)
+  const countResult = await db.execute({
+    sql: 'SELECT COUNT(*) as count FROM product_images WHERE product_id = ?',
+    args: [productId],
+  })
+  const existingCount = (countResult.rows[0].count as number) ?? 0
 
-  if ((count ?? 0) + files.length > 10) {
+  if (existingCount + files.length > 10) {
     throw new AppError('MAX_IMAGES_EXCEEDED', 400)
   }
 
-  const { data: primaryImages } = await supabase
-    .from('product_images')
-    .select('id')
-    .eq('product_id', productId)
-    .eq('is_primary', true)
-    .limit(1)
+  const primaryResult = await db.execute({
+    sql: 'SELECT id FROM product_images WHERE product_id = ? AND is_primary = 1 LIMIT 1',
+    args: [productId],
+  })
 
-  const hasPrimary = primaryImages && primaryImages.length > 0
-  const existingCount = count ?? 0
+  const hasPrimary = primaryResult.rows.length > 0
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
@@ -690,258 +729,242 @@ export async function uploadProductImages(
 
     const isPrimary = !hasPrimary && i === 0
 
-    const { error: insertError } = await supabase
-      .from('product_images')
-      .insert({
-        product_id: productId,
-        url: result.url,
-        public_id: result.publicId,
-        alt_text: null,
-        sort_order: existingCount + i,
-        is_primary: isPrimary,
-      })
-
-    if (insertError) handleSupabaseError(insertError, 'uploadProductImages.insert')
+    await db.execute({
+      sql: 'INSERT INTO product_images (id, product_id, url, public_id, alt_text, sort_order, is_primary) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      args: [
+        crypto.randomUUID(),
+        productId,
+        result.url,
+        result.publicId,
+        null,
+        existingCount + i,
+        toSqliteBool(isPrimary),
+      ],
+    })
   }
 
-  await deleteCache(kv, `product:slug:${(product as any).slug}`)
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'UPLOAD_IMAGES', entity: 'products', entityId: productId })
+  const slug = productResult.rows[0].slug as string
+  await deleteCache(`product:slug:${slug}`)
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'UPLOAD_IMAGES', entity: 'products', entityId: productId })
 
-  const { data: images, error: imgError } = await supabase
-    .from('product_images')
-    .select('*')
-    .eq('product_id', productId)
-    .order('sort_order', { ascending: true })
+  const imgResult = await db.execute({
+    sql: 'SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order ASC',
+    args: [productId],
+  })
 
-  if (imgError) handleSupabaseError(imgError, 'uploadProductImages.fetch')
-  return (images || []).map((img: ProductImageRow) => formatImage(img))
+  return imgResult.rows.map((row) => formatImage(mapImageRow(row as Record<string, unknown>)))
 }
 
 export async function deleteProductImage(
   productId: string,
   imageId: string,
   adminId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace,
-  env: CloudflareBindings
+  db: Client,
+  env: NetlifyBindings
 ) {
-  const { data: image, error: fetchError } = await supabase
-    .from('product_images')
-    .select('*')
-    .eq('id', imageId)
-    .eq('product_id', productId)
-    .single()
+  const imageResult = await db.execute({
+    sql: 'SELECT * FROM product_images WHERE id = ? AND product_id = ?',
+    args: [imageId, productId],
+  })
 
-  if (fetchError || !image) {
+  if (imageResult.rows.length === 0) {
     throw new AppError('IMAGE_NOT_FOUND', 404)
   }
 
-  const imageRow = image as ProductImageRow
+  const imageRow = mapImageRow(imageResult.rows[0] as Record<string, unknown>)
 
   if (imageRow.public_id) {
     await deleteFromCloudinary(imageRow.public_id, env)
   }
 
-  const { error: deleteError } = await supabase
-    .from('product_images')
-    .delete()
-    .eq('id', imageId)
+  await db.execute({
+    sql: 'DELETE FROM product_images WHERE id = ?',
+    args: [imageId],
+  })
 
-  if (deleteError) handleSupabaseError(deleteError, 'deleteProductImage.delete')
+  if (fromSqliteBool(imageRow.is_primary)) {
+    const nextImageResult = await db.execute({
+      sql: 'SELECT id FROM product_images WHERE product_id = ? ORDER BY sort_order ASC LIMIT 1',
+      args: [productId],
+    })
 
-  if (imageRow.is_primary) {
-    const { data: nextImage } = await supabase
-      .from('product_images')
-      .select('id')
-      .eq('product_id', productId)
-      .order('sort_order', { ascending: true })
-      .limit(1)
-      .single()
-
-    if (nextImage) {
-      await supabase
-        .from('product_images')
-        .update({ is_primary: true })
-        .eq('id', nextImage.id)
+    if (nextImageResult.rows.length > 0) {
+      await db.execute({
+        sql: 'UPDATE product_images SET is_primary = 1 WHERE id = ?',
+        args: [nextImageResult.rows[0].id],
+      })
     }
   }
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('slug')
-    .eq('id', productId)
-    .single()
+  const productResult = await db.execute({
+    sql: 'SELECT slug FROM products WHERE id = ?',
+    args: [productId],
+  })
 
-  if (product) {
-    await deleteCache(kv, `product:slug:${(product as any).slug}`)
-    await deleteCacheByPrefix(kv, 'products:list:')
+  if (productResult.rows.length > 0) {
+    const slug = productResult.rows[0].slug as string
+    await deleteCache(`product:slug:${slug}`)
+    await deleteCacheByPrefix('products:list:')
   }
-  await createAuditLog(supabase, { userId: adminId, action: 'DELETE_IMAGE', entity: 'products', entityId: productId })
+  await createAuditLog(db, { userId: adminId, action: 'DELETE_IMAGE', entity: 'products', entityId: productId })
 
-  const { data: images } = await supabase
-    .from('product_images')
-    .select('*')
-    .eq('product_id', productId)
-    .order('sort_order', { ascending: true })
+  const imgResult = await db.execute({
+    sql: 'SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order ASC',
+    args: [productId],
+  })
 
-  return (images || []).map((img: ProductImageRow) => formatImage(img))
+  return imgResult.rows.map((row) => formatImage(mapImageRow(row as Record<string, unknown>)))
 }
 
-export async function getProductVariants(productId: string, supabase: SupabaseClient) {
-  const { data: variants, error } = await supabase
-    .from('product_variants')
-    .select('*')
-    .eq('product_id', productId)
-    .is('deleted_at', null)
-    .order('created_at', { ascending: true })
+export async function getProductVariants(productId: string, db: Client) {
+  const result = await db.execute({
+    sql: 'SELECT * FROM product_variants WHERE product_id = ? AND deleted_at IS NULL ORDER BY created_at ASC',
+    args: [productId],
+  })
 
-  if (error) handleSupabaseError(error, 'getProductVariants')
-
-  return (variants || []).map((v: VariantRow) => formatVariant(v))
+  return result.rows.map((row) => formatVariant(mapVariantRow(row as Record<string, unknown>)))
 }
 
 export async function addVariant(
   productId: string,
   data: { name: string; sku?: string; price: number; salePrice?: number; stockQuantity?: number; attributes?: Record<string, string> },
   adminId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const { data: product, error: fetchError } = await supabase
-    .from('products')
-    .select('id, slug')
-    .eq('id', productId)
-    .is('deleted_at', null)
-    .single()
+  const productResult = await db.execute({
+    sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
+    args: [productId],
+  })
 
-  if (fetchError || !product) {
+  if (productResult.rows.length === 0) {
     throw new AppError('PRODUCT_NOT_FOUND', 404)
   }
 
   const price = toStoredPrice(data.price)
   const salePrice = data.salePrice !== undefined ? toStoredPrice(data.salePrice) : null
-  const attributes = data.attributes || null
+  const attributes = safeJsonStringify(data.attributes || null)
 
-  const { data: variant, error } = await supabase
-    .from('product_variants')
-    .insert({
-      product_id: productId,
-      name: data.name,
-      sku: data.sku ?? null,
+  const id = crypto.randomUUID()
+
+  await db.execute({
+    sql: `INSERT INTO product_variants (id, product_id, name, sku, price, sale_price, stock_quantity, attributes, is_active)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      id,
+      productId,
+      data.name,
+      data.sku ?? null,
       price,
-      sale_price: salePrice,
-      stock_quantity: data.stockQuantity ?? 0,
+      salePrice,
+      data.stockQuantity ?? 0,
       attributes,
-      is_active: true,
-    })
-    .select()
-    .single()
+      toSqliteBool(true),
+    ],
+  })
 
-  if (error) handleSupabaseError(error, 'addVariant')
+  const variantResult = await db.execute({
+    sql: 'SELECT * FROM product_variants WHERE id = ?',
+    args: [id],
+  })
 
-  await deleteCache(kv, `product:slug:${(product as any).slug}`)
-  await deleteCacheByPrefix(kv, 'products:list:')
-  await createAuditLog(supabase, { userId: adminId, action: 'ADD_VARIANT', entity: 'products', entityId: productId })
+  const slug = productResult.rows[0].slug as string
+  await deleteCache(`product:slug:${slug}`)
+  await deleteCacheByPrefix('products:list:')
+  await createAuditLog(db, { userId: adminId, action: 'ADD_VARIANT', entity: 'products', entityId: productId })
 
-  return formatVariant(variant as VariantRow)
+  return formatVariant(mapVariantRow(variantResult.rows[0] as Record<string, unknown>))
 }
 
 export async function updateVariant(
   variantId: string,
   data: Record<string, unknown>,
   adminId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
-  const { data: variant, error: fetchError } = await supabase
-    .from('product_variants')
-    .select('*')
-    .eq('id', variantId)
-    .is('deleted_at', null)
-    .single()
+  const variantResult = await db.execute({
+    sql: 'SELECT * FROM product_variants WHERE id = ? AND deleted_at IS NULL',
+    args: [variantId],
+  })
 
-  if (fetchError || !variant) {
+  if (variantResult.rows.length === 0) {
     throw new AppError('VARIANT_NOT_FOUND', 404)
   }
 
-  const variantRow = variant as VariantRow
-  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  const variantRow = mapVariantRow(variantResult.rows[0] as Record<string, unknown>)
+  const setClauses: string[] = ['updated_at = datetime(\'now\')']
+  const updateArgs: InValue[] = []
 
-  if (data.name !== undefined) updates.name = data.name
-  if (data.sku !== undefined) updates.sku = data.sku
-  if (data.price !== undefined) updates.price = toStoredPrice(data.price as number)
-  if (data.salePrice !== undefined) updates.sale_price = data.salePrice !== null ? toStoredPrice(data.salePrice as number) : null
-  if (data.stockQuantity !== undefined) updates.stock_quantity = data.stockQuantity
-  if (data.attributes !== undefined) updates.attributes = data.attributes ? data.attributes : null
-  if (data.isActive !== undefined) updates.is_active = data.isActive as boolean
+  if (data.name !== undefined) { setClauses.push('name = ?'); updateArgs.push(data.name as InValue) }
+  if (data.sku !== undefined) { setClauses.push('sku = ?'); updateArgs.push(data.sku as InValue) }
+  if (data.price !== undefined) { setClauses.push('price = ?'); updateArgs.push(toStoredPrice(data.price as number)) }
+  if (data.salePrice !== undefined) { setClauses.push('sale_price = ?'); updateArgs.push(data.salePrice !== null ? toStoredPrice(data.salePrice as number) : null as InValue) }
+  if (data.stockQuantity !== undefined) { setClauses.push('stock_quantity = ?'); updateArgs.push(data.stockQuantity as InValue) }
+  if (data.attributes !== undefined) { setClauses.push('attributes = ?'); updateArgs.push(data.attributes ? safeJsonStringify(data.attributes) : null as InValue) }
+  if (data.isActive !== undefined) { setClauses.push('is_active = ?'); updateArgs.push(toSqliteBool(data.isActive as boolean)) }
 
-  const { data: updated, error } = await supabase
-    .from('product_variants')
-    .update(updates)
-    .eq('id', variantId)
-    .select()
-    .single()
+  await db.execute({
+    sql: `UPDATE product_variants SET ${setClauses.join(', ')} WHERE id = ?`,
+    args: [...updateArgs, variantId],
+  })
 
-  if (error) handleSupabaseError(error, 'updateVariant')
+  const updatedResult = await db.execute({
+    sql: 'SELECT * FROM product_variants WHERE id = ?',
+    args: [variantId],
+  })
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('slug')
-    .eq('id', variantRow.product_id)
-    .single()
+  const productResult = await db.execute({
+    sql: 'SELECT slug FROM products WHERE id = ?',
+    args: [variantRow.product_id],
+  })
 
-  if (product) {
-    await deleteCache(kv, `product:slug:${(product as any).slug}`)
-    await deleteCacheByPrefix(kv, 'products:list:')
+  if (productResult.rows.length > 0) {
+    const slug = productResult.rows[0].slug as string
+    await deleteCache(`product:slug:${slug}`)
+    await deleteCacheByPrefix('products:list:')
   }
-  await createAuditLog(supabase, { userId: adminId, action: 'UPDATE_VARIANT', entity: 'product_variants', entityId: variantId, changes: data as Record<string, unknown> })
+  await createAuditLog(db, { userId: adminId, action: 'UPDATE_VARIANT', entity: 'product_variants', entityId: variantId, changes: data as Record<string, unknown> })
 
-  return formatVariant(updated as VariantRow)
+  return formatVariant(mapVariantRow(updatedResult.rows[0] as Record<string, unknown>))
 }
 
-export async function deleteVariant(variantId: string, adminId: string, supabase: SupabaseClient, kv: KVNamespace) {
-  const { data: variant, error: fetchError } = await supabase
-    .from('product_variants')
-    .select('*')
-    .eq('id', variantId)
-    .is('deleted_at', null)
-    .single()
+export async function deleteVariant(variantId: string, adminId: string, db: Client) {
+  const variantResult = await db.execute({
+    sql: 'SELECT * FROM product_variants WHERE id = ? AND deleted_at IS NULL',
+    args: [variantId],
+  })
 
-  if (fetchError || !variant) {
+  if (variantResult.rows.length === 0) {
     throw new AppError('VARIANT_NOT_FOUND', 404)
   }
 
-  const variantRow = variant as VariantRow
+  const variantRow = mapVariantRow(variantResult.rows[0] as Record<string, unknown>)
 
-  const { data: inOrders } = await supabase
-    .from('order_items')
-    .select('id')
-    .eq('variant_id', variantId)
-    .limit(1)
+  const inOrdersResult = await db.execute({
+    sql: 'SELECT id FROM order_items WHERE variant_id = ? LIMIT 1',
+    args: [variantId],
+  })
 
-  if (inOrders && inOrders.length > 0) {
+  if (inOrdersResult.rows.length > 0) {
     throw new AppError('VARIANT_IN_ACTIVE_ORDERS', 400)
   }
 
-  const { error } = await supabase
-    .from('product_variants')
-    .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-    .eq('id', variantId)
+  await db.execute({
+    sql: "UPDATE product_variants SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+    args: [variantId],
+  })
 
-  if (error) handleSupabaseError(error, 'deleteVariant')
+  const productResult = await db.execute({
+    sql: 'SELECT slug FROM products WHERE id = ?',
+    args: [variantRow.product_id],
+  })
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('slug')
-    .eq('id', variantRow.product_id)
-    .single()
-
-  if (product) {
-    await deleteCache(kv, `product:slug:${(product as any).slug}`)
-    await deleteCacheByPrefix(kv, 'products:list:')
+  if (productResult.rows.length > 0) {
+    const slug = productResult.rows[0].slug as string
+    await deleteCache(`product:slug:${slug}`)
+    await deleteCacheByPrefix('products:list:')
   }
-  await createAuditLog(supabase, { userId: adminId, action: 'DELETE_VARIANT', entity: 'product_variants', entityId: variantId })
+  await createAuditLog(db, { userId: adminId, action: 'DELETE_VARIANT', entity: 'product_variants', entityId: variantId })
 }
 
 export async function adjustStock(
@@ -950,106 +973,105 @@ export async function adjustStock(
   change: number,
   reason: string | undefined,
   userId: string,
-  supabase: SupabaseClient,
-  kv: KVNamespace
+  db: Client
 ) {
   if (variantId) {
-    const { data: variant, error: varError } = await supabase
-      .from('product_variants')
-      .select('*')
-      .eq('id', variantId)
-      .is('deleted_at', null)
-      .single()
+    const variantResult = await db.execute({
+      sql: 'SELECT * FROM product_variants WHERE id = ? AND deleted_at IS NULL',
+      args: [variantId],
+    })
 
-    if (varError || !variant) {
+    if (variantResult.rows.length === 0) {
       throw new AppError('VARIANT_NOT_FOUND', 404)
     }
 
-    const variantRow = variant as VariantRow
+    const variantRow = mapVariantRow(variantResult.rows[0] as Record<string, unknown>)
     const newStock = variantRow.stock_quantity + change
     if (newStock < 0) {
       throw new AppError('INSUFFICIENT_STOCK', 400)
     }
 
-    await supabase
-      .from('product_variants')
-      .update({ stock_quantity: newStock, updated_at: new Date().toISOString() })
-      .eq('id', variantId)
+    await db.execute({
+      sql: "UPDATE product_variants SET stock_quantity = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [newStock, variantId],
+    })
 
-    const { data: product } = await supabase
-      .from('products')
-      .select('id, slug, low_stock_threshold')
-      .eq('id', productId)
-      .single()
+    const productResult = await db.execute({
+      sql: 'SELECT id, slug, low_stock_threshold FROM products WHERE id = ?',
+      args: [productId],
+    })
 
-    if (product) {
-      const { data: totalResult } = await supabase
-        .from('product_variants')
-        .select('stock_quantity')
-        .eq('product_id', productId)
-        .is('deleted_at', null)
-
-      const totalVariantStock = (totalResult || []).reduce((sum: number, v: any) => sum + v.stock_quantity, 0)
-      await supabase
-        .from('products')
-        .update({ stock_quantity: totalVariantStock, updated_at: new Date().toISOString() })
-        .eq('id', productId)
+    if (productResult.rows.length > 0) {
+      const totalResult = await db.execute({
+        sql: 'SELECT stock_quantity FROM product_variants WHERE product_id = ? AND deleted_at IS NULL',
+        args: [productId],
+      })
+      const totalVariantStock = totalResult.rows.reduce((sum, v) => sum + (v.stock_quantity as number), 0)
+      await db.execute({
+        sql: "UPDATE products SET stock_quantity = ?, updated_at = datetime('now') WHERE id = ?",
+        args: [totalVariantStock, productId],
+      })
     }
 
-    await supabase
-      .from('inventory_logs')
-      .insert({
-        product_id: productId,
-        variant_id: variantId,
-        change_type: change > 0 ? 'RESTOCK' : 'ADJUSTMENT',
-        quantity: change,
-        previous_stock: variantRow.stock_quantity,
-        new_stock: newStock,
-        reason: reason ?? null,
-        performed_by: userId,
-      })
+    await db.execute({
+      sql: `INSERT INTO inventory_logs (id, product_id, variant_id, change_type, quantity, previous_stock, new_stock, reason, performed_by, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+      args: [
+        crypto.randomUUID(),
+        productId,
+        variantId,
+        change > 0 ? 'RESTOCK' : 'ADJUSTMENT',
+        change,
+        variantRow.stock_quantity,
+        newStock,
+        reason ?? null,
+        userId,
+      ],
+    })
 
-    if (product) {
-      await deleteCache(kv, `product:slug:${(product as any).slug}`)
-      await deleteCacheByPrefix(kv, 'products:list:')
+    if (productResult.rows.length > 0) {
+      const slug = productResult.rows[0].slug as string
+      await deleteCache(`product:slug:${slug}`)
+      await deleteCacheByPrefix('products:list:')
     }
   } else {
-    const { data: product, error: prodError } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', productId)
-      .is('deleted_at', null)
-      .single()
+    const productResult = await db.execute({
+      sql: 'SELECT * FROM products WHERE id = ? AND deleted_at IS NULL',
+      args: [productId],
+    })
 
-    if (prodError || !product) {
+    if (productResult.rows.length === 0) {
       throw new AppError('PRODUCT_NOT_FOUND', 404)
     }
 
-    const productRow = product as ProductRow
+    const productRow = mapProductRow(productResult.rows[0] as Record<string, unknown>)
     const newStock = productRow.stock_quantity + change
     if (newStock < 0) {
       throw new AppError('INSUFFICIENT_STOCK', 400)
     }
 
-    await supabase
-      .from('products')
-      .update({ stock_quantity: newStock, updated_at: new Date().toISOString() })
-      .eq('id', productId)
+    await db.execute({
+      sql: "UPDATE products SET stock_quantity = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [newStock, productId],
+    })
 
-    await supabase
-      .from('inventory_logs')
-      .insert({
-        product_id: productId,
-        variant_id: null,
-        change_type: change > 0 ? 'RESTOCK' : 'ADJUSTMENT',
-        quantity: change,
-        previous_stock: productRow.stock_quantity,
-        new_stock: newStock,
-        reason: reason ?? null,
-        performed_by: userId,
-      })
+    await db.execute({
+      sql: `INSERT INTO inventory_logs (id, product_id, variant_id, change_type, quantity, previous_stock, new_stock, reason, performed_by, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+      args: [
+        crypto.randomUUID(),
+        productId,
+        null,
+        change > 0 ? 'RESTOCK' : 'ADJUSTMENT',
+        change,
+        productRow.stock_quantity,
+        newStock,
+        reason ?? null,
+        userId,
+      ],
+    })
 
-    await deleteCache(kv, `product:slug:${productRow.slug}`)
-    await deleteCacheByPrefix(kv, 'products:list:')
+    await deleteCache(`product:slug:${productRow.slug}`)
+    await deleteCacheByPrefix('products:list:')
   }
 }

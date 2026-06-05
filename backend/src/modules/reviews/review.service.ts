@@ -1,27 +1,8 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 
-interface ReviewRow {
-  id: string
-  user_id: string
-  product_id: string
-  rating: number
-  title: string | null
-  comment: string | null
-  is_approved: boolean
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-}
-
-interface ProfileRow {
-  id: string
-  first_name: string | null
-  last_name: string | null
-}
-
-function formatReview(row: ReviewRow, profile?: ProfileRow | null) {
+function formatReview(row: any, profile?: any) {
   return {
     id: row.id,
     userId: row.user_id,
@@ -29,7 +10,7 @@ function formatReview(row: ReviewRow, profile?: ProfileRow | null) {
     rating: row.rating,
     title: row.title,
     comment: row.comment,
-    isApproved: row.is_approved,
+    isApproved: fromSqliteBool(row.is_approved),
     userName: profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Anonymous' : 'Anonymous',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -40,122 +21,122 @@ export async function getProductReviews(
   productId: string,
   page: number,
   limit: number,
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const from = (page - 1) * limit
-  const to = from + limit - 1
+  const offset = (page - 1) * limit
 
-  const { data, error, count } = await supabase
-    .from('reviews')
-    .select('*, profiles!reviews_user_id_fkey(id, first_name, last_name)', { count: 'exact' })
-    .eq('product_id', productId)
-    .eq('is_approved', true)
-    .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-    .range(from, to)
-
-  if (error) handleSupabaseError(error, 'getProductReviews')
-
-  const reviews = (data || []).map((row: any) => {
-    const profile = row.profiles as ProfileRow | null
-    return formatReview(row as ReviewRow, profile)
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM reviews WHERE product_id = ? AND is_approved = 1 AND deleted_at IS NULL`,
+    args: [productId],
   })
 
-  return { reviews, total: count || 0, page, limit, totalPages: Math.ceil((count || 0) / limit) }
+  const dataResult = await db.execute({
+    sql: `SELECT r.*, u.first_name, u.last_name
+          FROM reviews r
+          LEFT JOIN users u ON u.id = r.user_id
+          WHERE r.product_id = ? AND r.is_approved = 1 AND r.deleted_at IS NULL
+          ORDER BY r.created_at DESC
+          LIMIT ? OFFSET ?`,
+    args: [productId, limit, offset],
+  })
+
+  const total = Number(countResult.rows[0]?.count ?? 0)
+  const reviews = dataResult.rows.map((row: any) => {
+    const profile = row.first_name ? { first_name: row.first_name, last_name: row.last_name } : null
+    return formatReview(row, profile)
+  })
+
+  return { reviews, total, page, limit, totalPages: Math.ceil(total / limit) }
 }
 
 export async function createReview(
   userId: string,
   data: { productId: string; rating: number; title?: string; comment?: string },
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const { data: existing } = await supabase
-    .from('reviews')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('product_id', data.productId)
-    .is('deleted_at', null)
-    .maybeSingle()
+  const existingResult = await db.execute({
+    sql: `SELECT id FROM reviews WHERE user_id = ? AND product_id = ? AND deleted_at IS NULL`,
+    args: [userId, data.productId],
+  })
 
-  if (existing) {
+  if (existingResult.rows[0]) {
     throw new AppError('You have already reviewed this product', 409, 'REVIEW_EXISTS')
   }
 
-  const { data: settingsRow } = await supabase
-    .from('site_settings')
-    .select('value')
-    .eq('key', 'review_auto_approve')
-    .single()
+  const settingsResult = await db.execute({
+    sql: `SELECT value FROM site_settings WHERE key = ?`,
+    args: ['review_auto_approve'],
+  })
 
-  const isApproved = settingsRow?.value === 'true' || settingsRow?.value === true
+  const isApproved = settingsResult.rows[0]?.value === 'true' || settingsResult.rows[0]?.value === '1'
 
-  const { data: review, error } = await supabase
-    .from('reviews')
-    .insert({
-      user_id: userId,
-      product_id: data.productId,
-      rating: data.rating,
-      title: data.title ?? null,
-      comment: data.comment ?? null,
-      is_approved: isApproved,
+  const id = crypto.randomUUID()
+  const now = new Date().toISOString()
+
+  try {
+    await db.execute({
+      sql: `INSERT INTO reviews (id, user_id, product_id, rating, title, comment, is_approved, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [id, userId, data.productId, data.rating, data.title ?? null, data.comment ?? null, toSqliteBool(isApproved), now, now],
     })
-    .select('*, profiles!reviews_user_id_fkey(id, first_name, last_name)')
-    .single()
-
-  if (error) {
-    if (error.code === '23505') {
+  } catch (error: any) {
+    if (error?.message?.includes('UNIQUE constraint')) {
       throw new AppError('You have already reviewed this product', 409, 'REVIEW_EXISTS')
     }
-    handleSupabaseError(error, 'createReview')
+    handleDbError(error, 'createReview')
   }
 
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId,
     action: 'CREATE',
     entity: 'reviews',
-    entityId: review.id,
+    entityId: id,
   })
 
-  const profile = (review as any).profiles as ProfileRow | null
-  return formatReview(review as ReviewRow, profile)
+  const reviewResult = await db.execute({
+    sql: `SELECT r.*, u.first_name, u.last_name FROM reviews r LEFT JOIN users u ON u.id = r.user_id WHERE r.id = ?`,
+    args: [id],
+  })
+
+  const review = reviewResult.rows[0]
+  const profile = review?.first_name ? { first_name: review.first_name, last_name: review.last_name } : null
+  return formatReview(review, profile)
 }
 
 export async function updateReview(
   userId: string,
   reviewId: string,
   data: { rating?: number; title?: string; comment?: string },
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('id', reviewId)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM reviews WHERE id = ? AND deleted_at IS NULL`,
+    args: [reviewId],
+  })
 
-  if (fetchError || !existing) {
+  const existing = existingResult.rows[0]
+  if (!existing) {
     throw new AppError('Review not found', 404, 'REVIEW_NOT_FOUND')
   }
 
-  if (existing.user_id !== userId) {
+  if (String(existing.user_id) !== userId) {
     throw new AppError('You can only edit your own reviews', 403, 'FORBIDDEN')
   }
 
-  const updates: Record<string, any> = { updated_at: new Date().toISOString() }
-  if (data.rating !== undefined) updates.rating = data.rating
-  if (data.title !== undefined) updates.title = data.title
-  if (data.comment !== undefined) updates.comment = data.comment
+  const updates: string[] = ['updated_at = ?']
+  const args: any[] = [new Date().toISOString()]
 
-  const { data: review, error } = await supabase
-    .from('reviews')
-    .update(updates)
-    .eq('id', reviewId)
-    .select('*, profiles!reviews_user_id_fkey(id, first_name, last_name)')
-    .single()
+  if (data.rating !== undefined) { updates.push('rating = ?'); args.push(data.rating) }
+  if (data.title !== undefined) { updates.push('title = ?'); args.push(data.title) }
+  if (data.comment !== undefined) { updates.push('comment = ?'); args.push(data.comment) }
 
-  if (error) handleSupabaseError(error, 'updateReview')
+  args.push(reviewId)
 
-  await createAuditLog(supabase, {
+  await db.execute({
+    sql: `UPDATE reviews SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
+
+  await createAuditLog(db, {
     userId,
     action: 'UPDATE',
     entity: 'reviews',
@@ -163,39 +144,42 @@ export async function updateReview(
     changes: data,
   })
 
-  const profile = (review as any).profiles as ProfileRow | null
-  return formatReview(review as ReviewRow, profile)
+  const reviewResult = await db.execute({
+    sql: `SELECT r.*, u.first_name, u.last_name FROM reviews r LEFT JOIN users u ON u.id = r.user_id WHERE r.id = ?`,
+    args: [reviewId],
+  })
+
+  const review = reviewResult.rows[0]
+  const profile = review?.first_name ? { first_name: review.first_name, last_name: review.last_name } : null
+  return formatReview(review, profile)
 }
 
 export async function deleteReview(
   userId: string,
   reviewId: string,
-  supabase: SupabaseClient,
+  db: Client,
   isAdmin: boolean = false
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('id', reviewId)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM reviews WHERE id = ? AND deleted_at IS NULL`,
+    args: [reviewId],
+  })
 
-  if (fetchError || !existing) {
+  const existing = existingResult.rows[0]
+  if (!existing) {
     throw new AppError('Review not found', 404, 'REVIEW_NOT_FOUND')
   }
 
-  if (!isAdmin && existing.user_id !== userId) {
+  if (!isAdmin && String(existing.user_id) !== userId) {
     throw new AppError('You can only delete your own reviews', 403, 'FORBIDDEN')
   }
 
-  const { error } = await supabase
-    .from('reviews')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', reviewId)
+  await db.execute({
+    sql: `UPDATE reviews SET deleted_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), reviewId],
+  })
 
-  if (error) handleSupabaseError(error, 'deleteReview')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId,
     action: 'SOFT_DELETE',
     entity: 'reviews',
@@ -205,105 +189,115 @@ export async function deleteReview(
 
 export async function getAllReviews(
   filters: { productId?: string; isApproved?: boolean; page: number; limit: number },
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const from = (filters.page - 1) * filters.limit
-  const to = from + filters.limit - 1
+  const offset = (filters.page - 1) * filters.limit
 
-  let query = supabase
-    .from('reviews')
-    .select('*, profiles!reviews_user_id_fkey(id, first_name, last_name)', { count: 'exact' })
-    .is('deleted_at', null)
+  const whereClauses: string[] = ['r.deleted_at IS NULL']
+  const args: any[] = []
 
   if (filters.productId) {
-    query = query.eq('product_id', filters.productId)
+    whereClauses.push('r.product_id = ?')
+    args.push(filters.productId)
   }
   if (filters.isApproved !== undefined) {
-    query = query.eq('is_approved', filters.isApproved)
+    whereClauses.push(`r.is_approved = ${toSqliteBool(filters.isApproved)}`)
   }
 
-  const { data, error, count } = await query
-    .order('created_at', { ascending: false })
-    .range(from, to)
+  const whereStr = whereClauses.join(' AND ')
 
-  if (error) handleSupabaseError(error, 'getAllReviews')
-
-  const reviews = (data || []).map((row: any) => {
-    const profile = row.profiles as ProfileRow | null
-    return formatReview(row as ReviewRow, profile)
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM reviews r WHERE ${whereStr}`,
+    args,
   })
 
-  return { reviews, total: count || 0, page: filters.page, limit: filters.limit, totalPages: Math.ceil((count || 0) / filters.limit) }
+  const dataResult = await db.execute({
+    sql: `SELECT r.*, u.first_name, u.last_name
+          FROM reviews r
+          LEFT JOIN users u ON u.id = r.user_id
+          WHERE ${whereStr}
+          ORDER BY r.created_at DESC
+          LIMIT ? OFFSET ?`,
+    args: [...args, filters.limit, offset],
+  })
+
+  const total = Number(countResult.rows[0]?.count ?? 0)
+  const reviews = dataResult.rows.map((row: any) => {
+    const profile = row.first_name ? { first_name: row.first_name, last_name: row.last_name } : null
+    return formatReview(row, profile)
+  })
+
+  return { reviews, total, page: filters.page, limit: filters.limit, totalPages: Math.ceil(total / filters.limit) }
 }
 
 export async function approveReview(
   reviewId: string,
   adminUserId: string,
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('id', reviewId)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM reviews WHERE id = ? AND deleted_at IS NULL`,
+    args: [reviewId],
+  })
 
-  if (fetchError || !existing) {
+  if (!existingResult.rows[0]) {
     throw new AppError('Review not found', 404, 'REVIEW_NOT_FOUND')
   }
 
-  const { data: review, error } = await supabase
-    .from('reviews')
-    .update({ is_approved: true, updated_at: new Date().toISOString() })
-    .eq('id', reviewId)
-    .select('*, profiles!reviews_user_id_fkey(id, first_name, last_name)')
-    .single()
+  await db.execute({
+    sql: `UPDATE reviews SET is_approved = 1, updated_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), reviewId],
+  })
 
-  if (error) handleSupabaseError(error, 'approveReview')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'APPROVE',
     entity: 'reviews',
     entityId: reviewId,
   })
 
-  const profile = (review as any).profiles as ProfileRow | null
-  return formatReview(review as ReviewRow, profile)
+  const reviewResult = await db.execute({
+    sql: `SELECT r.*, u.first_name, u.last_name FROM reviews r LEFT JOIN users u ON u.id = r.user_id WHERE r.id = ?`,
+    args: [reviewId],
+  })
+
+  const review = reviewResult.rows[0]
+  const profile = review?.first_name ? { first_name: review.first_name, last_name: review.last_name } : null
+  return formatReview(review, profile)
 }
 
 export async function rejectReview(
   reviewId: string,
   adminUserId: string,
-  supabase: SupabaseClient
+  db: Client
 ) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('id', reviewId)
-    .is('deleted_at', null)
-    .single()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM reviews WHERE id = ? AND deleted_at IS NULL`,
+    args: [reviewId],
+  })
 
-  if (fetchError || !existing) {
+  if (!existingResult.rows[0]) {
     throw new AppError('Review not found', 404, 'REVIEW_NOT_FOUND')
   }
 
-  const { data: review, error } = await supabase
-    .from('reviews')
-    .update({ is_approved: false, updated_at: new Date().toISOString() })
-    .eq('id', reviewId)
-    .select('*, profiles!reviews_user_id_fkey(id, first_name, last_name)')
-    .single()
+  await db.execute({
+    sql: `UPDATE reviews SET is_approved = 0, updated_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), reviewId],
+  })
 
-  if (error) handleSupabaseError(error, 'rejectReview')
-
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'REJECT',
     entity: 'reviews',
     entityId: reviewId,
   })
 
-  const profile = (review as any).profiles as ProfileRow | null
-  return formatReview(review as ReviewRow, profile)
+  const reviewResult = await db.execute({
+    sql: `SELECT r.*, u.first_name, u.last_name FROM reviews r LEFT JOIN users u ON u.id = r.user_id WHERE r.id = ?`,
+    args: [reviewId],
+  })
+
+  const review = reviewResult.rows[0]
+  const profile = review?.first_name ? { first_name: review.first_name, last_name: review.last_name } : null
+  return formatReview(review, profile)
 }

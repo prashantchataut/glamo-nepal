@@ -5,8 +5,7 @@ import * as CategoryService from './category.service'
 
 export async function getCategories(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
+    const db = c.get('db')
     const filters: { parentId?: string | null; isActive?: boolean } = {}
 
     const parentIdQuery = c.req.query('parentId')
@@ -22,7 +21,7 @@ export async function getCategories(c: Context<AppEnv>) {
       filters.isActive = isActiveQuery === 'true'
     }
 
-    const result = await CategoryService.getCategoriesCached(supabase, kv, filters)
+    const result = await CategoryService.getCategoriesCached(db, filters)
     return ApiResponse.success(c, 'Categories fetched successfully', result)
   } catch (error: any) {
     return ApiResponse.error(c, error.message || 'Failed to fetch categories', 500)
@@ -32,9 +31,8 @@ export async function getCategories(c: Context<AppEnv>) {
 export async function getCategoryBySlug(c: Context<AppEnv>) {
   try {
     const { slug } = c.req.param()
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const category = await CategoryService.getCategoryBySlug(slug, supabase, kv)
+    const db = c.get('db')
+    const category = await CategoryService.getCategoryBySlug(slug, db)
     return ApiResponse.success(c, 'Category fetched successfully', category)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {
@@ -48,9 +46,8 @@ export async function createCategory(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const category = await CategoryService.createCategory(supabase, data, user.id, kv)
+    const db = c.get('db')
+    const category = await CategoryService.createCategory(db, data, user.id)
     return ApiResponse.success(c, 'Category created successfully', category, 201)
   } catch (error: any) {
     if (error.message === 'PARENT_NOT_FOUND') {
@@ -65,9 +62,8 @@ export async function updateCategory(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const category = await CategoryService.updateCategory(supabase, id, data, user.id, kv, c.env)
+    const db = c.get('db')
+    const category = await CategoryService.updateCategory(db, id, data, user.id, c.env)
     return ApiResponse.success(c, 'Category updated successfully', category)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {
@@ -87,9 +83,8 @@ export async function deleteCategory(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    await CategoryService.deleteCategory(supabase, id, user.id, kv, c.env)
+    const db = c.get('db')
+    await CategoryService.deleteCategory(db, id, user.id, c.env)
     return ApiResponse.success(c, 'Category deleted successfully', null)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {
@@ -109,8 +104,7 @@ export async function uploadCategoryImage(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
+    const db = c.get('db')
     const body = await c.req.parseBody()
     const file = body.image
 
@@ -118,7 +112,7 @@ export async function uploadCategoryImage(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'Image file is required', 400)
     }
 
-    const category = await CategoryService.uploadCategoryImage(supabase, id, file, user.id, kv, c.env)
+    const category = await CategoryService.uploadCategoryImage(db, id, file, user.id, c.env)
     return ApiResponse.success(c, 'Category image uploaded successfully', category)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {

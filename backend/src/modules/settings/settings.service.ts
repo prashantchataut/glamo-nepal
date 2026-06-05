@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, safeJsonParse } from '../../utils/turso-helpers'
 import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 
@@ -17,49 +17,48 @@ const SETTING_TYPE_MAP: Record<string, string> = {
   low_stock_threshold_default: 'number',
 }
 
-interface SettingRow {
-  id: string
-  key: string
-  value: any
-  group_name: string
-  created_at: string
-  updated_at: string
+function formatSetting(row: any) {
+  return {
+    id: row.id,
+    key: row.key,
+    value: safeJsonParse(row.value, row.value),
+    groupName: row.group_name,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
 }
 
-export async function getPublicSettings(supabase: SupabaseClient, kv: KVNamespace) {
+export async function getPublicSettings(db: Client) {
   const cacheKey = 'settings:public'
-  const cached = await getFromCache<Record<string, any>>(kv, cacheKey)
+  const cached = await getFromCache<Record<string, any>>(cacheKey)
   if (cached) return cached
 
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('key, value')
-    .in('key', PUBLIC_KEYS)
-
-  if (error) throw new AppError('Failed to fetch public settings', 500)
+  const placeholders = PUBLIC_KEYS.map(() => '?').join(',')
+  const result = await db.execute({
+    sql: `SELECT key, value FROM site_settings WHERE key IN (${placeholders})`,
+    args: PUBLIC_KEYS,
+  })
 
   const settings: Record<string, any> = {}
-  for (const row of data as Pick<SettingRow, 'key' | 'value'>[]) {
-    settings[row.key] = row.value
+  for (const row of result.rows) {
+    settings[String(row.key)] = safeJsonParse(row.value as string, row.value)
   }
 
-  await setCache(kv, cacheKey, settings, CACHE_TTL.SETTINGS)
+  await setCache(cacheKey, settings, CACHE_TTL.SETTINGS)
 
   return settings
 }
 
-export async function getAllSettings(supabase: SupabaseClient) {
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('*')
-    .order('group_name', { ascending: true })
+export async function getAllSettings(db: Client) {
+  const result = await db.execute({
+    sql: `SELECT * FROM site_settings ORDER BY group_name ASC`,
+    args: [],
+  })
 
-  if (error) throw new AppError('Failed to fetch settings', 500)
-
-  return (data as SettingRow[]).map(formatSetting)
+  return result.rows.map(formatSetting)
 }
 
-export async function updateSettings(supabase: SupabaseClient, settings: { key: string; value: any }[], adminUserId: string, kv: KVNamespace) {
+export async function updateSettings(db: Client, settings: { key: string; value: any }[], adminUserId: string) {
   const validKeys = Object.keys(SETTING_TYPE_MAP)
 
   for (const setting of settings) {
@@ -74,20 +73,17 @@ export async function updateSettings(supabase: SupabaseClient, settings: { key: 
   }
 
   for (const setting of settings) {
-    const { error } = await supabase
-      .from('site_settings')
-      .upsert({
-        key: setting.key,
-        value: setting.value,
-        group_name: getGroupName(setting.key),
-      }, { onConflict: 'key' })
+    const valueStr = typeof setting.value === 'object' ? JSON.stringify(setting.value) : String(setting.value)
 
-    if (error) throw new AppError(`Failed to update setting ${setting.key}`, 500)
+    await db.execute({
+      sql: `INSERT INTO site_settings (id, key, value, group_name, created_at, updated_at) VALUES (?, ?, ?, ?, datetime('now'), datetime('now')) ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = datetime('now')`,
+      args: [crypto.randomUUID(), setting.key, valueStr, getGroupName(setting.key), valueStr],
+    })
   }
 
-  await deleteCacheByPrefix(kv, 'settings:')
+  await deleteCacheByPrefix('settings:')
 
-  await createAuditLog(supabase, {
+  await createAuditLog(db, {
     userId: adminUserId,
     action: 'UPDATE',
     entity: 'site_settings',
@@ -118,15 +114,4 @@ function getGroupName(key: string): string {
     low_stock_threshold_default: 'inventory',
   }
   return groupMap[key] || 'general'
-}
-
-function formatSetting(row: SettingRow) {
-  return {
-    id: row.id,
-    key: row.key,
-    value: row.value,
-    groupName: row.group_name,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  }
 }

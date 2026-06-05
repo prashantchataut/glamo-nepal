@@ -1,18 +1,18 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as InventoryService from './inventory.service'
 
 export async function getStockReport(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
+    const db = c.get('db')
     const query = c.req.query()
     const filters = {
       lowStockOnly: query.lowStockOnly === 'true',
       outOfStockOnly: query.outOfStockOnly === 'true',
     }
-    const report = await InventoryService.getStockReport(supabase, filters)
+    const report = await InventoryService.getStockReport(db, filters)
     return ApiResponse.success(c, 'Stock report retrieved', report)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -24,8 +24,8 @@ export async function getStockReport(c: Context<AppEnv>) {
 
 export async function getLowStockAlerts(c: Context<AppEnv>) {
   try {
-    const supabase = c.get('supabase')
-    const alerts = await InventoryService.getLowStockAlerts(supabase)
+    const db = c.get('db')
+    const alerts = await InventoryService.getLowStockAlerts(db)
     return ApiResponse.success(c, 'Low stock alerts retrieved', alerts)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -38,8 +38,8 @@ export async function getLowStockAlerts(c: Context<AppEnv>) {
 export async function getInventoryLogs(c: Context<AppEnv>) {
   try {
     const filters = c.get('validatedQuery')
-    const supabase = c.get('supabase')
-    const result = await InventoryService.getInventoryLogs(supabase, filters)
+    const db = c.get('db')
+    const result = await InventoryService.getInventoryLogs(db, filters)
     return ApiResponse.paginated(
       c,
       'Inventory logs retrieved',

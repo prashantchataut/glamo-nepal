@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as ProductService from './product.service'
 
@@ -8,8 +8,7 @@ export async function getProducts(c: Context<AppEnv>) {
   try {
     const query = c.req.query()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
+    const db = c.get('db')
     const isAdmin = user ? ['ADMIN', 'SUPER_ADMIN'].includes(user.role) : false
     const filters = {
       category: query.category,
@@ -26,7 +25,7 @@ export async function getProducts(c: Context<AppEnv>) {
       isAdmin,
     }
 
-    const result = await ProductService.getProductsCached(filters, supabase, kv)
+    const result = await ProductService.getProductsCached(filters, db)
     return ApiResponse.paginated(c, 'Products fetched successfully', result.products, result.pagination.total, result.pagination.page, result.pagination.limit)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -41,13 +40,13 @@ export async function searchProducts(c: Context<AppEnv>) {
     const query = c.req.query('q') || ''
     const page = Number(c.req.query('page')) || 1
     const limit = Number(c.req.query('limit')) || 24
-    const supabase = c.get('supabase')
+    const db = c.get('db')
 
     if (!query.trim()) {
       return ApiResponse.error(c, 'Search query is required', 400)
     }
 
-    const result = await ProductService.searchProducts(query, page, limit, supabase)
+    const result = await ProductService.searchProducts(query, page, limit, db)
     return ApiResponse.paginated(c, 'Search results', result.products, result.pagination.total, result.pagination.page, result.pagination.limit)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -60,9 +59,8 @@ export async function searchProducts(c: Context<AppEnv>) {
 export async function getProductBySlug(c: Context<AppEnv>) {
   try {
     const { slug } = c.req.param()
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-    const product = await ProductService.getProductBySlug(slug, supabase, kv)
+    const db = c.get('db')
+    const product = await ProductService.getProductBySlug(slug, db)
 
     if (!product) {
       return ApiResponse.error(c, 'Product not found', 404)
@@ -81,10 +79,8 @@ export async function createProduct(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const product = await ProductService.createProduct(data, user.id, supabase, kv)
+    const db = c.get('db')
+    const product = await ProductService.createProduct(data, user.id, db)
     return ApiResponse.success(c, 'Product created successfully', product, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -102,10 +98,8 @@ export async function updateProduct(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const product = await ProductService.updateProduct(id, data, user.id, supabase, kv)
+    const db = c.get('db')
+    const product = await ProductService.updateProduct(id, data, user.id, db)
     return ApiResponse.success(c, 'Product updated successfully', product)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -122,10 +116,8 @@ export async function deleteProduct(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    await ProductService.softDeleteProduct(id, user.id, supabase, kv)
+    const db = c.get('db')
+    await ProductService.softDeleteProduct(id, user.id, db)
     return ApiResponse.success(c, 'Product deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -142,10 +134,8 @@ export async function toggleFeatured(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const result = await ProductService.toggleFeatured(id, user.id, supabase, kv)
+    const db = c.get('db')
+    const result = await ProductService.toggleFeatured(id, user.id, db)
     return ApiResponse.success(c, 'Product featured status updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -162,10 +152,8 @@ export async function toggleHidden(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const result = await ProductService.toggleHidden(id, user.id, supabase, kv)
+    const db = c.get('db')
+    const result = await ProductService.toggleHidden(id, user.id, db)
     return ApiResponse.success(c, 'Product visibility updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -182,9 +170,7 @@ export async function uploadProductImages(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
+    const db = c.get('db')
     const body = await c.req.parseBody()
     const fileArrays = Object.values(body).filter((v): v is File => v instanceof File)
     const files = Array.isArray(fileArrays) ? fileArrays : [fileArrays]
@@ -193,7 +179,7 @@ export async function uploadProductImages(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'No images provided', 400)
     }
 
-    const images = await ProductService.uploadProductImages(id, files, user.id, supabase, kv, c.env)
+    const images = await ProductService.uploadProductImages(id, files, user.id, db, c.env)
     return ApiResponse.success(c, 'Images uploaded successfully', images)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -216,10 +202,8 @@ export async function deleteProductImage(c: Context<AppEnv>) {
   try {
     const { id, imageId } = c.req.param()
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const images = await ProductService.deleteProductImage(id, imageId, user.id, supabase, kv, c.env)
+    const db = c.get('db')
+    const images = await ProductService.deleteProductImage(id, imageId, user.id, db, c.env)
     return ApiResponse.success(c, 'Image deleted successfully', images)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -235,8 +219,8 @@ export async function deleteProductImage(c: Context<AppEnv>) {
 export async function getProductVariants(c: Context<AppEnv>) {
   try {
     const { id } = c.req.param()
-    const supabase = c.get('supabase')
-    const variants = await ProductService.getProductVariants(id, supabase)
+    const db = c.get('db')
+    const variants = await ProductService.getProductVariants(id, db)
     return ApiResponse.success(c, 'Variants fetched successfully', variants)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -251,10 +235,8 @@ export async function addVariant(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    const variant = await ProductService.addVariant(id, data, user.id, supabase, kv)
+    const db = c.get('db')
+    const variant = await ProductService.addVariant(id, data, user.id, db)
     return ApiResponse.success(c, 'Variant added successfully', variant, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -272,10 +254,8 @@ export async function updateVariant(c: Context<AppEnv>) {
 const { variantId } = c.req.param()
   const data = c.get('validatedBody')
   const user = c.get('user')
-  const supabase = c.get('supabase')
-  const kv = c.env.KV
-
-  const variant = await ProductService.updateVariant(variantId, data, user.id, supabase, kv)
+  const db = c.get('db')
+  const variant = await ProductService.updateVariant(variantId, data, user.id, db)
     return ApiResponse.success(c, 'Variant updated successfully', variant)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -292,10 +272,8 @@ export async function deleteVariant(c: Context<AppEnv>) {
   try {
 const { variantId } = c.req.param()
   const user = c.get('user')
-  const supabase = c.get('supabase')
-  const kv = c.env.KV
-
-  await ProductService.deleteVariant(variantId, user.id, supabase, kv)
+  const db = c.get('db')
+  await ProductService.deleteVariant(variantId, user.id, db)
     return ApiResponse.success(c, 'Variant deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -316,10 +294,8 @@ export async function adjustStock(c: Context<AppEnv>) {
     const { id, variantId } = c.req.param()
     const data = c.get('validatedBody')
     const user = c.get('user')
-    const supabase = c.get('supabase')
-    const kv = c.env.KV
-
-    await ProductService.adjustStock(id, variantId || null, data.change, data.reason, user.id, supabase, kv)
+    const db = c.get('db')
+    await ProductService.adjustStock(id, variantId || null, data.change, data.reason, user.id, db)
     return ApiResponse.success(c, 'Stock adjusted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {

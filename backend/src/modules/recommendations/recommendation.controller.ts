@@ -1,13 +1,13 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
-import { AppError } from '../../utils/supabase'
+import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as RecommendationService from './recommendation.service'
 
 export async function getRecommendations(c: Context<AppEnv>) {
   try {
     const query = c.get('validatedQuery')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
 
     const products = await RecommendationService.getRecommendations(
       query.context,
@@ -15,7 +15,7 @@ export async function getRecommendations(c: Context<AppEnv>) {
       query.session_id,
       query.user_id,
       query.limit,
-      supabase
+      db
     )
 
     return ApiResponse.success(c, 'Recommendations fetched', products)
@@ -30,13 +30,13 @@ export async function getRecommendations(c: Context<AppEnv>) {
 export async function getTrending(c: Context<AppEnv>) {
   try {
     const query = c.get('validatedQuery')
-    const supabase = c.get('supabase')
+    const db = c.get('db')
 
     const products = await RecommendationService.getTrending(
       query.window,
       query.category,
       query.limit,
-      supabase
+      db
     )
 
     return ApiResponse.success(c, 'Trending products fetched', products)

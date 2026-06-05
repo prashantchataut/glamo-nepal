@@ -1,41 +1,10 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { AppError, handleSupabaseError } from '../../utils/supabase'
+import type { Client } from '@libsql/client'
+import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
-import type { CloudflareBindings } from '../../types/bindings'
+import type { NetlifyBindings } from '../../types/bindings'
 
-interface ProfileRow {
-  id: string
-  phone: string | null
-  first_name: string | null
-  last_name: string | null
-  avatar_url: string | null
-  role: string
-  is_active: boolean
-  email: string | null
-  created_at: string
-  updated_at: string
-}
-
-interface AddressRow {
-  id: string
-  user_id: string
-  label: string | null
-  full_name: string
-  phone: string
-  address_1: string
-  address_2: string | null
-  city: string
-  district: string | null
-  province: string | null
-  postal_code: string | null
-  country: string
-  is_default: boolean
-  created_at: string
-  updated_at: string
-}
-
-function formatProfile(profile: ProfileRow, counts: { orderCount: number; wishlistCount: number; addressCount: number }) {
+function formatProfile(profile: any, counts: { orderCount: number; wishlistCount: number; addressCount: number }) {
   return {
     id: profile.id,
     email: profile.email,
@@ -44,7 +13,7 @@ function formatProfile(profile: ProfileRow, counts: { orderCount: number; wishli
     lastName: profile.last_name,
     avatarUrl: profile.avatar_url,
     role: profile.role,
-    isActive: profile.is_active,
+    isActive: fromSqliteBool(profile.is_active),
     orderCount: counts.orderCount,
     wishlistCount: counts.wishlistCount,
     addressCount: counts.addressCount,
@@ -53,7 +22,7 @@ function formatProfile(profile: ProfileRow, counts: { orderCount: number; wishli
   }
 }
 
-function formatAddress(row: AddressRow) {
+function formatAddress(row: any) {
   return {
     id: row.id,
     userId: row.user_id,
@@ -67,137 +36,133 @@ function formatAddress(row: AddressRow) {
     province: row.province,
     postalCode: row.postal_code,
     country: row.country,
-    isDefault: row.is_default,
+    isDefault: fromSqliteBool(row.is_default),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
 }
 
-export async function getProfile(supabase: SupabaseClient, userId: string) {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single<ProfileRow>()
+export async function getProfile(db: Client, userId: string) {
+  const result = await db.execute({
+    sql: `SELECT * FROM users WHERE id = ?`,
+    args: [userId],
+  })
 
-  if (error) handleSupabaseError(error, 'getProfile')
+  const profile = result.rows[0]
   if (!profile) throw new AppError('Profile not found', 404, 'PROFILE_NOT_FOUND')
 
   const [orderResult, wishlistResult, addressResult] = await Promise.all([
-    supabase.from('orders').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-    supabase.from('wishlist_items').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-    supabase.from('user_addresses').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    db.execute({ sql: `SELECT COUNT(*) as count FROM orders WHERE user_id = ?`, args: [userId] }),
+    db.execute({ sql: `SELECT COUNT(*) as count FROM wishlist_items WHERE user_id = ?`, args: [userId] }),
+    db.execute({ sql: `SELECT COUNT(*) as count FROM user_addresses WHERE user_id = ?`, args: [userId] }),
   ])
 
   return formatProfile(profile, {
-    orderCount: orderResult.count ?? 0,
-    wishlistCount: wishlistResult.count ?? 0,
-    addressCount: addressResult.count ?? 0,
+    orderCount: Number(orderResult.rows[0]?.count ?? 0),
+    wishlistCount: Number(wishlistResult.rows[0]?.count ?? 0),
+    addressCount: Number(addressResult.rows[0]?.count ?? 0),
   })
 }
 
-export async function updateProfile(supabase: SupabaseClient, userId: string, data: { firstName?: string; lastName?: string; phone?: string }, auditUserId: string) {
-  const { data: profile, error: fetchError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single<ProfileRow>()
+export async function updateProfile(db: Client, userId: string, data: { firstName?: string; lastName?: string; phone?: string }, auditUserId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM users WHERE id = ?`,
+    args: [userId],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'updateProfile.fetch')
+  const profile = existingResult.rows[0]
   if (!profile) throw new AppError('Profile not found', 404, 'PROFILE_NOT_FOUND')
 
   if (data.phone !== undefined && data.phone !== profile.phone) {
-    const { data: existing } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', data.phone)
-      .neq('id', userId)
-      .limit(1)
-      .maybeSingle()
+    const phoneResult = await db.execute({
+      sql: `SELECT id FROM users WHERE phone = ? AND id != ? LIMIT 1`,
+      args: [data.phone, userId],
+    })
 
-    if (existing) {
+    if (phoneResult.rows[0]) {
       throw new AppError('Phone number already in use', 409, 'PHONE_EXISTS')
     }
   }
 
-  const updateData: Record<string, unknown> = {}
-  if (data.firstName !== undefined) updateData.first_name = data.firstName
-  if (data.lastName !== undefined) updateData.last_name = data.lastName
-  if (data.phone !== undefined) updateData.phone = data.phone || null
+  const updates: string[] = []
+  const args: any[] = []
 
-  if (Object.keys(updateData).length === 0) {
+  if (data.firstName !== undefined) { updates.push('first_name = ?'); args.push(data.firstName) }
+  if (data.lastName !== undefined) { updates.push('last_name = ?'); args.push(data.lastName) }
+  if (data.phone !== undefined) { updates.push('phone = ?'); args.push(data.phone || null) }
+
+  if (updates.length === 0) {
     return formatProfile(profile, { orderCount: 0, wishlistCount: 0, addressCount: 0 })
   }
 
-  const { data: updated, error: updateError } = await supabase
-    .from('profiles')
-    .update(updateData)
-    .eq('id', userId)
-    .select()
-    .single<ProfileRow>()
+  updates.push('updated_at = ?')
+  args.push(new Date().toISOString())
+  args.push(userId)
 
-  if (updateError) handleSupabaseError(updateError, 'updateProfile.update')
+  await db.execute({
+    sql: `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
 
-  await createAuditLog(supabase, {
+  const updateData: Record<string, unknown> = {}
+  if (data.firstName !== undefined) updateData.first_name = data.firstName
+  if (data.lastName !== undefined) updateData.last_name = data.lastName
+  if (data.phone !== undefined) updateData.phone = data.phone
+
+  await createAuditLog(db, {
     userId: auditUserId,
     action: 'UPDATE',
-    entity: 'profiles',
+    entity: 'users',
     entityId: userId,
     changes: updateData,
   })
 
-  return formatProfile(updated!, { orderCount: 0, wishlistCount: 0, addressCount: 0 })
+  const updatedResult = await db.execute({
+    sql: `SELECT * FROM users WHERE id = ?`,
+    args: [userId],
+  })
+
+  return formatProfile(updatedResult.rows[0], { orderCount: 0, wishlistCount: 0, addressCount: 0 })
 }
 
-export async function uploadAvatar(supabase: SupabaseClient, userId: string, file: File, env: CloudflareBindings) {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('avatar_url')
-    .eq('id', userId)
-    .single<{ avatar_url: string | null }>()
+export async function uploadAvatar(db: Client, userId: string, file: File, env: NetlifyBindings) {
+  const result = await db.execute({
+    sql: `SELECT id, avatar_url FROM users WHERE id = ?`,
+    args: [userId],
+  })
 
-  if (error) handleSupabaseError(error, 'uploadAvatar.fetch')
+  const profile = result.rows[0]
   if (!profile) throw new AppError('Profile not found', 404, 'PROFILE_NOT_FOUND')
 
   if (profile.avatar_url) {
-    const publicIdMatch = profile.avatar_url.match(/upload\/v\d+\/(.+)/)
+    const publicIdMatch = String(profile.avatar_url).match(/upload\/v\d+\/(.+)/)
     if (publicIdMatch) {
       try {
         await deleteFromCloudinary(publicIdMatch[1], env)
-      } catch {
-        // Ignore deletion errors for old avatar
-      }
+      } catch {}
     }
   }
 
-  const result = await uploadImageToCloudinary(file, `avatars/${userId}`, env)
+  const uploadResult = await uploadImageToCloudinary(file, `avatars/${userId}`, env)
 
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .update({ avatar_url: result.url })
-    .eq('id', userId)
-    .select()
-    .single<ProfileRow>()
+  await db.execute({
+    sql: `UPDATE users SET avatar_url = ? WHERE id = ?`,
+    args: [uploadResult.url, userId],
+  })
 
-  if (updateError) handleSupabaseError(updateError, 'uploadAvatar.update')
-
-  return { url: result.url }
+  return { url: uploadResult.url }
 }
 
-export async function getAddresses(supabase: SupabaseClient, userId: string) {
-  const { data: addresses, error } = await supabase
-    .from('user_addresses')
-    .select('*')
-    .eq('user_id', userId)
-    .order('is_default', { ascending: false })
-    .order('created_at', { ascending: true })
+export async function getAddresses(db: Client, userId: string) {
+  const result = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, created_at ASC`,
+    args: [userId],
+  })
 
-  if (error) handleSupabaseError(error, 'getAddresses')
-
-  return (addresses as AddressRow[]).map(formatAddress)
+  return result.rows.map(formatAddress)
 }
 
-export async function createAddress(supabase: SupabaseClient, userId: string, data: {
+export async function createAddress(db: Client, userId: string, data: {
   label?: string
   fullName: string
   phone: string
@@ -209,45 +174,38 @@ export async function createAddress(supabase: SupabaseClient, userId: string, da
   postalCode?: string
   country?: string
 }) {
-  const { count, error: countError } = await supabase
-    .from('user_addresses')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as count FROM user_addresses WHERE user_id = ?`,
+    args: [userId],
+  })
 
-  if (countError) handleSupabaseError(countError, 'createAddress.count')
-  if ((count ?? 0) >= 5) {
+  const count = Number(countResult.rows[0]?.count ?? 0)
+  if (count >= 5) {
     throw new AppError('Maximum 5 addresses allowed', 400, 'MAX_ADDRESSES')
   }
 
-  const isFirst = (count ?? 0) === 0
+  const isFirst = count === 0
+  const id = crypto.randomUUID()
 
-  const insertData = {
-    user_id: userId,
-    label: data.label || null,
-    full_name: data.fullName,
-    phone: data.phone,
-    address_1: data.address1,
-    address_2: data.address2 || null,
-    city: data.city,
-    district: data.district || null,
-    province: data.province || null,
-    postal_code: data.postalCode || null,
-    country: data.country || 'Nepal',
-    is_default: isFirst,
-  }
+  await db.execute({
+    sql: `INSERT INTO user_addresses (id, user_id, label, full_name, phone, address_1, address_2, city, district, province, postal_code, country, is_default, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+    args: [
+      id, userId, data.label || null, data.fullName, data.phone,
+      data.address1, data.address2 || null, data.city,
+      data.district || null, data.province || null, data.postalCode || null,
+      data.country || 'Nepal', isFirst ? 1 : 0,
+    ],
+  })
 
-  const { data: address, error } = await supabase
-    .from('user_addresses')
-    .insert(insertData)
-    .select()
-    .single<AddressRow>()
+  const addressResult = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE id = ?`,
+    args: [id],
+  })
 
-  if (error) handleSupabaseError(error, 'createAddress')
-
-  return formatAddress(address)
+  return formatAddress(addressResult.rows[0])
 }
 
-export async function updateAddress(supabase: SupabaseClient, userId: string, addressId: string, data: {
+export async function updateAddress(db: Client, userId: string, addressId: string, data: {
   label?: string
   fullName?: string
   phone?: string
@@ -259,108 +217,104 @@ export async function updateAddress(supabase: SupabaseClient, userId: string, ad
   postalCode?: string
   country?: string
 }) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('user_addresses')
-    .select('*')
-    .eq('id', addressId)
-    .eq('user_id', userId)
-    .single<AddressRow>()
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE id = ? AND user_id = ?`,
+    args: [addressId, userId],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'updateAddress.fetch')
+  const existing = existingResult.rows[0]
   if (!existing) throw new AppError('Address not found', 404, 'ADDRESS_NOT_FOUND')
 
-  const updateData: Record<string, unknown> = {}
-  if (data.label !== undefined) updateData.label = data.label || null
-  if (data.fullName !== undefined) updateData.full_name = data.fullName
-  if (data.phone !== undefined) updateData.phone = data.phone
-  if (data.address1 !== undefined) updateData.address_1 = data.address1
-  if (data.address2 !== undefined) updateData.address_2 = data.address2 || null
-  if (data.city !== undefined) updateData.city = data.city
-  if (data.district !== undefined) updateData.district = data.district || null
-  if (data.province !== undefined) updateData.province = data.province || null
-  if (data.postalCode !== undefined) updateData.postal_code = data.postalCode || null
-  if (data.country !== undefined) updateData.country = data.country
+  const updates: string[] = []
+  const args: any[] = []
 
-  if (Object.keys(updateData).length === 0) {
+  if (data.label !== undefined) { updates.push('label = ?'); args.push(data.label || null) }
+  if (data.fullName !== undefined) { updates.push('full_name = ?'); args.push(data.fullName) }
+  if (data.phone !== undefined) { updates.push('phone = ?'); args.push(data.phone) }
+  if (data.address1 !== undefined) { updates.push('address_1 = ?'); args.push(data.address1) }
+  if (data.address2 !== undefined) { updates.push('address_2 = ?'); args.push(data.address2 || null) }
+  if (data.city !== undefined) { updates.push('city = ?'); args.push(data.city) }
+  if (data.district !== undefined) { updates.push('district = ?'); args.push(data.district || null) }
+  if (data.province !== undefined) { updates.push('province = ?'); args.push(data.province || null) }
+  if (data.postalCode !== undefined) { updates.push('postal_code = ?'); args.push(data.postalCode || null) }
+  if (data.country !== undefined) { updates.push('country = ?'); args.push(data.country) }
+
+  if (updates.length === 0) {
     return formatAddress(existing)
   }
 
-  const { data: updated, error } = await supabase
-    .from('user_addresses')
-    .update(updateData)
-    .eq('id', addressId)
-    .select()
-    .single<AddressRow>()
+  updates.push('updated_at = datetime(\'now\')')
+  args.push(addressId)
 
-  if (error) handleSupabaseError(error, 'updateAddress')
+  await db.execute({
+    sql: `UPDATE user_addresses SET ${updates.join(', ')} WHERE id = ?`,
+    args,
+  })
 
-  return formatAddress(updated!)
+  const updatedResult = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE id = ?`,
+    args: [addressId],
+  })
+
+  return formatAddress(updatedResult.rows[0])
 }
 
-export async function deleteAddress(supabase: SupabaseClient, userId: string, addressId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('user_addresses')
-    .select('*')
-    .eq('id', addressId)
-    .eq('user_id', userId)
-    .single<AddressRow>()
+export async function deleteAddress(db: Client, userId: string, addressId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE id = ? AND user_id = ?`,
+    args: [addressId, userId],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'deleteAddress.fetch')
+  const existing = existingResult.rows[0]
   if (!existing) throw new AppError('Address not found', 404, 'ADDRESS_NOT_FOUND')
 
-  const wasDefault = existing.is_default
+  const wasDefault = fromSqliteBool(existing.is_default as number)
 
-  const { error: deleteError } = await supabase
-    .from('user_addresses')
-    .delete()
-    .eq('id', addressId)
-
-  if (deleteError) handleSupabaseError(deleteError, 'deleteAddress')
+  await db.execute({
+    sql: `DELETE FROM user_addresses WHERE id = ?`,
+    args: [addressId],
+  })
 
   if (wasDefault) {
-    const { data: nextAddress } = await supabase
-      .from('user_addresses')
-      .select('id')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .maybeSingle()
+    const nextResult = await db.execute({
+      sql: `SELECT id FROM user_addresses WHERE user_id = ? ORDER BY created_at ASC LIMIT 1`,
+      args: [userId],
+    })
 
-    if (nextAddress) {
-      await supabase
-        .from('user_addresses')
-        .update({ is_default: true })
-        .eq('id', nextAddress.id)
+    if (nextResult.rows[0]) {
+      await db.execute({
+        sql: `UPDATE user_addresses SET is_default = 1 WHERE id = ?`,
+        args: [nextResult.rows[0].id],
+      })
     }
   }
 
   return { deleted: true }
 }
 
-export async function setDefaultAddress(supabase: SupabaseClient, userId: string, addressId: string) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('user_addresses')
-    .select('*')
-    .eq('id', addressId)
-    .eq('user_id', userId)
-    .single<AddressRow>()
+export async function setDefaultAddress(db: Client, userId: string, addressId: string) {
+  const existingResult = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE id = ? AND user_id = ?`,
+    args: [addressId, userId],
+  })
 
-  if (fetchError) handleSupabaseError(fetchError, 'setDefaultAddress.fetch')
+  const existing = existingResult.rows[0]
   if (!existing) throw new AppError('Address not found', 404, 'ADDRESS_NOT_FOUND')
 
-  await supabase
-    .from('user_addresses')
-    .update({ is_default: false })
-    .eq('user_id', userId)
+  await db.execute({
+    sql: `UPDATE user_addresses SET is_default = 0 WHERE user_id = ?`,
+    args: [userId],
+  })
 
-  const { data: updated, error } = await supabase
-    .from('user_addresses')
-    .update({ is_default: true })
-    .eq('id', addressId)
-    .select()
-    .single<AddressRow>()
+  await db.execute({
+    sql: `UPDATE user_addresses SET is_default = 1 WHERE id = ?`,
+    args: [addressId],
+  })
 
-  if (error) handleSupabaseError(error, 'setDefaultAddress')
+  const updatedResult = await db.execute({
+    sql: `SELECT * FROM user_addresses WHERE id = ?`,
+    args: [addressId],
+  })
 
-  return formatAddress(updated!)
+  return formatAddress(updatedResult.rows[0])
 }

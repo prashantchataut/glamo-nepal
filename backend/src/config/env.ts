@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  SUPABASE_URL: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  TURSO_DB_URL: z.string().min(1),
+  TURSO_AUTH_TOKEN: z.string().min(1),
+  FIREBASE_PROJECT_ID: z.string().default('ankura-studio'),
   RESEND_API_KEY: z.string().optional().default(''),
-  R2_PUBLIC_URL: z.string().optional().default(''),
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(''),
   CLOUDINARY_API_KEY: z.string().optional().default(''),
   CLOUDINARY_API_SECRET: z.string().optional().default(''),
