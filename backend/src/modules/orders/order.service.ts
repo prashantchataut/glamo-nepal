@@ -4,6 +4,9 @@ import { createAuditLog } from '../../utils/audit'
 import { generateOrderNumber } from '../../utils/orderNumber'
 import { toDisplayPrice, toStoredPrice } from '../../utils/price'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
+import { getEnv } from '../../utils/env'
+import type { AppEnv } from '../../types/bindings'
+import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
 
 interface ProductRow {
@@ -430,7 +433,7 @@ async function fetchOrderWithRelations(orderId: string, db: Client) {
   return formatOrder(row, items, history, profile)
 }
 
-export async function createOrder(data: CreateOrderInput, db: Client, authUserId?: string) {
+export async function createOrder(data: CreateOrderInput, db: Client, authUserId?: string, c?: Context<AppEnv>) {
   const userId = await findOrCreateCustomer(data, db, authUserId)
   const orderId = crypto.randomUUID()
   const orderNumber = generateOrderNumber()
@@ -461,9 +464,11 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
   }
 
   const shippingCharge = data.deliveryFee !== undefined ? toStoredPrice(data.deliveryFee) : 0
+  const isCOD = data.paymentMethod ? ['CASH_ON_DELIVERY', 'COD', 'cod', 'Cash on Delivery'].includes(data.paymentMethod) : false
+  const codFee = isCOD && c ? parseInt(getEnv(c, 'COD_FEE') || '50', 10) : (isCOD ? 50 : 0)
   const discountAmount = 0
   const requestedTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
-  const calculatedTotal = Math.max(0, subtotal + shippingCharge - discountAmount)
+  const calculatedTotal = Math.max(0, subtotal + shippingCharge + codFee - discountAmount)
   const totalAmount = requestedTotal && requestedTotal >= calculatedTotal ? requestedTotal : calculatedTotal
   const shippingAddress = normalizeAddress(data.shippingAddress, data.customer?.name, data.customer?.phone)
   const billingAddress = data.billingAddress ? normalizeAddress(data.billingAddress, data.customer?.name, data.customer?.phone) : null

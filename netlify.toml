@@ -19,7 +19,7 @@
 # ──────────────────────────────────────────────
 
 [build]
-  command = "pnpm build && cd backend && npm run build"
+  command = "pnpm build && cd backend && pnpm install"
   publish = ".next"
 
 [build.environment]

@@ -10,7 +10,7 @@ export async function createOrder(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const db = c.get('db')
     const user = safeUser(c)
-    const order = await OrderService.createOrder(data, db, user?.id)
+    const order = await OrderService.createOrder(data, db, user?.id, c)
     return ApiResponse.success(c, 'Order created successfully', order, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
