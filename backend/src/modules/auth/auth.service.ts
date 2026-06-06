@@ -120,6 +120,19 @@ export async function findOrCreateUser(
         args: [params.email],
       })
       if (byEmail.rows.length > 0) {
+        // Update the existing user's ID to match Firebase UID
+        // This handles the case where an admin was created with a placeholder ID
+        await db.execute({
+          sql: "UPDATE users SET id = ?, updated_at = datetime('now') WHERE email = ? AND deleted_at IS NULL",
+          args: [params.uid, params.email],
+        })
+        const updated = await db.execute({
+          sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+          args: [params.uid],
+        })
+        if (updated.rows.length > 0) {
+          return formatUser(updated.rows[0])
+        }
         return formatUser(byEmail.rows[0])
       }
     }

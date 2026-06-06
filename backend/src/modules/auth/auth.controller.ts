@@ -20,9 +20,12 @@ export async function register(c: Context<AppEnv>) {
 
 export async function findOrCreateUser(c: Context<AppEnv>) {
   try {
-    const data = c.get('validatedBody')
+    const authUser = c.get('user')
     const db = c.get('db')
-    const result = await AuthService.findOrCreateUser(data, db)
+    const result = await AuthService.findOrCreateUser({
+      uid: authUser.id,
+      email: authUser.email,
+    }, db)
     return ApiResponse.success(c, 'User synced', result)
   } catch (error: any) {
     if (error instanceof AppError) {
