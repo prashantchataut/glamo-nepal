@@ -2,9 +2,9 @@ const { createClient } = require('@libsql/client');
 const https = require('https');
 const fs = require('fs');
 
-const TURSO_ORG = 'prashantchataut';
-const TURSO_DB = 'glamo-nepal';
-const TURSO_PLATFORM_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJncm91cF91dWlkIjoiYzQ4NGYyMmEtMGY0ZC00Y2NmLTlkYTAtYmI0MTVkYTkzZjFhIiwianRpIjoiZVozZHVXREZFZkdDWnFKbUVjUWpnZyIsIm9yZ19pZCI6MTAwMDE3NjY3NSwic2NvcGVzIjp7InNjb3BlcyI6WyJkYjpjb25maWd1cmUiLCJkYjpjcmVhdGUiLCJkYjpkZWxldGUiLCJkYjptaW50LXRva2VuIiwiZGI6cm90YXRlLWNyZWRzIiwiZ3JvdXA6Y29uZmlndXJlIiwiZ3JvdXA6bWludC10b2tlbiIsImdyb3VwOnJvdGF0ZS1jcmVkcyIsInJlYWQiXX19.AZpwqy5deGsePkfAOnbSnhAEvJyawZdWngEvcH3l3VtC2Miq4kb69qYslgbEDH0oRwQBIMsBiuTQR7Zo3oi2DA';
+const TURSO_ORG = process.env.TURSO_ORG || 'prashantchataut';
+const TURSO_DB = process.env.TURSO_DB_NAME || 'glamo-nepal';
+const TURSO_PLATFORM_TOKEN = process.env.TURSO_PLATFORM_TOKEN || '';
 
 function apiRequest(path, method = 'GET', body = null) {
   return new Promise((resolve, reject) => {
