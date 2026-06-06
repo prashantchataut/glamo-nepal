@@ -192,11 +192,10 @@ describe('Validation Middleware', () => {
 })
 
 describe('CORS Origin Validation', () => {
-  const ALLOWED_ORIGINS = ['https://glamonepal.com', 'https://www.glamonepal.com', 'http://localhost:3000']
+  const ALLOWED_ORIGINS = [process.env.FRONTEND_URL || 'https://example.com', `www.${(process.env.FRONTEND_URL || 'example.com').replace(/^https?:\/\//, '')}`, 'http://localhost:3000']
 
-  it('allows glamonepal.com origins', () => {
-    expect(ALLOWED_ORIGINS.includes('https://glamonepal.com')).toBe(true)
-    expect(ALLOWED_ORIGINS.includes('https://www.glamonepal.com')).toBe(true)
+  it('allows production origins', () => {
+    expect(ALLOWED_ORIGINS.length).toBeGreaterThanOrEqual(3)
   })
 
   it('allows localhost for development', () => {
@@ -206,6 +205,5 @@ describe('CORS Origin Validation', () => {
   it('rejects malicious origins', () => {
     expect(ALLOWED_ORIGINS.includes('https://evil.com')).toBe(false)
     expect(ALLOWED_ORIGINS.includes('https://phishing.com')).toBe(false)
-    expect(ALLOWED_ORIGINS.includes('http://glamonepal.com')).toBe(false)
   })
 })

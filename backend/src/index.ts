@@ -30,7 +30,7 @@ import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
 
-const PRODUCTION_ORIGINS = ['https://glamonepal.com', 'https://www.glamonepal.com']
+const PRODUCTION_ORIGINS = [process.env.FRONTEND_URL || 'https://glamonepal.com', `www.${process.env.FRONTEND_URL?.replace(/^https?:\/\//, '') || 'www.glamonepal.com'}`]
 const DEVELOPMENT_ORIGINS = ['http://localhost:3000', 'http://localhost:3001']
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const ALLOWED_ORIGINS = IS_PRODUCTION ? PRODUCTION_ORIGINS : [...PRODUCTION_ORIGINS, ...DEVELOPMENT_ORIGINS]

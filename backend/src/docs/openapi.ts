@@ -12,7 +12,7 @@ export const openApiSpec = {
     },
   },
   servers: [
-    { url: 'https://api.glamonepal.com', description: 'Production' },
+    { url: '/api/v1', description: 'Current server' },
     { url: 'http://localhost:8787', description: 'Local development' },
   ],
   security: [
