@@ -31,6 +31,26 @@ function setAuthCookie(token: string | null) {
   }
 }
 
+async function syncUserWithBackend(token: string) {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
+    const res = await fetch(`${apiUrl}/auth/sync`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.data) {
+        return data.data;
+      }
+    }
+  } catch {}
+  return null;
+}
+
 export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,19 +70,41 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         try {
           const token = await user.getIdToken();
           setAuthCookie(token);
+
+          const backendUser = await syncUserWithBackend(token);
+
+          if (backendUser) {
+            login({
+              id: backendUser.id || user.uid,
+              email: backendUser.email || user.email || undefined,
+              name: backendUser.firstName
+                ? `${backendUser.firstName}${backendUser.lastName ? " " + backendUser.lastName : ""}`
+                : user.displayName || user.email?.split("@")[0] || "User",
+              phone: backendUser.phone || "",
+              role: backendUser.role || "customer",
+            });
+          } else {
+            login({
+              id: user.uid,
+              email: user.email || undefined,
+              name: user.displayName || user.email?.split("@")[0] || "User",
+              phone: user.phoneNumber || "",
+              role: "customer",
+            });
+          }
+
+          useCartStore.getState().syncFromServer();
+          useWishlistStore.getState().syncFromServer();
         } catch {
           setAuthCookie(null);
+          login({
+            id: user.uid,
+            email: user.email || undefined,
+            name: user.displayName || user.email?.split("@")[0] || "User",
+            phone: user.phoneNumber || "",
+            role: "customer",
+          });
         }
-        login({
-          id: user.uid,
-          email: user.email || undefined,
-          name: user.displayName || user.email?.split("@")[0] || "User",
-          phone: user.phoneNumber || "",
-          role: "customer",
-        });
-
-        useCartStore.getState().syncFromServer();
-        useWishlistStore.getState().syncFromServer();
       } else {
         setAuthCookie(null);
         logout();

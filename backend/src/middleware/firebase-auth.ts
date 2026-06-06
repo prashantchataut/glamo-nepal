@@ -10,7 +10,8 @@ function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
 }
 
 function buildJwksUri(projectId: string): string {
-  return `https://www.googleapis.com/service_accounts/v1/jwk/cert?email=firebase-adminsdk-fbsvc@${projectId}.iam.gserviceaccount.com`
+  // Client-issued Firebase ID tokens are signed by securetoken.google.com
+  return `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`
 }
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>()
@@ -47,6 +48,15 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     const projectId = getFirebaseProjectId(c)
     const { uid, email } = await verifyFirebaseToken(token, projectId)
 
+    const isSyncRoute = c.req.path.endsWith('/sync')
+
+    if (isSyncRoute) {
+      // For /sync, we don't enforce DB existence so the route can create the user
+      c.set('user', { id: uid, email, role: 'customer', isActive: true })
+      await next()
+      return
+    }
+
     const db = c.get('db')
     const result = await db.execute({
       sql: 'SELECT id, role, is_active FROM users WHERE id = ?',
@@ -80,6 +90,6 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
 function getCookieToken(c: Parameters<typeof authMiddleware>[0]): string | undefined {
   const cookieHeader = c.req.header('Cookie')
   if (!cookieHeader) return undefined
-  const match = cookieHeader.match(/(?:^|;\s*)__Host-access_token=([^;]+)/)
+  const match = cookieHeader.match(/(?:^|;\s*)glamo-access-token=([^;]+)/)
   return match?.[1]
 }
