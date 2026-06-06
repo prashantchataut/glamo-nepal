@@ -105,8 +105,21 @@ turso db create glamo-nepal
 turso db show glamo-nepal
 ```
 
-### 2. Run Schema
+### 2. Run Schema (automated setup script)
 
+```bash
+cd backend
+node setup-db.cjs
+```
+
+This script automatically:
+1. Creates a database auth token via Turso Platform API
+2. Connects to the database
+3. Runs all CREATE TABLE statements (25 tables, dependency-ordered)
+4. Runs all CREATE INDEX statements (28 indexes)
+5. Updates `backend/.env` with the working auth token
+
+Alternatively, run schema manually:
 ```bash
 turso db shell glamo-nepal < backend/src/scripts/schema.sql
 ```
@@ -115,13 +128,32 @@ turso db shell glamo-nepal < backend/src/scripts/schema.sql
 
 ```bash
 cd backend
-pnpm db:seed
+TURSO_DB_URL=libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io \
+TURSO_AUTH_TOKEN=<your-token> \
+npx tsx src/scripts/seed.ts
 ```
 
-### 4. Get Credentials
+### 4. Create Admin User
 
-- **TURSO_DB_URL**: From `turso db show glamo-nepal` (the `libsql://` URL)
-- **TURSO_AUTH_TOKEN**: From Turso Dashboard → Database → Settings → Tokens
+```bash
+# Sign up through the frontend first, then promote:
+cd backend
+TURSO_DB_URL=libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io \
+TURSO_AUTH_TOKEN=<your-token> \
+ADMIN_EMAIL=your@email.com \
+npx tsx src/scripts/promote-admin.ts
+```
+
+Or list all users (without promoting):
+```bash
+cd backend
+TURSO_DB_URL=... TURSO_AUTH_TOKEN=... npx tsx src/scripts/promote-admin.ts
+```
+
+### 5. Get Credentials
+
+- **TURSO_DB_URL**: `libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io`
+- **TURSO_AUTH_TOKEN**: Created automatically by `setup-db.cjs`, or from Turso Dashboard → Database → Settings → Tokens
 - Paste both into `backend/.env`
 
 ## Firebase Auth Setup
@@ -143,8 +175,14 @@ pnpm db:seed
 
 1. Sign up via the frontend app
 2. Get the user's Firebase UID from Firebase Console → Authentication
-3. Update their role in the database:
+3. Promote via script:
 
+```bash
+cd backend
+ADMIN_EMAIL=your@email.com npx tsx src/scripts/promote-admin.ts
+```
+
+Or manually via Turso shell:
 ```bash
 turso db shell glamo-nepal "UPDATE users SET role = 'SUPER_ADMIN' WHERE email = 'your@email.com';"
 ```
