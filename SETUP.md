@@ -2,63 +2,80 @@
 
 ## Prerequisites
 
-- Node.js 18+
-- npm 9+
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/): `npm i -g wrangler`
-- [Supabase](https://supabase.com) account (cloud-hosted database)
+- Node.js 22+
+- pnpm 9+
+- [Turso](https://turso.tech) account (SQLite database)
+- [Firebase](https://console.firebase.google.com) project (authentication)
 - [Cloudinary](https://cloudinary.com) account (image uploads)
-- [Resend](https://resend.com) account (email)
+- [Resend](https://resend.com) account (email — optional)
 
 ## Quick Start
 
 ```bash
 # 1. Install dependencies
-npm install
-cd backend && npm install && cd ..
+pnpm install
+cd backend && pnpm install && cd ..
 
 # 2. Configure environment variables
-# Edit .env.local (root) — admin credentials already set
-# Edit backend/.dev.vars — add your Supabase + Cloudinary keys
+# Copy .env.example → .env.local (root) and fill in Firebase + Cloudinary keys
+cp .env.example .env.local
 
-# 3. Start backend (terminal 1)
+# Copy backend/.env.example → backend/.env and fill in Turso + Firebase keys
+cp backend/.env.example backend/.env
+
+# 3. Create Turso database and run schema
+turso db create glamo-nepal
+turso db shell glamo-nepal < backend/src/scripts/schema.sql
+
+# 4. Seed the database
+cd backend && pnpm db:seed && cd ..
+
+# 5. Start backend (terminal 1)
 cd backend
-wrangler dev
-# Backend runs on http://localhost:8787
+pnpm dev
+# Backend runs on http://localhost:3001
 
-# 4. Start frontend (terminal 2)
-npm run dev
+# 6. Start frontend (terminal 2)
+pnpm dev
 # Frontend runs on http://localhost:3000
 
-# 5. Open admin panel
-# http://localhost:3000/admin/login
-# Email: <your-admin-email-from-env>
-# Password: <your-admin-password-from-env>
+# 7. Create admin user
+# Sign up via Firebase Auth, then update their role in the database:
+# turso db shell glamo-nepal "UPDATE users SET role = 'SUPER_ADMIN' WHERE email = 'your@email.com';"
 ```
 
 ## Environment Variables
 
-### .env.local (root)
+### .env.local (root — frontend)
 
-| Variable | Purpose | Status |
-|----------|---------|--------|
-| `ADMIN_EMAIL` | Admin login email | Set |
-| `ADMIN_PASSWORD` | Admin login password | Set |
-| `ADMIN_SESSION_SECRET` | HMAC signing key for admin cookies | Set |
-| `AUTH_SECRET` | Fallback auth secret | Set |
-| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL | Set to `http://localhost:8787/api/v1` |
+| Variable | Purpose | Required? |
+|----------|---------|-----------|
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase Web API key | **Yes** |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase auth domain | **Yes** |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project ID | **Yes** |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket | **Yes** |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID | **Yes** |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase app ID | **Yes** |
+| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL | `http://localhost:3001/api/v1` |
 | `NEXT_PUBLIC_SITE_URL` | Frontend URL | `http://localhost:3000` |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | Required for image uploads |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | **Yes** (for image uploads) |
 | `NEXT_PUBLIC_KHALTI_PUBLIC_KEY` | Khalti public key | For payments |
+| `NEXT_PUBLIC_ESEWA_MERCHANT_ID` | eSewa merchant ID | For payments |
+| `ADMIN_EMAIL` | Admin login email | **Yes** |
+| `ADMIN_PASSWORD` | Admin login password | **Yes** |
+| `ADMIN_SESSION_SECRET` | HMAC signing key for admin cookies | **Yes** |
+| `AUTH_SECRET` | Fallback auth secret | **Yes** |
 | `KHALTI_SECRET_KEY` | Khalti secret key | For payments |
 | `ESEWA_SECRET_KEY` | eSewa secret key | For payments |
 | `ESEWA_MERCHANT_CODE` | eSewa merchant code | For payments |
 
-### backend/.dev.vars
+### backend/.env
 
 | Variable | Purpose | Required? |
 |----------|---------|-----------|
-| `SUPABASE_URL` | Supabase project URL | **REQUIRED** |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | **REQUIRED** |
+| `TURSO_DB_URL` | Turso database URL | **Yes** |
+| `TURSO_AUTH_TOKEN` | Turso auth token | **Yes** |
+| `FIREBASE_PROJECT_ID` | Firebase project ID (for JWT verification) | **Yes** |
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | For image uploads |
 | `CLOUDINARY_API_KEY` | Cloudinary API key | For image uploads |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret | For image uploads |
@@ -66,41 +83,84 @@ npm run dev
 | `KHALTI_SECRET_KEY` | Khalti secret key | For payments |
 | `ESEWA_SECRET_KEY` | eSewa secret key | For payments |
 | `ESEWA_MERCHANT_CODE` | eSewa merchant code | For payments |
-| `JWT_PRIVATE_KEY` | RS256 private key (PEM) | For auth tokens |
-| `JWT_PUBLIC_KEY` | RS256 public key (PEM) | For auth tokens |
+| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:3000` |
+| `FREE_SHIPPING_THRESHOLD` | Free shipping threshold in paisa | `250000` (2500 NPR) |
+| `COD_FEE` | Cash on delivery fee in paisa | `5000` (50 NPR) |
 
 ## Database Setup
 
-### 1. Create Supabase Project
-Go to [supabase.com](https://supabase.com) → New Project → Note your project URL and service role key.
+### 1. Create Turso Database
 
-### 2. Run Migrations
 ```bash
-# Option A: Run against Supabase SQL Editor
-# Copy backend/supabase/migrations/*.sql and run in order
+# Install Turso CLI
+curl -sSfL https://get.tur.so/install.sh | bash
 
-# Option B: Run locally with Supabase CLI
-supabase start
-supabase db push
+# Login
+turso auth login
+
+# Create database
+turso db create glamo-nepal
+
+# Get connection info
+turso db show glamo-nepal
 ```
 
-### 3. Get Credentials
-- **SUPABASE_URL**: Project Settings → API → Project URL
-- **SUPABASE_SERVICE_ROLE_KEY**: Project Settings → API → service_role key
-- Paste both into `backend/.dev.vars`
+### 2. Run Schema
+
+```bash
+turso db shell glamo-nepal < backend/src/scripts/schema.sql
+```
+
+### 3. Seed Data
+
+```bash
+cd backend
+pnpm db:seed
+```
+
+### 4. Get Credentials
+
+- **TURSO_DB_URL**: From `turso db show glamo-nepal` (the `libsql://` URL)
+- **TURSO_AUTH_TOKEN**: From Turso Dashboard → Database → Settings → Tokens
+- Paste both into `backend/.env`
+
+## Firebase Auth Setup
+
+### 1. Create Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com) → Create Project
+2. Enable Authentication → Sign-in method → Enable Email/Password
+3. Go to Project Settings → General → Add Web App
+4. Copy the Firebase config values to `.env.local`
+
+### 2. Get Service Account (for backend JWT verification)
+
+1. Firebase Console → Project Settings → Service Accounts
+2. The backend only needs `FIREBASE_PROJECT_ID` — it verifies JWTs using the project's public JWK set
+3. No service account key file needed
+
+### 3. Create Admin User
+
+1. Sign up via the frontend app
+2. Get the user's Firebase UID from Firebase Console → Authentication
+3. Update their role in the database:
+
+```bash
+turso db shell glamo-nepal "UPDATE users SET role = 'SUPER_ADMIN' WHERE email = 'your@email.com';"
+```
 
 ## Admin Login
 
-The admin login uses HMAC-signed cookies. It does **not** require the backend to be running.
+The admin login uses HMAC-signed cookies. It does **not** require Firebase — it uses `ADMIN_EMAIL` and `ADMIN_PASSWORD` from environment variables.
 
 ### Credentials
-- Email: (set via `ADMIN_EMAIL` in `.env.local`)
-- Password: (set via `ADMIN_PASSWORD` in `.env.local`)
+- Email: set via `ADMIN_EMAIL` in `.env.local`
+- Password: set via `ADMIN_PASSWORD` in `.env.local`
 
 ### Flow
 1. Visit `/admin/login`
 2. CSRF token cookie is set by middleware
-3. Submit form → POST `/api/admin/login`
+3. Submit form → POST `/api/v1/admin/login`
 4. Server verifies credentials, creates HMAC-signed session cookie
 5. Redirect to `/admin`
 
@@ -112,12 +172,13 @@ The admin login uses HMAC-signed cookies. It does **not** require the backend to
 
 ```bash
 cd backend
-wrangler dev
+pnpm dev
 ```
 
-The backend starts on `http://localhost:8787`. All API routes are prefixed with `/api/v1/`.
+The backend starts on `http://localhost:3001`. All API routes are prefixed with `/api/v1/`.
 
 ### Backend Routes
+
 | Module | Route |
 |--------|-------|
 | Admin | `/api/v1/admin/*` |
@@ -128,6 +189,16 @@ The backend starts on `http://localhost:8787`. All API routes are prefixed with 
 | Categories | `/api/v1/categories/*` |
 | Brands | `/api/v1/brands/*` |
 | Auth | `/api/v1/auth/*` |
+| Cart | `/api/v1/cart/*` |
+| Wishlist | `/api/v1/wishlist/*` |
+| Coupons | `/api/v1/coupons/*` |
+| Checkout | `/api/v1/checkout/*` |
+| Reviews | `/api/v1/reviews/*` |
+| Blog | `/api/v1/blogs/*` |
+| Gallery | `/api/v1/gallery/*` |
+| Team | `/api/v1/team/*` |
+| Newsletter | `/api/v1/newsletter/*` |
+| Health | `/health` |
 
 ## Common Issues
 
@@ -135,7 +206,7 @@ The backend starts on `http://localhost:8787`. All API routes are prefixed with 
 `NEXT_PUBLIC_API_BASE_URL` is not set in `.env.local`. Restart Next.js dev server after adding it.
 
 ### "NETWORK_ERROR" or "Could not reach the API backend"
-The Hono backend is not running. Start it with `wrangler dev` in the `backend/` directory.
+The Hono backend is not running. Start it with `pnpm dev` in the `backend/` directory.
 
 ### Admin login returns "Admin login is not configured"
 `ADMIN_EMAIL` and `ADMIN_PASSWORD` are not set in `.env.local`.
@@ -149,25 +220,30 @@ The backend is not running or `NEXT_PUBLIC_API_BASE_URL` is wrong. Admin login w
 - The cookie name is `glamo-admin-session` in dev, `__Host-glamo-admin-session` in prod
 
 ### CORS errors
-The backend allows `http://localhost:3000` by default. If using a different port, update `ALLOWED_ORIGINS` in `backend/src/index.ts`.
+The backend allows `http://localhost:3000` by default. If using a different port, update `FRONTEND_URL` in `backend/.env`.
+
+### Firebase auth token errors
+- Verify `FIREBASE_PROJECT_ID` in `backend/.env` matches your Firebase project
+- Check that the frontend Firebase config matches the same project
+- Ensure the user signed up successfully in Firebase Console → Authentication
 
 ## Production Deployment
 
 ### Frontend (Netlify)
 ```bash
-npm run build
-# Deploy .next/ to Netlify
+pnpm build
+# Deploy to Netlify via git push or CLI
 ```
-Set all environment variables in Netlify dashboard.
+Set all environment variables in Netlify dashboard (Settings → Environment variables).
 
-### Backend (Cloudflare Workers)
+### Backend (Netlify Functions)
 ```bash
 cd backend
-wrangler deploy
+# Deploy to Netlify via git push or CLI
 ```
-Set secrets with `wrangler secret put SUPABASE_URL` etc.
+Set all environment variables in Netlify dashboard. The `netlify.toml` handles the rest.
 
 ### Production URLs
 - Frontend: `https://glamonepal.com`
-- Backend: `https://api.glamonepal.com`
+- Backend: `https://glamonepal.com/.netlify/functions/api`
 - Admin: `https://glamonepal.com/admin`

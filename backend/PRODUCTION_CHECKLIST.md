@@ -1,70 +1,84 @@
 # GLAMO Nepal API — Production Checklist
 
-## Supabase Setup
+## Turso Database Setup
 
-- [ ] Create Supabase project at https://supabase.com
-- [ ] Copy project URL and service role key
-- [ ] Run migration `0001_initial_schema.sql` in Supabase SQL Editor
-- [ ] Run seed data `0002_seed_data.sql` in Supabase SQL Editor
-- [ ] Verify all tables created: check Table Editor in Supabase dashboard
-- [ ] Create admin user via Supabase Auth signup
-- [ ] Update admin profile role: `UPDATE profiles SET role = 'SUPER_ADMIN' WHERE email = '<your-admin-email>';`
-- [ ] Configure Supabase Auth: set site URL to production frontend URL
-- [ ] Configure Supabase Auth: add email templates for verification and password reset
+- [ ] Create Turso database: `turso db create glamo-nepal`
+- [ ] Run schema: `turso db shell glamo-nepal < src/scripts/schema.sql`
+- [ ] Run seed: `pnpm db:seed`
+- [ ] Verify all tables created: `turso db shell glamo-nepal ".tables"`
+- [ ] Get `TURSO_DB_URL` from `turso db show glamo-nepal`
+- [ ] Generate `TURSO_AUTH_TOKEN` from Turso Dashboard → Database → Settings → Tokens
+- [ ] Create admin user via frontend signup
+- [ ] Update admin role: `turso db shell glamo-nepal "UPDATE users SET role = 'SUPER_ADMIN' WHERE email = '<your-admin-email>';"`
 
-## Cloudflare Resources
+## Firebase Auth Setup
 
-- [ ] Create KV namespace: `wrangler kv:namespace create "GLAMO_KV"`
-- [ ] Update KV `id` in `wrangler.toml`
-- [ ] KV namespace created and ID set in wrangler.toml (run `wrangler kv namespace create RATE_LIMITS`)
-- [ ] Create R2 bucket: `wrangler r2 bucket create glamo-nepal-assets`
-- [ ] Enable R2.dev subdomain or custom domain for public access
-- [ ] Configure custom domain for Worker (e.g., `api.glamonepal.com`)
+- [ ] Create Firebase project at https://console.firebase.google.com
+- [ ] Enable Authentication → Sign-in method → Email/Password
+- [ ] Add Web App → copy config to frontend `.env.local`
+- [ ] Set `FIREBASE_PROJECT_ID` in backend env vars
+- [ ] Verify frontend sign-up creates user in Firebase Console → Authentication
+- [ ] Configure Firebase Auth authorized domains to include production URL
 
-## Environment Variables (Wrangler Secrets)
+## Netlify Deployment
 
-- [ ] Set `SUPABASE_URL`: `wrangler secret put SUPABASE_URL`
-- [ ] Set `SUPABASE_SERVICE_ROLE_KEY`: `wrangler secret put SUPABASE_SERVICE_ROLE_KEY`
-- [ ] Set `RESEND_API_KEY` for transactional emails
-- [ ] Set `KHALTI_SECRET_KEY` for Khalti payments
-- [ ] Set `ESEWA_SECRET_KEY` and `ESEWA_MERCHANT_CODE` for eSewa payments
-- [ ] Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- [ ] Set `R2_PUBLIC_URL` for image CDN
+- [ ] Link site to Netlify: `netlify link` or via dashboard
+- [ ] Set all environment variables in Netlify Dashboard → Settings → Environment variables
+- [ ] Verify `netlify.toml` is correct (function directory, build settings)
+- [ ] Deploy via git push or `netlify deploy --prod`
+- [ ] Verify health endpoint: `curl https://your-site.netlify.app/.netlify/functions/api/health`
+
+## Environment Variables (Netlify)
+
+- [ ] `TURSO_DB_URL` — Turso database connection URL
+- [ ] `TURSO_AUTH_TOKEN` — Turso authentication token
+- [ ] `FIREBASE_PROJECT_ID` — Firebase project ID for JWT verification
+- [ ] `CLOUDINARY_CLOUD_NAME` — Cloudinary cloud name
+- [ ] `CLOUDINARY_API_KEY` — Cloudinary API key
+- [ ] `CLOUDINARY_API_SECRET` — Cloudinary API secret
+- [ ] `RESEND_API_KEY` — Resend API key for transactional emails
+- [ ] `KHALTI_SECRET_KEY` — Khalti secret key for payments
+- [ ] `ESEWA_SECRET_KEY` — eSewa secret key for payments
+- [ ] `ESEWA_MERCHANT_CODE` — eSewa merchant code for payments
+- [ ] `FRONTEND_URL` — Production frontend URL (for CORS)
+- [ ] `FREE_SHIPPING_THRESHOLD` — Free shipping threshold in paisa (default: 250000)
+- [ ] `COD_FEE` — Cash on delivery fee in paisa (default: 5000)
 
 ## Configuration
 
-- [ ] Update `FRONTEND_URL` in `wrangler.toml` to production URL
-- [ ] Update `FREE_SHIPPING_THRESHOLD` in `wrangler.toml` (currently 2500 NPR)
-- [ ] Update `COD_FEE` in `wrangler.toml` (currently 50 NPR)
-- [ ] Set `ADMIN_EMAIL` via `wrangler secret put ADMIN_EMAIL` (remove from wrangler.toml vars)
+- [ ] Verify `FRONTEND_URL` matches production frontend domain
+- [ ] Verify `FREE_SHIPPING_THRESHOLD` is correct (in paisa — 250000 = 2500 NPR)
+- [ ] Verify `COD_FEE` is correct (in paisa — 5000 = 50 NPR)
 - [ ] Verify CORS origin matches frontend domain
+- [ ] Verify Turso database region is close to your users (ap-south for Nepal)
 
 ## Architecture Validation
 
-- [ ] Supabase Edge Function API routes removed (only payment/email functions remain)
-- [ ] Convex removed from frontend and backend
-- [ ] All API routes verified on Hono backend
-- [ ] Rate limiting verified working with KV
+- [ ] All Supabase references removed from codebase
+- [ ] All Convex references removed from codebase
+- [ ] All Cloudflare/Wrangler references removed from codebase
+- [ ] All API routes served via Hono on Netlify Functions
+- [ ] Rate limiting working (in-memory Map)
 - [ ] CORS origins set to production domains
+- [ ] Firebase Auth JWT verification working on backend
 
 ## Security
 
-- [ ] Supabase Auth handles JWT (no custom JWT keys needed)
-- [ ] HTTP-only, Secure, SameSite cookies configured
+- [ ] Firebase Auth handles JWT verification (no custom JWT keys needed)
+- [ ] HTTP-only, Secure, SameSite cookies configured for admin session
 - [ ] CORS restricted to production frontend URL only
-- [ ] CSP headers configured (Content-Security-Policy)
 - [ ] Admin routes protected by `requireRole(['ADMIN', 'SUPER_ADMIN'])`
 - [ ] SuperAdmin-only routes protected by `requireRole(['SUPER_ADMIN'])`
-- [ ] Response sanitization: no password_hash or refresh_token in responses
+- [ ] Response sanitization: no password_hash or sensitive fields in responses
 - [ ] Error messages: no stack traces or DB details in production
-- [ ] Idempotency keys supported on payment endpoints (X-Idempotency-Key header)
-- [ ] Rate limiting active (KV-based, using RATE_LIMITS namespace)
+- [ ] Rate limiting active (in-memory Map-based)
+- [ ] Input validation via Zod schemas on all endpoints
 
-## API Endpoints (All ~120)
+## API Endpoints
 
 ### Auth
-- [ ] POST /api/v1/auth/register — Supabase Auth signup
-- [ ] POST /api/v1/auth/login — Supabase Auth login
+- [ ] POST /api/v1/auth/register — Firebase Auth signup
+- [ ] POST /api/v1/auth/login — Firebase Auth login
 - [ ] POST /api/v1/auth/refresh — Token refresh
 - [ ] POST /api/v1/auth/logout — Sign out
 - [ ] POST /api/v1/auth/forgot-password — Reset password email
@@ -157,23 +171,19 @@
 - [ ] PATCH /api/v1/admin/users/:id/role — Change role (superAdmin)
 - [ ] PATCH /api/v1/admin/users/:id/status — Activate/deactivate
 
-### Documentation
-- [ ] GET /api/docs.json — OpenAPI spec
-- [ ] GET /api/docs — Swagger UI
-
 ### Health
 - [ ] GET /health — Health check
 
 ## Testing
 
-- [ ] Auth registration works with Supabase
+- [ ] Auth registration works with Firebase
 - [ ] Auth login returns access token and refresh token
 - [ ] Protected routes reject unauthenticated requests
 - [ ] Admin routes reject non-admin users
 - [ ] SuperAdmin-only routes reject admin users
 - [ ] Category/brand/product listing with filters works
 - [ ] Image upload to Cloudinary works
-- [ ] KV caching works (check response times)
+- [ ] In-memory caching works (check response times on repeated requests)
 - [ ] Rate limiting works (429 after limit exceeded)
 - [ ] Cart and wishlist operations work
 - [ ] Order creation and payment verification work
@@ -184,7 +194,7 @@
 ## Email
 
 - [ ] Resend API key is valid
-- [ ] Supabase Auth emails configured (verification, password reset)
+- [ ] Firebase Auth emails configured (verification, password reset)
 - [ ] Order confirmation emails send (via Resend)
 - [ ] Newsletter welcome email sends (via Resend)
 
@@ -197,13 +207,14 @@
 
 ## Post-Deployment
 
-- [ ] Monitor Worker logs: `wrangler tail`
-- [ ] Check Supabase dashboard for query performance
-- [ ] Verify KV cache hit rate
+- [ ] Monitor Netlify Function logs for errors
+- [ ] Check Turso dashboard for query performance
+- [ ] Verify cache hit rate (in-memory, resets on redeploy)
 - [ ] Test full auth flow end-to-end
 - [ ] Test product CRUD as admin
 - [ ] Verify image upload and deletion
 - [ ] Check inventory reports
-- [ ] Verify all ~120 endpoints respond correctly
-- [ ] Run `tsc --noEmit` — zero TypeScript errors
-- [ ] Run `wrangler deploy` — deployment succeeds
+- [ ] Verify all endpoints respond correctly
+- [ ] Run `pnpm typecheck` — zero TypeScript errors
+- [ ] Run `pnpm test` — all tests pass
+- [ ] Run `pnpm build` — build succeeds

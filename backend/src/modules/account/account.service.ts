@@ -44,7 +44,7 @@ function formatAddress(row: any) {
 
 export async function getProfile(db: Client, userId: string) {
   const result = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ?`,
+    sql: `SELECT * FROM users WHERE id = ? AND deleted_at IS NULL`,
     args: [userId],
   })
 
@@ -66,7 +66,7 @@ export async function getProfile(db: Client, userId: string) {
 
 export async function updateProfile(db: Client, userId: string, data: { firstName?: string; lastName?: string; phone?: string }, auditUserId: string) {
   const existingResult = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ?`,
+    sql: `SELECT * FROM users WHERE id = ? AND deleted_at IS NULL`,
     args: [userId],
   })
 
@@ -95,8 +95,7 @@ export async function updateProfile(db: Client, userId: string, data: { firstNam
     return formatProfile(profile, { orderCount: 0, wishlistCount: 0, addressCount: 0 })
   }
 
-  updates.push('updated_at = ?')
-  args.push(new Date().toISOString())
+  updates.push("updated_at = datetime('now')")
   args.push(userId)
 
   await db.execute({

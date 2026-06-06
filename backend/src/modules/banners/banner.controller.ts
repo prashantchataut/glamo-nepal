@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
+import { getFullEnv } from '../../utils/env'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as BannerService from './banner.service'
@@ -13,7 +14,7 @@ export async function uploadBannerImage(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'No image file provided', 400)
     }
 
-    const env = c.env
+    const env = getFullEnv(c)
     const result = await BannerService.uploadBannerImage(file, env)
     return ApiResponse.success(c, 'Image uploaded successfully', result)
   } catch (error: any) {

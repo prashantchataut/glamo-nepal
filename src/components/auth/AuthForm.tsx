@@ -60,6 +60,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
         await signInWithEmailAndPassword(email, password);
         toast.success("Signed in successfully.");
       }
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const redirectTo = params.get("redirect") || "/account";
       const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
       router.push(safeRedirect);

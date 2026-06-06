@@ -1,3 +1,7 @@
+// Rate limiter using in-memory storage.
+// IMPORTANT: This is per-instance only. On serverless platforms (e.g., Netlify Functions),
+// each cold start gets a fresh store, so rate limiting is best-effort.
+// For production-grade rate limiting, use Turso-backed or external rate limiting.
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
 

@@ -30,7 +30,10 @@ import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
 
-const ALLOWED_ORIGINS = ['https://glamonepal.com', 'https://www.glamonepal.com', 'http://localhost:3000']
+const PRODUCTION_ORIGINS = ['https://glamonepal.com', 'https://www.glamonepal.com']
+const DEVELOPMENT_ORIGINS = ['http://localhost:3000', 'http://localhost:3001']
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const ALLOWED_ORIGINS = IS_PRODUCTION ? PRODUCTION_ORIGINS : [...PRODUCTION_ORIGINS, ...DEVELOPMENT_ORIGINS]
 
 app.use('*', cors({
   origin: (origin) => {
@@ -46,13 +49,6 @@ app.use('*', cors({
 
 app.use('*', logger())
 app.use('*', secureHeaders())
-app.use('*', async (c, next) => {
-  await next()
-  c.header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https:; connect-src 'self' https://api.glamonepal.com https://res.cloudinary.com", { append: false })
-  c.header('X-Content-Type-Options', 'nosniff', { append: false })
-  c.header('X-Frame-Options', 'DENY', { append: false })
-  c.header('Referrer-Policy', 'strict-origin-when-cross-origin', { append: false })
-})
 app.use('*', tursoMiddleware)
 app.use('*', generalRateLimit)
 

@@ -725,7 +725,7 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
   return fetchOrderWithRelations(rowId, db)
 }
 
-export async function verifyCheckoutPayment(orderId: string, provider: string, token: string, db: Client) {
+export async function verifyCheckoutPayment(orderId: string, provider: string, token: string, db: Client, env?: { KHALTI_SECRET_KEY?: string; ESEWA_SECRET_KEY?: string; ESEWA_MERCHANT_CODE?: string }) {
   const fetchResult = await db.execute({
     sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
     args: [orderId, orderId],
@@ -734,13 +734,35 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
   const row = fetchResult.rows[0]
   const rowId = (row as any).id as string
   const currentStatus = (row as any).status as string
+  const orderTotal = Number((row as any).total_amount || 0)
   const paymentMethod = paymentMethodToDb(provider)
   const nextStatus = currentStatus === 'PENDING' ? 'CONFIRMED' : currentStatus
+
+  let verifiedTransactionId = token
+  const normalizedProvider = provider.toLowerCase()
+
+  if (normalizedProvider === 'khalti' && env?.KHALTI_SECRET_KEY) {
+    const { verifyKhaltiPayment } = await import('../../utils/payment-verify')
+    const result = await verifyKhaltiPayment(token, env.KHALTI_SECRET_KEY)
+    if (!result.verified) {
+      throw new AppError(result.message || 'Khalti payment verification failed', 400, 'PAYMENT_VERIFICATION_FAILED')
+    }
+    verifiedTransactionId = result.transactionId
+  } else if (normalizedProvider === 'esewa' && env?.ESEWA_SECRET_KEY && env?.ESEWA_MERCHANT_CODE) {
+    const { verifyEsewaPayment } = await import('../../utils/payment-verify')
+    const result = await verifyEsewaPayment(token, env.ESEWA_MERCHANT_CODE, env.ESEWA_SECRET_KEY, orderTotal)
+    if (!result.verified) {
+      throw new AppError(result.message || 'eSewa payment verification failed', 400, 'PAYMENT_VERIFICATION_FAILED')
+    }
+    verifiedTransactionId = result.transactionId
+  } else if (normalizedProvider !== 'cod' && normalizedProvider !== 'card' && normalizedProvider !== 'cards') {
+    console.warn(`Payment verification skipped for ${provider}: no credentials configured. Token stored as-is.`)
+  }
 
   try {
     await db.execute({
       sql: `UPDATE orders SET payment_status = 'PAID', payment_method = ?, payment_id = ?, status = ?, updated_at = datetime('now') WHERE id = ?`,
-      args: [paymentMethod, token, nextStatus, rowId],
+      args: [paymentMethod, verifiedTransactionId, nextStatus, rowId],
     })
   } catch (error) {
     handleDbError(error, 'verifyCheckoutPayment.update')

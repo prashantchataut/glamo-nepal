@@ -5,7 +5,9 @@ export interface AdminSessionPayload {
   exp: number;
 }
 
-export const ADMIN_SESSION_COOKIE = "__Host-glamo-admin-session";
+export const ADMIN_SESSION_COOKIE = process.env.NODE_ENV === "production"
+  ? "__Host-glamo-admin-session"
+  : "glamo-admin-session";
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 function getSecret() {

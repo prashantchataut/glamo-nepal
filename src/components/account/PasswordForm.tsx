@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "firebase/auth";
 
 export function PasswordForm() {
@@ -17,6 +17,11 @@ export function PasswordForm() {
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isFirebaseConfigured || !auth) {
+      toast.error("Authentication is not available. Please try again later.");
+      return;
+    }
 
     if (!auth.currentUser) {
       toast.error("Please sign in to change your password.");

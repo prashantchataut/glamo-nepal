@@ -6,7 +6,7 @@ async function sendEmail(
   html: string,
   env: NetlifyBindings
 ): Promise<void> {
-  await fetch('https://api.resend.com/emails', {
+  const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${env.RESEND_API_KEY}`,
@@ -19,6 +19,12 @@ async function sendEmail(
       html,
     }),
   })
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '')
+    console.error(`Resend API error: ${response.status} ${response.statusText}`, body)
+    throw new Error(`Failed to send email: ${response.status} ${response.statusText}`)
+  }
 }
 
 function baseTemplate(content: string): string {

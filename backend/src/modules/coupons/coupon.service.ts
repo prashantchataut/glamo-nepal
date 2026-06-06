@@ -266,8 +266,8 @@ export async function validateCoupon(
   if (coupon.expires_at && (coupon.expires_at as string) < now) {
     throw new AppError('Coupon has expired', 400, 'COUPON_EXPIRED')
   }
-  if (coupon.min_order_amount !== null && (coupon.min_order_amount as number) > 0 && cartTotal < (coupon.min_order_amount as number)) {
-    throw new AppError(`Minimum order amount of ${coupon.min_order_amount} required`, 400, 'COUPON_MIN_ORDER_NOT_MET')
+  if (coupon.min_order_amount !== null && (coupon.min_order_amount as number) > 0 && cartTotal < (coupon.min_order_amount as number) / 100) {
+    throw new AppError(`Minimum order amount of NPR ${(coupon.min_order_amount as number) / 100} required`, 400, 'COUPON_MIN_ORDER_NOT_MET')
   }
   if (coupon.usage_limit !== null && (coupon.usage_count as number) >= (coupon.usage_limit as number)) {
     throw new AppError('Coupon usage limit has been reached', 400, 'COUPON_USAGE_LIMIT_REACHED')

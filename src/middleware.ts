@@ -20,7 +20,15 @@ async function hasValidAdminToken(request: NextRequest): Promise<boolean> {
 function hasFirebaseAuthToken(request: NextRequest): boolean {
   const token = request.cookies.get("glamo-access-token")?.value;
   if (!token) return false;
-  return token.length > 0;
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  try {
+    const payload = JSON.parse(atob(parts[1]));
+    if (!payload.exp) return false;
+    return payload.exp > Math.floor(Date.now() / 1000);
+  } catch {
+    return false;
+  }
 }
 
 const CSRF_TOKEN_COOKIE = "glamo-csrf-token";

@@ -2,152 +2,149 @@
 
 ## Architecture
 
-The **Hono backend on Cloudflare Workers** is the sole API server for GLAMO Nepal. All application routes (auth, products, orders, admin, etc.) are served exclusively through this Hono backend.
+The **Hono backend on Netlify Functions** is the sole API server for GLAMO Nepal. All application routes (auth, products, orders, admin, etc.) are served through Netlify Functions.
 
-**Supabase Edge Functions** remain only for specific purposes — they are **not** general API routes:
-- **Payments**: `khalti-initiate`, `khalti-verify`, `esewa-initiate`, `esewa-verify`, `cod-initiate`, `payment-status`
-- **Emails**: `welcome`, `order-confirmation`, `order-status-update`, `low-stock-alert`
+**Key components:**
+- **Database**: Turso (libSQL/SQLite) — cloud-hosted, edge-compatible
+- **Auth**: Firebase Auth — frontend handles sign-up/sign-in; backend verifies JWTs
+- **Cache**: In-memory Map — simple, no external dependency, resets on redeploy
+- **Images**: Cloudinary — upload and transformation
+- **Email**: Resend — transactional emails
+- **Payments**: Khalti + eSewa — Nepal payment gateways
 
-## Cloudflare Workers Deployment
+## Netlify Functions Deployment
 
 ### Prerequisites
 
-1. Node.js 18+ installed
-2. Wrangler CLI installed (`npm install -g wrangler`)
-3. Cloudflare account with Workers, D1, KV, and R2 access
+1. Node.js 22+ installed
+2. Netlify CLI installed (`npm install -g netlify-cli`)
+3. Turso account with database created
+4. Firebase project created
+5. Netlify account linked to your git repo
 
-### Step 1: Create Cloudflare Resources
-
-```bash
-# Login to Cloudflare
-wrangler login
-
-# Create D1 database
-wrangler d1 create glamo-nepal-db
-# Copy the database_id from the output
-
-# Create KV namespace for caching
-wrangler kv:namespace create "GLAMO_KV"
-# Copy the id from the output
-
-# Create KV namespace for rate limiting
-wrangler kv namespace create RATE_LIMITS
-# Replace the placeholder ID in wrangler.toml with the output
-
-# Create R2 bucket
-wrangler r2 bucket create glamo-nepal-assets
-```
-
-### Step 2: Update wrangler.toml
-
-Replace placeholder IDs in `wrangler.toml`:
-- `database_id` — from D1 create output
-- `id` under `[[kv_namespaces]]` — from KV create output for `GLAMO_KV`
-- `id` under the `RATE_LIMITS` KV namespace — from `wrangler kv namespace create RATE_LIMITS` output
-
-### Step 3: Generate RSA Key Pair for JWT
+### Step 1: Create Turso Database
 
 ```bash
-# Generate private key
-openssl genrsa -out private.pem 2048
+# Install Turso CLI
+curl -sSfL https://get.tur.so/install.sh | bash
 
-# Generate public key
-openssl rsa -in private.pem -pubout -out public.pem
+# Login
+turso auth login
 
-# Set as Wrangler secrets (paste the PEM content when prompted)
-wrangler secret put JWT_PRIVATE_KEY < private.pem
-wrangler secret put JWT_PUBLIC_KEY < public.pem
+# Create database
+turso db create glamo-nepal
+
+# Run schema
+turso db shell glamo-nepal < src/scripts/schema.sql
+
+# Seed data
+pnpm db:seed
 ```
 
-### Step 4: Set Wrangler Secrets
+### Step 2: Set Environment Variables in Netlify
+
+In Netlify Dashboard → Site → Settings → Environment variables, set:
+
+**Required:**
+- `TURSO_DB_URL` — from `turso db show glamo-nepal`
+- `TURSO_AUTH_TOKEN` — from Turso Dashboard → Database → Settings → Tokens
+- `FIREBASE_PROJECT_ID` — your Firebase project ID
+
+**For image uploads:**
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+**For email:**
+- `RESEND_API_KEY`
+
+**For payments:**
+- `KHALTI_SECRET_KEY`
+- `ESEWA_SECRET_KEY`
+- `ESEWA_MERCHANT_CODE`
+
+**For CORS:**
+- `FRONTEND_URL` — your production frontend URL (e.g., `https://glamonepal.com`)
+
+**For pricing:**
+- `FREE_SHIPPING_THRESHOLD` — in paisa (default: `250000` for 2500 NPR)
+- `COD_FEE` — in paisa (default: `5000` for 50 NPR)
+
+### Step 3: Create Admin User
+
+1. Sign up via the frontend app
+2. Get the user's email from Firebase Console → Authentication
+3. Update their role in the database:
 
 ```bash
-wrangler secret put GOOGLE_CLIENT_ID
-wrangler secret put GOOGLE_CLIENT_SECRET
-wrangler secret put RESEND_API_KEY
-wrangler secret put R2_PUBLIC_URL
-wrangler secret put CLOUDINARY_CLOUD_NAME
-wrangler secret put CLOUDINARY_API_KEY
-wrangler secret put CLOUDINARY_API_SECRET
-wrangler secret put KHALTI_SECRET_KEY
-wrangler secret put ESEWA_SECRET_KEY
-wrangler secret put ESEWA_MERCHANT_CODE
+turso db shell glamo-nepal "UPDATE users SET role = 'SUPER_ADMIN' WHERE email = 'your@email.com';"
 ```
 
-### Step 5: Run Database Migrations
+### Step 4: Deploy
 
 ```bash
-# Local development
-wrangler d1 migrations apply glamo-nepal-db --local
+# Option A: Deploy via git push (recommended)
+git push origin main
+# Netlify auto-deploys on push
 
-# Production
-wrangler d1 migrations apply glamo-nepal-db --remote
+# Option B: Manual deploy
+netlify deploy --prod
 ```
 
-### Step 6: Seed Database
+The `netlify.toml` handles:
+- Building the Hono app as a Netlify Function
+- Setting the function directory to `netlify/functions`
+- Configuring CORS headers
+
+### Step 5: Verify Deployment
 
 ```bash
-# Local
-wrangler d1 execute glamo-nepal-db --local --file=migrations/0002_seed_data.sql
+# Health check
+curl https://your-site.netlify.app/.netlify/functions/api/health
 
-# Production
-wrangler d1 execute glamo-nepal-db --remote --file=migrations/0002_seed_data.sql
+# Should return: {"status":"ok","timestamp":"..."}
 ```
-
-### Step 7: Configure R2 Public Access
-
-1. Go to Cloudflare Dashboard → R2 → glamo-nepal-assets
-2. Enable R2.dev subdomain or configure custom domain
-3. Set `R2_PUBLIC_URL` secret to the public URL
-
-### Step 8: Deploy
-
-```bash
-npm run deploy
-# or
-wrangler deploy
-```
-
-### Step 9: Configure Custom Domain
-
-1. Go to Cloudflare Dashboard → Workers → glamo-nepal-api
-2. Add custom domain (e.g., `api.glamonepal.com`)
-3. Update `FRONTEND_URL` in wrangler.toml to your production frontend URL
 
 ## Local Development
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
-# Generate Prisma client
-npm run prisma:generate
-
-# Create .dev.vars from example
-cp .dev.vars.example .dev.vars
-# Edit .dev.vars with your local secrets
-
-# Run local D1 migrations
-npm run db:migrate:local
-
-# Seed local database
-npm run db:seed:local
+# Create .env from example
+cp .env.example .env
+# Edit .env with your Turso and Firebase credentials
 
 # Start development server
-npm run dev
+pnpm dev
 ```
 
-The API will be available at `http://localhost:8787`
+The API will be available at `http://localhost:3001`
+
+### Environment Variables for Local Dev
+
+Create `backend/.env` from `backend/.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Required variables:
+- `TURSO_DB_URL` — your Turso database URL
+- `TURSO_AUTH_TOKEN` — your Turso auth token
+- `FIREBASE_PROJECT_ID` — your Firebase project ID
 
 ## Monitoring
 
-- **Logs**: `wrangler tail` for real-time logs
-- **D1 Console**: `wrangler d1 console glamo-nepal-db`
-- **KV**: `wrangler kv:key list --namespace-id=<id>`
+- **Netlify Logs**: Netlify Dashboard → Site → Functions → Logs
+- **Turso Dashboard**: Database metrics, query performance at turso.tech/app
+- **Firebase Console**: Auth users, sign-in logs
 
 ## Troubleshooting
 
-- **JWT errors**: Ensure RSA keys are properly set as secrets (full PEM format including headers/footers)
-- **D1 errors**: Check migrations have been applied (`wrangler d1 migrations list glamo-nepal-db`)
-- **CORS issues**: Verify `FRONTEND_URL` in wrangler.toml matches your frontend origin
-- **KV cache issues**: Clear with `wrangler kv:key delete --namespace-id=<id> "<key>"`
+- **"Database connection failed"**: Verify `TURSO_DB_URL` and `TURSO_AUTH_TOKEN` are correct. Check Turso dashboard for database status.
+- **"Firebase auth token verification failed"**: Verify `FIREBASE_PROJECT_ID` matches your Firebase project. Check that the frontend uses the same Firebase project.
+- **CORS errors**: Verify `FRONTEND_URL` in Netlify env vars matches your frontend domain exactly (including protocol).
+- **"Table not found" errors**: Run `schema.sql` against your Turso database. Check with `turso db shell glamo-nepal ".tables"`.
+- **Empty responses**: Run `pnpm db:seed` to populate the database with initial data.
+- **Function timeout**: Netlify Functions have a 10-second default timeout. For long-running operations, consider upgrading to Netlify Pro for 26-second timeout.

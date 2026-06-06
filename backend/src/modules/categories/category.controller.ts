@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
+import { getFullEnv } from '../../utils/env'
 import { ApiResponse } from '../../utils/response'
 import * as CategoryService from './category.service'
 
@@ -63,7 +64,7 @@ export async function updateCategory(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const category = await CategoryService.updateCategory(db, id, data, user.id, c.env)
+    const category = await CategoryService.updateCategory(db, id, data, user.id, getFullEnv(c))
     return ApiResponse.success(c, 'Category updated successfully', category)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {
@@ -84,7 +85,7 @@ export async function deleteCategory(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    await CategoryService.deleteCategory(db, id, user.id, c.env)
+    await CategoryService.deleteCategory(db, id, user.id, getFullEnv(c))
     return ApiResponse.success(c, 'Category deleted successfully', null)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {
@@ -112,7 +113,7 @@ export async function uploadCategoryImage(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'Image file is required', 400)
     }
 
-    const category = await CategoryService.uploadCategoryImage(db, id, file, user.id, c.env)
+    const category = await CategoryService.uploadCategoryImage(db, id, file, user.id, getFullEnv(c))
     return ApiResponse.success(c, 'Category image uploaded successfully', category)
   } catch (error: any) {
     if (error.message === 'CATEGORY_NOT_FOUND') {

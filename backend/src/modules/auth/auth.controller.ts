@@ -60,3 +60,7 @@ export async function updateProfile(c: Context<AppEnv>) {
     return ApiResponse.error(c, error.message || 'Profile update failed', 500)
   }
 }
+
+export async function logout(c: Context<AppEnv>) {
+  return ApiResponse.success(c, 'Logged out successfully', null)
+}

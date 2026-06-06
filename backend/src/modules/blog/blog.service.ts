@@ -58,7 +58,7 @@ export async function getPublishedBlogs(
     totalPages: Math.ceil(total / filters.limit),
   }
 
-  await setCache(cacheKey, result, CACHE_TTL.POPUP)
+  await setCache(cacheKey, result, CACHE_TTL.BLOG_LIST)
   return result
 }
 

@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
+import { getFullEnv } from '../../utils/env'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as ProductService from './product.service'
@@ -179,7 +180,7 @@ export async function uploadProductImages(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'No images provided', 400)
     }
 
-    const images = await ProductService.uploadProductImages(id, files, user.id, db, c.env)
+    const images = await ProductService.uploadProductImages(id, files, user.id, db, getFullEnv(c))
     return ApiResponse.success(c, 'Images uploaded successfully', images)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -203,7 +204,7 @@ export async function deleteProductImage(c: Context<AppEnv>) {
     const { id, imageId } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    const images = await ProductService.deleteProductImage(id, imageId, user.id, db, c.env)
+    const images = await ProductService.deleteProductImage(id, imageId, user.id, db, getFullEnv(c))
     return ApiResponse.success(c, 'Image deleted successfully', images)
   } catch (error: any) {
     if (error instanceof AppError) {

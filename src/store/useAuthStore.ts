@@ -46,6 +46,17 @@ export const useAuthStore = create<AuthState>()((set) => ({
     try {
       await firebaseSignOut();
     } catch {}
+    try {
+      const token = typeof document !== "undefined"
+        ? document.cookie.split("; ").find((c) => c.startsWith("glamo-access-token="))?.split("=")[1]
+        : undefined;
+      if (token) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/api/v1/auth/logout`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        }).catch(() => {});
+      }
+    } catch {}
     if (typeof document !== "undefined") {
       document.cookie = "glamo-access-token=; path=/; max-age=0; samesite=lax";
     }

@@ -10,6 +10,7 @@ export type { Product, CartItem, CartActionResult, ProductBadge, ProductReviewSu
 interface CartState {
   items: CartItem[];
   _syncing: boolean;
+  _serverItemIds: Map<string, string>;
   addItem: (product: Product, quantity?: number, selectedShade?: string) => CartActionResult;
   removeItem: (productId: string, selectedShade?: string) => void;
   updateQuantity: (productId: string, quantity: number, selectedShade?: string) => CartActionResult;
@@ -64,6 +65,10 @@ function serverItemToLocal(item: ServerCartItem): CartItem | null {
   };
 }
 
+function itemKey(productId: string, selectedShade?: string): string {
+  return `${productId}::${selectedShade || ""}`;
+}
+
 function isLoggedIn(): boolean {
   const { isConfigured, user } = useAuthStore.getState();
   return isConfigured && !!user;
@@ -74,6 +79,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       _syncing: false,
+      _serverItemIds: new Map<string, string>(),
 
       addItem: (product, quantity = 1, selectedShade) => {
         const available = availableFor(product, selectedShade);
@@ -127,11 +133,9 @@ export const useCartStore = create<CartState>()(
         }));
 
         if (isLoggedIn()) {
-          const serverId = get().items.find((i) => sameLine(i, productId, selectedShade));
+          const serverId = get()._serverItemIds.get(itemKey(productId, selectedShade));
           if (serverId) {
-            cartApi.remove(productId).catch(() => {});
-          } else {
-            cartApi.remove(productId).catch(() => {});
+            cartApi.remove(serverId).catch(() => {});
           }
         }
       },
@@ -166,7 +170,10 @@ export const useCartStore = create<CartState>()(
         });
 
         if (result.ok && isLoggedIn()) {
-          cartApi.update(productId, quantity).catch(() => {});
+          const serverId = get()._serverItemIds.get(itemKey(productId, selectedShade));
+          if (serverId) {
+            cartApi.update(serverId, quantity).catch(() => {});
+          }
         }
 
         return result;
@@ -191,29 +198,39 @@ export const useCartStore = create<CartState>()(
           const serverItems = response.data ?? [];
           const localItems = get().items;
 
-          const merged: CartItem[] = [...localItems];
+          const serverIds = new Map<string, string>();
+          const merged: CartItem[] = [];
 
           for (const serverItem of serverItems) {
             const local = serverItemToLocal(serverItem);
             if (!local) continue;
 
-            const existingIdx = merged.findIndex(
+            serverIds.set(itemKey(local.product.id, local.selectedShade), serverItem.id);
+
+            const existingIdx = localItems.findIndex(
               (item) =>
                 item.product.id === local.product.id &&
                 (item.selectedShade || "") === (local.selectedShade || ""),
             );
 
             if (existingIdx >= 0) {
-              merged[existingIdx] = {
-                ...merged[existingIdx],
-                quantity: Math.max(merged[existingIdx].quantity, local.quantity),
-              };
+              merged.push({
+                ...localItems[existingIdx],
+                quantity: Math.max(localItems[existingIdx].quantity, local.quantity),
+              });
             } else {
               merged.push(local);
             }
           }
 
-          set({ items: merged, _syncing: false });
+          for (const localItem of localItems) {
+            const key = itemKey(localItem.product.id, localItem.selectedShade);
+            if (!serverIds.has(key)) {
+              merged.push(localItem);
+            }
+          }
+
+          set({ items: merged, _syncing: false, _serverItemIds: serverIds });
         } catch {
           set({ _syncing: false });
         }

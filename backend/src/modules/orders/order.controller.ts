@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
+import { getEnv } from '../../utils/env'
 import * as OrderService from './order.service'
 
 export async function createOrder(c: Context<AppEnv>) {
@@ -33,11 +34,17 @@ export async function verifyCheckoutPayment(c: Context<AppEnv>) {
     const token = body.token || body.pidx || body.refId || body.transactionId
     if (!token) return ApiResponse.error(c, 'Payment token is required', 400)
     const db = c.get('db')
-    const order = await OrderService.verifyCheckoutPayment(id, provider, token, db)
+    const env = {
+      KHALTI_SECRET_KEY: getEnv(c, 'KHALTI_SECRET_KEY'),
+      ESEWA_SECRET_KEY: getEnv(c, 'ESEWA_SECRET_KEY'),
+      ESEWA_MERCHANT_CODE: getEnv(c, 'ESEWA_MERCHANT_CODE'),
+    }
+    const order = await OrderService.verifyCheckoutPayment(id, provider, token, db, env)
     return ApiResponse.success(c, 'Payment verified', order)
   } catch (error: any) {
     if (error instanceof AppError) {
       if (error.code === 'ORDER_NOT_FOUND') return ApiResponse.error(c, 'Order not found', 404)
+      if (error.code === 'PAYMENT_VERIFICATION_FAILED') return ApiResponse.error(c, error.message, 400)
       return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Failed to verify payment', 500)

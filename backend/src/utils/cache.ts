@@ -6,6 +6,7 @@ export const CACHE_TTL = {
   PRODUCT: 300,
   PRODUCT_LIST: 300,
   BRANDS: 1800,
+  BLOG_LIST: 300,
 } as const
 
 const memoryCache = new Map<string, { value: unknown; expires: number }>()

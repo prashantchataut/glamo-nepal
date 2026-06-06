@@ -1,24 +1,32 @@
 import { createMiddleware } from 'hono/factory'
 import { jwtVerify, createRemoteJWKSet } from 'jose'
+import { getEnv } from '../utils/env'
 import type { AppEnv } from '../types/bindings'
 
-const FIREBASE_PROJECT_ID = 'ankura-studio'
-const JWKS_URI = `https://www.googleapis.com/service_accounts/v1/jwk/cert?email=firebase-adminsdk-fbsvc@${FIREBASE_PROJECT_ID}.iam.gserviceaccount.com`
-
-let cachedJWKS: ReturnType<typeof createRemoteJWKSet> | null = null
-
-function getJWKS() {
-  if (!cachedJWKS) {
-    cachedJWKS = createRemoteJWKSet(new URL(JWKS_URI))
-  }
-  return cachedJWKS
+function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
+  const envProjectId = getEnv(c, 'FIREBASE_PROJECT_ID')
+  if (envProjectId) return envProjectId
+  throw new Error('FIREBASE_PROJECT_ID environment variable is not set')
 }
 
-export async function verifyFirebaseToken(token: string): Promise<{ uid: string; email: string }> {
-  const jwks = getJWKS()
+function buildJwksUri(projectId: string): string {
+  return `https://www.googleapis.com/service_accounts/v1/jwk/cert?email=firebase-adminsdk-fbsvc@${projectId}.iam.gserviceaccount.com`
+}
+
+const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>()
+
+function getJWKS(projectId: string) {
+  if (!jwksCache.has(projectId)) {
+    jwksCache.set(projectId, createRemoteJWKSet(new URL(buildJwksUri(projectId))))
+  }
+  return jwksCache.get(projectId)!
+}
+
+export async function verifyFirebaseToken(token: string, projectId: string): Promise<{ uid: string; email: string }> {
+  const jwks = getJWKS(projectId)
   const { payload } = await jwtVerify(token, jwks, {
-    issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
-    audience: FIREBASE_PROJECT_ID,
+    issuer: `https://securetoken.google.com/${projectId}`,
+    audience: projectId,
   })
 
   return {
@@ -36,7 +44,8 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   try {
-    const { uid, email } = await verifyFirebaseToken(token)
+    const projectId = getFirebaseProjectId(c)
+    const { uid, email } = await verifyFirebaseToken(token, projectId)
 
     const db = c.get('db')
     const result = await db.execute({

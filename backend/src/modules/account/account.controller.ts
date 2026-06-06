@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
+import { getFullEnv } from '../../utils/env'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as AccountService from './account.service'
@@ -42,7 +43,7 @@ export async function uploadAvatar(c: Context<AppEnv>) {
     if (!file || !(file instanceof File)) {
       return ApiResponse.error(c, 'No avatar file provided', 400)
     }
-    const result = await AccountService.uploadAvatar(db, user.id, file, c.env)
+    const result = await AccountService.uploadAvatar(db, user.id, file, getFullEnv(c))
     return ApiResponse.success(c, 'Avatar uploaded successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {

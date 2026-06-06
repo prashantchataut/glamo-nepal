@@ -21,7 +21,7 @@ function getApiBaseUrl(): string {
 
 async function getAuthToken(): Promise<string | null> {
   try {
-    const currentUser = auth.currentUser;
+    const currentUser = auth?.currentUser ?? null;
     if (currentUser) {
       return await currentUser.getIdToken();
     }

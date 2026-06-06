@@ -88,14 +88,17 @@ export const useWishlistStore = create<WishlistState>()(
         try {
           const response = await wishlistApi.list();
           const serverItems = response.data ?? [];
-          const localItems = get().items;
 
-          const localIds = new Set(localItems.map((item) => item.id));
-          const merged = [...localItems];
+          const merged = serverItems
+            .map((item) => wishlistItemToProduct(item))
+            .filter((p): p is Product => p !== null);
 
-          for (const serverItem of serverItems) {
-            if (!localIds.has(serverItem.productId)) {
-              merged.push(wishlistItemToProduct(serverItem));
+          const localIds = new Set(get().items.map((item) => item.id));
+          for (const localItem of get().items) {
+            if (!merged.some((s) => s.id === localItem.id)) {
+              if (!localIds.has(localItem.id)) {
+                merged.push(localItem);
+              }
             }
           }
 

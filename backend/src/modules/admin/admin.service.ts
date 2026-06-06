@@ -66,19 +66,22 @@ export async function getDashboardStats(db: Client) {
     }
   }
 
-  const recentOrdersWithUser = await Promise.all(
-    recentOrders.rows.slice(0, 10).map(async (order: any) => {
-      const userResult = await db.execute({
-        sql: `SELECT first_name, last_name FROM users WHERE id = ?`,
-        args: [order.user_id],
-      })
-      const user = userResult.rows[0]
-      return {
-        ...order,
-        customerName: user ? [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Unknown' : 'Unknown',
-      }
+  const userIds = [...new Set(recentOrders.rows.map((o: any) => String(o.user_id)))]
+  const userMap: Record<string, string> = {}
+  if (userIds.length > 0) {
+    const userPlaceholders = userIds.map(() => '?').join(',')
+    const usersResult = await db.execute({
+      sql: `SELECT id, first_name, last_name FROM users WHERE id IN (${userPlaceholders})`,
+      args: userIds,
     })
-  )
+    for (const u of usersResult.rows) {
+      userMap[String(u.id)] = [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Unknown'
+    }
+  }
+  const recentOrdersWithUser = recentOrders.rows.map((order: any) => ({
+    ...order,
+    customerName: userMap[String(order.user_id)] || 'Unknown',
+  }))
 
   const topProductsList = topProducts.rows.map((row: any) => ({
     id: row.product_id,

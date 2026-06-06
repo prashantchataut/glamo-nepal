@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
+import { getFullEnv } from '../../utils/env'
 import { ApiResponse } from '../../utils/response'
 import { AppError } from '../../utils/turso-helpers'
 import * as BlogService from './blog.service'
@@ -136,7 +137,7 @@ export async function uploadBlogCover(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'No file provided', 400)
     }
     const file: File = raw
-    const result = await BlogService.uploadCoverImage(db, id, file, c.env)
+    const result = await BlogService.uploadCoverImage(db, id, file, getFullEnv(c))
     return ApiResponse.success(c, 'Cover image uploaded', result)
   } catch (error: any) {
     if (error instanceof AppError) {

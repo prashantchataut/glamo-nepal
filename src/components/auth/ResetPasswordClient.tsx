@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { confirmPasswordReset } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -37,6 +37,11 @@ export function ResetPasswordClient() {
 
     setIsLoading(true);
     try {
+      if (!isFirebaseConfigured || !auth) {
+        setError("Authentication is not available. Please try again later.");
+        setIsLoading(false);
+        return;
+      }
       await confirmPasswordReset(auth, oobCode, newPassword);
       setSuccess(true);
       toast.success("Password reset successfully!");
