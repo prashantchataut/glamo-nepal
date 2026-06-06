@@ -96,7 +96,7 @@ async function main() {
   console.log('Token created successfully');
 
   const db = createClient({
-    url: 'libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io',
+    url: process.env.TURSO_DB_URL || 'libsql://your-db-name-your-org.aws-ap-south-1.turso.io',
     authToken: dbToken,
   });
 

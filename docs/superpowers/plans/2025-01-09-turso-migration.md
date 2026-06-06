@@ -67,7 +67,7 @@
 - [ ] Set environment variables in Netlify dashboard (see Task 5)
 
 ### P4: Firebase Project
-- [ ] Firebase project `ankura-studio` already exists ✅
+- [ ] Firebase project `your-firebase-project-id` already exists ✅
 - [ ] Email/Password auth enabled ✅
 - [ ] Google sign-in enabled ✅
 - [ ] Need: Firebase service account JSON for backend token verification (Task 4)
@@ -86,7 +86,7 @@
 
 **Steps:**
 - [ ] Install Turso CLI: `curl -sSfL https://get.tur.so/install.sh | bash`
-- [ ] Login: `turso db shell glamo-nepal --url libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io --auth-token <TOKEN>`
+- [ ] Login: `turso db shell glamo-nepal --url libsql://your-db-name-your-org.aws-ap-south-1.turso.io --auth-token <TOKEN>`
 - [ ] Run: `.read backend/migrations/0001_initial_schema.sql`
 - [ ] Run: `.read backend/migrations/0002_seed_data.sql`
 - [ ] Verify: `SELECT name FROM sqlite_master WHERE type='table';` — should show 27 tables
@@ -190,7 +190,7 @@ return result.rows
 ```typescript
 import { jwtVerify, createRemoteJWKSet } from 'jose'
 
-const FIREBASE_PROJECT_ID = 'ankura-studio'
+const FIREBASE_PROJECT_ID = 'your-firebase-project-id'
 const JWKS_URI = `https://www.googleapis.com/service_accounts/v1/metadata/keys?email=firebase-adminsdk-fbsvc@${FIREBASE_PROJECT_ID}.iam.gserviceaccount.com`
 
 // Cache the JWKS (Firebase keys rotate ~every 6 hours)
@@ -282,7 +282,7 @@ export const config = { path: '/api/*' }
 **Environment variables to set in Netlify dashboard:**
 - `TURSO_DB_URL` = (set in Netlify dashboard and .env)
 - `TURSO_AUTH_TOKEN` = (set in Netlify dashboard and .env — NEVER in git)
-- `FIREBASE_PROJECT_ID` = `ankura-studio`
+- `FIREBASE_PROJECT_ID` = `your-firebase-project-id`
 - `CLOUDINARY_CLOUD_NAME` = (set in Netlify dashboard and .env)
 - `CLOUDINARY_API_KEY` = (set in Netlify dashboard and .env)
 - `CLOUDINARY_API_SECRET` = (set in Netlify dashboard only — NEVER in git)

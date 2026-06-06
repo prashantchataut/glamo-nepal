@@ -128,7 +128,7 @@ turso db shell glamo-nepal < backend/src/scripts/schema.sql
 
 ```bash
 cd backend
-TURSO_DB_URL=libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io \
+TURSO_DB_URL=libsql://your-db-name-your-org.aws-ap-south-1.turso.io \
 TURSO_AUTH_TOKEN=<your-token> \
 npx tsx src/scripts/seed.ts
 ```
@@ -138,7 +138,7 @@ npx tsx src/scripts/seed.ts
 ```bash
 # Sign up through the frontend first, then promote:
 cd backend
-TURSO_DB_URL=libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io \
+TURSO_DB_URL=libsql://your-db-name-your-org.aws-ap-south-1.turso.io \
 TURSO_AUTH_TOKEN=<your-token> \
 ADMIN_EMAIL=your@email.com \
 npx tsx src/scripts/promote-admin.ts
@@ -152,7 +152,7 @@ TURSO_DB_URL=... TURSO_AUTH_TOKEN=... npx tsx src/scripts/promote-admin.ts
 
 ### 5. Get Credentials
 
-- **TURSO_DB_URL**: `libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io`
+- **TURSO_DB_URL**: `libsql://your-db-name-your-org.aws-ap-south-1.turso.io`
 - **TURSO_AUTH_TOKEN**: Created automatically by `setup-db.cjs`, or from Turso Dashboard → Database → Settings → Tokens
 - Paste both into `backend/.env`
 
