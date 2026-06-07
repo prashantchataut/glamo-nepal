@@ -201,7 +201,8 @@ export async function getAllReviews(
     args.push(filters.productId)
   }
   if (filters.isApproved !== undefined) {
-    whereClauses.push(`r.is_approved = ${toSqliteBool(filters.isApproved)}`)
+    whereClauses.push('r.is_approved = ?')
+    args.push(toSqliteBool(filters.isApproved))
   }
 
   const whereStr = whereClauses.join(' AND ')

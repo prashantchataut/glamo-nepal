@@ -64,8 +64,8 @@ export function InventoryView() {
   const [search, setSearch] = useState("");
   const [restockTarget, setRestockTarget] = useState<{ id: string; name: string; stock: number } | null>(null);
 
-  const { data: stockReport, isLoading: isStockLoading, isError: isStockError } = useAdminData(() => adminApi.getStockReport({ page, limit: PAGE_SIZE, search: search || undefined }), { deps: [page, search] });
-  const { data: lowStockData } = useAdminData(() => adminApi.getLowStockAlerts());
+  const { data: stockReport, isLoading: isStockLoading, isError: isStockError, refetch: refetchStock } = useAdminData(() => adminApi.getStockReport({ page, limit: PAGE_SIZE, search: search || undefined }), { deps: [page, search] });
+  const { data: lowStockData, refetch: refetchLowStock } = useAdminData(() => adminApi.getLowStockAlerts());
 
   const products: InventoryRow[] = useMemo(() => {
     if (!stockReport) return [];
@@ -82,6 +82,7 @@ export function InventoryView() {
   const lowStockAlerts = useMemo(() => {
     if (!lowStockData) return [];
     if (Array.isArray(lowStockData)) return lowStockData;
+    if ("products" in lowStockData && Array.isArray(lowStockData.products)) return lowStockData.products;
     return [];
   }, [lowStockData]);
 
@@ -138,7 +139,7 @@ export function InventoryView() {
   ];
 
   if (isStockError) {
-    return <ErrorState message="Failed to load inventory data" onRetry={() => window.location.reload()} />;
+    return <ErrorState message="Failed to load inventory data" onRetry={refetchStock} />;
   }
 
   return (
@@ -204,10 +205,10 @@ export function InventoryView() {
             ))}
           </div>
         ) : lowStockData === null || isStockError ? (
-          <ErrorState message="Failed to load alerts" onRetry={() => window.location.reload()} />
+          <ErrorState message="Failed to load alerts" onRetry={refetchLowStock} />
         ) : lowStockAlerts.length > 0 ? (
           <div className="mt-4 space-y-2">
-            {lowStockAlerts.map((item: { id: string; name: string; sku: string; stock_quantity: number; low_stock_threshold: number }) => {
+            {lowStockAlerts.map((item: { id: string; name: string; sku?: string | null; stock_quantity: number; low_stock_threshold: number }) => {
               const status = getStockStatus(item.stock_quantity, item.low_stock_threshold);
               return (
                 <div key={item.id} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -240,7 +241,7 @@ export function InventoryView() {
           productId={restockTarget.id}
           productName={restockTarget.name}
           currentStock={restockTarget.stock}
-          onRestocked={() => {}}
+          onRestocked={() => { refetchStock(); refetchLowStock(); }}
         />
       )}
     </section>

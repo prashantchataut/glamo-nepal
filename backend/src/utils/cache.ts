@@ -14,7 +14,7 @@ const memoryCache = new Map<string, { value: unknown; expires: number }>()
 // Periodically clean up expired entries
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of memoryCache) {
+  for (const [key, entry] of Array.from(memoryCache.entries())) {
     if (entry.expires < now) {
       memoryCache.delete(key)
     }
@@ -40,7 +40,7 @@ export async function deleteCache(key: string): Promise<void> {
 }
 
 export async function deleteCacheByPrefix(prefix: string): Promise<void> {
-  for (const key of memoryCache.keys()) {
+  for (const key of Array.from(memoryCache.keys())) {
     if (key.startsWith(prefix)) {
       memoryCache.delete(key)
     }

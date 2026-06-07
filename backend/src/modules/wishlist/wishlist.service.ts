@@ -55,7 +55,7 @@ export async function getWishlist(db: Client, userId: string) {
   }
 
   const wishlistItems = itemsResult.rows as unknown as WishlistItemRow[]
-  const productIds = [...new Set(wishlistItems.map((i) => i.product_id))]
+  const productIds = Array.from(new Set(wishlistItems.map((i) => i.product_id)))
 
   const placeholders = productIds.map(() => '?').join(',')
   const productsResult = await db.execute({

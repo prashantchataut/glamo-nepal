@@ -14,7 +14,7 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   FREE_SHIPPING_THRESHOLD: z.string().default('2500'),
   COD_FEE: z.string().default('50'),
-  AUTH_SECRET: z.string().optional().default(''),
+  AUTH_SECRET: z.string().min(1, 'AUTH_SECRET is required'),
 })
 
 export type Env = z.infer<typeof envSchema>

@@ -7,10 +7,13 @@ import * as InventoryService from './inventory.service'
 export async function getStockReport(c: Context<AppEnv>) {
   try {
     const db = c.get('db')
-    const query = c.req.query()
+    const query = c.get('validatedQuery') || c.req.query()
     const filters = {
-      lowStockOnly: query.lowStockOnly === 'true',
-      outOfStockOnly: query.outOfStockOnly === 'true',
+      page: Number(query.page) || 1,
+      limit: Number(query.limit) || 20,
+      search: query.search,
+      lowStockOnly: query.lowStockOnly === true || query.lowStockOnly === 'true',
+      outOfStockOnly: query.outOfStockOnly === true || query.outOfStockOnly === 'true',
     }
     const report = await InventoryService.getStockReport(db, filters)
     return ApiResponse.success(c, 'Stock report retrieved', report)

@@ -5,7 +5,7 @@ import { toDisplayPrice } from '../../utils/price'
 
 export async function getStockReport(
   db: Client,
-  filters?: { lowStockOnly?: boolean; outOfStockOnly?: boolean; page?: number; limit?: number }
+  filters?: { lowStockOnly?: boolean; outOfStockOnly?: boolean; page?: number; limit?: number; search?: string }
 ) {
   const productsResult = await db.execute({
     sql: `SELECT p.id, p.name, p.slug, p.base_price, p.cost_price, p.stock_quantity, p.low_stock_threshold, p.is_active, c.name as category_name
@@ -30,11 +30,22 @@ export async function getStockReport(
     variants = variantsResult.rows as any[]
   }
 
+  const search = filters?.search?.trim().toLowerCase()
   const filteredProducts = productList.filter((p: any) => {
+    if (search) {
+      const haystack = [p.name, p.slug, p.sku, p.category_name].filter(Boolean).join(' ').toLowerCase()
+      if (!haystack.includes(search)) return false
+    }
     if (filters?.lowStockOnly && !(Number(p.stock_quantity) > 0 && Number(p.stock_quantity) <= Number(p.low_stock_threshold))) return false
     if (filters?.outOfStockOnly && Number(p.stock_quantity) !== 0) return false
     return true
   })
+
+  const page = Math.max(1, Number(filters?.page ?? 1))
+  const limit = Math.max(1, Math.min(100, Number(filters?.limit ?? 20)))
+  const total = filteredProducts.length
+  const totalPages = Math.ceil(total / limit)
+  const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit)
 
   const inStock = productList.filter((p: any) => Number(p.stock_quantity) > Number(p.low_stock_threshold))
   const lowStock = productList.filter((p: any) => Number(p.stock_quantity) > 0 && Number(p.stock_quantity) <= Number(p.low_stock_threshold))
@@ -53,16 +64,23 @@ export async function getStockReport(
     byCategory[cat].totalValue += Number(p.cost_price) * Number(p.stock_quantity)
   }
 
-  const formattedProducts = filteredProducts.map((p: any) => ({
+  const formattedProducts = paginatedProducts.map((p: any) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
+    sku: p.sku ?? null,
     basePrice: toDisplayPrice(Number(p.base_price)),
+    base_price: toDisplayPrice(Number(p.base_price)),
     costPrice: toDisplayPrice(Number(p.cost_price)),
+    cost_price: toDisplayPrice(Number(p.cost_price)),
     stockQuantity: Number(p.stock_quantity),
+    stock_quantity: Number(p.stock_quantity),
     lowStockThreshold: Number(p.low_stock_threshold),
+    low_stock_threshold: Number(p.low_stock_threshold),
     isActive: p.is_active,
+    is_active: p.is_active,
     categoryName: p.category_name || null,
+    category: p.category_name ? { name: p.category_name } : null,
     status:
       Number(p.stock_quantity) === 0
         ? 'out_of_stock'
@@ -83,6 +101,10 @@ export async function getStockReport(
   return {
     products: formattedProducts,
     variants: formattedVariants,
+    total,
+    page,
+    limit,
+    totalPages,
     summary: {
       total: productList.length,
       inStock: inStock.length,
@@ -137,8 +159,11 @@ export async function getLowStockAlerts(db: Client) {
       id: p.id,
       name: p.name,
       slug: p.slug,
+      sku: null,
       stockQuantity: Number(p.stock_quantity),
+      stock_quantity: Number(p.stock_quantity),
       lowStockThreshold: Number(p.low_stock_threshold),
+      low_stock_threshold: Number(p.low_stock_threshold),
       categoryName: p.category_name || null,
       type: 'product' as const,
       urgency:

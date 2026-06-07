@@ -66,7 +66,7 @@ export async function getDashboardStats(db: Client) {
     }
   }
 
-  const userIds = [...new Set(recentOrders.rows.map((o: any) => String(o.user_id)))]
+  const userIds = Array.from(new Set(recentOrders.rows.map((o: any) => String(o.user_id))))
   const userMap: Record<string, string> = {}
   if (userIds.length > 0) {
     const userPlaceholders = userIds.map(() => '?').join(',')
@@ -211,9 +211,9 @@ export async function getSalesReport(db: Client, startDate: string, endDate: str
     paymentMethodBreakdown[method].orders += 1
   }
 
-  const productIds = [...new Set(
+  const productIds = Array.from(new Set(
     orders.flatMap(o => o.order_items.map((oi: any) => oi.product_id)).filter(Boolean)
-  )]
+  ))
 
   const categoryBreakdown: Record<string, { revenue: number; orders: number }> = {}
 
@@ -224,7 +224,7 @@ export async function getSalesReport(db: Client, startDate: string, endDate: str
       args: productIds,
     })
 
-    const categoryIds = [...new Set(productsResult.rows.map((p: any) => p.category_id).filter(Boolean))]
+    const categoryIds = Array.from(new Set(productsResult.rows.map((p: any) => p.category_id).filter(Boolean)))
     const catNameMap: Record<string, string> = {}
 
     if (categoryIds.length > 0) {
@@ -279,7 +279,8 @@ export async function getNotifications(db: Client, userId: string, userRole: str
   }
 
   if (isRead !== undefined) {
-    whereClauses.push(`is_read = ${isRead ? 1 : 0}`)
+    whereClauses.push('is_read = ?')
+    args.push(isRead ? 1 : 0)
   }
 
   const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''
@@ -403,7 +404,8 @@ export async function getUsers(db: Client, filters: { search?: string; role?: st
     args.push(role)
   }
   if (isActive !== undefined) {
-    whereClauses.push(`is_active = ${isActive ? 1 : 0}`)
+    whereClauses.push('is_active = ?')
+    args.push(isActive ? 1 : 0)
   }
 
   const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''

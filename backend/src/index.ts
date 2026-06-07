@@ -93,9 +93,10 @@ app.route('/api/v1/admin', adminRoutes)
 app.route('/api/v1/events', eventRoutes)
 app.route('/api/v1/recommendations', recommendationRoutes)
 
-app.get('/api/docs.json', (c) => c.json(openApiSpec))
-app.get('/api/docs', (c) => {
-  return c.html(`<!DOCTYPE html>
+if (!IS_PRODUCTION) {
+  app.get('/api/docs.json', (c) => c.json(openApiSpec))
+  app.get('/api/docs', (c) => {
+    return c.html(`<!DOCTYPE html>
 <html>
 <head>
   <title>GLAMO Nepal API Docs</title>
@@ -109,7 +110,8 @@ app.get('/api/docs', (c) => {
   </script>
 </body>
 </html>`)
-})
+  })
+}
 
 app.notFound((c) => {
   return c.json({

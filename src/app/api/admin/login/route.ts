@@ -2,7 +2,54 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 import { validateCsrf } from "@/lib/csrf";
 
+const loginAttempts = new Map<string, { count: number; expires: number }>();
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW = 60_000;
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    const buf = Buffer.alloc(Math.max(a.length, b.length));
+    const aBuf = Buffer.from(a);
+    const bBuf = Buffer.from(b);
+    let result = a.length !== b.length ? 1 : 0;
+    for (let i = 0; i < buf.length; i++) {
+      result |= (aBuf[i] ?? 0) ^ (bBuf[i] ?? 0);
+    }
+    return result === 0;
+  }
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  let result = 0;
+  for (let i = 0; i < aBuf.length; i++) {
+    result |= aBuf[i] ^ bBuf[i];
+  }
+  return result === 0;
+}
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (entry && entry.expires > now) {
+    if (entry.count >= RATE_LIMIT_MAX) return false;
+    entry.count++;
+  } else {
+    loginAttempts.set(ip, { count: 1, expires: now + RATE_LIMIT_WINDOW });
+  }
+  return true;
+}
+
 export async function POST(request: NextRequest) {
+  const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    ?? request.headers.get("x-real-ip")
+    ?? "unknown";
+
+  if (!checkRateLimit(clientIp)) {
+    return NextResponse.json(
+      { success: false, message: "Too many login attempts. Please try again later.", code: "RATE_LIMITED" },
+      { status: 429, headers: { "Retry-After": "60" } },
+    );
+  }
+
   const csrf = validateCsrf(request);
   if (!csrf.valid) {
     return NextResponse.json({ success: false, message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
@@ -24,7 +71,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Admin login is not configured." }, { status: 500 });
     }
 
-    if (email !== adminEmail || password !== adminPassword) {
+    if (adminPassword.length < 12) {
+      console.warn("[SECURITY] ADMIN_PASSWORD is less than 12 characters. Use a stronger password.");
+    }
+
+    if (!timingSafeEqual(email, adminEmail) || !timingSafeEqual(password, adminPassword)) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 

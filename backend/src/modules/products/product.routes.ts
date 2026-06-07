@@ -37,6 +37,7 @@ productRoutes.post('/:id/images', authMiddleware, requireRole(['ADMIN', 'SUPER_A
 productRoutes.delete('/:id/images/:imageId', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteProductImage)
 
 productRoutes.get('/:id/variants', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getProductVariants)
+productRoutes.patch('/:id/stock', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(stockAdjustSchema), adjustStock)
 productRoutes.post('/:id/variants', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(variantSchema), addVariant)
 productRoutes.patch('/:id/variants/:variantId', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateVariantSchema), updateVariant)
 productRoutes.delete('/:id/variants/:variantId', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteVariant)

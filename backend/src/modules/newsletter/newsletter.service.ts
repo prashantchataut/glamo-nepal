@@ -88,7 +88,8 @@ export async function getSubscribers(db: Client, filters: { isActive?: boolean; 
   const args: any[] = []
 
   if (isActive !== undefined) {
-    whereClauses.push(`is_active = ${toSqliteBool(isActive)}`)
+    whereClauses.push('is_active = ?')
+    args.push(toSqliteBool(isActive))
   }
 
   const whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''

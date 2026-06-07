@@ -6,6 +6,8 @@ import type { AppEnv } from '../types/bindings'
 function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
   const envProjectId = getEnv(c, 'FIREBASE_PROJECT_ID')
   if (envProjectId) return envProjectId
+  const publicProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  if (publicProjectId) return publicProjectId
   throw new Error('FIREBASE_PROJECT_ID environment variable is not set')
 }
 
@@ -57,6 +59,17 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
         await next()
         return
       }
+
+      if (adminUser.email === process.env.ADMIN_EMAIL) {
+        c.set('user', {
+          id: adminUser.email,
+          email: adminUser.email,
+          role: 'SUPER_ADMIN',
+          isActive: true,
+        })
+        await next()
+        return
+      }
     }
   }
 
@@ -74,7 +87,27 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     const isSyncRoute = c.req.path.endsWith('/sync')
 
     if (isSyncRoute) {
-      c.set('user', { id: uid, email, role: 'customer', isActive: true })
+      const db = c.get('db')
+      const result = await db.execute({
+        sql: 'SELECT id, role, is_active FROM users WHERE id = ?',
+        args: [uid],
+      })
+
+      if (result.rows.length > 0) {
+        const profile = result.rows[0]
+        const isActive = profile.is_active
+        if (typeof isActive === 'number' ? isActive !== 1 : !isActive) {
+          return c.json({ success: false, message: 'Unauthorized: user inactive', errors: [] }, 401)
+        }
+        c.set('user', {
+          id: profile.id as string,
+          email,
+          role: profile.role as string,
+          isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+        })
+      } else {
+        c.set('user', { id: uid, email, role: 'CUSTOMER', isActive: true })
+      }
     } else {
       const db = c.get('db')
       const result = await db.execute({
@@ -122,9 +155,9 @@ function getAdminSessionToken(c: Parameters<typeof authMiddleware>[0]): string |
   return match?.[1]
 }
 
-async function verifyAdminSession(token: string): Promise<{ email: string; name: string; role: string } | null> {
+export async function verifyAdminSession(token: string): Promise<{ email: string; name: string; role: string } | null> {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET
-  if (!secret) return null
+  if (!secret || secret.length === 0) return null
 
   try {
     const [encodedPayload, signature] = token.split('.')

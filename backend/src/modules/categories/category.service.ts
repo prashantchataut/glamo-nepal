@@ -98,7 +98,7 @@ export async function getCategoriesCached(
       categoryMap.set(node.id, node)
     }
 
-    for (const node of categoryMap.values()) {
+    for (const node of Array.from(categoryMap.values())) {
       if (node.parentId && categoryMap.has(node.parentId)) {
         categoryMap.get(node.parentId)!.children.push(node)
       } else {
@@ -128,7 +128,8 @@ export async function getCategoriesCached(
   }
 
   if (filters.isActive !== undefined) {
-    whereClauses.push(`is_active = ${toSqliteBool(filters.isActive)}`)
+    whereClauses.push('is_active = ?')
+    args.push(toSqliteBool(filters.isActive))
   }
 
   const result = await db.execute({

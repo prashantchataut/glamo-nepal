@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  experimental: {
+    serverComponentsExternalPackages: [
+      "@libsql/client",
+      "libsql",
+      "@libsql/hrana-client",
+      "@libsql/isomorphic-fetch",
+      "@libsql/isomorphic-ws",
+    ],
+  },
   images: {
     dangerouslyAllowSVG: false,
     contentDispositionType: "attachment",

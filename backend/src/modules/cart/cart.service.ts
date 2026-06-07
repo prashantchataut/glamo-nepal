@@ -87,7 +87,7 @@ export async function getCart(db: Client, userId: string) {
   }
 
   const cartItems = itemsResult.rows as unknown as CartItemRow[]
-  const productIds = [...new Set(cartItems.map((i) => i.product_id))]
+  const productIds = Array.from(new Set(cartItems.map((i) => i.product_id)))
 
   const placeholders = productIds.map(() => '?').join(',')
   const productsResult = await db.execute({

@@ -218,6 +218,33 @@ export interface StockReport {
   total: number;
   page: number;
   limit: number;
+  totalPages?: number;
+  summary?: {
+    total: number;
+    inStock: number;
+    lowStock: number;
+    outOfStock: number;
+    totalValue: number;
+  };
+}
+
+export interface LowStockAlerts {
+  products: Array<{
+    id: string;
+    name: string;
+    sku?: string | null;
+    stock_quantity: number;
+    low_stock_threshold: number;
+  }>;
+  variants?: Array<{
+    id: string;
+    productId: string;
+    name: string;
+    productName: string;
+    stockQuantity: number;
+    lowStockThreshold: number;
+  }>;
+  totalAlerts: number;
 }
 
 export interface InventoryLog {
@@ -412,10 +439,10 @@ export const adminApi = {
     apiRequest<{ message: string }>(`/products/${id}/images/${imageId}`, { method: "DELETE" }),
 
   adjustStock: (productId: string, change: number, reason?: string, variantId?: string) => {
-    if (!variantId) {
-      return Promise.reject(new Error("variantId is required for stock adjustment"));
-    }
-    return apiRequest<{ message: string }>(`/products/${productId}/variants/${variantId}/stock`, {
+    const path = variantId
+      ? `/products/${productId}/variants/${variantId}/stock`
+      : `/products/${productId}/stock`;
+    return apiRequest<{ message: string }>(path, {
       method: "PATCH",
       body: JSON.stringify({ change, reason }),
     });
@@ -490,7 +517,7 @@ export const adminApi = {
   },
 
   getLowStockAlerts: () =>
-    apiRequest<Array<{ id: string; name: string; sku: string; stock_quantity: number; low_stock_threshold: number }>>("/inventory/low-stock"),
+    apiRequest<LowStockAlerts>("/inventory/low-stock"),
 
   getInventoryLogs: (params?: {
     page?: number;

@@ -21,7 +21,7 @@ const rateLimitStore = new Map<string, { count: number; expires: number }>()
 
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of rateLimitStore) {
+  for (const [key, entry] of Array.from(rateLimitStore.entries())) {
     if (entry.expires < now) {
       rateLimitStore.delete(key)
     }

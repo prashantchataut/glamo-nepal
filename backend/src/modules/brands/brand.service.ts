@@ -68,7 +68,8 @@ export async function getAllBrandsCached(
   const args: any[] = []
 
   if (filters?.isActive !== undefined) {
-    whereClauses.push(`is_active = ${toSqliteBool(filters.isActive)}`)
+    whereClauses.push('is_active = ?')
+    args.push(toSqliteBool(filters.isActive))
   }
 
   const result = await db.execute({
