@@ -1,4 +1,4 @@
-import { Client, type InValue } from '@libsql/client'
+import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { generateOrderNumber } from '../../utils/orderNumber'

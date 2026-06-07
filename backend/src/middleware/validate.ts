@@ -2,8 +2,8 @@ import { z } from 'zod'
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
 
-function formatErrors(errors: { path: (string | number)[]; message: string }[]): string[] {
-  return errors.map(e => `${e.path.join('.')}: ${e.message}`)
+function formatErrors(issues: z.ZodIssue[]): string[] {
+  return issues.map(e => `${e.path.join('.')}: ${e.message}`)
 }
 
 export function validateBody(schema: z.ZodTypeAny) {
@@ -14,7 +14,7 @@ export function validateBody(schema: z.ZodTypeAny) {
       return c.json({
         success: false,
         message: 'Validation failed',
-        errors: formatErrors(result.error.errors),
+        errors: formatErrors(result.error.issues),
       }, 400)
     }
     c.set('validatedBody', result.data)
@@ -30,7 +30,7 @@ export function validateQuery(schema: z.ZodTypeAny) {
       return c.json({
         success: false,
         message: 'Validation failed',
-        errors: formatErrors(result.error.errors),
+        errors: formatErrors(result.error.issues),
       }, 400)
     }
     c.set('validatedQuery', result.data)
@@ -46,7 +46,7 @@ export function validateParams(schema: z.ZodTypeAny) {
       return c.json({
         success: false,
         message: 'Validation failed',
-        errors: formatErrors(result.error.errors),
+        errors: formatErrors(result.error.issues),
       }, 400)
     }
     c.set('validatedParams', result.data)

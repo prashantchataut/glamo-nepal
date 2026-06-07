@@ -1,4 +1,4 @@
-import { Client, type InValue } from '@libsql/client'
+import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, toSqliteBool, fromSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'

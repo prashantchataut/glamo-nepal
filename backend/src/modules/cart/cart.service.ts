@@ -1,4 +1,4 @@
-import { Client, type InValue } from '@libsql/client'
+import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertFound, fromSqliteBool } from '../../utils/turso-helpers'
 import { toDisplayPrice } from '../../utils/price'
 

@@ -1,4 +1,4 @@
-import { Client, type InValue } from '@libsql/client'
+import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertSingle, fromSqliteBool } from '../../utils/turso-helpers'
 
 interface UserRow {
