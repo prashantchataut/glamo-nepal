@@ -1,12 +1,12 @@
 ﻿"use client";
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import NextImage from "next/image";
 import Link from "next/link";
 import { Save, Upload, Smartphone, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAdminData } from "@/lib/hooks/useAdminData";
-import { adminApi } from "@/lib/api/admin";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+import { adminApi, type CreateBannerInput, type UpdateBannerInput } from "@/lib/api/admin";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { toast } from "sonner";
@@ -63,13 +63,18 @@ export function BannersView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<BannerFormData>(defaultFormData);
-  const [uploadError] = useState("");
+  const [uploadError, setUploadError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<BannerItem | null>(null);
-  const [isSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const { data: banners, isLoading, isError } = useAdminData(() => adminApi.listAdminBanners());
+  const { data: banners, isLoading, isError, refetch } = useAdminData(() => adminApi.listAdminBanners());
   const bannerList = useMemo(() => (banners ?? []) as unknown as BannerItem[], [banners]);
   const selectedBanner = bannerList.find((b) => b.id === selectedId);
+
+  const { mutate: createBannerMut } = useAdminMutation((data: CreateBannerInput) => adminApi.createBanner(data));
+  const { mutate: updateBannerMut } = useAdminMutation(({ id, data }: { id: string; data: UpdateBannerInput }) => adminApi.updateBanner(id, data));
+  const { mutate: deleteBannerMut } = useAdminMutation((id: string) => adminApi.deleteBanner(id));
 
   useEffect(() => {
     if (banners && banners.length > 0 && !selectedId && !isCreating) {
@@ -93,24 +98,76 @@ export function BannersView() {
     }
   }, [selectedId, bannerList]);
 
-  async function handleSave() {
+  const handleSave = useCallback(async () => {
     if (!formData.title.trim()) {
       toast.error("Title is required");
       return;
     }
-    toast.info("Banner CRUD mutations are coming soon — data is read-only for now");
-  }
+    if (!formData.image_url) {
+      toast.error("Please upload a banner image first");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const payload: CreateBannerInput = {
+        title: formData.title.trim(),
+        subtitle: formData.subtitle.trim() || undefined,
+        image_url: formData.image_url,
+        link_url: formData.link_url.trim() || undefined,
+        position: formData.position.toUpperCase(),
+        sort_order: 0,
+        is_active: formData.is_active ? 1 : 0,
+      };
+      if (isCreating) {
+        await createBannerMut(payload);
+        toast.success("Banner created");
+      } else if (selectedId) {
+        await updateBannerMut({ id: selectedId, data: payload as UpdateBannerInput });
+        toast.success("Banner updated");
+      }
+      refetch();
+    } catch {
+      toast.error("Failed to save banner");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [formData, isCreating, selectedId, createBannerMut, updateBannerMut, refetch]);
 
-  async function handleDelete() {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
-    toast.info("Banner deletion is coming soon — data is read-only for now");
-    setDeleteTarget(null);
-  }
+    try {
+      await deleteBannerMut(deleteTarget.id);
+      toast.success("Banner deleted");
+      if (selectedId === deleteTarget.id) {
+        setSelectedId(null);
+      }
+      refetch();
+    } catch {
+      toast.error("Failed to delete banner");
+    } finally {
+      setDeleteTarget(null);
+    }
+  }, [deleteTarget, deleteBannerMut, selectedId, refetch]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function handleBannerUpload(_event: ChangeEvent<HTMLInputElement>, _slot: BannerSlot) {
-    toast.info("Banner image upload is coming soon — data is read-only for now");
-  }
+  const handleBannerUpload = useCallback(async (event: ChangeEvent<HTMLInputElement>, _slot: BannerSlot) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    setUploadError("");
+    try {
+      const result = await adminApi.uploadBannerImage(file);
+      const imageUrl = 'data' in result ? result.data.url : (result as { url: string }).url;
+      setFormData((prev) => ({ ...prev, image_url: imageUrl }));
+      toast.success("Image uploaded");
+    } catch {
+      setUploadError("Failed to upload image. Please try again.");
+      toast.error("Image upload failed");
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
+    }
+  }, []);
 
   if (isError && !banners) {
     return (
@@ -232,7 +289,12 @@ async function handleBannerUpload(_event: ChangeEvent<HTMLInputElement>, _slot: 
               </label>
             </div>
 
-            {!isCreating && selectedBanner && (
+            {formData.image_url && (
+                <div className="mt-3 relative h-32 w-full overflow-hidden rounded-xl">
+                  <NextImage src={formData.image_url} alt="Banner preview" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
+                </div>
+              )}
+              {!isCreating && selectedBanner && (
               <button
                 onClick={() => setDeleteTarget(selectedBanner)}
                 className="mt-4 inline-flex items-center gap-2 rounded-full border border-admin-error/30 px-4 py-2 text-sm font-medium text-admin-error transition hover:bg-admin-error-light"
@@ -250,13 +312,19 @@ async function handleBannerUpload(_event: ChangeEvent<HTMLInputElement>, _slot: 
           <h3 className="mt-2 font-display text-xl font-semibold">Upload assets</h3>
           <p className="mt-2 text-sm leading-6 text-brand-textMuted">Desktop: 16:7 ratio (1920 x 840). Mobile: 4:5 ratio (1080 x 1350). PNG, JPG, WebP, SVG under 3 MB.</p>
           <div className="mt-4 space-y-3">
-            <label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer">
-              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(e) => handleBannerUpload(e, "desktop")} className="hidden" />
-              Upload desktop banner
+            <label className={cn(
+              "block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary",
+              isUploading ? "pointer-events-none opacity-50" : "cursor-pointer"
+            )}>
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(e) => handleBannerUpload(e, "desktop")} className="hidden" disabled={isUploading} />
+              {isUploading ? "Uploading..." : "Upload desktop banner"}
             </label>
-            <label className="block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary cursor-pointer">
-              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(e) => handleBannerUpload(e, "mobile")} className="hidden" />
-              Upload mobile banner
+            <label className={cn(
+              "block rounded-xl border border-dashed border-brand-primary/40 bg-brand-primary-light p-4 text-sm font-medium text-brand-primary",
+              isUploading ? "pointer-events-none opacity-50" : "cursor-pointer"
+            )}>
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(e) => handleBannerUpload(e, "mobile")} className="hidden" disabled={isUploading} />
+              {isUploading ? "Uploading..." : "Upload mobile banner"}
             </label>
           </div>
           {uploadError && <p className="mt-4 rounded-xl bg-admin-error-light p-3 text-sm font-medium text-admin-error">{uploadError}</p>}
@@ -280,7 +348,7 @@ async function handleBannerUpload(_event: ChangeEvent<HTMLInputElement>, _slot: 
         description={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         confirmLabel="Delete"
         variant="destructive"
-        isLoading={false}
+        isLoading={isSaving}
         onConfirm={handleDelete}
       />
     </section>

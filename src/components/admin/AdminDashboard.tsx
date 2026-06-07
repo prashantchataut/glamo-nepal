@@ -9,6 +9,8 @@ import { ProductsView } from "@/components/admin/products/ProductsView";
 import { OrdersView } from "@/components/admin/orders/OrdersView";
 import { InventoryView } from "@/components/admin/inventory/InventoryView";
 import { BannersView } from "@/components/admin/banners/BannersView";
+import { BlogsView } from "@/components/admin/blog/BlogsView";
+import { CouponsView } from "@/components/admin/coupons/CouponListView";
 import { CustomersView } from "@/components/admin/customers/CustomersView";
 import { AnalyticsView } from "@/components/admin/analytics/AnalyticsView";
 import { SettingsView } from "@/components/admin/settings/SettingsView";
@@ -32,6 +34,8 @@ export function AdminDashboard() {
     orders: <OrdersView />,
     inventory: <InventoryView />,
     banners: <BannersView />,
+    blogs: <BlogsView />,
+    coupons: <CouponsView />,
     customers: <CustomersView />,
     analytics: <AnalyticsView />,
     audit: <AuditLogView />,

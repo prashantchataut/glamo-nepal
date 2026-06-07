@@ -219,7 +219,13 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     }
     setUploading(true);
     try {
-      toast.info("Image upload coming soon");
+      const result = await adminApi.uploadProductImage(product.id, file);
+      const uploaded = 'data' in result ? result.data : result as unknown as { message: string; image: { id: string; url: string } };
+      setImages((prev) => [...prev, { id: uploaded.image.id, url: uploaded.image.url, sort_order: prev.length, is_primary: prev.length === 0 ? 1 : 0 }]);
+      toast.success("Image uploaded");
+      onSaved?.();
+    } catch {
+      toast.error("Failed to upload image");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -229,8 +235,9 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
   const handleImageDelete = async (imageId: string) => {
     if (!product) return;
     try {
-      toast.info("Image upload coming soon");
+      await adminApi.deleteProductImage(product.id, imageId);
       setImages((prev) => prev.filter((img) => img.id !== imageId));
+      toast.success("Image removed");
     } catch {
       toast.error("Failed to remove image");
     }

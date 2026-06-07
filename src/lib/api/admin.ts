@@ -375,6 +375,96 @@ export interface SiteSetting {
   group: string;
 }
 
+// ── Blogs ───────────────────────────────────────────────────────────────────
+
+export interface AdminBlog {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  cover_image_url?: string;
+  category?: string;
+  tags?: string[];
+  is_published: boolean;
+  view_count: number;
+  read_time_minutes: number;
+  published_at?: string;
+  author_id?: string;
+  meta_title?: string;
+  meta_description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateBlogInput {
+  title: string;
+  excerpt?: string;
+  content: string;
+  category?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[] | string;
+}
+
+export interface UpdateBlogInput {
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  category?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[] | string;
+  isPublished?: boolean;
+}
+
+// ── Coupons ────────────────────────────────────────────────────────────────
+
+export interface AdminCoupon {
+  id: string;
+  code: string;
+  description?: string;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  usageLimit?: number;
+  usageCount: number;
+  perUserLimit?: number;
+  startsAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCouponInput {
+  code: string;
+  description?: string;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  usageLimit?: number;
+  perUserLimit?: number;
+  startsAt: string;
+  expiresAt: string;
+}
+
+export interface UpdateCouponInput {
+  code?: string;
+  description?: string;
+  type?: "PERCENTAGE" | "FIXED";
+  value?: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  usageLimit?: number;
+  perUserLimit?: number;
+  startsAt?: string;
+  expiresAt?: string;
+  isActive?: boolean;
+}
+
 // ── API Functions ───────────────────────────────────────────────────────────
 
 export const adminApi = {
@@ -725,4 +815,77 @@ export const adminApi = {
   // Brands (for product forms)
   listBrands: () =>
     apiRequest<Array<{ id: string; name: string; slug: string }>>("/brands"),
+
+  // ── Blogs ─────────────────────────────────────────────────────────────────
+
+  listBlogs: (params?: { page?: number; limit?: number; category?: string }) => {
+    const query = params
+      ? "?" + new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
+            if (v !== undefined && v !== null) acc[k] = String(v);
+            return acc;
+          }, {})
+        ).toString()
+      : "";
+    return apiRequest<{ posts: AdminBlog[]; total: number; page: number; limit: number; totalPages: number }>(`/blogs${query}`);
+  },
+
+  getBlog: (slug: string) =>
+    apiRequest<AdminBlog>(`/blogs/${slug}`),
+
+  createBlog: (data: CreateBlogInput) =>
+    apiRequest<AdminBlog>("/blogs", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateBlog: (id: string, data: UpdateBlogInput) =>
+    apiRequest<AdminBlog>(`/blogs/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  publishBlog: (id: string) =>
+    apiRequest<AdminBlog>(`/blogs/${id}/publish`, { method: "PATCH" }),
+
+  unpublishBlog: (id: string) =>
+    apiRequest<AdminBlog>(`/blogs/${id}/unpublish`, { method: "PATCH" }),
+
+  deleteBlog: (id: string) =>
+    apiRequest<{ message: string }>(`/blogs/${id}`, { method: "DELETE" }),
+
+  getBlogCategories: () =>
+    apiRequest<string[]>("/blogs/categories"),
+
+  // ── Coupons ───────────────────────────────────────────────────────────────
+
+  listCoupons: (params?: { page?: number; limit?: number; isActive?: boolean }) => {
+    const query = params
+      ? "?" + new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
+            if (v !== undefined && v !== null) acc[k] = String(v);
+            return acc;
+          }, {})
+        ).toString()
+      : "";
+    return apiRequest<{ coupons: AdminCoupon[]; total: number; page: number; limit: number; totalPages: number }>(`/coupons${query}`);
+  },
+
+  getCoupon: (id: string) =>
+    apiRequest<AdminCoupon>(`/coupons/${id}`),
+
+  createCoupon: (data: CreateCouponInput) =>
+    apiRequest<AdminCoupon>("/coupons", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateCoupon: (id: string, data: UpdateCouponInput) =>
+    apiRequest<AdminCoupon>(`/coupons/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteCoupon: (id: string) =>
+    apiRequest<{ message: string }>(`/coupons/${id}`, { method: "DELETE" }),
 };

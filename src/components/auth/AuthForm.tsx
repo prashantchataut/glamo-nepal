@@ -51,10 +51,12 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
     const redirectTo = params.get("redirect") || "/account";
     const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
 
-    let attempts = 0;
-    while (!syncComplete && attempts < 10) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      attempts++;
+    const maxWait = 5000;
+    const interval = 100;
+    let elapsed = 0;
+    while (!syncComplete && elapsed < maxWait) {
+      await new Promise((resolve) => setTimeout(resolve, interval));
+      elapsed += interval;
     }
 
     router.push(safeRedirect);

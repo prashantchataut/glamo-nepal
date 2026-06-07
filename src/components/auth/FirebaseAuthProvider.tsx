@@ -67,6 +67,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [syncComplete, setSyncComplete] = useState(false);
   const { login, logout } = useAuthStore();
   const syncingRef = useRef<string | null>(null);
+  const completedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -80,6 +81,11 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
       if (user) {
         const syncKey = user.uid;
+        if (completedRef.current.has(syncKey)) {
+          setLoading(false);
+          setSyncComplete(true);
+          return;
+        }
         if (syncingRef.current === syncKey) {
           return;
         }
@@ -123,6 +129,17 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
           useCartStore.getState().syncFromServer().catch(() => {});
           useWishlistStore.getState().syncFromServer().catch(() => {});
+          completedRef.current.add(syncKey);
+        } catch (error) {
+          console.error("Auth sync failed:", error);
+          login({
+            id: user.uid,
+            email: user.email || undefined,
+            name: user.displayName || user.email?.split("@")[0] || "User",
+            phone: user.phoneNumber || "",
+            role: "customer",
+          });
+          completedRef.current.add(syncKey);
         } finally {
           setSyncComplete(true);
           setLoading(false);
@@ -133,6 +150,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         setSyncComplete(true);
         setLoading(false);
         syncingRef.current = null;
+        completedRef.current.clear();
       }
     });
 
