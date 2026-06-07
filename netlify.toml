@@ -33,12 +33,6 @@
   node_bundler = "esbuild"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-
-[secrets_scan]
-  enabled = false
-
-[[secrets_scan.ignore]]
-  pattern = "ADMIN_EMAIL"
+from = "/api/*"
+to = "/.netlify/functions/api/:splat"
+status = 200
