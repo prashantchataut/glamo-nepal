@@ -47,7 +47,9 @@ async function syncUserWithBackend(token: string) {
         return data.data;
       }
     }
-  } catch {}
+  } catch (error) {
+    console.error("Failed to sync user with backend:", error);
+  }
   return null;
 }
 
@@ -67,10 +69,10 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
 
       if (user) {
-        try {
-          const token = await user.getIdToken();
-          setAuthCookie(token);
+        const token = await user.getIdToken().catch(() => null);
+        setAuthCookie(token);
 
+        if (token) {
           const backendUser = await syncUserWithBackend(token);
 
           if (backendUser) {
@@ -92,11 +94,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
               role: "customer",
             });
           }
-
-          useCartStore.getState().syncFromServer();
-          useWishlistStore.getState().syncFromServer();
-        } catch {
-          setAuthCookie(null);
+        } else {
           login({
             id: user.uid,
             email: user.email || undefined,
@@ -105,6 +103,9 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             role: "customer",
           });
         }
+
+        useCartStore.getState().syncFromServer().catch(() => {});
+        useWishlistStore.getState().syncFromServer().catch(() => {});
       } else {
         setAuthCookie(null);
         logout();
