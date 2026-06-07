@@ -3,7 +3,7 @@ import { createClient } from '@libsql/client'
 async function createAdmin() {
   const dbUrl = process.env.TURSO_DB_URL
   const authToken = process.env.TURSO_AUTH_TOKEN
-  const adminEmail = process.env.ADMIN_EMAIL || 'prashantchataut8@gmail.com'
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@glamonepal.com'
 
   if (!dbUrl || !authToken) {
     console.error('TURSO_DB_URL and TURSO_AUTH_TOKEN environment variables are required')
