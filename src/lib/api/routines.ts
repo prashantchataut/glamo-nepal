@@ -20,19 +20,22 @@ function toContract(bundle: NonNullable<ReturnType<typeof getBundle>>): ProductB
 }
 
 export async function fetchRoutineBundles(): Promise<ApiResponse<ProductBundleContract[]>> {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) return apiRequest<ProductBundleContract[]>("/routine-bundles");
-  return ok(getBundles().map(toContract));
+  try {
+    return await apiRequest<ProductBundleContract[]>("/routine-bundles");
+  } catch {
+    return ok(getBundles().map(toContract));
+  }
 }
 
 export async function fetchRoutineBundle(slug: string): Promise<ApiResponse<ProductBundleContract | null>> {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) return apiRequest<ProductBundleContract | null>(`/routine-bundles/${slug}`);
-  const bundle = getBundle(slug);
-  return ok(bundle ? toContract(bundle) : null);
+  try {
+    return await apiRequest<ProductBundleContract | null>(`/routine-bundles/${slug}`);
+  } catch {
+    const bundle = getBundle(slug);
+    return ok(bundle ? toContract(bundle) : null);
+  }
 }
 
 export async function createStockAlert(payload: StockAlertPayload): Promise<ApiResponse<{ queued: boolean }>> {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-    return apiRequest<{ queued: boolean }>("/stock-alerts", { method: "POST", body: JSON.stringify(payload) });
-  }
-  return ok({ queued: true }, "Stock alert request received. GLAMO will contact the customer when it is available.");
+  return apiRequest<{ queued: boolean }>("/stock-alerts", { method: "POST", body: JSON.stringify(payload) });
 }

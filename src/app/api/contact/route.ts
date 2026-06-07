@@ -3,8 +3,8 @@ import { contactSchema } from "@/lib/validations/contact";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 
-function getApiBaseUrl(): string | null {
-  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || null;
+function getApiBaseUrl(): string {
+  return process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
 }
 
 export async function POST(request: NextRequest) {
@@ -40,14 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const apiBaseUrl = getApiBaseUrl();
-    if (!apiBaseUrl) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Contact form is not configured. Please try again later.", code: "SERVICE_UNAVAILABLE" },
-        { status: 503 },
-      );
-    }
-
-    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/api/v1/contact`, {
+    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result.data),

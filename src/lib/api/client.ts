@@ -16,7 +16,9 @@ export class GlamoApiError extends Error {
 }
 
 function getApiBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (url) return url;
+  return "/api/v1";
 }
 
 async function getAuthToken(): Promise<string | null> {
@@ -31,13 +33,6 @@ async function getAuthToken(): Promise<string | null> {
 
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) {
-    throw new GlamoApiError({
-      status: "error",
-      code: "API_BASE_URL_MISSING",
-      message: "NEXT_PUBLIC_API_BASE_URL is not configured. Use local catalog methods until the API is ready.",
-    });
-  }
 
   const headers = new Headers(init?.headers);
   const isFormData = init?.body instanceof FormData;

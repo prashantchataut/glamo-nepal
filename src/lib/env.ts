@@ -20,7 +20,7 @@ function statusFor(value: string | undefined): EnvStatus {
 export function getPublicEnvChecks(): PublicEnvCheck[] {
   const checks: Array<Omit<PublicEnvCheck, "status">> = [
     { key: "NEXT_PUBLIC_SITE_URL", label: "Canonical site URL", requiredForProduction: true, value: process.env.NEXT_PUBLIC_SITE_URL, ownerAction: "Set the production domain, usually https://glamonepal.com." },
-    { key: "NEXT_PUBLIC_API_BASE_URL", label: "API base URL", requiredForProduction: true, value: process.env.NEXT_PUBLIC_API_BASE_URL, ownerAction: "Set the backend API URL, e.g. http://localhost:3001/api/v1 for dev." },
+    { key: "NEXT_PUBLIC_API_BASE_URL", label: "API base URL", requiredForProduction: false, value: process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1", ownerAction: "Defaults to /api/v1 for same-origin Netlify deployment. Override only for external API." },
     { key: "NEXT_PUBLIC_FIREBASE_API_KEY", label: "Firebase API key", requiredForProduction: true, value: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, ownerAction: "Add Firebase web app API key from Firebase Console." },
     { key: "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", label: "Firebase auth domain", requiredForProduction: true, value: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, ownerAction: "Add Firebase auth domain from Firebase Console." },
     { key: "NEXT_PUBLIC_FIREBASE_PROJECT_ID", label: "Firebase project ID", requiredForProduction: true, value: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID, ownerAction: "Add Firebase project ID from Firebase Console." },

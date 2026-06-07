@@ -50,15 +50,14 @@ describe("apiRequest", () => {
     delete process.env.NEXT_PUBLIC_API_BASE_URL;
   });
 
-  it("throws GlamoApiError with API_BASE_URL_MISSING when env var not set", async () => {
+  it("uses /api/v1 fallback when env var not set", async () => {
     delete process.env.NEXT_PUBLIC_API_BASE_URL;
-    await expect(apiRequest("/products")).rejects.toThrow();
-    try {
-      await apiRequest("/products");
-    } catch (err) {
-      expect(err).toBeInstanceOf(GlamoApiError);
-      expect((err as GlamoApiError).code).toBe("API_BASE_URL_MISSING");
-    }
+    const mockFetch = vi.fn().mockResolvedValueOnce(createMockResponse({ status: "success", data: {} }));
+    globalThis.fetch = mockFetch;
+
+    await apiRequest("products");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe("/api/v1/products");
   });
 
   it("makes a GET request with correct URL and credentials", async () => {

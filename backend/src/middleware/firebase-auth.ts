@@ -53,38 +53,36 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     if (isSyncRoute) {
       // For /sync, we don't enforce DB existence so the route can create the user
       c.set('user', { id: uid, email, role: 'customer', isActive: true })
-      await next()
-      return
+    } else {
+      const db = c.get('db')
+      const result = await db.execute({
+        sql: 'SELECT id, role, is_active FROM users WHERE id = ?',
+        args: [uid],
+      })
+
+      const profile = result.rows[0]
+      if (!profile) {
+        return c.json({ success: false, message: 'Unauthorized: user not found', errors: [] }, 401)
+      }
+
+      const isActive = profile.is_active
+      if (typeof isActive === 'number' ? isActive !== 1 : !isActive) {
+        return c.json({ success: false, message: 'Unauthorized: user inactive', errors: [] }, 401)
+      }
+
+      c.set('user', {
+        id: profile.id as string,
+        email,
+        role: profile.role as string,
+        isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+      })
     }
-
-    const db = c.get('db')
-    const result = await db.execute({
-      sql: 'SELECT id, role, is_active FROM users WHERE id = ?',
-      args: [uid],
-    })
-
-    const profile = result.rows[0]
-    if (!profile) {
-      return c.json({ success: false, message: 'Unauthorized: user not found', errors: [] }, 401)
-    }
-
-    const isActive = profile.is_active
-    if (typeof isActive === 'number' ? isActive !== 1 : !isActive) {
-      return c.json({ success: false, message: 'Unauthorized: user inactive', errors: [] }, 401)
-    }
-
-    c.set('user', {
-      id: profile.id as string,
-      email,
-      role: profile.role as string,
-      isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
-    })
-
-    await next()
   } catch (error) {
     console.error('Auth error:', error)
     return c.json({ success: false, message: 'Unauthorized: invalid token', errors: [] }, 401)
   }
+
+  await next()
 })
 
 function getCookieToken(c: Parameters<typeof authMiddleware>[0]): string | undefined {

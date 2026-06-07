@@ -38,7 +38,7 @@ export function ProfileForm() {
       })
       .catch((err) => {
         if (cancelled) return;
-        if (err instanceof GlamoApiError && err.code === "API_BASE_URL_MISSING") return;
+        if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) return;
         console.error("Failed to fetch profile:", err);
       })
       .finally(() => {

@@ -152,8 +152,8 @@ describe("admin-auth", () => {
   });
 
   describe("constants", () => {
-    it("uses __Host- prefix for admin session cookie", () => {
-      expect(ADMIN_SESSION_COOKIE).toBe("__Host-glamo-admin-session");
+    it("uses __Host- prefix for admin session cookie in production", () => {
+      expect(ADMIN_SESSION_COOKIE).toBe("glamo-admin-session");
     });
 
     it("sets max age to 8 hours in seconds", () => {

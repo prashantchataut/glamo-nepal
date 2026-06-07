@@ -7,8 +7,8 @@ const newsletterSchema = z.object({
   email: z.string().email().max(254),
 });
 
-function getApiBaseUrl(): string | null {
-  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || null;
+function getApiBaseUrl(): string {
+  return process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
 }
 
 export async function POST(request: NextRequest) {
@@ -37,14 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     const apiBaseUrl = getApiBaseUrl();
-    if (!apiBaseUrl) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Newsletter subscription is not yet available. Please try again later.", code: "SERVICE_UNAVAILABLE" },
-        { status: 503 },
-      );
-    }
-
-    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/api/v1/newsletter`, {
+    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/newsletter`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result.data),

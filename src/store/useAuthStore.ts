@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         ? document.cookie.split("; ").find((c) => c.startsWith("glamo-access-token="))?.split("=")[1]
         : undefined;
       if (token) {
-        await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/api/v1/auth/logout`, {
+        await fetch(`/api/v1/auth/logout`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         }).catch(() => {});

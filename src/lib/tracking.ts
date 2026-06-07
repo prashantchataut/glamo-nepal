@@ -90,7 +90,7 @@ export async function flush(): Promise<void> {
   };
 
   try {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
     if (!apiBase) {
       isFlushing = false;
       return;

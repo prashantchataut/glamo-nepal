@@ -86,8 +86,8 @@ export const useCheckoutStore = create<CheckoutState>()(
           return saved;
         } catch (err) {
           let errorMessage: string;
-          if (err instanceof GlamoApiError && err.code === "API_BASE_URL_MISSING") {
-            errorMessage = "Checkout is not available yet. Please try again later or contact us on WhatsApp.";
+          if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) {
+            errorMessage = "Checkout is not available right now. Please try again later or contact us on WhatsApp.";
           } else if (err instanceof Error) {
             errorMessage = err.message;
           } else {

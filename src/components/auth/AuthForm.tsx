@@ -105,7 +105,13 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           setIsLoading(false);
           return;
         }
-        setError("Google sign-in failed. Please try again.");
+        if (code === "auth/unauthorized-domain") {
+          setError("This domain is not authorized for Google sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.");
+        } else if (code === "auth/operation-not-allowed") {
+          setError("Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.");
+        } else {
+          setError(err.message || "Google sign-in failed. Please try again.");
+        }
       } else {
         setError("Google sign-in failed. Please try again.");
       }

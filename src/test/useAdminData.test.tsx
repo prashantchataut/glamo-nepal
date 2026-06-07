@@ -64,8 +64,7 @@ describe("useAdminData", () => {
       await vi.runAllTimersAsync();
     });
 
-    expect(result.current.error).toContain("wrangler dev");
-    expect(result.current.error).toContain("NEXT_PUBLIC_API_BASE_URL");
+    expect(result.current.error).toBe("Not configured");
   });
 
   it("shows friendly error for NETWORK_ERROR", async () => {
@@ -76,7 +75,7 @@ describe("useAdminData", () => {
       await vi.runAllTimersAsync();
     });
 
-    expect(result.current.error).toContain("backend is running");
+    expect(result.current.error).toContain("Could not reach");
   });
 
   it("shows generic error for plain Error", async () => {
@@ -147,7 +146,7 @@ describe("useAdminData", () => {
 
     expect(fetcher).toHaveBeenCalledTimes(3);
     expect(result.current.isError).toBe(true);
-    expect(result.current.error).toContain("backend is running");
+    expect(result.current.error).toContain("Could not reach");
   });
 
   it("does not retry non-network errors", async () => {
