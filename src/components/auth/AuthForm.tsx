@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { SITE_CONFIG } from "@/lib/config";
 import { IMAGES } from "@/lib/image-library";
+import { useFirebaseAuth } from "./FirebaseAuthProvider";
 
 export type AuthMode = "login" | "register";
 
@@ -34,6 +35,7 @@ const labels: Record<AuthMode, { eyebrow: string; title: string; description: st
 export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
   const router = useRouter();
   const params = useSearchParams();
+  const { syncComplete } = useFirebaseAuth();
 
   const [mode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -44,6 +46,20 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
   const [error, setError] = useState("");
 
   const copy = labels[mode];
+
+  const waitForSyncAndRedirect = async () => {
+    const redirectTo = params.get("redirect") || "/account";
+    const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
+
+    let attempts = 0;
+    while (!syncComplete && attempts < 30) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      attempts++;
+    }
+
+    router.push(safeRedirect);
+    router.refresh();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,11 +76,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
         await signInWithEmailAndPassword(email, password);
         toast.success("Signed in successfully.");
       }
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const redirectTo = params.get("redirect") || "/account";
-      const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
-      router.push(safeRedirect);
-      router.refresh();
+      await waitForSyncAndRedirect();
     } catch (err: unknown) {
       if (err instanceof Error) {
         const code = (err as { code?: string }).code || "";
@@ -94,10 +106,8 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
     setIsLoading(true);
     try {
       await signInWithPopup();
-      const redirectTo = params.get("redirect") || "/account";
-      const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
-      router.push(safeRedirect);
-      router.refresh();
+      toast.success("Signed in with Google.");
+      await waitForSyncAndRedirect();
     } catch (err: unknown) {
       if (err instanceof Error) {
         const code = (err as { code?: string }).code || "";

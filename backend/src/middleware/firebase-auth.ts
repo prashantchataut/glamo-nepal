@@ -10,7 +10,6 @@ function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
 }
 
 function buildJwksUri(projectId: string): string {
-  // Client-issued Firebase ID tokens are signed by securetoken.google.com
   return `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`
 }
 
@@ -37,6 +36,30 @@ export async function verifyFirebaseToken(token: string, projectId: string): Pro
 }
 
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
+  const adminSession = getAdminSessionToken(c)
+  if (adminSession) {
+    const adminUser = await verifyAdminSession(adminSession)
+    if (adminUser) {
+      const db = c.get('db')
+      const result = await db.execute({
+        sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL AND role IN ('ADMIN', 'SUPER_ADMIN')",
+        args: [adminUser.email],
+      })
+      if (result.rows.length > 0) {
+        const profile = result.rows[0]
+        const isActive = profile.is_active
+        c.set('user', {
+          id: profile.id as string,
+          email: adminUser.email,
+          role: profile.role as string,
+          isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+        })
+        await next()
+        return
+      }
+    }
+  }
+
   const token = c.req.header('Authorization')?.replace('Bearer ', '')
     ?? getCookieToken(c)
 
@@ -51,7 +74,6 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     const isSyncRoute = c.req.path.endsWith('/sync')
 
     if (isSyncRoute) {
-      // For /sync, we don't enforce DB existence so the route can create the user
       c.set('user', { id: uid, email, role: 'customer', isActive: true })
     } else {
       const db = c.get('db')
@@ -90,4 +112,40 @@ function getCookieToken(c: Parameters<typeof authMiddleware>[0]): string | undef
   if (!cookieHeader) return undefined
   const match = cookieHeader.match(/(?:^|;\s*)glamo-access-token=([^;]+)/)
   return match?.[1]
+}
+
+function getAdminSessionToken(c: Parameters<typeof authMiddleware>[0]): string | undefined {
+  const cookieHeader = c.req.header('Cookie')
+  if (!cookieHeader) return undefined
+  const cookieName = process.env.NODE_ENV === 'production' ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
+  return match?.[1]
+}
+
+async function verifyAdminSession(token: string): Promise<{ email: string; name: string; role: string } | null> {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET
+  if (!secret) return null
+
+  try {
+    const [encodedPayload, signature] = token.split('.')
+    if (!encodedPayload || !signature) return null
+
+    const encoder = new TextEncoder()
+    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+    const expectedSignature = await crypto.subtle.sign('HMAC', key, encoder.encode(encodedPayload))
+    const expectedBase64 = btoa(String.fromCharCode(...new Uint8Array(expectedSignature))).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
+
+    if (signature !== expectedBase64) return null
+
+    const padding = encodedPayload.length % 4
+    const padded = padding ? encodedPayload + '='.repeat(4 - padding) : encodedPayload
+    const payload = JSON.parse(atob(padded.replaceAll('-', '+').replaceAll('_', '/')))
+
+    if (payload.role !== 'admin') return null
+    if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null
+
+    return { email: payload.email, name: payload.name, role: payload.role }
+  } catch {
+    return null
+  }
 }

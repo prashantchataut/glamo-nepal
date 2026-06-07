@@ -20,5 +20,6 @@ export function getFullEnv(c: Context<AppEnv>): AppEnv['Bindings'] {
     FRONTEND_URL: getEnv(c, 'FRONTEND_URL') || 'http://localhost:3000',
     FREE_SHIPPING_THRESHOLD: getEnv(c, 'FREE_SHIPPING_THRESHOLD') || '2500',
     COD_FEE: getEnv(c, 'COD_FEE') || '50',
+    AUTH_SECRET: getEnv(c, 'AUTH_SECRET'),
   }
 }

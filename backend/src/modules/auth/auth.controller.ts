@@ -22,9 +22,12 @@ export async function findOrCreateUser(c: Context<AppEnv>) {
   try {
     const authUser = c.get('user')
     const db = c.get('db')
+    const body = await c.req.json().catch(() => ({} as Record<string, unknown>))
     const result = await AuthService.findOrCreateUser({
       uid: authUser.id,
       email: authUser.email,
+      firstName: typeof body.firstName === 'string' ? body.firstName : undefined,
+      lastName: typeof body.lastName === 'string' ? body.lastName : undefined,
     }, db)
     return ApiResponse.success(c, 'User synced', result)
   } catch (error: any) {

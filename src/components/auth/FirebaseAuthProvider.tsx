@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   auth,
   onAuthStateChanged,
@@ -14,9 +14,10 @@ import { useWishlistStore } from "@/store/useWishlistStore";
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  syncComplete: boolean;
 }
 
-const AuthContext = createContext<AuthContextValue>({ user: null, loading: true });
+const AuthContext = createContext<AuthContextValue>({ user: null, loading: true, syncComplete: false });
 
 const AUTH_COOKIE_NAME = "glamo-access-token";
 
@@ -31,15 +32,22 @@ function setAuthCookie(token: string | null) {
   }
 }
 
-async function syncUserWithBackend(token: string) {
+async function syncUserWithBackend(token: string, displayName?: string | null) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
+    const body: Record<string, string> = {};
+    if (displayName) {
+      const parts = displayName.split(" ");
+      body.firstName = parts[0] || "";
+      body.lastName = parts.slice(1).join(" ") || "";
+    }
     const res = await fetch(`${apiUrl}/auth/sync`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
+      body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
     });
     if (res.ok) {
       const data = await res.json();
@@ -56,35 +64,53 @@ async function syncUserWithBackend(token: string) {
 export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncComplete, setSyncComplete] = useState(false);
   const { login, logout } = useAuthStore();
+  const syncingRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
       setLoading(false);
+      setSyncComplete(true);
       return;
     }
 
     const unsubscribe = onAuthStateChanged(auth!, async (user) => {
       setFirebaseUser(user);
-      setLoading(false);
 
       if (user) {
-        const token = await user.getIdToken().catch(() => null);
-        setAuthCookie(token);
+        const syncKey = user.uid;
+        if (syncingRef.current === syncKey) {
+          return;
+        }
+        syncingRef.current = syncKey;
 
-        if (token) {
-          const backendUser = await syncUserWithBackend(token);
+        try {
+          const token = await user.getIdToken().catch(() => null);
+          setAuthCookie(token);
 
-          if (backendUser) {
-            login({
-              id: backendUser.id || user.uid,
-              email: backendUser.email || user.email || undefined,
-              name: backendUser.firstName
-                ? `${backendUser.firstName}${backendUser.lastName ? " " + backendUser.lastName : ""}`
-                : user.displayName || user.email?.split("@")[0] || "User",
-              phone: backendUser.phone || "",
-              role: backendUser.role || "customer",
-            });
+          if (token) {
+            const backendUser = await syncUserWithBackend(token, user.displayName);
+
+            if (backendUser) {
+              login({
+                id: backendUser.id || user.uid,
+                email: backendUser.email || user.email || undefined,
+                name: backendUser.firstName
+                  ? `${backendUser.firstName}${backendUser.lastName ? " " + backendUser.lastName : ""}`
+                  : user.displayName || user.email?.split("@")[0] || "User",
+                phone: backendUser.phone || "",
+                role: backendUser.role || "customer",
+              });
+            } else {
+              login({
+                id: user.uid,
+                email: user.email || undefined,
+                name: user.displayName || user.email?.split("@")[0] || "User",
+                phone: user.phoneNumber || "",
+                role: "customer",
+              });
+            }
           } else {
             login({
               id: user.uid,
@@ -94,21 +120,19 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
               role: "customer",
             });
           }
-        } else {
-          login({
-            id: user.uid,
-            email: user.email || undefined,
-            name: user.displayName || user.email?.split("@")[0] || "User",
-            phone: user.phoneNumber || "",
-            role: "customer",
-          });
-        }
 
-        useCartStore.getState().syncFromServer().catch(() => {});
-        useWishlistStore.getState().syncFromServer().catch(() => {});
+          useCartStore.getState().syncFromServer().catch(() => {});
+          useWishlistStore.getState().syncFromServer().catch(() => {});
+        } finally {
+          setSyncComplete(true);
+          setLoading(false);
+        }
       } else {
         setAuthCookie(null);
         logout();
+        setSyncComplete(true);
+        setLoading(false);
+        syncingRef.current = null;
       }
     });
 
@@ -116,7 +140,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   }, [login, logout]);
 
   return (
-    <AuthContext.Provider value={{ user: firebaseUser, loading }}>
+    <AuthContext.Provider value={{ user: firebaseUser, loading, syncComplete }}>
       {children}
     </AuthContext.Provider>
   );

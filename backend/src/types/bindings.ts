@@ -14,6 +14,7 @@ export interface NetlifyBindings {
   FRONTEND_URL: string
   FREE_SHIPPING_THRESHOLD: string
   COD_FEE: string
+  AUTH_SECRET: string
 }
 
 export type AppEnv = {
