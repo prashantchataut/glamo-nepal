@@ -465,6 +465,109 @@ export interface UpdateCouponInput {
   isActive?: boolean;
 }
 
+// ── Popups ──────────────────────────────────────────────────────────────────
+
+export interface AdminPopup {
+  id: string;
+  title: string;
+  content: string;
+  image_url?: string;
+  link_url?: string;
+  trigger_type: string;
+  delay_ms: number;
+  cookie_days?: number;
+  is_active: number;
+  starts_at?: string;
+  expires_at?: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreatePopupInput {
+  title: string;
+  content: string;
+  imageUrl?: string;
+  linkUrl?: string;
+  triggerType?: string;
+  delayMs?: number;
+  cookieDays?: number;
+  startsAt?: string;
+  expiresAt?: string;
+}
+
+export interface UpdatePopupInput {
+  title?: string;
+  content?: string;
+  imageUrl?: string;
+  linkUrl?: string;
+  triggerType?: string;
+  delayMs?: number;
+  cookieDays?: number;
+  startsAt?: string;
+  expiresAt?: string;
+}
+
+// ── Gallery ────────────────────────────────────────────────────────────────
+
+export interface AdminGalleryItem {
+  id: string;
+  title: string;
+  description?: string;
+  image_url: string;
+  category?: string;
+  sort_order: number;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateGalleryItemInput {
+  title: string;
+  description?: string;
+  imageUrl: string;
+  category?: string;
+  sortOrder?: number;
+}
+
+export interface UpdateGalleryItemInput {
+  title?: string;
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  sortOrder?: number;
+}
+
+// ── Team ────────────────────────────────────────────────────────────────────
+
+export interface AdminTeamMember {
+  id: string;
+  name: string;
+  role: string;
+  bio?: string;
+  image_url?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTeamMemberInput {
+  name: string;
+  role: string;
+  bio?: string;
+  imageUrl?: string;
+  sortOrder?: number;
+}
+
+export interface UpdateTeamMemberInput {
+  name?: string;
+  role?: string;
+  bio?: string;
+  imageUrl?: string;
+  sortOrder?: number;
+}
+
 // ── API Functions ───────────────────────────────────────────────────────────
 
 export const adminApi = {
@@ -888,4 +991,91 @@ export const adminApi = {
 
   deleteCoupon: (id: string) =>
     apiRequest<{ message: string }>(`/coupons/${id}`, { method: "DELETE" }),
+
+  // ── Popups ─────────────────────────────────────────────────────────────────
+
+  listPopups: (params?: { page?: number; limit?: number }) => {
+    const query = params
+      ? "?" + new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
+            if (v !== undefined && v !== null) acc[k] = String(v);
+            return acc;
+          }, {})
+        ).toString()
+      : "";
+    return apiRequest<AdminPopup[]>(`/popups${query}`);
+  },
+
+  getPopup: (id: string) =>
+    apiRequest<AdminPopup>(`/popups/${id}`),
+
+  createPopup: (data: CreatePopupInput) =>
+    apiRequest<AdminPopup>("/popups", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updatePopup: (id: string, data: UpdatePopupInput) =>
+    apiRequest<AdminPopup>(`/popups/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deletePopup: (id: string) =>
+    apiRequest<{ message: string }>(`/popups/${id}`, { method: "DELETE" }),
+
+  // ── Gallery ────────────────────────────────────────────────────────────────
+
+  listGallery: (params?: { category?: string }) => {
+    const query = params
+      ? "?" + new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
+            if (v !== undefined && v !== null) acc[k] = String(v);
+            return acc;
+          }, {})
+        ).toString()
+      : "";
+    return apiRequest<AdminGalleryItem[]>(`/gallery${query}`);
+  },
+
+  createGalleryItem: (data: CreateGalleryItemInput) =>
+    apiRequest<AdminGalleryItem>("/gallery", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateGalleryItem: (id: string, data: UpdateGalleryItemInput) =>
+    apiRequest<AdminGalleryItem>(`/gallery/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteGalleryItem: (id: string) =>
+    apiRequest<{ message: string }>(`/gallery/${id}`, { method: "DELETE" }),
+
+  reorderGallery: (items: Array<{ id: string; sortOrder: number }>) =>
+    apiRequest<{ message: string }>("/gallery/reorder", {
+      method: "PATCH",
+      body: JSON.stringify({ items }),
+    }),
+
+  // ── Team ───────────────────────────────────────────────────────────────────
+
+  listTeam: () =>
+    apiRequest<AdminTeamMember[]>("/team"),
+
+  createTeamMember: (data: CreateTeamMemberInput) =>
+    apiRequest<AdminTeamMember>("/team", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateTeamMember: (id: string, data: UpdateTeamMemberInput) =>
+    apiRequest<AdminTeamMember>(`/team/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteTeamMember: (id: string) =>
+    apiRequest<{ message: string }>(`/team/${id}`, { method: "DELETE" }),
 };

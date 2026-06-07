@@ -126,6 +126,21 @@ export async function cancelOrder(c: Context<AppEnv>) {
   }
 }
 
+export async function getPublicOrder(c: Context<AppEnv>) {
+  try {
+    const { orderNumber } = c.req.param()
+    const db = c.get('db')
+    const order = await OrderService.getPublicOrder(orderNumber, db)
+    return ApiResponse.success(c, 'Order fetched successfully', order)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      if (error.code === 'ORDER_NOT_FOUND') return ApiResponse.error(c, 'Order not found', 404)
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
+    return ApiResponse.error(c, error.message || 'Failed to fetch order', 500)
+  }
+}
+
 function safeUser(c: Context<AppEnv>) {
   try {
     return c.get('user')

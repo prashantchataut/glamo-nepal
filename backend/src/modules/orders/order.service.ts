@@ -730,6 +730,22 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
   return fetchOrderWithRelations(rowId, db)
 }
 
+export async function getPublicOrder(orderNumber: string, db: Client) {
+  const result = await db.execute({
+    sql: 'SELECT * FROM orders WHERE order_number = ? AND deleted_at IS NULL LIMIT 1',
+    args: [orderNumber],
+  })
+  if (result.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+  const row = result.rows[0]
+
+  const [items, history] = await Promise.all([
+    getOrderItems((row as any).id as string, db),
+    getStatusHistory((row as any).id as string, db),
+  ])
+
+  return formatOrder(row, items, history, null)
+}
+
 export async function verifyCheckoutPayment(orderId: string, provider: string, token: string, db: Client, env?: { KHALTI_SECRET_KEY?: string; ESEWA_SECRET_KEY?: string; ESEWA_MERCHANT_CODE?: string }) {
   const fetchResult = await db.execute({
     sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',

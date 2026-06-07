@@ -5,6 +5,17 @@ import { validateCsrf } from "@/lib/csrf";
 const loginAttempts = new Map<string, { count: number; expires: number }>();
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW = 60_000;
+const CLEANUP_INTERVAL = 120_000;
+let lastCleanup = Date.now();
+
+function cleanupRateLimit() {
+  const now = Date.now();
+  if (now - lastCleanup < CLEANUP_INTERVAL) return;
+  lastCleanup = now;
+  for (const [ip, entry] of loginAttempts) {
+    if (entry.expires <= now) loginAttempts.delete(ip);
+  }
+}
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
@@ -39,6 +50,7 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  cleanupRateLimit();
   const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     ?? request.headers.get("x-real-ip")
     ?? "unknown";

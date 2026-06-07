@@ -17,6 +17,7 @@ import {
   LogOut,
   X,
   ClipboardList,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminSection } from "@/store/useAdminStore";
@@ -42,6 +43,9 @@ const sections: Array<{
   { id: "banners", label: "Banners", icon: ImageIcon },
   { id: "blogs", label: "Blog", icon: FileText },
   { id: "coupons", label: "Coupons", icon: Ticket },
+  { id: "popups", label: "Popups", icon: Megaphone },
+  { id: "gallery", label: "Gallery", icon: ImageIcon },
+  { id: "team", label: "Team", icon: Users },
   { id: "customers", label: "Customers", icon: Users },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "audit", label: "Audit Log", icon: ClipboardList },
