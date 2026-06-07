@@ -39,3 +39,6 @@
 
 [secrets_scan]
   enabled = false
+
+[[secrets_scan.ignore]]
+  pattern = "ADMIN_EMAIL"
