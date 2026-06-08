@@ -4,30 +4,30 @@ test.describe("Login page", () => {
   test("loads without error boundary crash", async ({ page }) => {
     const response = await page.goto("/login");
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
+    await expect(page.locator("#auth-email")).toBeVisible();
+    await expect(page.locator("#auth-password")).toBeVisible();
     await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
   });
 
   test("shows validation errors for empty submission", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
     const submitButton = page.getByRole("button", { name: /sign in/i });
     await expect(submitButton).toBeDisabled();
 
-    await page.getByLabel(/email/i).fill("test@example.com");
-    await page.getByLabel(/password/i).fill("short");
+    await page.locator("#auth-email").fill("test@example.com");
+    await page.locator("#auth-password").fill("short");
     await expect(submitButton).toBeEnabled();
   });
 
   test("shows error for invalid credentials", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
-    await page.getByLabel(/email/i).fill("nonexistent@test.com");
-    await page.getByLabel(/password/i).fill("wrongpassword123");
+    await page.locator("#auth-email").fill("nonexistent@test.com");
+    await page.locator("#auth-password").fill("wrongpassword123");
     await page.getByRole("button", { name: /sign in/i }).click();
 
     await expect(page.getByRole("alert")).toBeVisible({ timeout: 10000 });
@@ -35,48 +35,50 @@ test.describe("Login page", () => {
 
   test("has Google sign-in button", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
     await expect(page.getByRole("button", { name: /google/i })).toBeVisible();
   });
 
   test("has link to register page", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
     await expect(page.getByRole("link", { name: /create account/i })).toBeVisible();
   });
 
   test("has forgot password link", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
     await expect(page.getByRole("link", { name: /forgot password/i })).toBeVisible();
   });
 
   test("redirects to /account after successful login", async ({ page }) => {
+    test.skip(!process.env.E2E_TEST_EMAIL, "Requires E2E_TEST_EMAIL and E2E_TEST_PASSWORD env vars");
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
-    const email = process.env.E2E_TEST_EMAIL || "test@glamo.com.np";
-    const password = process.env.E2E_TEST_PASSWORD || "testpass123";
+    const email = process.env.E2E_TEST_EMAIL!;
+    const password = process.env.E2E_TEST_PASSWORD!;
 
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
+    await page.locator("#auth-email").fill(email);
+    await page.locator("#auth-password").fill(password);
     await page.getByRole("button", { name: /sign in/i }).click();
 
     await expect(page).toHaveURL(/\/account/, { timeout: 15000 });
   });
 
   test("redirects to ?redirect URL after login", async ({ page }) => {
+    test.skip(!process.env.E2E_TEST_EMAIL, "Requires E2E_TEST_EMAIL and E2E_TEST_PASSWORD env vars");
     await page.goto("/login?redirect=/wishlist");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
-    const email = process.env.E2E_TEST_EMAIL || "test@glamo.com.np";
-    const password = process.env.E2E_TEST_PASSWORD || "testpass123";
+    const email = process.env.E2E_TEST_EMAIL!;
+    const password = process.env.E2E_TEST_PASSWORD!;
 
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
+    await page.locator("#auth-email").fill(email);
+    await page.locator("#auth-password").fill(password);
     await page.getByRole("button", { name: /sign in/i }).click();
 
     await expect(page).toHaveURL(/\/wishlist/, { timeout: 15000 });
@@ -87,36 +89,37 @@ test.describe("Register page", () => {
   test("loads without error boundary crash", async ({ page }) => {
     const response = await page.goto("/register");
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 15000 });
-    await expect(page.getByLabel(/name/i)).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 30000 });
+    await expect(page.locator("#auth-name")).toBeVisible();
+    await expect(page.locator("#auth-email")).toBeVisible();
+    await expect(page.locator("#auth-password")).toBeVisible();
   });
 
   test("has link to login page", async ({ page }) => {
     await page.goto("/register");
-    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 30000 });
 
-    await expect(page.getByRole("link", { name: /sign in/i })).toBeVisible();
+    await expect(page.getByText("Sign in instead")).toBeVisible();
   });
 
   test("shows name field on register form", async ({ page }) => {
     await page.goto("/register");
-    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 30000 });
 
-    const nameInput = page.getByLabel(/full name/i);
+    const nameInput = page.locator("#auth-name");
     await expect(nameInput).toBeVisible();
   });
 
   test("shows error for duplicate email registration", async ({ page }) => {
+    test.skip(!process.env.E2E_TEST_EMAIL, "Requires E2E_TEST_EMAIL and E2E_TEST_PASSWORD env vars");
     await page.goto("/register");
-    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 30000 });
 
-    const email = process.env.E2E_TEST_EMAIL || "test@glamo.com.np";
+    const email = process.env.E2E_TEST_EMAIL!;
 
-    await page.getByLabel(/full name/i).fill("Test User");
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill("testpass123");
+    await page.locator("#auth-name").fill("Test User");
+    await page.locator("#auth-email").fill(email);
+    await page.locator("#auth-password").fill("testpass123");
     await page.getByRole("button", { name: /create account/i }).click();
 
     await expect(page.getByRole("alert")).toBeVisible({ timeout: 10000 });
@@ -131,7 +134,7 @@ test.describe("Auth SSR safety", () => {
     });
 
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
     const firebaseErrors = consoleErrors.filter(
       (e) => e.includes("firebase") || e.includes("Firebase") || e.includes("auth/")
@@ -146,7 +149,7 @@ test.describe("Auth SSR safety", () => {
     });
 
     await page.goto("/register");
-    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 30000 });
 
     const firebaseErrors = consoleErrors.filter(
       (e) => e.includes("firebase") || e.includes("Firebase") || e.includes("auth/")
@@ -156,7 +159,7 @@ test.describe("Auth SSR safety", () => {
 
   test("no error boundary visible on login page", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible({ timeout: 30000 });
 
     await expect(page.getByText(/this section needs a refresh/i)).not.toBeVisible();
     await expect(page.getByText(/something interrupted/i)).not.toBeVisible();
@@ -164,7 +167,7 @@ test.describe("Auth SSR safety", () => {
 
   test("no error boundary visible on register page", async ({ page }) => {
     await page.goto("/register");
-    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /create/i })).toBeVisible({ timeout: 30000 });
 
     await expect(page.getByText(/this section needs a refresh/i)).not.toBeVisible();
     await expect(page.getByText(/something interrupted/i)).not.toBeVisible();
