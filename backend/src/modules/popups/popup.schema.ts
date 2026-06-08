@@ -22,6 +22,7 @@ export const updatePopupSchema = z.object({
   cookieDays: z.number().int().min(1).max(365).optional(),
   startsAt: z.string().optional(),
   expiresAt: z.string().optional(),
+  isActive: z.boolean().optional(),
 })
 
 export const idParamSchema = z.object({

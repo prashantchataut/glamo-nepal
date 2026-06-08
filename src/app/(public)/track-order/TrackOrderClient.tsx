@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { Package, Search, Truck, CheckCircle2, Clock, XCircle, Loader2 } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { GlamoApiError } from "@/lib/api/client";
@@ -275,7 +276,7 @@ export default function TrackOrderClient() {
                   {order.items.map((item) => (
                     <li key={item.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.productName} className="h-14 w-14 shrink-0 rounded-xl border border-neutral-100 object-cover" />
+                        <NextImage src={item.imageUrl} alt={item.productName} width={56} height={56} className="h-14 w-14 shrink-0 rounded-xl border border-neutral-100 object-cover" />
                       ) : (
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-neutral-100 bg-neutral-50">
                           <Package size={20} className="text-neutral-300" />

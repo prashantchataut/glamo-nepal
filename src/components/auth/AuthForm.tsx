@@ -83,7 +83,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
       if (err instanceof Error) {
         const code = (err as { code?: string }).code || "";
         if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
-          setError("Invalid email or password.");
+          setError("Invalid email or password. Please check your credentials and try again.");
         } else if (code === "auth/email-already-in-use") {
           setError("An account with this email already exists.");
         } else if (code === "auth/weak-password") {
@@ -92,12 +92,17 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           setError("Please enter a valid email address.");
         } else if (code === "auth/too-many-requests") {
           setError("Too many attempts. Please try again later.");
+        } else if (code === "auth/network-request-failed") {
+          setError("Network error. Please check your connection and try again.");
+        } else if (code === "auth/operation-not-allowed") {
+          setError("Sign-in method is not enabled. Please contact support.");
         } else {
-          setError("Something went wrong. Please try again.");
+          setError(`Sign-in failed: ${err.message || "Unknown error"}`);
         }
       } else {
         setError("Something went wrong. Please try again.");
       }
+      console.error("[Auth] Sign-in error:", err);
     } finally {
       setIsLoading(false);
     }

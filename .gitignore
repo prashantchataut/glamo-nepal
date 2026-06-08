@@ -38,10 +38,8 @@ backend/dist/
 .env
 .env*.local
 
-# vercel (migrated to netlify)
+# vercel
 .vercel
-vercel.json
-.vercelignore
 
 # netlify
 .netlify

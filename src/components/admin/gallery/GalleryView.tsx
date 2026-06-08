@@ -8,7 +8,7 @@ import { StatusPill } from "@/components/admin/shared/StatusPill";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { adminApi, type AdminGalleryItem } from "@/lib/api/admin";
+import { adminApi, type AdminGalleryItem, type CreateGalleryItemInput, type UpdateGalleryItemInput } from "@/lib/api/admin";
 
 type GalleryFormData = {
   title: string;
@@ -47,10 +47,10 @@ export function GalleryView() {
   }, [galleryData]);
 
   const { mutate: createMut } = useAdminMutation((data: Record<string, unknown>) =>
-    adminApi.createGalleryItem(data as unknown as Parameters<typeof adminApi.createGalleryItem>[0])
+    adminApi.createGalleryItem(data as unknown as CreateGalleryItemInput)
   );
   const { mutate: updateMut } = useAdminMutation(({ id, data }: { id: string; data: Record<string, unknown> }) =>
-    adminApi.updateGalleryItem(id, data as Parameters<typeof adminApi.updateGalleryItem>[1])
+    adminApi.updateGalleryItem(id, data as unknown as UpdateGalleryItemInput)
   );
   const { mutate: deleteMut } = useAdminMutation((id: string) => adminApi.deleteGalleryItem(id));
   const { mutate: reorderMut } = useAdminMutation((items: Array<{ id: string; sortOrder: number }>) =>

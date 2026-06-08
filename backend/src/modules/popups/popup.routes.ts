@@ -7,6 +7,7 @@ import { createPopupSchema, updatePopupSchema } from './popup.schema'
 import {
   getActivePopup,
   getAllPopups,
+  getPopupById,
   createPopup,
   updatePopup,
   deletePopup,
@@ -16,6 +17,7 @@ const popupRoutes = new Hono<AppEnv>()
 
 popupRoutes.get('/active', getActivePopup)
 popupRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getAllPopups)
+popupRoutes.get('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getPopupById)
 popupRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createPopupSchema), createPopup)
 popupRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updatePopupSchema), updatePopup)
 popupRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deletePopup)

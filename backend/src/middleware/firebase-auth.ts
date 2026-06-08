@@ -73,11 +73,19 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     }
   }
 
-  const token = c.req.header('Authorization')?.replace('Bearer ', '')
-    ?? getCookieToken(c)
+  const authHeader = c.req.header('Authorization')
+  const cookieToken = getCookieToken(c)
+  const rawToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : (authHeader || undefined)
+  const token = rawToken || cookieToken
 
   if (!token) {
     return c.json({ success: false, message: 'Unauthorized: no token provided', errors: [] }, 401)
+  }
+
+  const tokenParts = token.split('.')
+  if (tokenParts.length !== 3) {
+    console.error(`[Auth] Invalid token format: parts=${tokenParts.length}, len=${token.length}, source=${authHeader ? 'header' : 'cookie'}, prefix=${token.substring(0, 40)}`)
+    return c.json({ success: false, message: 'Unauthorized: invalid token format', errors: [] }, 401)
   }
 
   try {
@@ -133,7 +141,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
       })
     }
   } catch (error) {
-    console.error('Auth error:', error)
+    console.error('[Auth] Token verification failed:', error instanceof Error ? `${error.name}: ${error.message}` : String(error))
     return c.json({ success: false, message: 'Unauthorized: invalid token', errors: [] }, 401)
   }
 

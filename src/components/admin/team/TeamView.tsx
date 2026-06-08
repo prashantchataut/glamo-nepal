@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { adminApi, type AdminTeamMember } from "@/lib/api/admin";
+import { adminApi, type AdminTeamMember, type CreateTeamMemberInput, type UpdateTeamMemberInput } from "@/lib/api/admin";
 
 type TeamFormData = {
   name: string;
@@ -41,10 +41,10 @@ export function TeamView() {
   }, [teamData]);
 
   const { mutate: createMut } = useAdminMutation((data: Record<string, unknown>) =>
-    adminApi.createTeamMember(data as unknown as Parameters<typeof adminApi.createTeamMember>[0])
+    adminApi.createTeamMember(data as unknown as CreateTeamMemberInput)
   );
   const { mutate: updateMut } = useAdminMutation(({ id, data }: { id: string; data: Record<string, unknown> }) =>
-    adminApi.updateTeamMember(id, data as Parameters<typeof adminApi.updateTeamMember>[1])
+    adminApi.updateTeamMember(id, data as unknown as UpdateTeamMemberInput)
   );
   const { mutate: deleteMut } = useAdminMutation((id: string) => adminApi.deleteTeamMember(id));
 

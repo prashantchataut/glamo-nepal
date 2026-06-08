@@ -30,6 +30,20 @@ export async function getAllPopups(c: Context<AppEnv>) {
   }
 }
 
+export async function getPopupById(c: Context<AppEnv>) {
+  try {
+    const { id } = c.req.param()
+    const db = c.get('db')
+    const result = await PopupService.getPopupById(db, id)
+    return ApiResponse.success(c, 'Popup fetched', result)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
+    return ApiResponse.error(c, error.message || 'Failed to fetch popup', 500)
+  }
+}
+
 export async function createPopup(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')

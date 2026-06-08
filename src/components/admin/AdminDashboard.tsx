@@ -1,23 +1,36 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useAdminStore } from "@/store/useAdminStore";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { DashboardView } from "@/components/admin/dashboard/DashboardView";
-import { ProductsView } from "@/components/admin/products/ProductsView";
-import { OrdersView } from "@/components/admin/orders/OrdersView";
-import { InventoryView } from "@/components/admin/inventory/InventoryView";
-import { BannersView } from "@/components/admin/banners/BannersView";
-import { BlogsView } from "@/components/admin/blog/BlogsView";
-import { CouponsView } from "@/components/admin/coupons/CouponListView";
-import { PopupsView } from "@/components/admin/popups/PopupsView";
-import { GalleryView } from "@/components/admin/gallery/GalleryView";
-import { TeamView } from "@/components/admin/team/TeamView";
-import { CustomersView } from "@/components/admin/customers/CustomersView";
-import { AnalyticsView } from "@/components/admin/analytics/AnalyticsView";
-import { SettingsView } from "@/components/admin/settings/SettingsView";
-import { AuditLogView } from "@/components/admin/audit/AuditLogView";
+import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
+
+const ProductsView = lazy(() => import("@/components/admin/products/ProductsView").then(m => ({ default: m.ProductsView })));
+const OrdersView = lazy(() => import("@/components/admin/orders/OrdersView").then(m => ({ default: m.OrdersView })));
+const InventoryView = lazy(() => import("@/components/admin/inventory/InventoryView").then(m => ({ default: m.InventoryView })));
+const BannersView = lazy(() => import("@/components/admin/banners/BannersView").then(m => ({ default: m.BannersView })));
+const BlogsView = lazy(() => import("@/components/admin/blog/BlogsView").then(m => ({ default: m.BlogsView })));
+const CouponsView = lazy(() => import("@/components/admin/coupons/CouponListView").then(m => ({ default: m.CouponsView })));
+const PopupsView = lazy(() => import("@/components/admin/popups/PopupsView").then(m => ({ default: m.PopupsView })));
+const GalleryView = lazy(() => import("@/components/admin/gallery/GalleryView").then(m => ({ default: m.GalleryView })));
+const TeamView = lazy(() => import("@/components/admin/team/TeamView").then(m => ({ default: m.TeamView })));
+const CustomersView = lazy(() => import("@/components/admin/customers/CustomersView").then(m => ({ default: m.CustomersView })));
+const AnalyticsView = lazy(() => import("@/components/admin/analytics/AnalyticsView").then(m => ({ default: m.AnalyticsView })));
+const SettingsView = lazy(() => import("@/components/admin/settings/SettingsView").then(m => ({ default: m.SettingsView })));
+const AuditLogView = lazy(() => import("@/components/admin/audit/AuditLogView").then(m => ({ default: m.AuditLogView })));
+
+function SectionLoader() {
+  return (
+    <div className="flex items-center justify-center py-24">
+      <div className="text-center">
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-brand-border border-t-brand-primary" />
+        <p className="mt-3 text-sm text-brand-textMuted">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 export function AdminDashboard() {
   const { activeSection, setActiveSection, sidebarOpen } = useAdminStore();
@@ -65,19 +78,19 @@ export function AdminDashboard() {
 
   const sectionViews: Record<string, React.ReactNode> = {
     dashboard: <DashboardView />,
-    products: <ProductsView />,
-    orders: <OrdersView />,
-    inventory: <InventoryView />,
-    banners: <BannersView />,
-    blogs: <BlogsView />,
-    coupons: <CouponsView />,
-    popups: <PopupsView />,
-    gallery: <GalleryView />,
-    team: <TeamView />,
-    customers: <CustomersView />,
-    analytics: <AnalyticsView />,
-    audit: <AuditLogView />,
-    settings: <SettingsView />,
+    products: <ComponentErrorBoundary name="products"><Suspense fallback={<SectionLoader />}><ProductsView /></Suspense></ComponentErrorBoundary>,
+    orders: <ComponentErrorBoundary name="orders"><Suspense fallback={<SectionLoader />}><OrdersView /></Suspense></ComponentErrorBoundary>,
+    inventory: <ComponentErrorBoundary name="inventory"><Suspense fallback={<SectionLoader />}><InventoryView /></Suspense></ComponentErrorBoundary>,
+    banners: <ComponentErrorBoundary name="banners"><Suspense fallback={<SectionLoader />}><BannersView /></Suspense></ComponentErrorBoundary>,
+    blogs: <ComponentErrorBoundary name="blogs"><Suspense fallback={<SectionLoader />}><BlogsView /></Suspense></ComponentErrorBoundary>,
+    coupons: <ComponentErrorBoundary name="coupons"><Suspense fallback={<SectionLoader />}><CouponsView /></Suspense></ComponentErrorBoundary>,
+    popups: <ComponentErrorBoundary name="popups"><Suspense fallback={<SectionLoader />}><PopupsView /></Suspense></ComponentErrorBoundary>,
+    gallery: <ComponentErrorBoundary name="gallery"><Suspense fallback={<SectionLoader />}><GalleryView /></Suspense></ComponentErrorBoundary>,
+    team: <ComponentErrorBoundary name="team"><Suspense fallback={<SectionLoader />}><TeamView /></Suspense></ComponentErrorBoundary>,
+    customers: <ComponentErrorBoundary name="customers"><Suspense fallback={<SectionLoader />}><CustomersView /></Suspense></ComponentErrorBoundary>,
+    analytics: <ComponentErrorBoundary name="analytics"><Suspense fallback={<SectionLoader />}><AnalyticsView /></Suspense></ComponentErrorBoundary>,
+    audit: <ComponentErrorBoundary name="audit"><Suspense fallback={<SectionLoader />}><AuditLogView /></Suspense></ComponentErrorBoundary>,
+    settings: <ComponentErrorBoundary name="settings"><Suspense fallback={<SectionLoader />}><SettingsView /></Suspense></ComponentErrorBoundary>,
   };
 
   return (

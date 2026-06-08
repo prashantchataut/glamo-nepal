@@ -39,6 +39,16 @@ export async function getAllPopups(db: Client) {
   return result.rows
 }
 
+export async function getPopupById(db: Client, id: string) {
+  const result = await db.execute({
+    sql: `SELECT * FROM popups WHERE id = ?`,
+    args: [id],
+  })
+
+  if (!result.rows[0]) throw new AppError('Popup not found', 404)
+  return result.rows[0]
+}
+
 export async function createPopup(db: Client, data: any, adminUserId: string) {
   await db.execute({
     sql: `UPDATE popups SET is_active = 0 WHERE is_active = 1`,
@@ -88,6 +98,7 @@ export async function updatePopup(db: Client, id: string, data: any, adminUserId
   if (data.cookieDays !== undefined) { updates.push('cookie_days = ?'); args.push(data.cookieDays) }
   if (data.startsAt !== undefined) { updates.push('starts_at = ?'); args.push(data.startsAt) }
   if (data.expiresAt !== undefined) { updates.push('expires_at = ?'); args.push(data.expiresAt) }
+  if (data.isActive !== undefined) { updates.push('is_active = ?'); args.push(data.isActive ? 1 : 0) }
 
   updates.push('updated_at = ?')
   args.push(new Date().toISOString())

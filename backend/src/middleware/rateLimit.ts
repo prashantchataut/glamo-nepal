@@ -12,6 +12,7 @@ export const RATE_LIMITS = {
   payment: { max: 5, window: 60 },
   event: { max: 50, window: 60 },
   review: { max: 5, window: 60 * 60 },
+  contact: { max: 3, window: 60 * 60 },
   general: { max: 100, window: 60 },
 } as const
 
@@ -125,5 +126,14 @@ export const reviewRateLimit = rateLimit({
     const user = c.get('user')
     const id = user?.id ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     return `ratelimit:${id}:review`
+  },
+})
+
+export const contactRateLimit = rateLimit({
+  max: RATE_LIMITS.contact.max,
+  window: RATE_LIMITS.contact.window,
+  keyGenerator: (c) => {
+    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    return `ratelimit:${ip}:contact`
   },
 })

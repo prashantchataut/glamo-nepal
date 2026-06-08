@@ -506,6 +506,7 @@ export interface UpdatePopupInput {
   cookieDays?: number;
   startsAt?: string;
   expiresAt?: string;
+  isActive?: boolean;
 }
 
 // ── Gallery ────────────────────────────────────────────────────────────────

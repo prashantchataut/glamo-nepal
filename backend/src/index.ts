@@ -26,6 +26,7 @@ import { settingsRoutes } from './modules/settings/settings.routes'
 import { adminRoutes } from './modules/admin/admin.routes'
 import { eventRoutes } from './modules/events/event.routes'
 import { recommendationRoutes } from './modules/recommendations/recommendation.routes'
+import { contactRoutes } from './modules/contact/contact.routes'
 import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
@@ -92,6 +93,7 @@ app.route('/api/v1/settings', settingsRoutes)
 app.route('/api/v1/admin', adminRoutes)
 app.route('/api/v1/events', eventRoutes)
 app.route('/api/v1/recommendations', recommendationRoutes)
+app.route('/api/v1/contact', contactRoutes)
 
 if (!IS_PRODUCTION) {
   app.get('/api/docs.json', (c) => c.json(openApiSpec))
