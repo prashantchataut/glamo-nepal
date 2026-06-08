@@ -18,12 +18,13 @@ export function PasswordForm() {
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!isFirebaseConfigured || !auth) {
+    if (!isFirebaseConfigured) {
       toast.error("Authentication is not available. Please try again later.");
       return;
     }
 
-    if (!auth.currentUser) {
+    const authInstance = auth();
+    if (!authInstance.currentUser) {
       toast.error("Please sign in to change your password.");
       return;
     }
@@ -45,9 +46,10 @@ export function PasswordForm() {
 
     setSaving(true);
     try {
-      const credential = EmailAuthProvider.credential(auth.currentUser.email!, currentPassword);
-      await reauthenticateWithCredential(auth.currentUser, credential);
-      await updatePassword(auth.currentUser, newPassword);
+      const user = authInstance.currentUser;
+      const credential = EmailAuthProvider.credential(user!.email!, currentPassword);
+      await reauthenticateWithCredential(user!, credential);
+      await updatePassword(user!, newPassword);
       toast.success("Password changed successfully.");
       setCurrentPassword("");
       setNewPassword("");

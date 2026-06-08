@@ -29,7 +29,7 @@ export function BlogsView() {
   const [formOpen, setFormOpen] = useState(false);
   const [editBlog, setEditBlog] = useState<AdminBlog | null>(null);
 
-  const { data: blogsData, isLoading, refetch } = useAdminData(() =>
+  const { data: blogsData, meta: blogsMeta, isLoading, refetch } = useAdminData(() =>
     adminApi.listBlogs({ page, limit: PAGE_SIZE })
   );
 
@@ -43,15 +43,9 @@ export function BlogsView() {
     return Array.isArray(raw) ? raw : [];
   }, [blogsData]);
 
-  const total: number = useMemo(() => {
-    if (!blogsData) return 0;
-    return ((blogsData as unknown as Record<string, unknown>).total as number) ?? blogs.length;
-  }, [blogsData, blogs.length]);
+  const total: number = blogsMeta?.total ?? ((blogsData as unknown as Record<string, unknown>)?.total as number ?? blogs.length);
 
-  const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(total / PAGE_SIZE)),
-    [total]
-  );
+  const totalPages = blogsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const filtered = useMemo(() => {
     if (!search) return blogs;

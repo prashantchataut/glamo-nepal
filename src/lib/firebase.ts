@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import {
   getAuth,
   signInWithEmailAndPassword as _signInWithEmailAndPassword,
@@ -10,6 +10,7 @@ import {
   signInWithPopup as _signInWithPopup,
   onAuthStateChanged,
   updateProfile,
+  type Auth,
   type User,
   type UserCredential,
 } from "firebase/auth";
@@ -27,56 +28,69 @@ const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId
 );
 
-let app;
-let auth: ReturnType<typeof getAuth> | null;
+let _app: FirebaseApp | null = null;
+let _auth: Auth | null = null;
+let _googleProvider: GoogleAuthProvider | null = null;
 
-if (isFirebaseConfigured && getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-} else if (getApps().length > 0) {
-  app = getApp();
-  auth = getAuth(app);
-} else {
-  app = null;
-  auth = null;
+function getAppInstance(): FirebaseApp {
+  if (_app) return _app;
+  if (getApps().length > 0) {
+    _app = getApp();
+  } else {
+    _app = initializeApp(firebaseConfig);
+  }
+  return _app;
 }
 
-export { auth, isFirebaseConfigured };
-export const googleProvider = new GoogleAuthProvider();
+function getAuthInstance(): Auth {
+  if (_auth) return _auth;
+  if (typeof window === "undefined") {
+    throw new Error("Firebase Auth cannot be initialized on the server. This code should only run in the browser.");
+  }
+  _auth = getAuth(getAppInstance());
+  return _auth;
+}
+
+function getGoogleProvider(): GoogleAuthProvider {
+  if (_googleProvider) return _googleProvider;
+  _googleProvider = new GoogleAuthProvider();
+  return _googleProvider;
+}
+
+export { isFirebaseConfigured, getAuthInstance as auth };
+export type { User, UserCredential };
 
 export const signInWithEmailAndPassword = (email: string, password: string) => {
-  if (!isFirebaseConfigured || !auth) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
-  return _signInWithEmailAndPassword(auth, email, password);
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  return _signInWithEmailAndPassword(getAuthInstance(), email, password);
 };
 
 export const createUserWithEmailAndPassword = (email: string, password: string) => {
-  if (!isFirebaseConfigured || !auth) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
-  return _createUserWithEmailAndPassword(auth, email, password);
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  return _createUserWithEmailAndPassword(getAuthInstance(), email, password);
 };
 
 export const firebaseSignOut = () => {
-  if (!auth) return Promise.resolve();
-  return _signOut(auth);
+  if (!_auth) return Promise.resolve();
+  return _signOut(getAuthInstance());
 };
 
 export const sendPasswordResetEmail = (email: string) => {
-  if (!isFirebaseConfigured || !auth) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
-  return _sendPasswordResetEmail(auth, email);
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  return _sendPasswordResetEmail(getAuthInstance(), email);
 };
 
 export const confirmPasswordReset = (oobCode: string, newPassword: string) => {
-  if (!isFirebaseConfigured || !auth) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
-  return _confirmPasswordReset(auth, oobCode, newPassword);
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  return _confirmPasswordReset(getAuthInstance(), oobCode, newPassword);
 };
 
 export const signInWithPopup = () => {
-  if (!isFirebaseConfigured || !auth) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
-  return _signInWithPopup(auth, googleProvider);
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  return _signInWithPopup(getAuthInstance(), getGoogleProvider());
 };
 
 export const updateUserProfile = (user: User, profile: { displayName?: string; photoURL?: string }) =>
   updateProfile(user, profile);
 
 export { onAuthStateChanged };
-export type { User };
-export type { UserCredential };

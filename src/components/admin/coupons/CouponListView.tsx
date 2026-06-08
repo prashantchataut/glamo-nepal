@@ -26,12 +26,12 @@ export function CouponsView() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editCoupon, setEditCoupon] = useState<AdminCoupon | null>(null);
-
-  const { data: couponsData, isLoading, refetch } = useAdminData(() =>
+const { data: couponsData, meta: couponsMeta, isLoading, refetch } = useAdminData(() =>
     adminApi.listCoupons({ page, limit: PAGE_SIZE })
   );
 
   const { mutate: deleteCouponMut } = useAdminMutation((id: string) =>
+
     adminApi.deleteCoupon(id)
   );
 
@@ -41,15 +41,9 @@ export function CouponsView() {
     return Array.isArray(raw) ? raw : [];
   }, [couponsData]);
 
-  const total: number = useMemo(() => {
-    if (!couponsData) return 0;
-    return ((couponsData as unknown as Record<string, unknown>).total as number) ?? coupons.length;
-  }, [couponsData, coupons.length]);
+  const total: number = couponsMeta?.total ?? ((couponsData as unknown as Record<string, unknown>).total as number ?? coupons.length);
 
-  const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(total / PAGE_SIZE)),
-    [total]
-  );
+  const totalPages = couponsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;

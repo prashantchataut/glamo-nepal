@@ -16,6 +16,7 @@ interface UseAdminDataOptions {
 
 interface UseAdminDataResult<T> {
   data: T | null;
+  meta: ApiResponse<T>["meta"] | null;
   error: string | null;
   isLoading: boolean;
   isError: boolean;
@@ -47,6 +48,7 @@ export function useAdminData<T>(
 ): UseAdminDataResult<T> {
   const { refreshInterval, enabled = true, deps = [], retryCount: maxRetries = 3, retryDelay: baseDelay = 1000 } = options;
   const [data, setData] = useState<T | null>(null);
+  const [meta, setMeta] = useState<ApiResponse<T>["meta"] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -70,6 +72,7 @@ export function useAdminData<T>(
     abortRef.current = false;
     setIsLoading(true);
     setError(null);
+    setMeta(null);
     setIsRetrying(false);
     setCurrentRetryCount(0);
 
@@ -80,6 +83,7 @@ export function useAdminData<T>(
         const result = await fetcherRef.current();
         if (!mountedRef.current) return;
         setData(result.data);
+        setMeta(result.meta ?? null);
         hasDataRef.current = true;
         setIsLoading(false);
         setIsRetrying(false);
@@ -137,6 +141,7 @@ export function useAdminData<T>(
 
   return {
     data,
+    meta,
     error,
     isLoading,
     isError: error !== null && error !== RETRYING_MESSAGE,

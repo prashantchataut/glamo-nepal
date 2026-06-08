@@ -87,7 +87,7 @@ export function ProductsView() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const { data: productsData, isLoading, isError: hasError } = useAdminData(() => adminApi.listProducts({
+  const { data: productsData, meta: productsMeta, isLoading, isError: hasError } = useAdminData(() => adminApi.listProducts({
     page,
     limit: PAGE_SIZE,
     search: productSearch || undefined,
@@ -102,17 +102,9 @@ export function ProductsView() {
     return ((productsData as unknown as Record<string, unknown>).products ?? []) as unknown as ProductRow[];
   }, [productsData]);
 
-  const total = useMemo(() => {
-    if (!productsData) return 0;
-    if (Array.isArray(productsData)) return productsData.length;
-    return (productsData as unknown as Record<string, unknown>).total as number ?? 0;
-  }, [productsData]);
+  const total = productsMeta?.total ?? (Array.isArray(productsData) ? productsData.length : (productsData as unknown as Record<string, unknown>).total as number ?? 0);
 
-  const totalPages = useMemo(() => {
-    if (!productsData) return 1;
-    if (Array.isArray(productsData)) return Math.max(1, Math.ceil(productsData.length / PAGE_SIZE));
-    return (productsData as unknown as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
-  }, [productsData, total]);
+  const totalPages = productsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const error = hasError ? "Failed to load products" : null;
 

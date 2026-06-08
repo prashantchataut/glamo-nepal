@@ -37,15 +37,15 @@ export function AuditLogView() {
   const [page, setPage] = useState(1);
   const [entityFilter, setEntityFilter] = useState("");
 
-  const { data: result, isLoading, isError } = useAdminData(() => adminApi.getAuditLogs({
+  const { data: result, meta: resultMeta, isLoading, isError } = useAdminData(() => adminApi.getAuditLogs({
     page,
     limit: PAGE_SIZE,
     entity: entityFilter || undefined,
   }), { deps: [page, entityFilter] });
 
-  const logs = (result?.logs ?? []) as unknown as AuditLog[];
-  const total = result?.total ?? 0;
-  const totalPages = result?.totalPages ?? 1;
+  const logs = (Array.isArray(result) ? result : (result as unknown as Record<string, unknown>)?.logs ?? []) as unknown as AuditLog[];
+  const total = resultMeta?.total ?? ((result as unknown as Record<string, unknown>)?.total as number ?? 0);
+  const totalPages = resultMeta?.totalPages ?? ((result as unknown as Record<string, unknown>)?.totalPages as number ?? 1);
   const error = isError ? "Failed to load audit logs" : null;
 
   const columns: Column<AuditLog>[] = [

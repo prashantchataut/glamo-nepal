@@ -1,5 +1,4 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
-import { auth } from "@/lib/firebase";
 
 export class GlamoApiError extends Error {
   code?: string;
@@ -22,8 +21,11 @@ function getApiBaseUrl(): string {
 }
 
 async function getAuthToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
   try {
-    const currentUser = auth?.currentUser ?? null;
+    const { auth } = await import("@/lib/firebase");
+    const authInstance = auth();
+    const currentUser = authInstance?.currentUser ?? null;
     if (currentUser) {
       return await currentUser.getIdToken();
     }
@@ -77,11 +79,21 @@ export function normalizeApiPayload<T>(payload: unknown): ApiResponse<T> | ApiEr
     }
 
     if (record.success === true) {
+      let meta: ApiResponse<T>["meta"] | undefined;
+      if (record.pagination && typeof record.pagination === "object") {
+        const p = record.pagination as Record<string, unknown>;
+        meta = {
+          page: typeof p.page === "number" ? p.page : undefined,
+          perPage: typeof p.limit === "number" ? p.limit : undefined,
+          total: typeof p.total === "number" ? p.total : undefined,
+          totalPages: typeof p.totalPages === "number" ? p.totalPages : undefined,
+        };
+      }
       return {
         status: "success",
         data: record.data as T,
         message: typeof record.message === "string" ? record.message : undefined,
-        meta: record.pagination && typeof record.pagination === "object" ? (record.pagination as ApiResponse<T>["meta"]) : undefined,
+        meta,
       };
     }
 

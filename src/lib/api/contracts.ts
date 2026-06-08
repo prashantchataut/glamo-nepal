@@ -8,6 +8,7 @@ export interface ApiMeta {
   page?: number;
   perPage?: number;
   total?: number;
+  totalPages?: number;
 }
 
 export interface ApiResponse<T> {

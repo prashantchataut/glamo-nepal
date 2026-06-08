@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -36,6 +36,8 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
   const router = useRouter();
   const params = useSearchParams();
   const { syncComplete } = useFirebaseAuth();
+  const syncCompleteRef = useRef(syncComplete);
+  syncCompleteRef.current = syncComplete;
 
   const [mode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -54,13 +56,12 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
     const maxWait = 5000;
     const interval = 100;
     let elapsed = 0;
-    while (!syncComplete && elapsed < maxWait) {
+    while (!syncCompleteRef.current && elapsed < maxWait) {
       await new Promise((resolve) => setTimeout(resolve, interval));
       elapsed += interval;
     }
 
     router.push(safeRedirect);
-    router.refresh();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

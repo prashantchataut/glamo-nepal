@@ -49,7 +49,7 @@ export function CustomersView() {
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const { data: usersData, isLoading, isError } = useAdminData(() => adminApi.listUsers({ search: search || undefined, page, limit: PAGE_SIZE }), { deps: [search, page] });
+  const { data: usersData, meta: usersMeta, isLoading, isError } = useAdminData(() => adminApi.listUsers({ search: search || undefined, page, limit: PAGE_SIZE }), { deps: [search, page] });
   const { mutate: updateStatus } = useAdminMutation((vars: { userId: string; isActive: boolean }) => adminApi.updateUserStatus(vars.userId, vars.isActive));
 
   const users: UserRow[] = (() => {
@@ -58,12 +58,8 @@ export function CustomersView() {
     return ((usersData as unknown as Record<string, unknown>).users ?? []) as unknown as UserRow[];
   })();
 
-  const total = (() => {
-    if (!usersData) return 0;
-    if (Array.isArray(usersData)) return usersData.length;
-    return (usersData as unknown as Record<string, unknown>).total as number ?? 0;
-  })();
-  const totalPages = (() => {
+  const total = usersMeta?.total ?? (Array.isArray(usersData) ? usersData.length : (usersData as unknown as Record<string, unknown>).total as number ?? 0);
+  const totalPages = usersMeta?.totalPages ?? (() => {
     if (!usersData) return 1;
     if (Array.isArray(usersData)) return Math.max(1, Math.ceil(usersData.length / PAGE_SIZE));
     return (usersData as unknown as Record<string, unknown>).totalPages as number ?? Math.max(1, Math.ceil(total / PAGE_SIZE));

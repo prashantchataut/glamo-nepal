@@ -64,7 +64,7 @@ export function InventoryView() {
   const [search, setSearch] = useState("");
   const [restockTarget, setRestockTarget] = useState<{ id: string; name: string; stock: number } | null>(null);
 
-  const { data: stockReport, isLoading: isStockLoading, isError: isStockError, refetch: refetchStock } = useAdminData(() => adminApi.getStockReport({ page, limit: PAGE_SIZE, search: search || undefined }), { deps: [page, search] });
+  const { data: stockReport, meta: stockMeta, isLoading: isStockLoading, isError: isStockError, refetch: refetchStock } = useAdminData(() => adminApi.getStockReport({ page, limit: PAGE_SIZE, search: search || undefined }), { deps: [page, search] });
   const { data: lowStockData, refetch: refetchLowStock } = useAdminData(() => adminApi.getLowStockAlerts());
 
   const products: InventoryRow[] = useMemo(() => {
@@ -73,11 +73,7 @@ export function InventoryView() {
     return ((stockReport as unknown as Record<string, unknown>).products ?? []) as unknown as InventoryRow[];
   }, [stockReport]);
 
-  const total = useMemo(() => {
-    if (!stockReport) return 0;
-    if (Array.isArray(stockReport)) return stockReport.length;
-    return (stockReport as unknown as Record<string, unknown>).total as number ?? 0;
-  }, [stockReport]);
+  const total = stockMeta?.total ?? (Array.isArray(stockReport) ? stockReport.length : (stockReport as unknown as Record<string, unknown>).total as number ?? 0);
 
   const lowStockAlerts = useMemo(() => {
     if (!lowStockData) return [];
@@ -188,7 +184,7 @@ export function InventoryView() {
         {Math.ceil(total / PAGE_SIZE) > 1 && (
           <Pagination
             page={page}
-            totalPages={Math.ceil(total / PAGE_SIZE)}
+            totalPages={stockMeta?.totalPages ?? Math.ceil(total / PAGE_SIZE)}
             total={total}
             pageSize={PAGE_SIZE}
             onPageChange={setPage}
