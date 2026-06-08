@@ -61,12 +61,40 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
       }
 
       if (adminUser.email === process.env.ADMIN_EMAIL) {
-        c.set('user', {
-          id: adminUser.email,
-          email: adminUser.email,
-          role: 'SUPER_ADMIN',
-          isActive: true,
+        const db = c.get('db')
+        const existingAdmin = await db.execute({
+          sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
+          args: [adminUser.email],
         })
+        if (existingAdmin.rows.length > 0) {
+          const profile = existingAdmin.rows[0]
+          const isActive = profile.is_active
+          c.set('user', {
+            id: profile.id as string,
+            email: adminUser.email,
+            role: profile.role as string,
+            isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+          })
+        } else {
+          const adminId = crypto.randomUUID()
+          try {
+            await db.execute({
+              sql: `INSERT INTO users (id, email, first_name, role, is_active, email_verified, created_at, updated_at)
+                    VALUES (?, ?, 'GLAMO Admin', 'SUPER_ADMIN', 1, 1, datetime('now'), datetime('now'))`,
+              args: [adminId, adminUser.email],
+            })
+          } catch (error: any) {
+            if (!error?.message?.includes('UNIQUE constraint')) {
+              console.error('[Auth] Failed to create admin user:', error)
+            }
+          }
+          c.set('user', {
+            id: adminId,
+            email: adminUser.email,
+            role: 'SUPER_ADMIN',
+            isActive: true,
+          })
+        }
         await next()
         return
       }

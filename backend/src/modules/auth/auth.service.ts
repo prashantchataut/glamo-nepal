@@ -91,13 +91,35 @@ export async function findOrCreateUser(
   params: { uid: string; email: string; firstName?: string; lastName?: string },
   db: Client
 ) {
-  const existing = await db.execute({
+  const existingById = await db.execute({
     sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
     args: [params.uid],
   })
 
-  if (existing.rows.length > 0) {
-    return formatUser(existing.rows[0])
+  if (existingById.rows.length > 0) {
+    return formatUser(existingById.rows[0])
+  }
+
+  const existingByEmail = await db.execute({
+    sql: 'SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1',
+    args: [params.email],
+  })
+
+  if (existingByEmail.rows.length > 0) {
+    const user = existingByEmail.rows[0]
+    const role = (user as any).role as string
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+      return formatUser(user)
+    }
+    await db.execute({
+      sql: `UPDATE users SET id = ?, updated_at = datetime('now') WHERE id = ? AND deleted_at IS NULL`,
+      args: [params.uid, (user as any).id],
+    })
+    const updated = await db.execute({
+      sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+      args: [params.uid],
+    })
+    return formatUser(updated.rows[0])
   }
 
   try {
@@ -116,23 +138,10 @@ export async function findOrCreateUser(
         return formatUser(retry.rows[0])
       }
       const byEmail = await db.execute({
-        sql: 'SELECT * FROM users WHERE email = ? AND deleted_at IS NULL',
+        sql: 'SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1',
         args: [params.email],
       })
       if (byEmail.rows.length > 0) {
-        // Update the existing user's ID to match Firebase UID
-        // This handles the case where an admin was created with a placeholder ID
-        await db.execute({
-          sql: "UPDATE users SET id = ?, updated_at = datetime('now') WHERE email = ? AND deleted_at IS NULL",
-          args: [params.uid, params.email],
-        })
-        const updated = await db.execute({
-          sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
-          args: [params.uid],
-        })
-        if (updated.rows.length > 0) {
-          return formatUser(updated.rows[0])
-        }
         return formatUser(byEmail.rows[0])
       }
     }
