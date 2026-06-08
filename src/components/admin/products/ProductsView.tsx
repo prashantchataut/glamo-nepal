@@ -87,7 +87,7 @@ export function ProductsView() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const { data: productsData, meta: productsMeta, isLoading, isError: hasError } = useAdminData(() => adminApi.listProducts({
+  const { data: productsData, meta: productsMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listProducts({
     page,
     limit: PAGE_SIZE,
     search: productSearch || undefined,
@@ -95,6 +95,8 @@ export function ProductsView() {
 
   const { mutate: deleteProduct } = useAdminMutation((vars: { id: string }) => adminApi.deleteProduct(vars.id));
   const { mutate: toggleVisibility } = useAdminMutation((vars: { id: string }) => adminApi.toggleProductVisibility(vars.id));
+  const { mutate: bulkDelete } = useAdminMutation((ids: string[]) => adminApi.bulkDeleteProducts(ids));
+  const { mutate: bulkUpdateStatus } = useAdminMutation((vars: { ids: string[]; isActive: boolean }) => adminApi.bulkUpdateProductStatus(vars.ids, vars.isActive));
 
   const products: ProductRow[] = useMemo(() => {
     if (!productsData) return [];
@@ -122,22 +124,24 @@ export function ProductsView() {
       await deleteProduct({ id: deleteId });
       toast.success("Product deleted");
       setDeleteId(null);
+      refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to delete product");
     }
-  }, [deleteId, deleteProduct]);
+  }, [deleteId, deleteProduct, refetch]);
 
   const handleBulkStatus = useCallback(async (isActive: boolean) => {
     if (selectedIds.size === 0) return;
     const ids = Array.from(selectedIds);
     try {
-      await Promise.all(ids.map((id) => toggleVisibility({ id })));
+      await bulkUpdateStatus({ ids, isActive });
       toast.success(`${ids.length} product${ids.length > 1 ? "s" : ""} ${isActive ? "activated" : "deactivated"}`);
       setSelectedIds(new Set());
+      refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
     }
-  }, [selectedIds, toggleVisibility]);
+  }, [selectedIds, bulkUpdateStatus, refetch]);
 
   const handleExport = useCallback(() => {
     if (!products.length) return;
@@ -369,14 +373,24 @@ export function ProductsView() {
         confirmLabel="Delete all"
         variant="destructive"
         isLoading={false}
-        onConfirm={async () => { setSelectedIds(new Set()); setBulkDeleteOpen(false); }}
+        onConfirm={async () => {
+            try {
+              await bulkDelete(Array.from(selectedIds));
+              toast.success(`${selectedIds.size} product${selectedIds.size > 1 ? "s" : ""} deleted`);
+              setSelectedIds(new Set());
+              setBulkDeleteOpen(false);
+              refetch();
+            } catch (err: unknown) {
+              toast.error(err instanceof Error ? err.message : "Failed to delete products");
+            }
+          }}
       />
 
       <ProductFormModal
         open={formOpen}
         onOpenChange={setFormOpen}
         product={editProduct}
-        onSaved={() => {}}
+        onSaved={() => { refetch(); }}
       />
 
       <ProductDetailModal

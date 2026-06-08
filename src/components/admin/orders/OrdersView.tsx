@@ -34,7 +34,7 @@ export function OrdersView() {
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
 
-  const { data: ordersData, meta: ordersMeta, isLoading, isError: hasError } = useAdminData(() => adminApi.listOrders({
+  const { data: ordersData, meta: ordersMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listOrders({
     status: statusFilter || undefined,
     search: searchQuery || undefined,
     page,
@@ -58,6 +58,7 @@ export function OrdersView() {
     try {
       await updateStatus({ id: orderId, status: newStatus as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
       toast.success("Order status updated");
+      refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
     }
@@ -70,6 +71,7 @@ export function OrdersView() {
       toast.success("Order cancelled");
       setCancelOrderId(null);
       setCancelReason("");
+      refetch();
     } catch {
       toast.error("Failed to cancel order");
     }
