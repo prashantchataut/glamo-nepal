@@ -30,5 +30,6 @@ export type AppEnv = {
     validatedBody: any
     validatedQuery: any
     validatedParams: any
+    idempotencyKey?: string
   }
 }

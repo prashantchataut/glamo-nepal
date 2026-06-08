@@ -1,3 +1,5 @@
+import type { Client } from '@libsql/client/web'
+
 export class AppError extends Error {
   constructor(
     message: string,
@@ -101,4 +103,23 @@ export function safeJsonParse<T>(value: string | null | undefined, fallback: T):
 export function safeJsonStringify(value: unknown): string | null {
   if (value === undefined || value === null) return null
   return JSON.stringify(value)
+}
+
+export async function withTransaction<T>(
+  db: Client,
+  fn: (tx: Client) => Promise<T>
+): Promise<T> {
+  await db.execute('BEGIN')
+  try {
+    const result = await fn(db)
+    await db.execute('COMMIT')
+    return result
+  } catch (error) {
+    try {
+      await db.execute('ROLLBACK')
+    } catch (rollbackError) {
+      console.error('Failed to rollback transaction:', rollbackError)
+    }
+    throw error
+  }
 }

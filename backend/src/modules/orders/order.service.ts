@@ -1,10 +1,11 @@
 import type { Client, InValue } from '@libsql/client'
-import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
+import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, fromSqliteBool, toSqliteBool, withTransaction } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { generateOrderNumber } from '../../utils/orderNumber'
 import { toDisplayPrice, toStoredPrice } from '../../utils/price'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
 import { getEnv } from '../../utils/env'
+import { sendEmail, orderConfirmation, orderStatusUpdate } from '../../utils/email'
 import type { AppEnv } from '../../types/bindings'
 import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
@@ -219,124 +220,6 @@ async function findOrCreateCustomer(data: CreateOrderInput, db: Client, authUser
   return id
 }
 
-function simpleSlug(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 90) || 'glamo-product'
-}
-
-function frontendCategorySlug(value?: string) {
-  const slug = simpleSlug(value || 'skincare')
-  if (slug === 'haircare') return 'hair-care'
-  if (slug === 'bodycare') return 'body-care'
-  if (slug === 'tools') return 'tools-brushes'
-  return slug
-}
-
-async function ensureCheckoutCategory(db: Client, category?: string) {
-  const preferred = frontendCategorySlug(category)
-  const existing = await db.execute({
-    sql: 'SELECT id FROM categories WHERE slug = ? AND deleted_at IS NULL AND is_active = 1 LIMIT 1',
-    args: [preferred],
-  })
-  if (existing.rows.length > 0) return (existing.rows[0] as any).id as string
-
-  const fallback = await db.execute({
-    sql: 'SELECT id FROM categories WHERE deleted_at IS NULL AND is_active = 1 ORDER BY sort_order ASC LIMIT 1',
-    args: [],
-  })
-  if (fallback.rows.length > 0) return (fallback.rows[0] as any).id as string
-
-  const id = 'cat_checkout'
-  try {
-    await db.execute({
-      sql: `INSERT INTO categories (id, name, slug, description, sort_order, is_active, created_at, updated_at)
-            VALUES (?, 'GLAMO Checkout', ?, 'Products created from checkout payloads', 999, 1, datetime('now'), datetime('now'))`,
-      args: [id, 'glamo-checkout'],
-    })
-  } catch (error: any) {
-    if (!error?.message?.includes('UNIQUE constraint')) handleDbError(error, 'ensureCheckoutCategory.insert')
-  }
-  return id
-}
-
-async function ensureCheckoutBrand(db: Client, brand?: string) {
-  if (!brand) return null
-  const slug = simpleSlug(brand)
-  const existing = await db.execute({
-    sql: 'SELECT id FROM brands WHERE slug = ? AND deleted_at IS NULL AND is_active = 1 LIMIT 1',
-    args: [slug],
-  })
-  if (existing.rows.length > 0) return (existing.rows[0] as any).id as string
-
-  const id = `brand_${slug}`.slice(0, 80)
-  try {
-    await db.execute({
-      sql: `INSERT INTO brands (id, name, slug, description, is_active, created_at, updated_at)
-            VALUES (?, ?, ?, ?, 1, datetime('now'), datetime('now'))`,
-      args: [id, brand, slug, `Checkout-created brand profile for ${brand}`],
-    })
-  } catch (error: any) {
-    if (!error?.message?.includes('UNIQUE constraint')) handleDbError(error, 'ensureCheckoutBrand.insert')
-  }
-
-  const created = await db.execute({
-    sql: 'SELECT id FROM brands WHERE id = ?',
-    args: [id],
-  })
-  return created.rows.length > 0 ? (created.rows[0] as any).id as string : null
-}
-
-async function createCheckoutProduct(line: CreateOrderInput['items'][number], db: Client) {
-  const payload = line.product
-  const productIdentifier = line.productId || payload?.id || `checkout_${crypto.randomUUID()}`
-  const name = payload?.name || `GLAMO product ${productIdentifier}`
-  const slug = payload?.slug || simpleSlug(`${name}-${productIdentifier}`)
-  const sku = payload?.sku || productIdentifier.toUpperCase()
-  const basePrice = toStoredPrice(Number(payload?.price || 0))
-  if (!basePrice) throw new AppError(`Product not found: ${productIdentifier}`, 404, 'PRODUCT_NOT_FOUND')
-
-  const categoryId = await ensureCheckoutCategory(db, payload?.category)
-  const brandId = await ensureCheckoutBrand(db, payload?.brand)
-
-  try {
-    await db.execute({
-      sql: `INSERT INTO products (id, name, slug, description, short_description, sku, category_id, brand_id, base_price, currency, is_active, is_featured, is_digital, track_inventory, stock_quantity, low_stock_threshold, tags, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'NPR', 1, 0, 0, 0, 9999, 5, ?, datetime('now'), datetime('now'))`,
-      args: [
-        productIdentifier, name, slug, `Checkout catalog item: ${name}`, name, sku,
-        categoryId, brandId, basePrice,
-        safeJsonStringify(['checkout', payload?.category || 'beauty']),
-      ],
-    })
-  } catch (error: any) {
-    if (!error?.message?.includes('UNIQUE constraint')) handleDbError(error, 'createCheckoutProduct.insert')
-  }
-
-  if (payload?.image) {
-    const imageId = `img_${productIdentifier}`.slice(0, 90)
-    try {
-      await db.execute({
-        sql: `INSERT INTO product_images (id, product_id, url, alt_text, sort_order, is_primary, created_at)
-              VALUES (?, ?, ?, ?, 0, 1, datetime('now'))`,
-        args: [imageId, productIdentifier, payload.image, name],
-      })
-    } catch (error) {
-      if (!(error as any)?.message?.includes('UNIQUE constraint')) console.error('Failed to insert checkout product image:', error)
-    }
-  }
-
-  const product = await db.execute({
-    sql: 'SELECT * FROM products WHERE (id = ? OR slug = ? OR sku = ?) AND deleted_at IS NULL AND is_active = 1 LIMIT 1',
-    args: [productIdentifier, slug, sku],
-  })
-  if (product.rows.length === 0) throw new AppError(`Product not found: ${productIdentifier}`, 404, 'PRODUCT_NOT_FOUND')
-  return product.rows[0] as unknown as ProductRow
-}
-
 async function getProductForLine(line: CreateOrderInput['items'][number], db: Client) {
   const productIdentifier = line.productId || line.product?.id || ''
   const sku = line.product?.sku || ''
@@ -364,9 +247,6 @@ async function getProductForLine(line: CreateOrderInput['items'][number], db: Cl
       args: [slug],
     })
     if (result.rows.length > 0) product = result.rows[0] as unknown as ProductRow
-  }
-  if (!product && line.product) {
-    product = await createCheckoutProduct(line, db)
   }
   if (!product) throw new AppError(`Product not found: ${productIdentifier || sku || slug}`, 404, 'PRODUCT_NOT_FOUND')
   return product
@@ -434,11 +314,6 @@ async function fetchOrderWithRelations(orderId: string, db: Client) {
 }
 
 export async function createOrder(data: CreateOrderInput, db: Client, authUserId?: string, c?: Context<AppEnv>) {
-  const userId = await findOrCreateCustomer(data, db, authUserId)
-  const orderId = crypto.randomUUID()
-  const orderNumber = generateOrderNumber()
-  const paymentMethod = paymentMethodToDb(data.paymentMethod)
-
   const lineItems: Array<{
     product: ProductRow
     variant: VariantRow | null
@@ -467,15 +342,29 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
   const isCOD = data.paymentMethod ? ['CASH_ON_DELIVERY', 'COD', 'cod', 'Cash on Delivery'].includes(data.paymentMethod) : false
   const codFee = isCOD && c ? parseInt(getEnv(c, 'COD_FEE') || '50', 10) : (isCOD ? 50 : 0)
   const discountAmount = 0
-  const requestedTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
-  const calculatedTotal = Math.max(0, subtotal + shippingCharge + codFee - discountAmount)
-  const totalAmount = requestedTotal && requestedTotal >= calculatedTotal ? requestedTotal : calculatedTotal
+  const totalAmount = Math.max(0, subtotal + shippingCharge + codFee - discountAmount)
+
+  const clientSubtotal = data.subtotal !== undefined ? toStoredPrice(data.subtotal) : null
+  const clientGrandTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
+  const tolerance = 2
+  if (clientSubtotal !== null && Math.abs(clientSubtotal - subtotal) > tolerance) {
+    throw new AppError('Subtotal mismatch — prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
+  }
+  if (clientGrandTotal !== null && Math.abs(clientGrandTotal - totalAmount) > tolerance) {
+    throw new AppError('Total mismatch — prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
+  }
+
   const shippingAddress = normalizeAddress(data.shippingAddress, data.customer?.name, data.customer?.phone)
   const billingAddress = data.billingAddress ? normalizeAddress(data.billingAddress, data.customer?.name, data.customer?.phone) : null
   const notes = data.notes || data.orderNotes || null
 
-  try {
-    await db.execute({
+  const result = await withTransaction(db, async (tx) => {
+    const userId = await findOrCreateCustomer(data, tx, authUserId)
+    const orderId = crypto.randomUUID()
+    const orderNumber = generateOrderNumber()
+    const paymentMethod = paymentMethodToDb(data.paymentMethod)
+
+    await tx.execute({
       sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, discount_amount, total_amount, shipping_address, billing_address, notes, created_at, updated_at)
             VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       args: [
@@ -484,75 +373,64 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
         safeJsonStringify(shippingAddress), safeJsonStringify(billingAddress), notes,
       ],
     })
-  } catch (error) {
-    handleDbError(error, 'createOrder.insertOrder')
-  }
 
-  try {
-    await db.execute({
+    await tx.execute({
       sql: `INSERT INTO order_status_histories (id, order_id, status, comment, changed_by, created_at)
             VALUES (?, ?, 'PENDING', 'Order received', ?, datetime('now'))`,
       args: [crypto.randomUUID(), orderId, userId],
     })
-  } catch (error) {
-    console.error('Failed to insert initial status history:', error)
-  }
 
-  const orderItemInserts = lineItems.map((line) => ({
-    id: crypto.randomUUID(),
-    order_id: orderId,
-    product_id: line.product.id,
-    variant_id: line.variant?.id || null,
-    product_name: line.product.name,
-    variant_name: line.variant?.name || null,
-    sku: line.variant?.sku || line.product.sku,
-    quantity: line.quantity,
-    unit_price: line.unitPrice,
-    total_price: line.totalPrice,
-    image_url: line.image,
-  }))
-
-  for (const item of orderItemInserts) {
-    try {
-      await db.execute({
+    for (const line of lineItems) {
+      await tx.execute({
         sql: `INSERT INTO order_items (id, order_id, product_id, variant_id, product_name, variant_name, sku, quantity, unit_price, total_price, image_url, created_at)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-        args: [item.id, item.order_id, item.product_id, item.variant_id, item.product_name, item.variant_name, item.sku, item.quantity, item.unit_price, item.total_price, item.image_url],
+        args: [crypto.randomUUID(), orderId, line.product.id, line.variant?.id || null, line.product.name, line.variant?.name || null, line.variant?.sku || line.product.sku, line.quantity, line.unitPrice, line.totalPrice, line.image],
       })
-    } catch (error) {
-      handleDbError(error, 'createOrder.insertItems')
+    }
+
+    for (const line of lineItems) {
+      if (line.variant) {
+        const updateResult = await tx.execute({
+          sql: 'UPDATE product_variants SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?',
+          args: [line.quantity, line.variant.id, line.quantity],
+        })
+        if (updateResult.rowsAffected === 0) {
+          throw new AppError(`Insufficient stock for ${line.product.name}`, 409, 'INSUFFICIENT_STOCK')
+        }
+      } else if (fromSqliteBool(line.product.track_inventory)) {
+        const updateResult = await tx.execute({
+          sql: 'UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?',
+          args: [line.quantity, line.product.id, line.quantity],
+        })
+        if (updateResult.rowsAffected === 0) {
+          throw new AppError(`Insufficient stock for ${line.product.name}`, 409, 'INSUFFICIENT_STOCK')
+        }
+      }
+    }
+
+    return { orderId, userId }
+  })
+
+  const order = await fetchOrderWithRelations(result.orderId, db)
+
+  if (c) {
+    try {
+      const resendKey = getEnv(c, 'RESEND_API_KEY')
+      if (resendKey && order.customer?.email && order.shippingAddress) {
+        const addr = order.shippingAddress as Record<string, unknown>
+        sendEmail(order.customer.email, `Order Confirmed - #${order.orderNumber}`, orderConfirmation({
+          orderNumber: order.orderNumber,
+          items: order.items.map(i => ({ name: i.name, quantity: i.quantity, price: i.totalPrice })),
+          total: order.totalAmount,
+          shippingAddress: [addr.fullName, addr.address1 || addr.addressLine1, addr.city, addr.district, addr.province].filter(Boolean).join(', '),
+        }), { RESEND_API_KEY: resendKey } as any).catch(err => console.error('Failed to send order confirmation email:', err))
+      }
+    } catch (err) {
+      console.error('Failed to send order confirmation email:', err)
     }
   }
 
-  for (const line of lineItems) {
-    if (line.variant) {
-      try {
-        await db.execute({
-          sql: 'UPDATE product_variants SET stock_quantity = stock_quantity - ? WHERE id = ?',
-          args: [line.quantity, line.variant.id],
-        })
-      } catch {
-        await db.execute({
-          sql: 'UPDATE product_variants SET stock_quantity = ? WHERE id = ?',
-          args: [line.variant.stock_quantity - line.quantity, line.variant.id],
-        })
-      }
-    } else if (fromSqliteBool(line.product.track_inventory)) {
-      try {
-        await db.execute({
-          sql: 'UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?',
-          args: [line.quantity, line.product.id],
-        })
-      } catch {
-        await db.execute({
-          sql: 'UPDATE products SET stock_quantity = ? WHERE id = ?',
-          args: [line.product.stock_quantity - line.quantity, line.product.id],
-        })
-      }
-    }
-  }
-
-  return fetchOrderWithRelations(orderId, db)
+  return order
 }
 
 export async function listOrders(filters: OrderFilterInput, db: Client, user?: { id: string; role: string }) {
@@ -635,7 +513,7 @@ export async function getOrder(orderId: string, db: Client, user?: { id: string;
   return formatOrder(row, items, history, profile)
 }
 
-export async function updateOrderStatus(orderId: string, data: UpdateOrderStatusInput, db: Client, adminUserId: string) {
+export async function updateOrderStatus(orderId: string, data: UpdateOrderStatusInput, db: Client, adminUserId: string, c?: Context<AppEnv>) {
   const fetchResult = await db.execute({
     sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
     args: [orderId, orderId],
@@ -680,7 +558,28 @@ export async function updateOrderStatus(orderId: string, data: UpdateOrderStatus
     changes: { status: data.status, paymentStatus: data.paymentStatus },
   })
 
-  return fetchOrderWithRelations(rowId, db)
+  const updatedOrder = await fetchOrderWithRelations(rowId, db)
+
+  if (c) {
+    try {
+      const resendKey = getEnv(c, 'RESEND_API_KEY')
+      if (resendKey && updatedOrder.customer?.email) {
+        sendEmail(
+          updatedOrder.customer.email,
+          `Order Update - #${updatedOrder.orderNumber}`,
+          orderStatusUpdate(
+            { orderNumber: updatedOrder.orderNumber, items: updatedOrder.items.map(i => ({ name: i.name })) },
+            data.status,
+          ),
+          { RESEND_API_KEY: resendKey } as any,
+        ).catch(err => console.error('Failed to send status update email:', err))
+      }
+    } catch (err) {
+      console.error('Failed to send status update email:', err)
+    }
+  }
+
+  return updatedOrder
 }
 
 export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation') {

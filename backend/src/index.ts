@@ -5,6 +5,8 @@ import { secureHeaders } from 'hono/secure-headers'
 import type { AppEnv } from './types/bindings'
 import { generalRateLimit } from './middleware/rateLimit'
 import { tursoMiddleware } from './middleware/turso'
+import { csrfProtection } from './middleware/csrf'
+import { idempotencyGuard } from './middleware/idempotency'
 import { authRoutes } from './modules/auth/auth.routes'
 import { accountRoutes } from './modules/account/account.routes'
 import { categoryRoutes } from './modules/categories/category.routes'
@@ -52,6 +54,8 @@ app.use('*', logger())
 app.use('*', secureHeaders())
 app.use('*', tursoMiddleware)
 app.use('*', generalRateLimit)
+app.use('*', csrfProtection())
+app.use('*', idempotencyGuard())
 
 app.onError((err, c) => {
   console.error('Unhandled error:', err)

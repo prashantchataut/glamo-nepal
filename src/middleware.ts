@@ -25,7 +25,10 @@ function hasFirebaseAuthToken(request: NextRequest): boolean {
   try {
     const payload = JSON.parse(atob(parts[1]));
     if (!payload.exp) return false;
-    return payload.exp > Math.floor(Date.now() / 1000);
+    if (payload.exp < Math.floor(Date.now() / 1000)) return false;
+    if (!payload.iss || !payload.iss.startsWith("https://securetoken.google.com/")) return false;
+    if (!payload.aud) return false;
+    return true;
   } catch {
     return false;
   }

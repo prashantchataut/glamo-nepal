@@ -96,7 +96,7 @@ export async function updateOrderStatus(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const db = c.get('db')
     const user = c.get('user')
-    const order = await OrderService.updateOrderStatus(id, data, db, user.id)
+    const order = await OrderService.updateOrderStatus(id, data, db, user.id, c)
     return ApiResponse.success(c, 'Order status updated', order)
   } catch (error: any) {
     if (error instanceof AppError) {
