@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
 import type { PaymentMethodCode } from "@/lib/api/contracts";
+import { GlamoApiError } from "@/lib/api/client";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import { calculateDeliveryFee, getDeliveryRule, FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
@@ -36,6 +37,7 @@ import {
 } from "@/lib/validations/checkout";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const paymentMethods = [
   "Cash on Delivery",
@@ -101,16 +103,18 @@ export function CheckoutPageClient() {
   const router = useRouter();
   const { items, getSubtotal, clearCart } = useCartStore();
   const { placeOrder } = useCheckoutStore();
+  const user = useAuthStore((state) => state.user);
+  const authLoading = useAuthStore((state) => state.isLoading);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !document.cookie.includes("glamo-auth-token") && !document.cookie.includes("__host-auth-token")) {
+    if (!authLoading && user === null) {
       const redirect = encodeURIComponent(window.location.pathname + window.location.search);
       router.replace(`/login?redirect=${redirect}`);
     }
-  }, [router]);
+  }, [authLoading, user, router]);
 
   const {
     register,
@@ -257,8 +261,13 @@ export function CheckoutPageClient() {
           currency: "NPR" as const,
         },
       );
-    } catch {
+    } catch (err) {
       setIsSubmitting(false);
+      if (err instanceof GlamoApiError && err.status === 401) {
+        const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+        router.replace(`/login?redirect=${redirect}`);
+        return;
+      }
       const checkoutError = useCheckoutStore.getState().error;
       setSubmitError(checkoutError || "Something went wrong. Please try again.");
       toast.error(checkoutError || "Order placement failed. Please try again.");
@@ -267,6 +276,14 @@ export function CheckoutPageClient() {
 
     router.push(`/order-confirmation/${order.orderNumber}`);
     clearCart();
+  }
+
+  if (authLoading || user === null) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#fffaf7] px-4 py-12">
+        <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Verifying your session" />
+      </main>
+    );
   }
 
   if (!items.length) {

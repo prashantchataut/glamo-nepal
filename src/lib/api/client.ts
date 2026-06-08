@@ -20,43 +20,59 @@ function getApiBaseUrl(): string {
   return "/api/v1";
 }
 
-async function getAuthToken(): Promise<string | null> {
+async function getAuthToken(forceRefresh = false): Promise<string | null> {
   if (typeof window === "undefined") return null;
   try {
     const { auth } = await import("@/lib/firebase");
     const authInstance = auth();
     const currentUser = authInstance?.currentUser ?? null;
     if (currentUser) {
-      return await currentUser.getIdToken();
+      return await currentUser.getIdToken(forceRefresh);
     }
   } catch {}
   return null;
 }
 
-export async function apiRequest<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
-  const apiBaseUrl = getApiBaseUrl();
+const STATUS_FALLBACKS: Record<number, { code: string; message: string }> = {
+  401: { code: "UNAUTHORIZED", message: "Your session has expired. Please sign in again." },
+  403: { code: "FORBIDDEN", message: "You do not have permission to perform this action." },
+  429: { code: "RATE_LIMITED", message: "Too many requests, please wait a moment and try again." },
+  500: { code: "SERVER_ERROR", message: "Something went wrong on our end. Please try again shortly." },
+};
 
+async function sendRequest(apiBaseUrl: string, path: string, init: RequestInit | undefined, token: string | null): Promise<Response> {
   const headers = new Headers(init?.headers);
   const isFormData = init?.body instanceof FormData;
   if (!headers.has("Content-Type") && !isFormData) headers.set("Content-Type", "application/json");
+  if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const token = await getAuthToken();
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
+  return fetch(`${apiBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
+    ...init,
+    headers,
+    credentials: "include",
+  });
+}
+
+export async function apiRequest<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  let token = await getAuthToken();
 
   let response: Response;
   try {
-    response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
-      ...init,
-      headers,
-      credentials: "include",
-    });
+    response = await sendRequest(apiBaseUrl, path, init, token);
+    if (response.status === 401 && token) {
+      const refreshed = await getAuthToken(true);
+      if (refreshed && refreshed !== token) {
+        token = refreshed;
+        response = await sendRequest(apiBaseUrl, path, init, token);
+      }
+    }
   } catch (error) {
     throw new GlamoApiError({
       status: "error",
       code: "NETWORK_ERROR",
-      message: error instanceof Error ? error.message : "A network error occurred",
+      message: error instanceof Error ? error.message : "Unable to connect. Please check your connection and try again.",
     });
   }
 
@@ -64,7 +80,13 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   const payload = normalizeApiPayload<T>(rawPayload);
 
   if (!response.ok || payload.status === "error") {
-    throw new GlamoApiError(payload as ApiErrorResponse, response.status);
+    const error = payload as ApiErrorResponse;
+    const fallback = STATUS_FALLBACKS[response.status];
+    if (fallback && (!rawPayload || error.code === "UNEXPECTED_API_RESPONSE")) {
+      error.code = fallback.code;
+      error.message = fallback.message;
+    }
+    throw new GlamoApiError(error, response.status);
   }
 
   return payload as ApiResponse<T>;

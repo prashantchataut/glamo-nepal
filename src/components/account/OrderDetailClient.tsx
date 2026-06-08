@@ -1,45 +1,94 @@
-﻿"use client";
+"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Clock3, Download, PackageCheck, RotateCcw, Truck } from "lucide-react";
-import { SAMPLE_ORDERS } from "@/lib/data/orders";
-import { useCheckoutStore, type SimulatedOrder } from "@/store/useCheckoutStore";
+import { ordersApi } from "@/lib/api/orders";
+import { useCheckoutStore, type SimulatedOrder, type CustomerOrderStatus } from "@/store/useCheckoutStore";
+import type { Order as ApiOrder } from "@/lib/api/contracts";
 import { cn, formatNPR } from "@/lib/utils";
 
 const steps = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered"] as const;
 const stepIcons = [Clock3, CheckCircle2, PackageCheck, Truck, CheckCircle2];
 
-type DisplayOrder = SimulatedOrder & { source: "session" | "sample" };
+const apiStatusToDisplay: Record<string, CustomerOrderStatus> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  processing: "Processing",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
 
-function sampleToDisplay(order: (typeof SAMPLE_ORDERS)[number]): DisplayOrder {
+function apiToDisplay(order: ApiOrder): SimulatedOrder {
+  const address = order.shippingAddress;
+  const addressStr = [address?.fullName, address?.addressLine1, address?.city, "Nepal"].filter(Boolean).join(", ");
   return {
     id: order.id,
     orderNumber: order.orderNumber,
-    date: order.date,
-    createdAt: `${order.date}T00:00:00.000Z`,
-    status: order.status,
-    items: order.items.map((item) => ({ ...item, selectedShade: undefined })),
-    total: order.total,
-    shippingAddress: order.shippingAddress,
+    date: order.createdAt.slice(0, 10),
+    createdAt: order.createdAt,
+    status: apiStatusToDisplay[order.orderStatus] || "Pending",
+    items: order.items.map((item) => ({
+      name: item.name,
+      brand: "",
+      image: "/images/products/placeholder.svg",
+      price: item.unitPrice,
+      quantity: item.quantity,
+      selectedShade: item.selectedShade,
+    })),
+    total: order.grandTotal,
+    shippingAddress: addressStr,
     paymentMethod: order.paymentMethod,
-    source: "sample",
   };
 }
 
 export function OrderDetailClient() {
   const params = useParams<{ id: string }>();
-  const sessionOrders = useCheckoutStore((state) => state.orders);
+  const sessionOrder = useCheckoutStore((state) => state.orders).find((o) => o.id === params.id);
 
-  const allOrders: DisplayOrder[] = [
-    ...sessionOrders.map((o) => ({ ...o, source: "session" as const })),
-    ...SAMPLE_ORDERS.map(sampleToDisplay),
-  ];
+  const [order, setOrder] = useState<SimulatedOrder | null>(sessionOrder ?? null);
+  const [isLoading, setIsLoading] = useState(!sessionOrder);
+  const [notFoundError, setNotFoundError] = useState(false);
 
-  const order = allOrders.find((o) => o.id === params.id);
-  if (!order) notFound();
+  useEffect(() => {
+    if (sessionOrder) {
+      setOrder(sessionOrder);
+      setIsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setIsLoading(true);
+    ordersApi
+      .get(params.id)
+      .then((response) => {
+        if (cancelled) return;
+        setOrder(apiToDisplay(response.data));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setNotFoundError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [params.id, sessionOrder]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (notFoundError || !order) notFound();
 
   const activeIndex = Math.max(0, steps.indexOf(order.status as typeof steps[number]));
   const isCancelled = order.status === "Cancelled";
@@ -89,7 +138,7 @@ return (
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-neutral-950">{item.name}</p>
-                  <p className="text-xs text-neutral-500">{item.brand} · Qty {item.quantity}</p>
+                  <p className="text-xs text-neutral-500">{[item.brand, item.selectedShade, `Qty ${item.quantity}`].filter(Boolean).join(" · ")}</p>
                 </div>
                 <p className="font-bold text-neutral-950">{formatNPR(item.price * item.quantity)}</p>
               </div>

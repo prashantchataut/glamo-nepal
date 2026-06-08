@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Package, RotateCcw, ShoppingBag, Truck } from "lucide-react";
-import { SAMPLE_ORDERS } from "@/lib/data/orders";
 import { useCheckoutStore, type SimulatedOrder, type CustomerOrderStatus } from "@/store/useCheckoutStore";
 import { ordersApi } from "@/lib/api/orders";
 import { cn, formatNPR } from "@/lib/utils";
@@ -28,22 +27,7 @@ const apiStatusToDisplay: Record<string, CustomerOrderStatus> = {
   cancelled: "Cancelled",
 };
 
-type DisplayOrder = SimulatedOrder & { source: "session" | "sample" | "api" };
-
-function sampleToDisplay(order: (typeof SAMPLE_ORDERS)[number]): DisplayOrder {
-  return {
-    id: order.id,
-    orderNumber: order.orderNumber,
-    date: order.date,
-    createdAt: `${order.date}T00:00:00.000Z`,
-    status: order.status,
-    items: order.items,
-    total: order.total,
-    shippingAddress: order.shippingAddress,
-    paymentMethod: order.paymentMethod,
-    source: "sample",
-  };
-}
+type DisplayOrder = SimulatedOrder & { source: "session" | "api" };
 
 function apiToDisplay(order: ApiOrder): DisplayOrder {
   const address = order.shippingAddress;
@@ -102,7 +86,7 @@ export function OrdersClient() {
     };
   }, []);
 
-  const orders = [...apiOrders, ...sessionOrders, ...SAMPLE_ORDERS.map(sampleToDisplay)].filter(
+  const orders = [...apiOrders, ...sessionOrders].filter(
     (order, index, list) => list.findIndex((item) => item.orderNumber === order.orderNumber) === index,
   );
 
@@ -115,7 +99,7 @@ export function OrdersClient() {
             Your GLAMO orders
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-500">
-            Track checkout orders, sample order states and delivery/payment details from one clean customer area.
+            Track your orders, delivery progress and payment details from one place.
           </p>
         </div>
         <Link
@@ -229,7 +213,7 @@ export function OrdersClient() {
             <div>
               <h2 className="font-display text-2xl font-semibold text-neutral-950">Returns & help</h2>
               <p className="mt-2 text-sm leading-6 text-neutral-500">
-                Delivered sample orders show return actions; connect live order records to enable production return requests.
+                Delivered orders show return actions so you can request a return or exchange within the policy window.
               </p>
             </div>
           </div>

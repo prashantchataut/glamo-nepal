@@ -125,7 +125,7 @@ export function Navbar() {
                     key={link.name}
                     href={link.href}
                     className={cn(
-                      "text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                      "font-body text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
                       active ? "text-neutral-950" : "text-neutral-700 hover:text-primary",
                     )}
                   >
@@ -163,7 +163,7 @@ export function Navbar() {
                </button>
                <Link
                  href="/login"
-                 className="hidden min-h-10 min-w-10 items-center justify-center rounded-full text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary lg:flex"
+                 className="hidden min-h-10 min-w-10 items-center justify-center rounded-full font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary lg:flex"
                  aria-label="Sign in"
                >
                  Sign in
@@ -268,7 +268,7 @@ export function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "flex min-h-14 items-center justify-between border-b border-neutral-200 text-sm font-semibold uppercase tracking-[0.14em]",
+                  "flex min-h-14 items-center justify-between border-b border-neutral-200 font-body text-sm font-semibold uppercase tracking-[0.14em]",
                   active ? "text-primary" : "text-neutral-800",
                 )}
               >

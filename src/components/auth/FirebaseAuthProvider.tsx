@@ -73,6 +73,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
+      useAuthStore.getState().setLoading(false);
       setLoading(false);
       setSyncComplete(true);
       return;

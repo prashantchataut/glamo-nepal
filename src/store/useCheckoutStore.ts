@@ -87,7 +87,10 @@ export const useCheckoutStore = create<CheckoutState>()(
         } catch (err) {
           let errorMessage: string;
           if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) {
-            errorMessage = "Checkout is not available right now. Please try again later or contact us on WhatsApp.";
+            errorMessage = "Unable to connect to the server. Please check your connection and try again.";
+          } else if (err instanceof GlamoApiError && err.fieldErrors) {
+            const firstField = Object.values(err.fieldErrors).find((messages) => messages?.length);
+            errorMessage = firstField?.[0] || err.message || "Please review your details and try again.";
           } else if (err instanceof Error) {
             errorMessage = err.message;
           } else {
@@ -99,6 +102,21 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
       reset: () => set({ status: "idle", error: null }),
     }),
-    { name: "glamo-checkout-storage", version: 1, onRehydrateStorage: () => (state) => { if (state?.status === "pending") { state.status = "idle"; state.error = null; } } },
+    {
+      name: "glamo-checkout-storage",
+      version: 1,
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        if (state.status === "pending") {
+          state.status = "idle";
+          state.error = null;
+        }
+        const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        state.orders = state.orders.filter((order) => {
+          const createdAt = new Date(order.createdAt).getTime();
+          return Number.isNaN(createdAt) || createdAt >= cutoff;
+        });
+      },
+    },
   ),
 );
