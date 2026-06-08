@@ -99,7 +99,8 @@ export function AccountDashboardClient() {
   ];
 
   const displayName = user?.name?.trim() || "Your GLAMO account";
-  const contactInfo = user?.phone || "Sign in with your phone number to sync your profile, wishlist and orders.";
+  const contactInfo = user?.email || user?.phone || "Sign in to sync your profile, wishlist and orders.";
+  const accountBadge = user?.email ? "Email account" : user?.phone ? "Mobile account" : null;
 
   return (
     <div>
@@ -115,9 +116,11 @@ export function AccountDashboardClient() {
             <p className="mt-1 text-sm text-brand-textMuted">{contactInfo}</p>
           </div>
         </div>
-        <p className="font-label mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
-          Phone-verified account
-        </p>
+        {accountBadge && (
+          <p className="font-label mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-primary ring-1 ring-brand-border">
+            {accountBadge}
+          </p>
+        )}
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
