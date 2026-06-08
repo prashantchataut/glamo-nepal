@@ -33,15 +33,28 @@ function SectionLoader() {
 }
 
 export function AdminDashboard() {
-  const { activeSection, setActiveSection, sidebarOpen } = useAdminStore();
+  const { activeSection, setActiveSection, sidebarOpen, setAdminUser } = useAdminStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/v1/admin/dashboard", { credentials: "include" })
-      .then((res) => {
-        if (!cancelled) setAuthed(res.ok);
+      .then(async (res) => {
+        if (!cancelled) {
+          setAuthed(res.ok);
+          if (res.ok) {
+            try {
+              const meRes = await fetch("/api/v1/admin/me", { credentials: "include" });
+              if (meRes.ok) {
+                const meData = await meRes.json();
+                if (meData?.data) {
+                  setAdminUser(meData.data);
+                }
+              }
+            } catch {}
+          }
+        }
       })
       .catch(() => {
         if (!cancelled) setAuthed(false);
@@ -73,6 +86,7 @@ export function AdminDashboard() {
     try {
       await fetch("/api/admin/login", { method: "DELETE" });
     } catch {}
+    useAdminStore.getState().setAdminUser(null);
     window.location.href = "/admin/login";
   }
 

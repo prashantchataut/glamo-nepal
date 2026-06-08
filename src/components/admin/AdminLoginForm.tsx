@@ -4,11 +4,13 @@ import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { csrfHeaders } from "@/lib/csrf";
+import { useAdminStore } from "@/store/useAdminStore";
 
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/admin";
+  const setAdminUser = useAdminStore((s) => s.setAdminUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +34,10 @@ export function AdminLoginForm() {
       if (!res.ok || !data?.success) {
         setError(data?.message || "Invalid admin email or password.");
         return;
+      }
+
+      if (data?.data?.user) {
+        setAdminUser(data.data.user);
       }
 
       const safeRedirect = redirectTo.startsWith("/admin") ? redirectTo : "/admin";

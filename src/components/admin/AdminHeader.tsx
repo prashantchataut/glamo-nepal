@@ -28,8 +28,19 @@ interface AdminHeaderProps {
   onMenuToggle: () => void;
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
-  const { globalSearch, setGlobalSearch, setActiveSection, setProductSearch, setCustomerSearch } = useAdminStore();
+  const { globalSearch, setGlobalSearch, setActiveSection, setProductSearch, setCustomerSearch, adminUser } = useAdminStore();
+  const displayName = adminUser?.name || "Admin";
+  const initials = getInitials(displayName);
   const [localSearch, setLocalSearch] = useState(globalSearch);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
@@ -94,10 +105,10 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
           <NotificationDropdown />
           <div className="hidden items-center gap-2 rounded-xl bg-white py-2 pl-2 pr-3 shadow-sm md:flex">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">
-              GA
+              {initials}
             </div>
             <div className="leading-tight">
-              <p className="text-xs font-semibold">GLAMO Admin</p>
+              <p className="text-xs font-semibold">{displayName}</p>
             </div>
             <ChevronDown size={14} className="text-brand-textMuted" />
           </div>

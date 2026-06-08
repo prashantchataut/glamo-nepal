@@ -4,6 +4,19 @@ import { ApiResponse } from '../../utils/response'
 import { AppError } from '../../utils/turso-helpers'
 import * as AdminService from './admin.service'
 
+export async function getMe(c: Context<AppEnv>) {
+  const user = c.get('user')
+  if (!user) {
+    return ApiResponse.error(c, 'Not authenticated', 401)
+  }
+  return ApiResponse.success(c, 'Current admin user', {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    name: user.email === process.env.ADMIN_EMAIL ? (process.env.ADMIN_NAME || 'GLAMO Admin') : (user.email?.split('@')[0] || 'Admin'),
+  })
+}
+
 export async function getDashboardStats(c: Context<AppEnv>) {
   try {
     const db = c.get('db')

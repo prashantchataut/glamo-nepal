@@ -15,10 +15,12 @@ import {
   getUserById,
   updateUserRole,
   updateUserStatus,
+  getMe,
 } from './admin.controller'
 
 const adminRoutes = new Hono<AppEnv>()
 
+adminRoutes.get('/me', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getMe)
 adminRoutes.get('/dashboard', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getDashboardStats)
 adminRoutes.get('/sales-report', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(salesReportSchema), getSalesReport)
 adminRoutes.get('/notifications', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(notificationFilterSchema), getNotifications)

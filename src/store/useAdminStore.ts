@@ -16,6 +16,12 @@ export type AdminSection =
   | "settings"
   | "audit";
 
+interface AdminUser {
+  email: string;
+  name: string;
+  role: string;
+}
+
 interface AdminState {
   activeSection: AdminSection;
   sidebarOpen: boolean;
@@ -24,6 +30,7 @@ interface AdminState {
   customerSearch: string;
   orderDateRange: { start: string; end: string } | null;
   globalSearch: string;
+  adminUser: AdminUser | null;
 }
 
 interface AdminActions {
@@ -35,6 +42,7 @@ interface AdminActions {
   setCustomerSearch: (query: string) => void;
   setOrderDateRange: (range: { start: string; end: string } | null) => void;
   setGlobalSearch: (query: string) => void;
+  setAdminUser: (user: AdminUser | null) => void;
 }
 
 export const useAdminStore = create<AdminState & AdminActions>((set) => ({
@@ -45,6 +53,7 @@ export const useAdminStore = create<AdminState & AdminActions>((set) => ({
   customerSearch: "",
   orderDateRange: null,
   globalSearch: "",
+  adminUser: null,
 
   setActiveSection: (section) => set({ activeSection: section, sidebarOpen: false }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
@@ -54,4 +63,5 @@ export const useAdminStore = create<AdminState & AdminActions>((set) => ({
   setCustomerSearch: (query) => set({ customerSearch: query }),
   setOrderDateRange: (range) => set({ orderDateRange: range }),
   setGlobalSearch: (query) => set({ globalSearch: query }),
+  setAdminUser: (user) => set({ adminUser: user }),
 }));
