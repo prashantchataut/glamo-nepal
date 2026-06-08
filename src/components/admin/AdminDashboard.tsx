@@ -60,7 +60,7 @@ export function AdminDashboard() {
         if (!cancelled) setAuthed(false);
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [setAdminUser]);
 
   useEffect(() => {
     if (authed === false) {
