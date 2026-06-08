@@ -4,8 +4,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Clock3, Download, PackageCheck, RotateCcw, Truck } from "lucide-react";
+import { useParams } from "next/navigation";
+import { ArrowLeft, CheckCircle2, Clock3, Download, Package, PackageCheck, RotateCcw, Truck } from "lucide-react";
 import { ordersApi } from "@/lib/api/orders";
 import { useCheckoutStore, type SimulatedOrder, type CustomerOrderStatus } from "@/store/useCheckoutStore";
 import type { Order as ApiOrder } from "@/lib/api/contracts";
@@ -88,7 +88,21 @@ export function OrderDetailClient() {
     );
   }
 
-  if (notFoundError || !order) notFound();
+  if (notFoundError || !order) {
+    return (
+      <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-8 text-center shadow-sm md:rounded-[2rem] md:p-12">
+        <Package className="mx-auto h-12 w-12 text-neutral-300" />
+        <h2 className="mt-4 font-display text-2xl font-semibold text-neutral-950">Order not found</h2>
+        <p className="mt-2 text-sm text-neutral-500">This order may not exist or you may not have access.</p>
+        <Link
+          href="/account/orders"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+        >
+          <ArrowLeft size={14} /> Back to orders
+        </Link>
+      </div>
+    );
+  }
 
   const activeIndex = Math.max(0, steps.indexOf(order.status as typeof steps[number]));
   const isCancelled = order.status === "Cancelled";

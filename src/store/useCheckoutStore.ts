@@ -88,6 +88,10 @@ export const useCheckoutStore = create<CheckoutState>()(
           let errorMessage: string;
           if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) {
             errorMessage = "Unable to connect to the server. Please check your connection and try again.";
+          } else if (err instanceof GlamoApiError && err.code === "PRICE_MISMATCH") {
+            errorMessage = "Prices changed. Please refresh and try again.";
+          } else if (err instanceof GlamoApiError && err.code === "INSUFFICIENT_STOCK") {
+            errorMessage = err.message || "Out of stock. Please try again.";
           } else if (err instanceof GlamoApiError && err.fieldErrors) {
             const firstField = Object.values(err.fieldErrors).find((messages) => messages?.length);
             errorMessage = firstField?.[0] || err.message || "Please review your details and try again.";

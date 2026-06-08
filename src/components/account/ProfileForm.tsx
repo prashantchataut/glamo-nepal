@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/useAuthStore";
 import { customerApi } from "@/lib/api/customer";
 import { GlamoApiError } from "@/lib/api/client";
+import { getUserMessage } from "@/lib/api/error-handler";
 
 export function ProfileForm() {
   const user = useAuthStore((state) => state.user);
@@ -12,41 +13,47 @@ export function ProfileForm() {
   const [email, setEmail] = useState("");
   const [isSaving, setSaving] = useState(false);
   const [isFetching, setFetching] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     setName(user?.name || "");
     setEmail(user?.email || "");
   }, [user?.name, user?.email]);
 
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
+  const fetchProfile = useCallback(async () => {
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser) return;
     setFetching(true);
-    customerApi
-      .me()
-      .then((response) => {
-        if (cancelled) return;
-        const profile = response.data;
-        const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
-        useAuthStore.getState().setUser({
-          id: profile.id,
-          name: fullName || profile.name || user.name,
-          email: profile.email || undefined,
-          phone: profile.phone || user.phone,
-          role: "customer",
-        });
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) return;
-        console.error("Failed to fetch profile:", err);
-      })
-      .finally(() => {
-        if (!cancelled) setFetching(false);
+    setLoadError(null);
+    try {
+      const response = await customerApi.me();
+      const profile = response.data;
+      const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
+      useAuthStore.getState().setUser({
+        id: profile.id,
+        name: fullName || profile.name || currentUser.name,
+        email: profile.email || undefined,
+        phone: profile.phone || currentUser.phone,
+        role: "customer",
       });
-    return () => {
-      cancelled = true;
-    };
+    } catch (err) {
+      if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) {
+        return;
+      }
+      setLoadError(getUserMessage(err));
+    } finally {
+      setFetching(false);
+      setInitialLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setInitialLoading(false);
+      return;
+    }
+    void fetchProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,6 +78,25 @@ export function ProfileForm() {
     }
   };
 
+  if (initialLoading && isFetching) {
+    return (
+      <div className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
+        <div className="flex flex-col gap-5 border-b border-border/70 pb-6 sm:flex-row sm:items-center">
+          <div className="h-20 w-20 animate-pulse rounded-full bg-brand-bgLight" />
+          <div className="space-y-2">
+            <div className="h-7 w-48 animate-pulse rounded-2xl bg-brand-bgLight" />
+            <div className="h-4 w-64 animate-pulse rounded-2xl bg-brand-bgLight" />
+          </div>
+        </div>
+        <div className="mt-6 space-y-5">
+          <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
+          <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
+          <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
       <div className="flex flex-col gap-5 border-b border-border/70 pb-6 sm:flex-row sm:items-center">
@@ -82,6 +108,19 @@ export function ProfileForm() {
           <p className="mt-1 text-sm text-brand-textMuted">Keep your contact details up to date.</p>
         </div>
       </div>
+
+      {loadError && (
+        <div role="alert" className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-error/30 bg-error/5 px-4 py-3">
+          <p className="text-sm text-error">Could not load your profile.</p>
+          <button
+            type="button"
+            onClick={() => void fetchProfile()}
+            className="shrink-0 text-xs font-semibold uppercase tracking-[0.14em] text-error underline-offset-4 hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         <label className="text-sm font-semibold text-brand-textPrimary">

@@ -18,6 +18,7 @@ import { FREE_DELIVERY_THRESHOLD, calculateDeliveryFee } from "@/lib/delivery";
 import { cn, formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { trackCheckoutStart } from "@/lib/tracking";
+import { ProductRecommendationStrip } from "@/components/product/ProductRecommendationStrip";
 
 function SummaryRow({
   label,
@@ -107,6 +108,14 @@ export function CartPageClient() {
           >
             Start shopping
           </Link>
+        </div>
+        <div className="mx-auto mt-10 max-w-7xl">
+          <ProductRecommendationStrip
+            title="Recommended for you"
+            subtitle="Editor picks"
+            context="cart"
+            limit={4}
+          />
         </div>
       </main>
     );

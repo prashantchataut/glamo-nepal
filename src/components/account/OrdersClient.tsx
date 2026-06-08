@@ -1,11 +1,12 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Package, RotateCcw, ShoppingBag, Truck } from "lucide-react";
 import { useCheckoutStore, type SimulatedOrder, type CustomerOrderStatus } from "@/store/useCheckoutStore";
 import { ordersApi } from "@/lib/api/orders";
+import { getUserMessage } from "@/lib/api/error-handler";
 import { cn, formatNPR } from "@/lib/utils";
 import type { Order as ApiOrder } from "@/lib/api/contracts";
 
@@ -59,32 +60,31 @@ function apiToDisplay(order: ApiOrder): DisplayOrder {
 export function OrdersClient() {
   const [apiOrders, setApiOrders] = useState<DisplayOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const sessionOrders = useCheckoutStore((state) => state.orders).map((order) => ({
     ...order,
     source: "session" as const,
   }));
 
-  useEffect(() => {
-    let cancelled = false;
-    ordersApi
-      .list()
-      .then((response) => {
-        if (cancelled) return;
-        const orders = Array.isArray(response.data) ? response.data : [];
-        setApiOrders(orders.map(apiToDisplay));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setApiOrders([]);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
+  const loadOrders = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await ordersApi.list();
+      const orders = Array.isArray(response.data) ? response.data : [];
+      setApiOrders(orders.map(apiToDisplay));
+    } catch (err) {
+      setApiOrders([]);
+      setError(getUserMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadOrders();
+  }, [loadOrders]);
 
   const orders = [...apiOrders, ...sessionOrders].filter(
     (order, index, list) => list.findIndex((item) => item.orderNumber === order.orderNumber) === index,
@@ -110,7 +110,18 @@ export function OrdersClient() {
         </Link>
       </div>
 
-      {isLoading ? (
+      {!isLoading && error && orders.length === 0 ? (
+        <div className="mt-8 rounded-[2rem] border border-error/30 bg-error/5 p-12 text-center">
+          <p className="text-sm text-error">{error}</p>
+          <button
+            type="button"
+            onClick={() => void loadOrders()}
+            className="mt-4 inline-flex items-center justify-center rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+          >
+            Try again
+          </button>
+        </div>
+      ) : isLoading ? (
         <div className="mt-8 flex items-center justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>

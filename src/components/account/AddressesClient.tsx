@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MapPinned, Plus, Pencil, Trash2, Star, Check } from "lucide-react";
 import type { Address } from "@/lib/api/contracts";
 import { customerApi, type CreateAddressPayload } from "@/lib/api/customer";
 import { GlamoApiError } from "@/lib/api/client";
+import { getUserMessage } from "@/lib/api/error-handler";
 
 const NEPAL_PROVINCES = [
   "Province 1",
@@ -37,24 +38,24 @@ export function AddressesClient() {
   const [form, setForm] = useState<CreateAddressPayload>(emptyForm);
   const [isSaving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadAddresses = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await customerApi.addresses();
+      setAddresses(res.data || []);
+    } catch (err) {
+      setLoadError(getUserMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    customerApi
-      .addresses()
-      .then((res) => {
-        if (cancelled) return;
-        setAddresses(res.data || []);
-      })
-      .catch(() => {
-        if (!cancelled) return;
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, []);
+    void loadAddresses();
+  }, [loadAddresses]);
 
   function startCreate() {
     setEditingId(null);
@@ -131,6 +132,21 @@ export function AddressesClient() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="mt-8 rounded-[2rem] border border-error/30 bg-error/5 p-12 text-center">
+        <p className="text-sm text-error">{loadError}</p>
+        <button
+          type="button"
+          onClick={() => void loadAddresses()}
+          className="mt-4 inline-flex items-center justify-center rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+        >
+          Try again
+        </button>
       </div>
     );
   }

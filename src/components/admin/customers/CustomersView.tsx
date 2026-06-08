@@ -49,7 +49,7 @@ export function CustomersView() {
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const { data: usersData, meta: usersMeta, isLoading, isError } = useAdminData(() => adminApi.listUsers({ search: search || undefined, page, limit: PAGE_SIZE }), { deps: [search, page] });
+  const { data: usersData, meta: usersMeta, isLoading, isError, refetch } = useAdminData(() => adminApi.listUsers({ search: search || undefined, page, limit: PAGE_SIZE }), { deps: [search, page] });
   const { mutate: updateStatus } = useAdminMutation((vars: { userId: string; isActive: boolean }) => adminApi.updateUserStatus(vars.userId, vars.isActive));
 
   const users: UserRow[] = (() => {
@@ -148,7 +148,7 @@ export function CustomersView() {
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Users size={32} className="text-admin-error" />
         <p className="mt-3 text-sm text-brand-textMuted">{error}</p>
-        <button onClick={() => window.location.reload()} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
+        <button onClick={() => refetch()} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
           <RefreshCw size={14} /> Retry
         </button>
       </div>
