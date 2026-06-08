@@ -29,6 +29,14 @@ export function PasswordForm() {
       return;
     }
 
+    const hasPasswordProvider = authInstance.currentUser.providerData.some(
+      (provider) => provider.providerId === "password",
+    );
+    if (!hasPasswordProvider) {
+      toast.error("Your account signs in with Google. Manage your password in your Google account settings.");
+      return;
+    }
+
     if (newPassword.length < 8) {
       toast.error("New password must be at least 8 characters.");
       return;
