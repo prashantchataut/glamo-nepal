@@ -16,10 +16,13 @@ import {
   ShieldCheck,
   ShoppingBag,
   Truck,
+  X,
 } from "lucide-react";
 import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
-import type { PaymentMethodCode } from "@/lib/api/contracts";
+import type { Address, PaymentMethodCode } from "@/lib/api/contracts";
+import { customerApi } from "@/lib/api/customer";
 import { GlamoApiError } from "@/lib/api/client";
+import { getUserMessage } from "@/lib/api/error-handler";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import { calculateDeliveryFee, getDeliveryRule, FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
@@ -108,6 +111,7 @@ export function CheckoutPageClient() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
 
   useEffect(() => {
     if (!authLoading && user === null) {
@@ -140,6 +144,48 @@ export function CheckoutPageClient() {
       payment: "Cash on Delivery",
     },
   });
+
+  useEffect(() => {
+    if (!user) return;
+    if (user.name) setValue("name", user.name);
+    if (user.email) setValue("email", user.email);
+    if (user.phone) setValue("phone", user.phone);
+  }, [user, setValue]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    customerApi
+      .addresses()
+      .then((res) => {
+        if (!cancelled) setSavedAddresses((res.data || []).filter((a) => a.id));
+      })
+      .catch(() => {
+        if (!cancelled) setSavedAddresses([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  function applySavedAddress(addressId: string) {
+    const addr = savedAddresses.find((a) => a.id === addressId);
+    if (!addr) return;
+    setValue("name", addr.fullName, { shouldValidate: true });
+    setValue("phone", addr.phone, { shouldValidate: true });
+    setValue("ward", addr.ward, { shouldValidate: true });
+    setValue("address", addr.addressLine1, { shouldValidate: true });
+    const normalizedProvince = addr.province.replace(/\s+Province$/i, "").trim();
+    const province = PROVINCES.find((p) => p === normalizedProvince);
+    if (province) {
+      const districts = getDistrictsForProvince(province);
+      setValue("province", province, { shouldValidate: true });
+      const district = districts.find((d) => d === addr.district) || districts[0];
+      setValue("district", district, { shouldValidate: true });
+      const cities = getMunicipalitiesForDistrict(district as District).map((m) => m.name);
+      setValue("city", cities.find((c) => c === addr.city) || cities[0] || "", { shouldValidate: true });
+    }
+  }
 
   const form = watch();
   const subtotal = getSubtotal();
@@ -268,14 +314,16 @@ export function CheckoutPageClient() {
         router.replace(`/login?redirect=${redirect}`);
         return;
       }
-      const checkoutError = useCheckoutStore.getState().error;
-      setSubmitError(checkoutError || "Something went wrong. Please try again.");
-      toast.error(checkoutError || "Order placement failed. Please try again.");
+      const checkoutError = useCheckoutStore.getState().error || getUserMessage(err);
+      setSubmitError(checkoutError);
+      toast.error(checkoutError);
       return;
     }
 
     router.push(`/order-confirmation/${order.orderNumber}`);
-    clearCart();
+    setTimeout(() => {
+      clearCart();
+    }, 100);
   }
 
   if (authLoading || user === null) {
@@ -368,6 +416,28 @@ export function CheckoutPageClient() {
                   <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Contact & shipping
                   </h2>
+                  {savedAddresses.length > 0 && (
+                    <div>
+                      <label htmlFor="savedAddress" className={labelClass}>
+                        Use a saved address
+                      </label>
+                      <select
+                        id="savedAddress"
+                        defaultValue=""
+                        onChange={(e) => {
+                          if (e.target.value) applySavedAddress(e.target.value);
+                        }}
+                        className={inputClass}
+                      >
+                        <option value="">Enter a new address</option>
+                        {savedAddresses.map((addr) => (
+                          <option key={addr.id} value={addr.id ?? ""}>
+                            {addr.fullName} — {addr.addressLine1}, {addr.city}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="grid gap-4 md:grid-cols-2 md:gap-5">
                     <div>
                       <label htmlFor="name" className={labelClass}>
@@ -712,8 +782,28 @@ export function CheckoutPageClient() {
                     </p>
                   </div>
                   {submitError && (
-                    <div role="alert" className="rounded-[1rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error md:rounded-[1.25rem]">
-                      {submitError}
+                    <div role="alert" className="flex items-start justify-between gap-3 rounded-[1rem] border border-error/30 bg-error/5 px-4 py-3 md:rounded-[1.25rem]">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-error">{submitError}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSubmitError(null);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-error underline-offset-4 hover:underline"
+                        >
+                          Try again
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSubmitError(null)}
+                        className="shrink-0 text-error/70 transition hover:text-error"
+                        aria-label="Dismiss error"
+                      >
+                        <X size={18} />
+                      </button>
                     </div>
                   )}
                   <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">

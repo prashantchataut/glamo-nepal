@@ -1,4 +1,7 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
+import { csrfHeaders } from "@/lib/csrf";
+
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 export class GlamoApiError extends Error {
   code?: string;
@@ -45,6 +48,13 @@ async function sendRequest(apiBaseUrl: string, path: string, init: RequestInit |
   const isFormData = init?.body instanceof FormData;
   if (!headers.has("Content-Type") && !isFormData) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const method = (init?.method || "GET").toUpperCase();
+  if (MUTATING_METHODS.has(method)) {
+    for (const [key, value] of Object.entries(csrfHeaders())) {
+      if (!headers.has(key)) headers.set(key, value);
+    }
+  }
 
   return fetch(`${apiBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
     ...init,

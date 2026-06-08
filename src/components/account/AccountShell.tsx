@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, LayoutDashboard, LockKeyhole, LogOut, MapPin, Package, UserRound } from "lucide-react";
@@ -21,11 +22,17 @@ const navLinks = [
 export function AccountShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore((state) => state);
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const logout = useAuthStore((state) => state.logout);
   const clearCart = useCartStore((state) => state.clearCart);
   const resetCheckout = useCheckoutStore((state) => state.reset);
 
-  const isLoading = !user;
+  useEffect(() => {
+    if (!isLoading && user === null) {
+      router.replace("/login?redirect=/account");
+    }
+  }, [isLoading, user, router]);
 
   const handleLogout = async () => {
     await logout();
@@ -36,17 +43,12 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
     router.refresh();
   };
 
-  if (isLoading) {
+  if (isLoading || user === null) {
     return (
       <div className="min-h-screen bg-brand-bgLight flex items-center justify-center">
-        <div className="text-brand-textMuted">Loading account...</div>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" aria-label="Loading account" />
       </div>
     );
-  }
-
-  if (!user) {
-    router.push("/login");
-    return null;
   }
 
   return (

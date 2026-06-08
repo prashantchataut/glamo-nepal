@@ -75,7 +75,7 @@ function SkeletonCard() {
 }
 
 export function DashboardView() {
-  const { data: stats, isLoading, isError } = useAdminData(() => adminApi.dashboardStats());
+  const { data: stats, isLoading, isError, refetch } = useAdminData(() => adminApi.dashboardStats());
   const categoryCounts = useMemo(() => stats?.topPerformers?.categories ?? {}, [stats?.topPerformers?.categories]);
   const maxCategoryCount = useMemo(
     () => Math.max(...Object.values(categoryCounts), 0),
@@ -97,6 +97,13 @@ export function DashboardView() {
       <section className="rounded-[2rem] border border-red-200 bg-red-50 p-6 text-center">
         <p className="text-sm font-medium text-red-700">Failed to load dashboard data</p>
         <p className="mt-1 text-xs text-red-600">Please check your connection and try again.</p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="mt-4 inline-flex items-center justify-center rounded-full bg-brand-primary px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-brand-bgDark"
+        >
+          Retry
+        </button>
       </section>
     );
   }
