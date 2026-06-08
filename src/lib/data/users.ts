@@ -17,13 +17,3 @@ export interface CustomerAddress {
   addressLine1: string;
   isDefault: boolean;
 }
-
-export const EMPTY_CUSTOMER_PROFILE: CustomerProfile = {
-  id: "",
-  name: "",
-  email: "",
-  phone: "",
-};
-
-export const SAMPLE_ADDRESSES: CustomerAddress[] = [];
-export const SAMPLE_USER = EMPTY_CUSTOMER_PROFILE;

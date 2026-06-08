@@ -1,2 +1,10 @@
-export * from "@/lib/data/sample-orders";
-export { SAMPLE_ORDER_HISTORY as SAMPLE_ORDERS } from "@/lib/data/sample-orders";
+export interface Order {
+  id: string;
+  orderNumber: string;
+  date: string;
+  status: "Pending" | "Confirmed" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
+  items: { name: string; brand: string; image: string; price: number; quantity: number }[];
+  total: number;
+  shippingAddress: string;
+  paymentMethod: string;
+}
