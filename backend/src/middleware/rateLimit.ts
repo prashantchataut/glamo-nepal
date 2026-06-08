@@ -13,6 +13,7 @@ export const RATE_LIMITS = {
   event: { max: 50, window: 60 },
   review: { max: 5, window: 60 * 60 },
   contact: { max: 3, window: 60 * 60 },
+  orderTracking: { max: 10, window: 60 },
   general: { max: 100, window: 60 },
 } as const
 
@@ -135,5 +136,14 @@ export const contactRateLimit = rateLimit({
   keyGenerator: (c) => {
     const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
     return `ratelimit:${ip}:contact`
+  },
+})
+
+export const orderTrackingRateLimit = rateLimit({
+  max: RATE_LIMITS.orderTracking.max,
+  window: RATE_LIMITS.orderTracking.window,
+  keyGenerator: (c) => {
+    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    return `ratelimit:${ip}:order-tracking`
   },
 })

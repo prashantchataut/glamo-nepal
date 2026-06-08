@@ -15,6 +15,12 @@ export function PasswordForm() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const authInstance = isFirebaseConfigured ? auth() : null;
+  const hasPasswordProvider = authInstance?.currentUser?.providerData?.some(
+    (provider) => provider.providerId === "password",
+  ) ?? false;
+  const isGoogleOnly = authInstance?.currentUser ? !hasPasswordProvider : false;
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -23,22 +29,18 @@ export function PasswordForm() {
       return;
     }
 
-    const authInstance = auth();
-    if (!authInstance.currentUser) {
+    if (!authInstance?.currentUser) {
       toast.error("Please sign in to change your password.");
       return;
     }
 
-    const hasPasswordProvider = authInstance.currentUser.providerData.some(
-      (provider) => provider.providerId === "password",
-    );
-    if (!hasPasswordProvider) {
-      toast.error("Your account signs in with Google. Manage your password in your Google account settings.");
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters.");
       return;
     }
 
-    if (newPassword.length < 8) {
-      toast.error("New password must be at least 8 characters.");
+    if (!/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+      toast.error("Password must include at least one letter and one number.");
       return;
     }
 
@@ -47,18 +49,20 @@ export function PasswordForm() {
       return;
     }
 
-    if (!currentPassword) {
+    if (hasPasswordProvider && !currentPassword) {
       toast.error("Please enter your current password.");
       return;
     }
 
     setSaving(true);
     try {
-      const user = authInstance.currentUser;
-      const credential = EmailAuthProvider.credential(user!.email!, currentPassword);
-      await reauthenticateWithCredential(user!, credential);
-      await updatePassword(user!, newPassword);
-      toast.success("Password changed successfully.");
+      const currentUser = authInstance.currentUser!;
+      if (hasPasswordProvider) {
+        const credential = EmailAuthProvider.credential(currentUser.email!, currentPassword);
+        await reauthenticateWithCredential(currentUser, credential);
+      }
+      await updatePassword(currentUser, newPassword);
+      toast.success(isGoogleOnly ? "Password set up successfully." : "Password changed successfully.");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -81,12 +85,15 @@ export function PasswordForm() {
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
       <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
-        <h1 className="font-display text-3xl font-semibold text-brand-textPrimary">Change password</h1>
+        <h1 className="font-display text-3xl font-semibold text-brand-textPrimary">{isGoogleOnly ? "Set up password" : "Change password"}</h1>
         <p className="mt-2 text-sm leading-6 text-brand-textMuted">
-          Update your password to keep your account secure. You&apos;ll need to enter your current password to confirm the change.
+          {isGoogleOnly
+            ? "Set a password so you can sign in with email and password in addition to Google."
+            : "Update your password to keep your account secure. You'll need to enter your current password to confirm the change."}
         </p>
 
         <div className="mt-6 grid gap-5">
+          {hasPasswordProvider && (
           <label className="text-sm font-semibold text-brand-textPrimary">
             Current password
             <div className="relative mt-2">
@@ -108,6 +115,7 @@ export function PasswordForm() {
               </button>
             </div>
           </label>
+          )}
 
           <label className="text-sm font-semibold text-brand-textPrimary">
             New password
@@ -161,7 +169,7 @@ export function PasswordForm() {
           disabled={isSaving}
           className="mt-7 rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark disabled:opacity-60"
         >
-          {isSaving ? "Changing password..." : "Change password"}
+          {isSaving ? (isGoogleOnly ? "Setting up password..." : "Changing password...") : (isGoogleOnly ? "Set up password" : "Change password")}
         </button>
       </form>
 

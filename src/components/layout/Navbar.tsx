@@ -128,9 +128,9 @@ export function Navbar() {
     router.refresh();
   };
 
-  const CountBubble = ({ count }: { count: number }) =>
+  const CountBubble = ({ count, label }: { count: number; label: string }) =>
     count > 0 ? (
-      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-950 px-1 text-[9px] font-semibold leading-none text-white">
+      <span aria-live="polite" aria-label={label} className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-950 px-1 text-[9px] font-semibold leading-none text-white">
         {count}
       </span>
     ) : null;
@@ -195,11 +195,11 @@ export function Navbar() {
                  aria-label="Wishlist"
                >
                  <Heart size={18} strokeWidth={1.7} />
-                 <CountBubble count={wishlistCount} />
-               </Link>
-               {!authReady ? (
-                 <span className="hidden h-10 w-10 md:block" aria-hidden="true" />
-               ) : user ? (
+<CountBubble count={wishlistCount} label="Wishlist items" />
+                </Link>
+                {!authReady ? (
+                  <span className="hidden h-10 w-10 md:block" aria-hidden="true" />
+                ) : user ? (
                  <Link
                    href="/account"
                    className="hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex"
@@ -228,8 +228,8 @@ export function Navbar() {
                  aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
                >
                  <ShoppingBag size={19} strokeWidth={1.7} />
-                 <CountBubble count={cartCount} />
-               </Link>
+<CountBubble count={cartCount} label="Cart items" />
+                </Link>
              </div>
           </div>
 

@@ -142,24 +142,33 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {product.inStock && (
           <div className="absolute inset-x-3 bottom-3 z-10 translate-y-0 opacity-100 transition-all duration-300 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
-            <button
-              type="button"
-              onClick={onCart}
-              disabled={addState === "loading"}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary disabled:opacity-60"
-            >
-              {addState === "loading" ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : addState === "added" ? (
-                <>
-                  <Check size={14} /> Added
-                </>
-              ) : (
-                <>
-                  <ShoppingBag size={14} /> Quick add
-                </>
-              )}
-            </button>
+            {product.shadeOptions && product.shadeOptions.length > 0 ? (
+              <Link
+                href={`/products/${product.slug}`}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary"
+              >
+                View options
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={onCart}
+                disabled={addState === "loading"}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary disabled:opacity-60"
+              >
+                {addState === "loading" ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : addState === "added" ? (
+                  <>
+                    <Check size={14} /> Added
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag size={14} /> Quick add
+                  </>
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>

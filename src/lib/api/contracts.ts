@@ -149,15 +149,21 @@ export interface OrderLineItem {
 export interface Order {
   id: string;
   orderNumber: string;
-  customer: Customer;
-  shippingAddress: Address;
-  items: OrderLineItem[];
+  customer?: Customer;
+  shippingAddress?: Address | Record<string, unknown>;
+  items?: OrderLineItem[];
   paymentMethod: PaymentMethodCode;
   paymentStatus: "pending" | "paid" | "failed" | "refunded";
   orderStatus: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  status?: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   subtotal: number;
-  deliveryFee: number;
+  shippingCharge: number;
+  codFee: number;
+  giftWrapFee: number;
+  discountAmount: number;
+  totalAmount: number;
   grandTotal: number;
+  deliveryFee: number;
   currency: "NPR";
   createdAt: string;
 }

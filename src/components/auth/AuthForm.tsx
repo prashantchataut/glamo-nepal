@@ -48,6 +48,8 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
   const [error, setError] = useState("");
 
   const copy = labels[mode];
+  const showGuestCheckout = params.get("prompt") === "guest";
+  const redirectUrl = params.get("redirect") || "/account";
 
   const waitForSyncAndRedirect = async () => {
     const redirectTo = params.get("redirect") || "/account";
@@ -88,7 +90,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
         } else if (code === "auth/email-already-in-use") {
           setError("An account with this email already exists.");
         } else if (code === "auth/weak-password") {
-          setError("Password must be at least 6 characters.");
+          setError("Password must be at least 8 characters with a letter and a number.");
         } else if (code === "auth/invalid-email") {
           setError("Please enter a valid email address.");
         } else if (code === "auth/too-many-requests") {
@@ -230,7 +232,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 pr-10 text-base text-neutral-950 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm"
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 aria-describedby={mode === "register" ? "auth-password-hint" : undefined}
               />
@@ -249,7 +251,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
             </div>
             {mode === "register" && (
               <p id="auth-password-hint" className="mt-1.5 text-[11px] tracking-wide text-neutral-400">
-                Minimum 6 characters
+                Minimum 8 characters, including a letter and a number
               </p>
             )}
           </div>
@@ -288,6 +290,18 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
               </Link>
             )}
           </div>
+
+          {showGuestCheckout && (
+            <div className="mt-4 border-t border-neutral-200 pt-4 text-center">
+              <p className="mb-2 text-xs text-neutral-500">Or continue without an account</p>
+              <Link
+                href={redirectUrl.startsWith("/checkout") ? `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}guest=true` : "/checkout?guest=true"}
+                className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-700 transition-colors hover:bg-neutral-50"
+              >
+                Continue as guest
+              </Link>
+            </div>
+          )}
         </form>
       </div>
     </div>

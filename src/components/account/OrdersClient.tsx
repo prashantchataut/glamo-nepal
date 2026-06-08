@@ -42,7 +42,7 @@ function apiToDisplay(order: ApiOrder): DisplayOrder {
     date: order.createdAt.slice(0, 10),
     createdAt: order.createdAt,
     status: apiStatusToDisplay[order.orderStatus] || "Pending" as CustomerOrderStatus,
-    items: order.items.map((item) => ({
+    items: (order.items || []).map((item) => ({
       name: item.name,
       brand: "",
       image: "/images/products/placeholder.svg",

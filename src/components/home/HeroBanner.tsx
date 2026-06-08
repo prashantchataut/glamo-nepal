@@ -15,7 +15,7 @@ export function HeroBanner() {
           {/* Text Content */}
           <div className="max-w-2xl text-center lg:text-left">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#F7D3DD] bg-white/80 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AD4B64] shadow-sm backdrop-blur-sm">
-              <Sparkles size={14} /> Curated Beauty For You
+              <Sparkles size={14} /> Handpicked Nepali Beauty
             </div>
             
             <h1 className="font-display text-[3.5rem] font-medium leading-[1.05] tracking-[-0.02em] text-[#35131D] sm:text-7xl lg:text-[5.5rem]">
@@ -24,7 +24,7 @@ export function HeroBanner() {
             </h1>
             
             <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-[#7A726B] lg:mx-0">
-              Transform your daily routine with our curated selection of premium skincare, makeup, and body essentials. Sourced globally, delivered locally.
+              Build your daily beauty ritual with authentic skincare, makeup and body essentials curated for Nepal. NPR pricing, local delivery, no guesswork.
             </p>
             
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
@@ -105,15 +105,7 @@ export function HeroBanner() {
               </div>
             </div>
 
-            {/* Small Floating Accent */}
-            <div className="absolute -right-4 top-16 z-20 hidden animate-[bounce_8s_infinite] items-center gap-3 rounded-full bg-white px-5 py-3 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] sm:flex lg:-right-8">
-               <div className="flex -space-x-2">
-                 <div className="h-8 w-8 rounded-full border-2 border-white bg-[#D97898]" />
-                 <div className="h-8 w-8 rounded-full border-2 border-white bg-[#DFC2AF]" />
-                 <div className="h-8 w-8 rounded-full border-2 border-white bg-[#E8E4DF]" />
-               </div>
-               <span className="text-[10px] font-bold uppercase tracking-widest text-[#35131D]">5k+ Loved</span>
-            </div>
+
           </div>
         </div>
       </div>

@@ -25,7 +25,7 @@ import { GlamoApiError } from "@/lib/api/client";
 import { getUserMessage } from "@/lib/api/error-handler";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
-import { calculateDeliveryFee, getDeliveryRule, FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
+import { calculateDeliveryFee, getDeliveryRule, FREE_DELIVERY_THRESHOLD, COD_FEE } from "@/lib/delivery";
 import {
   PROVINCES,
   getDistrictsForProvince,
@@ -67,11 +67,13 @@ function OrderSummary({
   subtotal,
   deliveryFee,
   giftWrapFee,
+  codFee,
   total,
 }: {
   subtotal: number;
   deliveryFee: number;
   giftWrapFee: number;
+  codFee: number;
   total: number;
 }) {
   return (
@@ -86,6 +88,12 @@ function OrderSummary({
           {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
         </span>
       </div>
+      {codFee > 0 && (
+        <div className="flex justify-between text-neutral-500">
+          <span>COD fee</span>
+          <span className="text-neutral-950">{formatNPR(codFee)}</span>
+        </div>
+      )}
       {giftWrapFee > 0 && (
         <div className="flex justify-between text-neutral-500">
           <span>Gift wrap</span>
@@ -113,12 +121,14 @@ export function CheckoutPageClient() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
 
+  const isGuest = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("guest");
+
   useEffect(() => {
-    if (!authLoading && user === null) {
+    if (!authLoading && user === null && !isGuest) {
       const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-      router.replace(`/login?redirect=${redirect}`);
+      router.replace(`/login?redirect=${redirect}&prompt=guest`);
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, router, isGuest]);
 
   const {
     register,
@@ -196,7 +206,9 @@ export function CheckoutPageClient() {
     form.province,
   );
   const giftWrapFee = form.giftWrap ? 100 : 0;
-  const total = subtotal + deliveryFee + giftWrapFee;
+  const isCOD = form.payment === "Cash on Delivery";
+  const codFee = isCOD ? COD_FEE : 0;
+  const total = subtotal + deliveryFee + giftWrapFee + codFee;
   const districtOptions = useMemo(
     () => getDistrictsForProvince(form.province as Province),
     [form.province],
@@ -764,6 +776,7 @@ export function CheckoutPageClient() {
                       subtotal={subtotal}
                       deliveryFee={deliveryFee}
                       giftWrapFee={giftWrapFee}
+                      codFee={codFee}
                       total={total}
                     />
                   </div>
@@ -865,6 +878,7 @@ export function CheckoutPageClient() {
                 subtotal={subtotal}
                 deliveryFee={deliveryFee}
                 giftWrapFee={giftWrapFee}
+                codFee={codFee}
                 total={total}
               />
             </div>

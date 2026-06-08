@@ -30,12 +30,16 @@ function formatAddress(row: any) {
     fullName: row.full_name,
     phone: row.phone,
     address1: row.address_1,
+    addressLine1: row.address_1,
     address2: row.address_2,
+    addressLine2: row.address_2,
     city: row.city,
     district: row.district,
     province: row.province,
+    ward: row.ward || '',
     postalCode: row.postal_code,
     country: row.country,
+    landmark: row.landmark || '',
     isDefault: fromSqliteBool(row.is_default),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -165,14 +169,25 @@ export async function createAddress(db: Client, userId: string, data: {
   label?: string
   fullName: string
   phone: string
-  address1: string
+  address1?: string
+  addressLine1?: string
   address2?: string
+  addressLine2?: string
+  ward?: string
   city: string
   district?: string
   province?: string
   postalCode?: string
   country?: string
+  landmark?: string
 }) {
+  const normalizedAddress1 = data.address1 || data.addressLine1 || ''
+  const normalizedAddress2 = data.address2 || data.addressLine2 || null
+
+  if (!normalizedAddress1) {
+    throw new AppError('Address line is required', 400, 'ADDRESS_REQUIRED')
+  }
+
   const countResult = await db.execute({
     sql: `SELECT COUNT(*) as count FROM user_addresses WHERE user_id = ?`,
     args: [userId],
@@ -190,7 +205,7 @@ export async function createAddress(db: Client, userId: string, data: {
     sql: `INSERT INTO user_addresses (id, user_id, label, full_name, phone, address_1, address_2, city, district, province, postal_code, country, is_default, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
     args: [
       id, userId, data.label || null, data.fullName, data.phone,
-      data.address1, data.address2 || null, data.city,
+      normalizedAddress1, normalizedAddress2, data.city,
       data.district || null, data.province || null, data.postalCode || null,
       data.country || 'Nepal', isFirst ? 1 : 0,
     ],
@@ -209,12 +224,16 @@ export async function updateAddress(db: Client, userId: string, addressId: strin
   fullName?: string
   phone?: string
   address1?: string
+  addressLine1?: string
   address2?: string
+  addressLine2?: string
+  ward?: string
   city?: string
   district?: string
   province?: string
   postalCode?: string
   country?: string
+  landmark?: string
 }) {
   const existingResult = await db.execute({
     sql: `SELECT * FROM user_addresses WHERE id = ? AND user_id = ?`,
@@ -230,8 +249,10 @@ export async function updateAddress(db: Client, userId: string, addressId: strin
   if (data.label !== undefined) { updates.push('label = ?'); args.push(data.label || null) }
   if (data.fullName !== undefined) { updates.push('full_name = ?'); args.push(data.fullName) }
   if (data.phone !== undefined) { updates.push('phone = ?'); args.push(data.phone) }
-  if (data.address1 !== undefined) { updates.push('address_1 = ?'); args.push(data.address1) }
-  if (data.address2 !== undefined) { updates.push('address_2 = ?'); args.push(data.address2 || null) }
+  const normalizedAddress1 = data.address1 || data.addressLine1
+  if (normalizedAddress1 !== undefined) { updates.push('address_1 = ?'); args.push(normalizedAddress1) }
+  const normalizedAddress2 = data.address2 || data.addressLine2
+  if (normalizedAddress2 !== undefined) { updates.push('address_2 = ?'); args.push(normalizedAddress2 || null) }
   if (data.city !== undefined) { updates.push('city = ?'); args.push(data.city) }
   if (data.district !== undefined) { updates.push('district = ?'); args.push(data.district || null) }
   if (data.province !== undefined) { updates.push('province = ?'); args.push(data.province || null) }

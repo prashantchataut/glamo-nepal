@@ -48,7 +48,7 @@ export function AccountDashboardClient() {
             date: order.createdAt.slice(0, 10),
             total: order.grandTotal,
             status: order.orderStatus,
-            itemCount: order.items.length,
+itemCount: (order.items || []).length,
             source: "api" as const,
           })),
         );

@@ -26,8 +26,7 @@ export function csrfProtection() {
     const headerToken = c.req.header(CSRF_HEADER_NAME)
 
     if (!cookieToken && !headerToken) {
-      await next()
-      return
+      return c.json({ success: false, message: 'CSRF token missing. Please refresh the page and try again.', errors: ['CSRF_TOKEN_MISSING'] }, 403)
     }
 
     if (!cookieToken) {

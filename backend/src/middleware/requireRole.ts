@@ -7,6 +7,9 @@ export const requireRole = (roles: string[]) => {
     if (!user || !roles.includes(user.role)) {
       return c.json({ success: false, message: 'Forbidden: insufficient permissions', errors: [] }, 403)
     }
+    if (user.isActive === false) {
+      return c.json({ success: false, message: 'Forbidden: account is inactive', errors: [] }, 403)
+    }
     await next()
   })
 }

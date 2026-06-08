@@ -7,6 +7,8 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
 import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
+import { listProducts, type ProductListParams } from "@/lib/api/catalog";
+import type { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 import { trackCategoryView } from "@/lib/tracking";
 
@@ -67,12 +69,56 @@ function paramsFromFilters(filters: FilterState) {
 
 const ITEMS_PER_PAGE = 12;
 
+function filterProductsLocally(products: Product[], filters: FilterState): Product[] {
+  let result = [...products];
+  const query = filters.search.toLowerCase().trim();
+  if (query)
+    result = result.filter((product) =>
+      [product.name, product.brand, product.sku, product.description, product.category, product.subCategory, ...product.concernTags].join(" ").toLowerCase().includes(query)
+    );
+  if (filters.category) result = result.filter((product) => product.category === filters.category);
+  if (filters.subCategory) result = result.filter((product) => product.subCategory === filters.subCategory);
+  if (filters.brands.length) result = result.filter((product) => filters.brands.includes(product.brand));
+  if (filters.skinType.length) result = result.filter((product) => product.skinType.some((st) => filters.skinType.includes(st)));
+  if (filters.concerns.length) result = result.filter((product) => product.concernTags.some((c) => filters.concerns.includes(c)));
+  if (filters.madeInNepal) result = result.filter((product) => product.madeInNepal);
+  if (filters.inStock) result = result.filter((product) => product.inStock);
+  result = result.filter((product) => product.price >= filters.minPrice && product.price <= filters.maxPrice);
+  switch (filters.sort) {
+    case "price-asc": result.sort((a, b) => a.price - b.price); break;
+    case "price-desc": result.sort((a, b) => b.price - a.price); break;
+    case "newest": result.sort((a, b) => Number(Boolean(b.isNewArrival)) - Number(Boolean(a.isNewArrival))); break;
+    case "best-sellers": result.sort((a, b) => Number(Boolean(b.isBestSeller)) - Number(Boolean(a.isBestSeller))); break;
+    case "most-reviewed": result.sort((a, b) => b.reviewsCount - a.reviewsCount); break;
+    default: result.sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
+  }
+  return result;
+}
+
 export default function ShopPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const urlPage = Number(searchParams.get("page")) || 1;
+  const [currentPage, setCurrentPage] = useState(urlPage);
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
   const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+
+  const goToPage = useCallback(
+    (page: number) => {
+      const params = paramsFromFilters(filters);
+      if (page > 1) params.set("page", String(page));
+      router.replace(`/shop${params.toString() ? `?${params}` : ""}`, { scroll: false });
+      setCurrentPage(page);
+    },
+    [router, filters]
+  );
+
+  useEffect(() => {
+    setCurrentPage(urlPage);
+  }, [urlPage]);
 
   const handleFilterChange = useCallback(
     (next: FilterState) => {
@@ -85,31 +131,44 @@ export default function ShopPageContent() {
     [router]
   );
 
-  const products = useMemo(() => {
-    let result = [...PRODUCTS];
-    const query = filters.search.toLowerCase().trim();
-    if (query)
-      result = result.filter((product) =>
-        [product.name, product.brand, product.sku, product.description, product.category, product.subCategory, ...product.concernTags].join(" ").toLowerCase().includes(query)
-      );
-    if (filters.category) result = result.filter((product) => product.category === filters.category);
-    if (filters.subCategory) result = result.filter((product) => product.subCategory === filters.subCategory);
-    if (filters.brands.length) result = result.filter((product) => filters.brands.includes(product.brand));
-    if (filters.skinType.length) result = result.filter((product) => product.skinType.some((st) => filters.skinType.includes(st)));
-    if (filters.concerns.length) result = result.filter((product) => product.concernTags.some((c) => filters.concerns.includes(c)));
-    if (filters.madeInNepal) result = result.filter((product) => product.madeInNepal);
-    if (filters.inStock) result = result.filter((product) => product.inStock);
-    result = result.filter((product) => product.price >= filters.minPrice && product.price <= filters.maxPrice);
-    switch (filters.sort) {
-      case "price-asc": result.sort((a, b) => a.price - b.price); break;
-      case "price-desc": result.sort((a, b) => b.price - a.price); break;
-      case "newest": result.sort((a, b) => Number(Boolean(b.isNewArrival)) - Number(Boolean(a.isNewArrival))); break;
-      case "best-sellers": result.sort((a, b) => Number(Boolean(b.isBestSeller)) - Number(Boolean(a.isBestSeller))); break;
-      case "most-reviewed": result.sort((a, b) => b.reviewsCount - a.reviewsCount); break;
-      default: result.sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
-    }
-    return result;
-  }, [filters]);
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setApiError(null);
+
+    listProducts({
+      query: filters.search || undefined,
+      category: filters.category || undefined,
+      brand: filters.brands.length === 1 ? filters.brands[0] : undefined,
+      concern: filters.concerns.length === 1 ? filters.concerns[0] : undefined,
+      skinType: filters.skinType.length === 1 ? filters.skinType[0] : undefined,
+      madeInNepal: filters.madeInNepal || undefined,
+      inStock: filters.inStock || undefined,
+      minPrice: filters.minPrice > PRICE_RANGE.min ? filters.minPrice : undefined,
+      maxPrice: filters.maxPrice < PRICE_RANGE.max ? filters.maxPrice : undefined,
+      sort: filters.sort as ProductListParams["sort"],
+      page: currentPage,
+      perPage: ITEMS_PER_PAGE,
+    })
+      .then((result) => {
+        if (cancelled) return;
+        if (result.status === "success" && result.data) {
+          setProducts(result.data.length > 0 ? result.data : filterProductsLocally(PRODUCTS, filters));
+        } else {
+          setProducts(filterProductsLocally(PRODUCTS, filters));
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setApiError("Unable to load products. Showing cached data.");
+        setProducts(filterProductsLocally(PRODUCTS, filters));
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [filters, currentPage]);
 
   const chips = useMemo<FilterChip[]>(() => {
     const list: FilterChip[] = [];
@@ -147,10 +206,9 @@ export default function ShopPageContent() {
               {categoryObj?.description || "Browse skincare, soft-glam makeup, hair care and daily essentials with clear pricing, polished filters and authentic GLAMO curation."}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-3 rounded-[2rem] border border-neutral-200 bg-white/80 p-4 text-center shadow-card">
+          <div className="grid grid-cols-2 gap-3 rounded-[2rem] border border-neutral-200 bg-white/80 p-4 text-center shadow-card">
             <div><p className="font-display text-2xl text-primary">{products.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Products</p></div>
-            <div><p className="font-display text-2xl text-primary">77</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Districts</p></div>
-            <div><p className="font-display text-2xl text-primary">100%</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Curated</p></div>
+            <div><p className="font-display text-2xl text-primary">{CATEGORIES.length}</p><p className="text-[10px] uppercase tracking-[0.14em] text-neutral-500">Categories</p></div>
           </div>
         </div>
       </section>
@@ -250,8 +308,13 @@ export default function ShopPageContent() {
               </div>
             )}
 
-            {/* Product grid or empty state */}
-            {products.length === 0 ? (
+            {/* Product grid, loading state, or empty state */}
+            {isLoading ? (
+              <div className="py-24 text-center">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-neutral-200 border-t-primary" />
+                <p className="mt-4 text-sm text-neutral-400">Loading products...</p>
+              </div>
+            ) : products.length === 0 && !apiError ? (
               <div className="py-24 text-center">
                 <svg className="mx-auto h-16 w-16 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -281,7 +344,7 @@ export default function ShopPageContent() {
                   <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Pagination">
                     <button
                       type="button"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      onClick={() => goToPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Previous page"
@@ -292,7 +355,7 @@ export default function ShopPageContent() {
                       <button
                         key={page}
                         type="button"
-                        onClick={() => setCurrentPage(page)}
+                        onClick={() => goToPage(page)}
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors cursor-pointer",
                           page === currentPage
@@ -307,7 +370,7 @@ export default function ShopPageContent() {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 transition-colors hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       aria-label="Next page"

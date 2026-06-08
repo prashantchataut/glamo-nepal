@@ -4,12 +4,59 @@ import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, Copy, PackageCheck, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
+import { ordersApi } from "@/lib/api/orders";
 import { formatNPR } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 
-export function CheckoutSuccessClient() {
-  const order = useCheckoutStore((state) => state.lastOrder);
+interface CheckoutSuccessProps {
+  orderId?: string;
+}
+
+export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
+  const localOrder = useCheckoutStore((state) => state.lastOrder);
+  const [apiOrder, setApiOrder] = useState<typeof localOrder | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const order = apiOrder || localOrder;
+
+  useEffect(() => {
+    if (orderId && !localOrder) {
+      setLoading(true);
+      ordersApi.get(orderId)
+        .then((result) => {
+          const data = result.data as unknown as Record<string, unknown>;
+          const status = (data.status || data.orderStatus || "pending") as string;
+          const normalizedStatus = status.toLowerCase() === "confirmed" ? "Confirmed" : status.toLowerCase() === "processing" ? "Processing" : status.toLowerCase() === "shipped" ? "Shipped" : status.toLowerCase() === "delivered" ? "Delivered" : status.toLowerCase() === "cancelled" ? "Cancelled" : "Pending";
+          const orderItems = ((data.items as Array<Record<string, unknown>>) || []).map((item) => ({
+              name: item.name as string,
+              brand: (item.brand as string) || "",
+              image: ((item.image || item.imageUrl || "/images/products/placeholder.svg") as string),
+              price: (item.unitPrice ?? item.price ?? 0) as number,
+              quantity: item.quantity as number,
+              selectedShade: (item.selectedShade || item.variantName) as string | undefined,
+            }));
+          setApiOrder({
+            id: data.id as string || "",
+            orderNumber: data.orderNumber as string || "",
+            total: ((data.totalAmount ?? data.grandTotal ?? 0) as number),
+            paymentMethod: (data.paymentMethod as string) || "cod",
+            shippingAddress: typeof data.shippingAddress === "string" ? data.shippingAddress : "",
+            customerName: ((data.shippingAddress as Record<string, unknown> | null)?.fullName as string) || ((data.customer as Record<string, unknown> | null)?.name as string) || "",
+            customerPhone: ((data.shippingAddress as Record<string, unknown> | null)?.phone as string) || ((data.customer as Record<string, unknown> | null)?.phone as string) || "",
+            status: normalizedStatus as import("@/store/useCheckoutStore").CustomerOrderStatus,
+            items: orderItems,
+            createdAt: data.createdAt as string || new Date().toISOString(),
+            date: (data.createdAt as string || new Date().toISOString()).slice(0, 10),
+          });
+        })
+        .catch(() => {
+          setApiOrder(null);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [orderId, localOrder]);
 
   async function copyOrderNumber() {
     if (!order?.orderNumber) return;
@@ -19,6 +66,17 @@ export function CheckoutSuccessClient() {
     } catch {
       toast.error("Could not copy — please select and copy manually");
     }
+  }
+
+  if (loading) {
+    return (
+      <main className="bg-[#fffaf7] px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+        <div className="mx-auto max-w-lg text-center" aria-live="polite">
+          <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-neutral-200 border-t-primary" />
+          <p className="mt-4 text-sm text-neutral-500">Loading order details...</p>
+        </div>
+      </main>
+    );
   }
 
   if (!order) {

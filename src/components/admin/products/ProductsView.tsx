@@ -94,7 +94,6 @@ export function ProductsView() {
   }));
 
   const { mutate: deleteProduct } = useAdminMutation((vars: { id: string }) => adminApi.deleteProduct(vars.id));
-  const { mutate: toggleVisibility } = useAdminMutation((vars: { id: string }) => adminApi.toggleProductVisibility(vars.id));
   const { mutate: bulkDelete } = useAdminMutation((ids: string[]) => adminApi.bulkDeleteProducts(ids));
   const { mutate: bulkUpdateStatus } = useAdminMutation((vars: { ids: string[]; isActive: boolean }) => adminApi.bulkUpdateProductStatus(vars.ids, vars.isActive));
 

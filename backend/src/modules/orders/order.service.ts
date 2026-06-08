@@ -6,6 +6,7 @@ import { toDisplayPrice, toStoredPrice } from '../../utils/price'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
 import { getEnv } from '../../utils/env'
 import { sendEmail, orderConfirmation, orderStatusUpdate } from '../../utils/email'
+import { calculateDeliveryFee } from '../../utils/delivery'
 import type { AppEnv } from '../../types/bindings'
 import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
@@ -42,6 +43,8 @@ interface OrderRow {
   payment_id: string | null
   subtotal: number
   shipping_charge: number
+  cod_fee: number
+  gift_wrap_fee: number
   discount_amount: number
   total_amount: number
   coupon_id: string | null
@@ -137,6 +140,8 @@ function formatOrder(row: Record<string, unknown>, items: OrderItemRow[] = [], h
     paymentId: row.payment_id as string | null,
     subtotal: toDisplayPrice(row.subtotal as number),
     shippingCharge: toDisplayPrice(row.shipping_charge as number),
+    codFee: toDisplayPrice(row.cod_fee as number || 0),
+    giftWrapFee: toDisplayPrice(row.gift_wrap_fee as number || 0),
     discountAmount: toDisplayPrice(row.discount_amount as number),
     totalAmount: toDisplayPrice(row.total_amount as number),
     shippingAddress,
@@ -338,11 +343,22 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     lineItems.push({ product, variant, image, quantity: line.quantity, unitPrice, totalPrice })
   }
 
-  const shippingCharge = data.deliveryFee !== undefined ? toStoredPrice(data.deliveryFee) : 0
+  const shippingDistrict = String(data.shippingAddress?.district || data.shippingAddress?.city || '')
+  const shippingProvince = String(data.shippingAddress?.province || '')
+  const serverDeliveryFee = calculateDeliveryFee(toDisplayPrice(subtotal), shippingDistrict, shippingProvince)
+  const shippingCharge = toStoredPrice(serverDeliveryFee)
+  if (data.deliveryFee !== undefined) {
+    const clientDeliveryFee = toStoredPrice(data.deliveryFee)
+    if (Math.abs(clientDeliveryFee - shippingCharge) > toStoredPrice(5)) {
+      throw new AppError('Delivery fee mismatch — please refresh and try again', 400, 'DELIVERY_FEE_MISMATCH')
+    }
+  }
   const isCOD = data.paymentMethod ? ['CASH_ON_DELIVERY', 'COD', 'cod', 'Cash on Delivery'].includes(data.paymentMethod) : false
-  const codFee = isCOD && c ? parseInt(getEnv(c, 'COD_FEE') || '50', 10) : (isCOD ? 50 : 0)
+  const codFeeEnv = c ? getEnv(c, 'COD_FEE') : (process.env.COD_FEE || '50')
+  const codFee = isCOD ? toStoredPrice(parseInt(codFeeEnv, 10)) : 0
+  const giftWrapFee = data.giftWrap ? toStoredPrice(100) : 0
   const discountAmount = 0
-  const totalAmount = Math.max(0, subtotal + shippingCharge + codFee - discountAmount)
+  const totalAmount = Math.max(0, subtotal + shippingCharge + codFee + giftWrapFee - discountAmount)
 
   const clientSubtotal = data.subtotal !== undefined ? toStoredPrice(data.subtotal) : null
   const clientGrandTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
@@ -365,11 +381,11 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     const paymentMethod = paymentMethodToDb(data.paymentMethod)
 
     await tx.execute({
-      sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, discount_amount, total_amount, shipping_address, billing_address, notes, created_at, updated_at)
-            VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, cod_fee, gift_wrap_fee, discount_amount, total_amount, shipping_address, billing_address, notes, created_at, updated_at)
+            VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       args: [
         orderId, orderNumber, userId, paymentMethod,
-        subtotal, shippingCharge, discountAmount, totalAmount,
+        subtotal, shippingCharge, codFee, giftWrapFee, discountAmount, totalAmount,
         safeJsonStringify(shippingAddress), safeJsonStringify(billingAddress), notes,
       ],
     })
@@ -618,6 +634,30 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
     console.error('Failed to insert cancellation history:', error)
   }
 
+  try {
+    const orderItems = await getOrderItems(rowId, db)
+    for (const item of orderItems) {
+      if (item.variant_id) {
+        await db.execute({
+          sql: 'UPDATE product_variants SET stock_quantity = stock_quantity + ? WHERE id = ?',
+          args: [item.quantity, item.variant_id],
+        })
+      }
+      const productResult = await db.execute({
+        sql: 'SELECT track_inventory FROM products WHERE id = ?',
+        args: [item.product_id],
+      })
+      if (productResult.rows.length > 0 && fromSqliteBool((productResult.rows[0] as any).track_inventory)) {
+        await db.execute({
+          sql: 'UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?',
+          args: [item.quantity, item.product_id],
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Failed to restore inventory after cancellation:', error)
+  }
+
   await createAuditLog(db, {
     userId: user.id,
     action: 'CANCEL',
@@ -629,13 +669,42 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
   return fetchOrderWithRelations(rowId, db)
 }
 
-export async function getPublicOrder(orderNumber: string, db: Client) {
+export async function getPublicOrder(orderNumber: string, db: Client, verificationEmail?: string, verificationPhone?: string) {
   const result = await db.execute({
     sql: 'SELECT * FROM orders WHERE order_number = ? AND deleted_at IS NULL LIMIT 1',
     args: [orderNumber],
   })
   if (result.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
   const row = result.rows[0]
+
+  if (verificationEmail || verificationPhone) {
+    const userId = (row as any).user_id as string
+    const userResult = await db.execute({
+      sql: 'SELECT email, phone FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1',
+      args: [userId],
+    })
+    if (userResult.rows.length > 0) {
+      const user = userResult.rows[0] as any
+      const emailMatch = verificationEmail && user.email && user.email.toLowerCase() === verificationEmail.toLowerCase()
+      const phoneMatch = verificationPhone && user.phone && user.phone === verificationPhone
+      if (!emailMatch && !phoneMatch) {
+        throw new AppError('Order verification failed. Please provide the email or phone used when placing the order.', 403, 'ORDER_VERIFICATION_FAILED')
+      }
+    }
+  } else {
+    const redacted = { ...row }
+    const shippingAddr = safeJsonParse<Record<string, unknown>>((redacted as any).shipping_address as string | null, {} as Record<string, unknown>)
+    const safeAddress: Record<string, unknown> = {}
+    if (shippingAddr) {
+      safeAddress.city = shippingAddr.city
+      safeAddress.province = shippingAddr.province
+      safeAddress.country = shippingAddr.country
+    }
+    ;(redacted as any).shipping_address = safeJsonStringify(safeAddress)
+    ;(redacted as any).billing_address = null
+    ;(redacted as any).payment_id = null
+    ;(redacted as any).user_id = null
+  }
 
   const [items, history] = await Promise.all([
     getOrderItems((row as any).id as string, db),
@@ -675,8 +744,12 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
       throw new AppError(result.message || 'eSewa payment verification failed', 400, 'PAYMENT_VERIFICATION_FAILED')
     }
     verifiedTransactionId = result.transactionId
-  } else if (normalizedProvider !== 'cod' && normalizedProvider !== 'card' && normalizedProvider !== 'cards') {
-    console.warn(`Payment verification skipped for ${provider}: no credentials configured. Token stored as-is.`)
+  } else if (normalizedProvider === 'cod') {
+    throw new AppError('COD orders cannot be marked as paid through payment verification', 400, 'INVALID_PAYMENT_METHOD')
+  } else if (normalizedProvider !== 'card' && normalizedProvider !== 'cards') {
+    throw new AppError(`Payment verification not available for ${provider}. No credentials configured.`, 400, 'PAYMENT_PROVIDER_NOT_CONFIGURED')
+  } else {
+    throw new AppError('Card payment verification is not yet implemented. Please contact support.', 400, 'PAYMENT_PROVIDER_NOT_CONFIGURED')
   }
 
   try {

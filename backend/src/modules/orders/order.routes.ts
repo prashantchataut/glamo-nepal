@@ -3,7 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/firebase-auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody } from '../../middleware/validate'
-import { paymentRateLimit } from '../../middleware/rateLimit'
+import { paymentRateLimit, orderTrackingRateLimit } from '../../middleware/rateLimit'
 import { optionalAuthMiddleware } from '../../middleware/optional-auth'
 import { createOrderSchema, updateOrderStatusSchema } from './order.schema'
 import { createOrder, verifyCheckoutPayment, listOrders, getOrder, getPublicOrder, updateOrderStatus, cancelOrder } from './order.controller'
@@ -13,7 +13,7 @@ const checkoutRoutes = new Hono<AppEnv>()
 
 checkoutRoutes.post('/orders', optionalAuthMiddleware, paymentRateLimit, validateBody(createOrderSchema), createOrder)
 checkoutRoutes.post('/orders/:id/payments/:provider/verify', optionalAuthMiddleware, paymentRateLimit, verifyCheckoutPayment)
-checkoutRoutes.get('/track/:orderNumber', getPublicOrder)
+checkoutRoutes.get('/track/:orderNumber', orderTrackingRateLimit, getPublicOrder)
 
 orderRoutes.use('*', authMiddleware)
 orderRoutes.get('/', listOrders)

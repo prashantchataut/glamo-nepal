@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Login",
-  description: "Sign in to your GLAMO NEPAL account to view orders, wishlist, saved addresses and loyalty points.",
+  description: "Sign in to your GLAMO NEPAL account to view orders, wishlist, and saved addresses.",
   path: "/login",
   noIndex: true,
 });

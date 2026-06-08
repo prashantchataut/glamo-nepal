@@ -129,12 +129,14 @@ export async function cancelOrder(c: Context<AppEnv>) {
 export async function getPublicOrder(c: Context<AppEnv>) {
   try {
     const { orderNumber } = c.req.param()
+    const query = c.req.query()
     const db = c.get('db')
-    const order = await OrderService.getPublicOrder(orderNumber, db)
+    const order = await OrderService.getPublicOrder(orderNumber, db, query.email, query.phone)
     return ApiResponse.success(c, 'Order fetched successfully', order)
   } catch (error: any) {
     if (error instanceof AppError) {
       if (error.code === 'ORDER_NOT_FOUND') return ApiResponse.error(c, 'Order not found', 404)
+      if (error.code === 'ORDER_VERIFICATION_FAILED') return ApiResponse.error(c, error.message, 403)
       return ApiResponse.error(c, error.message, error.statusCode)
     }
     return ApiResponse.error(c, error.message || 'Failed to fetch order', 500)

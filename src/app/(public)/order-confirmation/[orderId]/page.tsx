@@ -11,6 +11,5 @@ export const metadata = createMetadata({
 });
 
 export default function OrderConfirmationPage({ params }: { params: { orderId: string } }) {
-  void params.orderId;
-  return <CheckoutSuccessClient />;
+  return <CheckoutSuccessClient orderId={params.orderId} />;
 }

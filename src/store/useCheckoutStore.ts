@@ -73,11 +73,20 @@ export const useCheckoutStore = create<CheckoutState>()(
           const apiResponse = await createCheckoutOrder(payload as unknown as ApiCheckoutPayload);
           const apiOrder = apiResponse.data;
           const createdAt = apiOrder.createdAt || new Date().toISOString();
+          const rawStatus = (apiOrder.status || apiOrder.orderStatus || 'pending').toLowerCase();
+          const statusMap: Record<string, CustomerOrderStatus> = {
+            pending: "Pending",
+            confirmed: "Confirmed",
+            processing: "Processing",
+            shipped: "Shipped",
+            delivered: "Delivered",
+            cancelled: "Cancelled",
+          };
           const saved: SimulatedOrder = {
             ...order,
             id: apiOrder.id,
             orderNumber: apiOrder.orderNumber || order.orderNumber,
-            status: (apiOrder.orderStatus === "confirmed" ? "Confirmed" : apiOrder.orderStatus === "processing" ? "Processing" : apiOrder.orderStatus === "shipped" ? "Shipped" : apiOrder.orderStatus === "delivered" ? "Delivered" : apiOrder.orderStatus === "cancelled" ? "Cancelled" : "Pending") as CustomerOrderStatus,
+            status: statusMap[rawStatus] || "Pending",
             createdAt,
             date: createdAt.slice(0, 10),
           };

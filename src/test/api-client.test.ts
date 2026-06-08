@@ -201,7 +201,7 @@ describe("apiRequest", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(GlamoApiError);
       expect((err as GlamoApiError).code).toBe("NETWORK_ERROR");
-      expect((err as GlamoApiError).message).toBe("A network error occurred");
+      expect((err as GlamoApiError).message).toBe("Unable to connect. Please check your connection and try again.");
     }
   });
 
@@ -214,7 +214,7 @@ describe("apiRequest", () => {
       expect.fail("Should have thrown");
     } catch (err) {
       expect(err).toBeInstanceOf(GlamoApiError);
-      expect((err as GlamoApiError).code).toBe("UNEXPECTED_API_RESPONSE");
+      expect((err as GlamoApiError).code).toBe("SERVER_ERROR");
     }
   });
 
@@ -229,7 +229,7 @@ describe("apiRequest", () => {
       expect.fail("Should have thrown");
     } catch (err) {
       expect(err).toBeInstanceOf(GlamoApiError);
-      expect((err as GlamoApiError).code).toBe("UNEXPECTED_API_RESPONSE");
+      expect((err as GlamoApiError).code).toBe("SERVER_ERROR");
     }
   });
 

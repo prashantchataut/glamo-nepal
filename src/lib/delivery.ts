@@ -30,6 +30,7 @@ export { PROVINCES, DISTRICTS, DISTRICTS_BY_PROVINCE, ALL_DISTRICTS, MUNICIPALIT
 export { _getMunicipalitiesForDistrict as getMunicipalitiesForDistrict, isValidProvinceDistrictCombo, isCodAvailable };
 
 export const FREE_DELIVERY_THRESHOLD = 2500;
+export const COD_FEE = 50;
 
 export interface DistrictDeliveryRule {
   district: string;

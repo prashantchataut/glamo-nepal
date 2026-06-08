@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { customerApi } from "@/lib/api/customer";
 import { GlamoApiError } from "@/lib/api/client";
 import { getUserMessage } from "@/lib/api/error-handler";
+import { auth, isFirebaseConfigured } from "@/lib/firebase";
 
 export function ProfileForm() {
   const user = useAuthStore((state) => state.user);
@@ -15,6 +16,10 @@ export function ProfileForm() {
   const [isFetching, setFetching] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const isGoogleOnly = isFirebaseConfigured
+    ? !auth()?.currentUser?.providerData?.some((p) => p.providerId === "password")
+    : false;
 
   useEffect(() => {
     setName(user?.name || "");
@@ -133,12 +138,12 @@ export function ProfileForm() {
           />
         </label>
         <label className="text-sm font-semibold text-brand-textPrimary">
-          Email (optional)
+          Email{isGoogleOnly ? " (managed by Google)" : " (optional)"}
           <input
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={isGoogleOnly ? undefined : (event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            disabled={isSaving || isFetching}
+            disabled={isSaving || isFetching || isGoogleOnly}
             className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
