@@ -8,7 +8,7 @@ export default function VerifyEmailError({
   reset: () => void;
 }) {
   return (
-    <main className="bg-[#fbf7f3] py-10 md:py-16">
+    <main className="bg-brand-surfaceWarm py-10 md:py-16">
       <div className="container mx-auto max-w-md px-4 md:px-6 text-center">
         <h1 className="font-display text-3xl font-semibold text-neutral-900">Something went wrong</h1>
         <p className="mt-4 text-neutral-500">{error.message || "An error occurred during email verification."}</p>

@@ -59,7 +59,7 @@ export function VerifyEmailClient() {
 
   if (token && !success && !error) {
     return (
-      <main className="bg-[#fbf7f3] py-10 md:py-16">
+      <main className="bg-brand-surfaceWarm py-10 md:py-16">
         <div className="container mx-auto max-w-md px-4 md:px-6 text-center">
           <h1 className="font-display text-3xl font-semibold text-neutral-900">Verifying your email</h1>
           <p className="mt-4 text-neutral-500">Click the button below to complete verification.</p>
@@ -77,7 +77,7 @@ export function VerifyEmailClient() {
 
   if (success) {
     return (
-      <main className="bg-[#fbf7f3] py-10 md:py-16">
+      <main className="bg-brand-surfaceWarm py-10 md:py-16">
         <div className="container mx-auto max-w-md px-4 md:px-6">
           <h1 className="font-display text-3xl font-semibold text-neutral-900">Email verified!</h1>
           <p className="mt-4 text-neutral-500">
@@ -89,7 +89,7 @@ export function VerifyEmailClient() {
   }
 
   return (
-    <main className="bg-[#fbf7f3] py-10 md:py-16">
+    <main className="bg-brand-surfaceWarm py-10 md:py-16">
       <div className="container mx-auto max-w-md px-4 md:px-6">
         <h1 className="font-display text-3xl font-semibold text-neutral-900">Verify your email</h1>
         <p className="mt-2 text-sm text-neutral-500">

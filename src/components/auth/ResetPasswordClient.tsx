@@ -59,7 +59,7 @@ export function ResetPasswordClient() {
   }
 
   return (
-    <main className="bg-[#fbf7f3] py-10 md:py-16">
+    <main className="bg-brand-surfaceWarm py-10 md:py-16">
       <div className="container mx-auto max-w-md px-4 md:px-6">
         <h1 className="font-display text-3xl font-semibold text-neutral-900">Set new password</h1>
         <p className="mt-2 text-sm text-neutral-500">

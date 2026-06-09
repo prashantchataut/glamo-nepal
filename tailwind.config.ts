@@ -79,10 +79,12 @@ const config: Config = {
           border: '#E8E1DB',
           surfaceWarm: '#F7ECE8',
           surfacePink: '#F6E6F4',
+          surfaceLime: '#eef8ca',
           accentLight: '#F0D3F3',
           textPrimary: '#1A1512',
           textMuted: '#7A726B',
         },
+        whatsapp: '#25D366',
         admin: {
           success: '#4CAF82',
           'success-light': '#E8F5E9',

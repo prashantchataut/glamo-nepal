@@ -32,7 +32,7 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className="bg-[#fbf7f3] py-16 md:py-24" aria-labelledby="newsletter-heading">
+    <section className="bg-brand-surfaceWarm py-16 md:py-24" aria-labelledby="newsletter-heading">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="relative hidden aspect-[4/3] overflow-hidden bg-neutral-100 md:block">
           <Image src={IMAGES.hero.secondary} alt="Luxury skincare flatlay" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />
@@ -43,7 +43,7 @@ export function NewsletterSignup() {
           <p className="mt-4 max-w-lg text-base leading-8 text-neutral-600">Receive curated product edits, restock notes and Nepal delivery updates. No spam, no noisy beauty myths.</p>
           <div aria-live="polite" className="mt-8">
             {submitted ? (
-              <div className="border border-neutral-200 bg-[#fbf7f3] p-5">
+              <div className="border border-neutral-200 bg-brand-surfaceWarm p-5">
                 <p className="font-display text-2xl text-neutral-900">You’re on the list.</p>
                 <p className="mt-2 text-sm leading-6 text-neutral-500">We’ll send the next GLAMO edit to your inbox.</p>
               </div>

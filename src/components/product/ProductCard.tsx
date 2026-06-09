@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
       aria-label={product.name}
       className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_24px_80px_-58px_rgba(26,21,18,0.55)]"
     >
-      <div className="relative block aspect-[4/5] overflow-hidden bg-[#f8f0ec]">
+      <div className="relative block aspect-[4/5] overflow-hidden bg-brand-surfaceWarm">
         <Link
           href={`/products/${product.slug}`}
           className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"

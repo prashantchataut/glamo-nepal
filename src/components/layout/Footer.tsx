@@ -106,7 +106,7 @@ export function Footer() {
 
         <div className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
           <div>
-            <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-white transition hover:text-[#f6e2f4]">
+            <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-white transition hover:text-brand-surfacePink">
               GLAMO
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-white/62">

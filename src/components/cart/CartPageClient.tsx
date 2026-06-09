@@ -169,7 +169,7 @@ export function CartPageClient() {
                 >
                   <Link
                     href={`/products/${item.product.slug}`}
-                    className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#f8f0ec] sm:rounded-[1.5rem]"
+                    className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-brand-surfaceWarm sm:rounded-[1.5rem]"
                   >
                     <Image
                       src={item.product.image}

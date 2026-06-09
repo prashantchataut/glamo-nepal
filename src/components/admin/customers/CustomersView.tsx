@@ -7,6 +7,7 @@ import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { StatusPill } from "@/components/admin/shared/StatusPill";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
+import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { CustomerDetailModal } from "./CustomerDetailModal";
 import { Users, RefreshCw, Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -48,6 +49,8 @@ export function CustomersView() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [pendingToggle, setPendingToggle] = useState<{ userId: string; isActive: boolean; label: string } | null>(null);
+  const [isToggling, setIsToggling] = useState(false);
 
   const { data: usersData, meta: usersMeta, isLoading, isError, refetch } = useAdminData(() => adminApi.listUsers({ search: search || undefined, page, limit: PAGE_SIZE }), { deps: [search, page] });
   const { mutate: updateStatus } = useAdminMutation((vars: { userId: string; isActive: boolean }) => adminApi.updateUserStatus(vars.userId, vars.isActive));
@@ -66,14 +69,25 @@ export function CustomersView() {
   })();
   const error = isError ? "Failed to load customers" : null;
 
-  async function toggleStatus(user: UserRow) {
+  function requestToggleStatus(user: UserRow) {
     const newActive = user.is_active === 0;
+    setPendingToggle({ userId: user.id, isActive: newActive, label: newActive ? "activate" : "deactivate" });
+  }
+
+  async function confirmToggleStatus() {
+    if (!pendingToggle) return;
+    setIsToggling(true);
     try {
-      await updateStatus({ userId: user.id, isActive: newActive });
-      toast.success(`${user.first_name || user.email} is now ${newActive ? "active" : "inactive"}`);
+      await updateStatus({ userId: pendingToggle.userId, isActive: pendingToggle.isActive });
+      toast.success(`User ${pendingToggle.isActive ? "activated" : "deactivated"} successfully`);
+      refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setIsToggling(false);
+      setPendingToggle(null);
     }
+  }
   }
 
   const columns: Column<UserRow>[] = [
@@ -83,7 +97,7 @@ export function CustomersView() {
       render: (row) => (
         <div>
           <p className="font-semibold text-brand-textPrimary">
-            {[row.first_name, row.last_name].filter(Boolean).join(" ") || "—"}
+            {[row.first_name, row.last_name].filter(Boolean).join(" ") || "ï¿½"}
           </p>
         </div>
       ),
@@ -107,7 +121,7 @@ export function CustomersView() {
       header: "Status",
       render: (row) => (
         <button
-          onClick={() => toggleStatus(row)}
+          onClick={() => requestToggleStatus(row)}
           className={cn(
             "rounded-full px-3 py-1 text-xs font-semibold ring-1 transition",
             row.is_active
@@ -162,7 +176,7 @@ export function CustomersView() {
           <h2 className="font-display text-2xl font-semibold">Customers</h2>
           <p className="mt-0.5 text-sm text-brand-textMuted">Manage user accounts, roles and status.</p>
         </div>
-        <SearchInput onSearch={setSearch} placeholder="Search by name or email…" className="w-full sm:max-w-xs" />
+        <SearchInput onSearch={setSearch} placeholder="Search by name or emailï¿½" className="w-full sm:max-w-xs" />
       </div>
 
       <div className="mt-5">

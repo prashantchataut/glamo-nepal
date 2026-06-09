@@ -12,7 +12,7 @@ export const metadata = createMetadata({
 
 export default function RegisterPage() {
   return (
-    <main className="bg-[#fbf7f3] px-4 py-8 pb-24 md:px-6 md:py-12 md:pb-16">
+    <main className="bg-brand-surfaceWarm px-4 py-8 pb-24 md:px-6 md:py-12 md:pb-16">
       <div className="container mx-auto">
         <Suspense fallback={<AuthFormSkeleton />}>
           <AuthForm mode="register" />

@@ -329,7 +329,7 @@ export default function ProductDetailClient({
               {product.benefits.slice(0, 3).map((benefit) => (
                 <div
                   key={benefit}
-                  className="rounded-[1.25rem] bg-[#fff7f3] p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
+                  className="rounded-[1.25rem] bg-brand-bgLight p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
                 >
                   {benefit}
                 </div>
