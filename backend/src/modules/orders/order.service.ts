@@ -7,6 +7,7 @@ import { parsePagination, buildPaginationResult } from '../../utils/pagination'
 import { getEnv } from '../../utils/env'
 import { sendEmail, orderConfirmation, orderStatusUpdate } from '../../utils/email'
 import { calculateDeliveryFee } from '../../utils/delivery'
+import { validateCoupon } from '../coupons/coupon.service'
 import type { AppEnv } from '../../types/bindings'
 import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
@@ -357,7 +358,20 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
   const codFeeEnv = c ? getEnv(c, 'COD_FEE') : (process.env.COD_FEE || '50')
   const codFee = isCOD ? toStoredPrice(parseInt(codFeeEnv, 10)) : 0
   const giftWrapFee = data.giftWrap ? toStoredPrice(100) : 0
-  const discountAmount = 0
+  let discountAmount = 0
+  let couponId: string | null = null
+  if (data.couponCode) {
+    try {
+      const cartTotalDisplay = toDisplayPrice(subtotal)
+      const couponResult = await validateCoupon(data.couponCode, cartTotalDisplay, db)
+      discountAmount = toStoredPrice(couponResult.discountAmount)
+      couponId = couponResult.id
+    } catch (err: any) {
+      if (err instanceof AppError && err.code?.startsWith('COUPON_')) {
+        throw err
+      }
+    }
+  }
   const totalAmount = Math.max(0, subtotal + shippingCharge + codFee + giftWrapFee - discountAmount)
 
   const clientSubtotal = data.subtotal !== undefined ? toStoredPrice(data.subtotal) : null
@@ -380,12 +394,12 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     const orderNumber = generateOrderNumber()
     const paymentMethod = paymentMethodToDb(data.paymentMethod)
 
-    await tx.execute({
-      sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, cod_fee, gift_wrap_fee, discount_amount, total_amount, shipping_address, billing_address, notes, created_at, updated_at)
-            VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+await tx.execute({
+      sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, cod_fee, gift_wrap_fee, discount_amount, total_amount, coupon_id, shipping_address, billing_address, notes, created_at, updated_at)
+            VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       args: [
         orderId, orderNumber, userId, paymentMethod,
-        subtotal, shippingCharge, codFee, giftWrapFee, discountAmount, totalAmount,
+        subtotal, shippingCharge, codFee, giftWrapFee, discountAmount, totalAmount, couponId,
         safeJsonStringify(shippingAddress), safeJsonStringify(billingAddress), notes,
       ],
     })
