@@ -19,4 +19,14 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ token, password }),
     }),
+  sendVerificationEmail: (email: string) =>
+    apiRequest<null>("/auth/send-verification", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+  verifyEmail: (token: string) =>
+    apiRequest<null>("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
 };

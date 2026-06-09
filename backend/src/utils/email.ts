@@ -204,4 +204,10 @@ export async function sendPasswordReset(email: string, token: string, env: Netli
   await sendEmail(email, 'Reset Your GLAMO Nepal Password', html, env)
 }
 
+export async function sendVerificationEmail(email: string, name: string, token: string, env: NetlifyBindings): Promise<void> {
+  const verifyUrl = `${env.FRONTEND_URL || 'https://glamonepal.com'}/verify-email?token=${token}`
+  const html = verifyEmail(name || 'there', verifyUrl)
+  await sendEmail(email, 'Verify Your GLAMO Nepal Email', html, env)
+}
+
 export { sendEmail }

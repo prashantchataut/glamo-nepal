@@ -33,8 +33,8 @@ export function canAccess(userRole: string, requiredRole: string): boolean {
   return allowed.includes(requiredRole);
 }
 
-const SUPER_ADMIN_SECTIONS: AdminSection[] = ["coupons", "audit"];
-const OWNER_SECTIONS: AdminSection[] = [];
+const SUPER_ADMIN_SECTIONS: AdminSection[] = ["coupons", "audit"]; // eslint-disable-line @typescript-eslint/no-unused-vars
+const OWNER_SECTIONS: AdminSection[] = []; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 interface AdminState {
   activeSection: AdminSection;

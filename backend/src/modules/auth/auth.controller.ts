@@ -4,6 +4,91 @@ import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import * as AuthService from './auth.service'
 
+export async function sendVerificationEmailController(c: Context<AppEnv>) {
+  try {
+    const data = c.get('validatedBody') as { email: string }
+    const db = c.get('db')
+    const env = c.env
+
+    const result = await db.execute({
+      sql: "SELECT id, email, first_name FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
+      args: [data.email.toLowerCase()],
+    })
+
+    if (result.rows.length === 0) {
+      return ApiResponse.success(c, 'If an account with that email exists, a verification email has been sent.', null)
+    }
+
+    const user = result.rows[0] as any
+
+    const alreadyVerified = await db.execute({
+      sql: "SELECT id FROM users WHERE id = ? AND email_verified = 1",
+      args: [user.id],
+    })
+    if (alreadyVerified.rows.length > 0) {
+      return ApiResponse.success(c, 'Your email is already verified.', null)
+    }
+
+    const token = crypto.randomUUID()
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+
+    await db.execute({
+      sql: `INSERT INTO email_verifications (id, user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?, datetime('now'))`,
+      args: [crypto.randomUUID(), user.id, token, expiresAt],
+    }).catch(() => {
+      return db.execute({
+        sql: "UPDATE email_verifications SET token = ?, expires_at = ?, created_at = datetime('now') WHERE user_id = ?",
+        args: [token, expiresAt, user.id],
+      })
+    })
+
+    if (env.RESEND_API_KEY) {
+      const { sendVerificationEmail } = await import('../../utils/email')
+      await sendVerificationEmail(user.email, user.first_name || 'there', token, env)
+    }
+
+    return ApiResponse.success(c, 'If an account with that email exists, a verification email has been sent.', null)
+  } catch (error: any) {
+    console.error('Send verification email error:', error)
+    return ApiResponse.success(c, 'If an account with that email exists, a verification email has been sent.', null)
+  }
+}
+
+export async function verifyEmailController(c: Context<AppEnv>) {
+  try {
+    const data = c.get('validatedBody') as { token: string }
+    const db = c.get('db')
+
+    const result = await db.execute({
+      sql: "SELECT * FROM email_verifications WHERE token = ? AND expires_at > datetime('now') AND used_at IS NULL LIMIT 1",
+      args: [data.token],
+    })
+
+    if (result.rows.length === 0) {
+      return ApiResponse.error(c, 'Invalid or expired verification token', 400, ['INVALID_TOKEN'])
+    }
+
+    const verification = result.rows[0] as any
+
+    await db.execute({
+      sql: "UPDATE users SET email_verified = 1, updated_at = datetime('now') WHERE id = ?",
+      args: [verification.user_id],
+    })
+
+    await db.execute({
+      sql: "UPDATE email_verifications SET used_at = datetime('now') WHERE id = ?",
+      args: [verification.id],
+    })
+
+    return ApiResponse.success(c, 'Email verified successfully.', null)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode, error.code ? [error.code] : [])
+    }
+    return ApiResponse.error(c, error.message || 'Email verification failed', 500)
+  }
+}
+
 export async function register(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
