@@ -2,20 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 import { validateCsrf } from "@/lib/csrf";
 
-const loginAttempts = new Map<string, { count: number; expires: number }>();
 const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW = 60_000;
+const RATE_LIMIT_WINDOW = 60;
+
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+const loginAttempts = new Map<string, { count: number; expires: number }>();
 const CLEANUP_INTERVAL = 120_000;
 let lastCleanup = Date.now();
-
-function cleanupRateLimit() {
-  const now = Date.now();
-  if (now - lastCleanup < CLEANUP_INTERVAL) return;
-  lastCleanup = now;
-  for (const [ip, entry] of loginAttempts) {
-    if (entry.expires <= now) loginAttempts.delete(ip);
-  }
-}
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
@@ -37,28 +32,59 @@ function timingSafeEqual(a: string, b: string): boolean {
   return result === 0;
 }
 
-function checkRateLimit(ip: string): boolean {
+async function checkRateLimitRedis(ip: string): Promise<boolean> {
+  const key = `admin_login:${ip}`;
+  const res = await fetch(`${UPSTASH_URL}/incr/${key}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+  });
+  const data = await res.json();
+  const count = data.result as number;
+  if (count === 1) {
+    await fetch(`${UPSTASH_URL}/expire/${key}/${RATE_LIMIT_WINDOW}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+    });
+  }
+  return count <= RATE_LIMIT_MAX;
+}
+
+function checkRateLimitMemory(ip: string): boolean {
   const now = Date.now();
+  if (now - lastCleanup > CLEANUP_INTERVAL) {
+    lastCleanup = now;
+    for (const [key, entry] of loginAttempts) {
+      if (entry.expires <= now) loginAttempts.delete(key);
+    }
+  }
   const entry = loginAttempts.get(ip);
   if (entry && entry.expires > now) {
     if (entry.count >= RATE_LIMIT_MAX) return false;
     entry.count++;
   } else {
-    loginAttempts.set(ip, { count: 1, expires: now + RATE_LIMIT_WINDOW });
+    loginAttempts.set(ip, { count: 1, expires: now + RATE_LIMIT_WINDOW * 1000 });
   }
   return true;
 }
 
+async function checkRateLimit(ip: string): Promise<boolean> {
+  if (UPSTASH_URL && UPSTASH_TOKEN) {
+    try {
+      return await checkRateLimitRedis(ip);
+    } catch {
+      return checkRateLimitMemory(ip);
+    }
+  }
+  return checkRateLimitMemory(ip);
+}
+
 export async function POST(request: NextRequest) {
-  cleanupRateLimit();
   const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     ?? request.headers.get("x-real-ip")
     ?? "unknown";
 
-  if (!checkRateLimit(clientIp)) {
+  if (!(await checkRateLimit(clientIp))) {
     return NextResponse.json(
       { success: false, message: "Too many login attempts. Please try again later.", code: "RATE_LIMITED" },
-      { status: 429, headers: { "Retry-After": "60" } },
+      { status: 429, headers: { "Retry-After": String(RATE_LIMIT_WINDOW) } },
     );
   }
 

@@ -117,7 +117,7 @@ export const useWishlistStore = create<WishlistState>()(
           const serverOnlyPushes: Promise<unknown>[] = [];
           for (const localItem of localItems) {
             if (!serverIds.has(localItem.id)) {
-              serverOnlyPushes.push(wishlistApi.add(localItem.id).catch(() => {}));
+              serverOnlyPushes.push(wishlistApi.add(localItem.id).catch((err) => console.error("[Wishlist] Failed to sync add:", err)));
             }
           }
           await Promise.allSettled(serverOnlyPushes);

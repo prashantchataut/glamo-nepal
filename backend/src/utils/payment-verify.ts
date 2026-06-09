@@ -55,23 +55,56 @@ export async function initiateKhaltiPayment(
   }
 }
 
+async function generateEsewaSignature(
+  totalAmount: string,
+  transactionUuid: string,
+  productCode: string,
+  secretKey: string,
+): Promise<string> {
+  const message = `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`
+  const encoder = new TextEncoder()
+  const keyData = encoder.encode(secretKey)
+  const key = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(message))
+  return btoa(String.fromCharCode(...new Uint8Array(signature)))
+}
+
 export function buildEsewaPayload(
   merchantCode: string,
   totalAmount: number,
   transactionUuid: string,
   isLive: boolean,
+  secretKey?: string,
 ): { url: string; payload: Record<string, string> } {
   const url = getEsewaUrl(isLive)
+  const totalAmountStr = String(totalAmount)
   const payload: Record<string, string> = {
     amount: String(totalAmount),
     tax_amount: '0',
-    total_amount: String(totalAmount),
+    total_amount: totalAmountStr,
     transaction_uuid: transactionUuid,
     product_code: merchantCode,
     product_service_charge: '0',
     product_delivery_charge: '0',
   }
+  if (isLive && secretKey) {
+    payload.signed_field_names = 'total_amount,transaction_uuid,product_code'
+  }
   return { url, payload }
+}
+
+export async function signEsewaPayload(
+  payload: Record<string, string>,
+  secretKey: string,
+): Promise<Record<string, string>> {
+  if (!payload.signed_field_names) return payload
+  const signature = await generateEsewaSignature(
+    payload.total_amount,
+    payload.transaction_uuid,
+    payload.product_code,
+    secretKey,
+  )
+  return { ...payload, signature }
 }
 
 export async function verifyKhaltiPayment(

@@ -130,8 +130,8 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             });
           }
 
-          useCartStore.getState().syncFromServer().catch(() => {});
-          useWishlistStore.getState().syncFromServer().catch(() => {});
+          useCartStore.getState().syncFromServer().catch((err) => console.error("[Auth] Cart sync failed:", err));
+          useWishlistStore.getState().syncFromServer().catch((err) => console.error("[Auth] Wishlist sync failed:", err));
           completedRef.current.add(syncKey);
         } catch (error) {
           console.error("Auth sync failed:", error);

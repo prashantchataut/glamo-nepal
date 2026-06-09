@@ -3,7 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import { getEnv } from '../../utils/env'
-import { initiateKhaltiPayment, buildEsewaPayload } from '../../utils/payment-verify'
+import { initiateKhaltiPayment, buildEsewaPayload, signEsewaPayload } from '../../utils/payment-verify'
 import * as OrderService from './order.service'
 
 export async function createOrder(c: Context<AppEnv>) {
@@ -202,14 +202,16 @@ export async function initiateEsewaPaymentController(c: Context<AppEnv>) {
     }
 
     const merchantCode = getEnv(c, 'ESEWA_MERCHANT_CODE')
+    const secretKey = getEnv(c, 'ESEWA_SECRET_KEY')
     const isLive = (getEnv(c, 'ESEWA_IS_LIVE') || process.env.ESEWA_IS_LIVE || 'false') === 'true'
 
     const totalAmount = order.totalAmount / 100
     const transactionUuid = order.orderNumber
 
-    const result = buildEsewaPayload(merchantCode, totalAmount, transactionUuid, isLive)
+    const { url, payload } = buildEsewaPayload(merchantCode, totalAmount, transactionUuid, isLive, secretKey)
+    const signedPayload = isLive && secretKey ? await signEsewaPayload(payload, secretKey) : payload
 
-    return ApiResponse.success(c, 'eSewa payment initiated', result)
+    return ApiResponse.success(c, 'eSewa payment initiated', { url, payload: signedPayload })
   } catch (error: any) {
     if (error instanceof AppError) return ApiResponse.error(c, error.message, error.statusCode)
     return ApiResponse.error(c, error.message || 'Failed to initiate eSewa payment', 500)

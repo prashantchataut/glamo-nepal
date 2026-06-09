@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { sendPasswordResetEmail } from "@/lib/firebase";
+import { authApi } from "@/lib/api/auth";
+import { GlamoApiError } from "@/lib/api/client";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -16,12 +17,19 @@ export function ForgotPasswordClient() {
     setError("");
     setIsLoading(true);
     try {
-      await sendPasswordResetEmail(email);
+      await authApi.forgotPassword(email);
       setSent(true);
       toast.success("If an account with that email exists, a reset link has been sent.");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to send reset email. Please try again.";
-      setError(message);
+      if (err instanceof GlamoApiError) {
+        if (err.status === 429) {
+          setError("Too many attempts. Please wait a few minutes and try again.");
+        } else {
+          setError(err.message || "Failed to send reset email. Please try again.");
+        }
+      } else {
+        setError("Failed to send reset email. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

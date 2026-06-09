@@ -512,11 +512,26 @@ export async function listOrders(filters: OrderFilterInput, db: Client, user?: {
     args: [...args, limit, skip],
   })
 
-  const orders = []
-  for (const row of dataResult.rows) {
-    const items = await getOrderItems((row as any).id as string, db)
-    orders.push(formatOrder(row, items))
+  const orderIds = dataResult.rows.map((row) => (row as any).id as string)
+  const allItemsResult = orderIds.length > 0
+    ? await db.execute({
+        sql: `SELECT * FROM order_items WHERE order_id IN (${orderIds.map(() => '?').join(', ')}) ORDER BY created_at ASC`,
+        args: orderIds,
+      })
+    : { rows: [] as any[] }
+
+  const itemsByOrderId = new Map<string, OrderItemRow[]>()
+  for (const itemRow of allItemsResult.rows) {
+    const item = itemRow as unknown as OrderItemRow
+    const existing = itemsByOrderId.get(item.order_id) || []
+    existing.push(item)
+    itemsByOrderId.set(item.order_id, existing)
   }
+
+  const orders = dataResult.rows.map((row) => {
+    const items = itemsByOrderId.get((row as any).id as string) || []
+    return formatOrder(row, items)
+  })
 
   return { orders, pagination: buildPaginationResult(total, page, limit) }
 }

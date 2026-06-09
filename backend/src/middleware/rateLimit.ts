@@ -1,7 +1,5 @@
-// Rate limiter using in-memory storage.
-// IMPORTANT: This is per-instance only. On serverless platforms (e.g., Netlify Functions),
-// each cold start gets a fresh store, so rate limiting is best-effort.
-// For production-grade rate limiting, use Turso-backed or external rate limiting.
+// Rate limiter with Upstash Redis for production, in-memory fallback for development.
+// Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN env vars for production.
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
 
@@ -19,16 +17,54 @@ export const RATE_LIMITS = {
 
 export type RateLimitConfig = { max: number; window: number; keyGenerator?: (c: Context<AppEnv>) => string }
 
-const rateLimitStore = new Map<string, { count: number; expires: number }>()
+interface RateLimitEntry {
+  count: number
+  expires: number
+}
+
+const memoryStore = new Map<string, RateLimitEntry>()
 
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of Array.from(rateLimitStore.entries())) {
-    if (entry.expires < now) {
-      rateLimitStore.delete(key)
-    }
+  for (const [key, entry] of Array.from(memoryStore.entries())) {
+    if (entry.expires < now) memoryStore.delete(key)
   }
 }, 60_000)
+
+async function redisIncrement(key: string, window: number, max: number, env: AppEnv['Bindings']): Promise<{ allowed: boolean; remaining: number }> {
+  const url = env.UPSTASH_REDIS_REST_URL
+  const token = env.UPSTASH_REDIS_REST_TOKEN
+  if (!url || !token) return { allowed: true, remaining: max }
+
+  try {
+    const pipeline = [
+      ['INCR', key],
+      ['EXPIRE', key, window],
+    ]
+    const res = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(pipeline),
+    })
+    if (!res.ok) return { allowed: true, remaining: max }
+    const data = await res.json() as { result?: [number?, ...unknown[]] }
+    const count = typeof data?.result?.[0] === 'number' ? data.result[0] : 0
+    return { allowed: count <= max, remaining: Math.max(0, max - count) }
+  } catch {
+    return { allowed: true, remaining: max }
+  }
+}
+
+function memoryIncrement(key: string, window: number, max: number): { allowed: boolean; remaining: number } {
+  const now = Date.now()
+  const entry = memoryStore.get(key)
+  let count = 0
+  if (entry && entry.expires > now) count = entry.count
+  if (count >= max) return { allowed: false, remaining: 0 }
+  const newCount = count + 1
+  memoryStore.set(key, { count: newCount, expires: now + window * 1000 })
+  return { allowed: true, remaining: max - newCount }
+}
 
 export function rateLimit(config: RateLimitConfig) {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
@@ -39,28 +75,19 @@ export function rateLimit(config: RateLimitConfig) {
       })
 
       const key = keyGenerator(c)
-      const now = Date.now()
-      const entry = rateLimitStore.get(key)
+      const env = c.env
 
-      let count = 0
-      if (entry && entry.expires > now) {
-        count = entry.count
-      }
-
-      if (count >= config.max) {
-        c.header('Retry-After', String(config.window))
-        return c.json({
-          success: false,
-          message: 'Too many requests, please try again later',
-          errors: [],
-        }, 429)
-      }
-
-      const newCount = count + 1
-      rateLimitStore.set(key, { count: newCount, expires: now + config.window * 1000 })
+      const result = env?.UPSTASH_REDIS_REST_URL
+        ? await redisIncrement(key, config.window, config.max, env)
+        : memoryIncrement(key, config.window, config.max)
 
       c.header('X-RateLimit-Limit', String(config.max))
-      c.header('X-RateLimit-Remaining', String(config.max - newCount))
+      c.header('X-RateLimit-Remaining', String(result.remaining))
+
+      if (!result.allowed) {
+        c.header('Retry-After', String(config.window))
+        return c.json({ success: false, message: 'Too many requests, please try again later', errors: [] }, 429)
+      }
     } catch (err) {
       console.warn('Rate limiting error, allowing request:', err)
     }

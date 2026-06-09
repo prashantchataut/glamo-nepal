@@ -19,6 +19,8 @@ export function getFullEnv(c: Context<AppEnv>): AppEnv['Bindings'] {
     ESEWA_SECRET_KEY: getEnv(c, 'ESEWA_SECRET_KEY'),
     ESEWA_MERCHANT_CODE: getEnv(c, 'ESEWA_MERCHANT_CODE'),
     ESEWA_IS_LIVE: getEnv(c, 'ESEWA_IS_LIVE') || 'false',
+    UPSTASH_REDIS_REST_URL: getEnv(c, 'UPSTASH_REDIS_REST_URL'),
+    UPSTASH_REDIS_REST_TOKEN: getEnv(c, 'UPSTASH_REDIS_REST_TOKEN'),
     FRONTEND_URL: getEnv(c, 'FRONTEND_URL') || 'http://localhost:3000',
     FREE_SHIPPING_THRESHOLD: getEnv(c, 'FREE_SHIPPING_THRESHOLD') || '2500',
     COD_FEE: getEnv(c, 'COD_FEE') || '50',

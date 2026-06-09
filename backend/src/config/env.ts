@@ -13,6 +13,8 @@ const envSchema = z.object({
   ESEWA_SECRET_KEY: z.string().optional().default(''),
   ESEWA_MERCHANT_CODE: z.string().optional().default(''),
   ESEWA_IS_LIVE: z.string().optional().default('false'),
+  UPSTASH_REDIS_REST_URL: z.string().optional().default(''),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional().default(''),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   FREE_SHIPPING_THRESHOLD: z.string().default('2500'),
   COD_FEE: z.string().default('50'),

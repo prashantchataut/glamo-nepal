@@ -39,7 +39,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
           url: window.location.href,
           timestamp: new Date().toISOString(),
         }),
-      }).catch(() => {});
+      }).catch((err) => console.error("[ErrorBoundary] Failed to report error:", err));
     }
   }
 

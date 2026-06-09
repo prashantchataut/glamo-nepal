@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { confirmPasswordReset, isFirebaseConfigured } from "@/lib/firebase";
+import { authApi } from "@/lib/api/auth";
+import { GlamoApiError } from "@/lib/api/client";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -28,28 +29,28 @@ export function ResetPasswordClient() {
       return;
     }
 
-    const oobCode = searchParams.get("oobCode");
-    if (!oobCode) {
+    const token = searchParams.get("token");
+    if (!token) {
       setError("Invalid or expired password reset link. Please request a new one.");
       return;
     }
 
     setIsLoading(true);
     try {
-      if (!isFirebaseConfigured) {
-        setError("Authentication is not available. Please try again later.");
-        setIsLoading(false);
-        return;
-      }
-      await confirmPasswordReset(oobCode, newPassword);
+      await authApi.resetPassword(token, newPassword);
       setSuccess(true);
       toast.success("Password reset successfully!");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to reset password. The link may have expired.";
-      if (message.includes("expired") || message.includes("invalid")) {
-        setError("This password reset link has expired. Please request a new one.");
+      if (err instanceof GlamoApiError) {
+        if (err.status === 429) {
+          setError("Too many attempts. Please wait a few minutes and try again.");
+        } else if (err.code === "INVALID_TOKEN") {
+          setError("This password reset link has expired. Please request a new one.");
+        } else {
+          setError(err.message || "Failed to reset password. Please try again.");
+        }
       } else {
-        setError(message);
+        setError("Failed to reset password. The link may have expired.");
       }
     } finally {
       setIsLoading(false);

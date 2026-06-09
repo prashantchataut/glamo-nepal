@@ -70,3 +70,82 @@ export async function updateProfile(c: Context<AppEnv>) {
 export async function logout(c: Context<AppEnv>) {
   return ApiResponse.success(c, 'Logged out successfully', null)
 }
+
+export async function forgotPassword(c: Context<AppEnv>) {
+  try {
+    const data = c.get('validatedBody') as { email: string }
+    const db = c.get('db')
+    const env = c.env
+
+    const result = await db.execute({
+      sql: "SELECT id, email, first_name FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
+      args: [data.email.toLowerCase()],
+    })
+
+    if (result.rows.length === 0) {
+      return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
+    }
+
+    const user = result.rows[0]
+    const resetToken = crypto.randomUUID()
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+
+    await db.execute({
+      sql: `INSERT INTO password_resets (id, user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?, datetime('now'))`,
+      args: [crypto.randomUUID(), (user as any).id, resetToken, expiresAt],
+    }).catch(() => {
+      return db.execute({
+        sql: "UPDATE password_resets SET token = ?, expires_at = ?, created_at = datetime('now') WHERE user_id = ?",
+        args: [resetToken, expiresAt, (user as any).id],
+      })
+    })
+
+    if (env.RESEND_API_KEY) {
+      const { sendPasswordReset } = await import('../../utils/email')
+      await sendPasswordReset((user as any).email, resetToken, env)
+    }
+
+    return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
+  } catch (error: any) {
+    console.error('Forgot password error:', error)
+    return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
+  }
+}
+
+export async function resetPassword(c: Context<AppEnv>) {
+  try {
+    const data = c.get('validatedBody') as { password: string; token: string }
+    const db = c.get('db')
+    const { token, password } = data
+
+    const resetResult = await db.execute({
+      sql: "SELECT * FROM password_resets WHERE token = ? AND expires_at > datetime('now') AND used_at IS NULL LIMIT 1",
+      args: [token],
+    })
+
+    if (resetResult.rows.length === 0) {
+      return ApiResponse.error(c, 'Invalid or expired reset token', 400, ['INVALID_TOKEN'])
+    }
+
+    const reset = resetResult.rows[0] as any
+    const bcrypt = await import('bcryptjs')
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    await db.execute({
+      sql: "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [hashedPassword, reset.user_id],
+    })
+
+    await db.execute({
+      sql: "UPDATE password_resets SET used_at = datetime('now') WHERE id = ?",
+      args: [reset.id],
+    })
+
+    return ApiResponse.success(c, 'Password has been reset successfully.', null)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode, error.code ? [error.code] : [])
+    }
+    return ApiResponse.error(c, error.message || 'Password reset failed', 500)
+  }
+}

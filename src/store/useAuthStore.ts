@@ -54,7 +54,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         await fetch(`/api/v1/auth/logout`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        }).catch(() => {});
+        }).catch((err) => console.error("[Auth] Logout request failed:", err));
       }
     } catch {}
     if (typeof document !== "undefined") {

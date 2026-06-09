@@ -13,6 +13,8 @@ export interface NetlifyBindings {
   ESEWA_SECRET_KEY: string
   ESEWA_MERCHANT_CODE: string
   ESEWA_IS_LIVE: string
+  UPSTASH_REDIS_REST_URL: string
+  UPSTASH_REDIS_REST_TOKEN: string
   FRONTEND_URL: string
   FREE_SHIPPING_THRESHOLD: string
   COD_FEE: string

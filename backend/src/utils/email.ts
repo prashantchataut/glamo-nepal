@@ -191,4 +191,17 @@ export function lowStockAlert(
   `)
 }
 
+export async function sendPasswordReset(email: string, token: string, env: NetlifyBindings): Promise<void> {
+  const resetUrl = `${env.FRONTEND_URL || 'https://glamonepal.com'}/reset-password?token=${token}`
+  const html = baseTemplate(`
+    <h2 style="margin:0 0 16px;color:#333;font-size:22px;">Reset Your Password</h2>
+    <p style="margin:0 0 24px;color:#666;font-size:15px;">We received a request to reset your GLAMO Nepal account password. Click the button below to set a new password:</p>
+    <a href="${resetUrl}" style="display:inline-block;background-color:#c8553d;color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:600;margin:0 0 24px;">Reset Password</a>
+    <p style="margin:0 0 12px;color:#999;font-size:13px;">This link expires in 1 hour. If you did not request a password reset, you can safely ignore this email.</p>
+    <p style="margin:0;color:#999;font-size:13px;">If the button above does not work, copy and paste this URL into your browser:</p>
+    <p style="margin:4px 0 0;word-break:break-all;color:#c8553d;font-size:13px;">${resetUrl}</p>
+  `)
+  await sendEmail(email, 'Reset Your GLAMO Nepal Password', html, env)
+}
+
 export { sendEmail }

@@ -111,7 +111,7 @@ export const useCartStore = create<CartState>()(
         if (result.ok && isLoggedIn()) {
           cartApi
             .add(product.id, quantity, selectedShade)
-            .catch(() => {});
+            .catch((err) => console.error("[Cart] Failed to sync add:", err));
         }
 
         return result;
@@ -135,7 +135,7 @@ export const useCartStore = create<CartState>()(
         if (isLoggedIn()) {
           const serverId = get()._serverItemIds.get(itemKey(productId, selectedShade));
           if (serverId) {
-            cartApi.remove(serverId).catch(() => {});
+            cartApi.remove(serverId).catch((err) => console.error("[Cart] Failed to sync remove:", err));
           }
         }
       },
@@ -172,7 +172,7 @@ export const useCartStore = create<CartState>()(
         if (result.ok && isLoggedIn()) {
           const serverId = get()._serverItemIds.get(itemKey(productId, selectedShade));
           if (serverId) {
-            cartApi.update(serverId, quantity).catch(() => {});
+            cartApi.update(serverId, quantity).catch((err) => console.error("[Cart] Failed to sync update:", err));
           }
         }
 
@@ -182,7 +182,7 @@ export const useCartStore = create<CartState>()(
       clearCart: () => {
         set({ items: [] });
         if (isLoggedIn()) {
-          cartApi.clear().catch(() => {});
+          cartApi.clear().catch((err) => console.error("[Cart] Failed to sync clear:", err));
         }
       },
 
