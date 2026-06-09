@@ -70,6 +70,7 @@ export function Navbar() {
   const user = useAuthStore((state) => state.user);
   const authLoading = useAuthStore((state) => state.isLoading);
   const logout = useAuthStore((state) => state.logout);
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 6);
@@ -139,12 +140,25 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-navbar border-b transition-colors duration-300",
-          isScrolled ? "border-[#e9dfd8] bg-[#fffaf7]/98 shadow-nav" : "border-[#ead8e8] bg-[#f7e5f5]",
+          "sticky top-0 z-navbar transition-all duration-300",
+          isHome
+            ? cn(
+                "border-b border-[#f0dce5]/60 bg-[#fff7f9]/90 backdrop-blur-xl",
+                isScrolled && "bg-[#fffaf7]/95 shadow-[0_18px_50px_-44px_rgba(53,19,29,0.45)]",
+              )
+            : cn(
+                "border-b",
+                isScrolled ? "border-[#e9dfd8] bg-[#fffaf7]/98 shadow-nav" : "border-[#ead8e8] bg-[#f7e5f5]",
+              ),
         )}
       >
-        <div className="mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8">
-          <div className="grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]">
+        <div className={cn("mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8", isHome && "py-2.5 lg:py-3")}>
+          <div
+            className={cn(
+              "grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]",
+              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-[0_24px_70px_-58px_rgba(53,19,29,0.45)] ring-1 ring-[#f7d3dd]/50 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
+            )}
+          >
             <nav className="hidden items-center gap-6 xl:gap-8 lg:flex" aria-label="Primary navigation">
               {PRIMARY_LINKS.map((link) => {
                 const active = isActivePath(pathname, link.href);
@@ -153,8 +167,16 @@ export function Navbar() {
                     key={link.name}
                     href={link.href}
                     className={cn(
-                      "font-body relative text-[12px] font-medium uppercase tracking-[0.18em] transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:bg-primary after:transition-all after:duration-300 hover:text-primary",
-                      active ? "text-neutral-950 after:w-full" : "text-neutral-600 after:w-0 hover:after:w-full",
+                      "font-body relative text-[12px] font-medium uppercase tracking-[0.18em] transition-colors after:absolute after:h-px after:bg-primary after:transition-all after:duration-300 hover:text-primary",
+                      isHome
+                        ? cn(
+                            "rounded-full px-3 py-2 tracking-[0.16em] after:bottom-1 after:left-3",
+                            active ? "bg-[#fdecef] text-[#35131d] after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-[#fff7f9] hover:after:w-[calc(100%-1.5rem)]",
+                          )
+                        : cn(
+                            "after:-bottom-1.5 after:left-0",
+                            active ? "text-neutral-950 after:w-full" : "text-neutral-600 after:w-0 hover:after:w-full",
+                          ),
                     )}
                   >
                     {link.name}
@@ -165,7 +187,10 @@ export function Navbar() {
 
             <button
               type="button"
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden"
+              className={cn(
+                "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden",
+                isHome && "bg-white/75 ring-1 ring-[#f7d3dd]/70 hover:bg-[#fff7f9]",
+              )}
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
             >
@@ -174,66 +199,89 @@ export function Navbar() {
 
             <Link
               href="/"
-              className="font-display justify-self-center text-[26px] font-semibold uppercase leading-none tracking-[0.32em] text-neutral-950 transition-colors hover:text-primary sm:text-[28px]"
+              className={cn(
+                "font-display justify-self-center text-[26px] font-semibold uppercase leading-none tracking-[0.32em] text-neutral-950 transition-colors hover:text-primary sm:text-[28px]",
+                isHome && "text-[#35131d] drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]",
+              )}
               aria-label="GLAMO Nepal home"
             >
               <span className="pl-[0.32em]">GLAMO</span>
             </Link>
 
-<div className="flex items-center justify-end gap-1.5">
-               <button
-                 type="button"
-                 onClick={openSearchModal}
-                 className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
-                 aria-label="Search products"
-               >
-                 <Search size={18} strokeWidth={1.7} />
-               </button>
-               <Link
-                 href="/wishlist"
-                 className="relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex"
-                 aria-label="Wishlist"
-               >
-                 <Heart size={18} strokeWidth={1.7} />
-<CountBubble count={wishlistCount} label="Wishlist items" />
+            <div className="flex items-center justify-end gap-1.5">
+              <button
+                type="button"
+                onClick={openSearchModal}
+                className={cn(
+                  "flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
+                  isHome && "border border-[#f7d3dd]/70 bg-white/80 px-3 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)] lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
+                )}
+                aria-label="Search products"
+              >
+                <Search size={18} strokeWidth={1.7} />
+                {isHome ? (
+                  <span className="hidden font-body text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 lg:inline">
+                    Find your glow
+                  </span>
+                ) : null}
+              </button>
+              <Link
+                href="/wishlist"
+                className={cn(
+                  "relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex",
+                  isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                )}
+                aria-label="Wishlist"
+              >
+                <Heart size={18} strokeWidth={1.7} />
+                <CountBubble count={wishlistCount} label="Wishlist items" />
+              </Link>
+              {!authReady ? (
+                <span className="hidden h-10 w-10 md:block" aria-hidden="true" />
+              ) : user ? (
+                <Link
+                  href="/account"
+                  className={cn(
+                    "hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
+                    isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                  )}
+                  aria-label={`Account, signed in as ${firstName}`}
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-body text-[11px] font-semibold uppercase tracking-wide text-white">
+                    {initialsOf(user.name, user.email || user.phone)}
+                  </span>
+                  <span className="font-body hidden max-w-[7rem] truncate text-[12px] font-medium tracking-[0.04em] lg:inline">
+                    {firstName}
+                  </span>
                 </Link>
-                {!authReady ? (
-                  <span className="hidden h-10 w-10 md:block" aria-hidden="true" />
-                ) : user ? (
-                 <Link
-                   href="/account"
-                   className="hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex"
-                   aria-label={`Account, signed in as ${firstName}`}
-                 >
-                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-body text-[11px] font-semibold uppercase tracking-wide text-white">
-                     {initialsOf(user.name, user.email || user.phone)}
-                   </span>
-                   <span className="font-body hidden max-w-[7rem] truncate text-[12px] font-medium tracking-[0.04em] lg:inline">
-                     {firstName}
-                   </span>
-                 </Link>
-               ) : (
-                 <Link
-                   href="/login"
-                   className="font-body hidden min-h-10 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex"
-                   aria-label="Sign in"
-                 >
-                   <User size={18} strokeWidth={1.7} />
-                   <span className="hidden lg:inline">Sign in</span>
-                 </Link>
-               )}
-               <Link
-                 href="/cart"
-                 className="relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary"
-                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
-               >
-                 <ShoppingBag size={19} strokeWidth={1.7} />
-<CountBubble count={cartCount} label="Cart items" />
+              ) : (
+                <Link
+                  href="/login"
+                  className={cn(
+                    "font-body hidden min-h-10 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
+                    isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                  )}
+                  aria-label="Sign in"
+                >
+                  <User size={18} strokeWidth={1.7} />
+                  <span className="hidden lg:inline">Sign in</span>
                 </Link>
-             </div>
+              )}
+              <Link
+                href="/cart"
+                className={cn(
+                  "relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
+                  isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                )}
+                aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
+              >
+                <ShoppingBag size={19} strokeWidth={1.7} />
+                <CountBubble count={cartCount} label="Cart items" />
+              </Link>
+            </div>
           </div>
 
-          <div className="pb-3 lg:pb-4">
+          <div className={cn("pb-3 lg:pb-4", isHome && "hidden")}>
             <button
               type="button"
               onClick={openSearchModal}
