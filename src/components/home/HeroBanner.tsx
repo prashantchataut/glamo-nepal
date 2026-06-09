@@ -5,10 +5,10 @@ import { IMAGES } from "@/lib/image-library";
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#FFF5F8] to-white pt-8 pb-20 lg:pt-20 lg:pb-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-brand-primary-light/30 to-white pt-8 pb-20 lg:pt-20 lg:pb-32">
       {/* Background Decor */}
       <div className="absolute -top-[20%] -right-[10%] z-0 h-[600px] w-[600px] rounded-full bg-brand-primary-light/60 blur-3xl" aria-hidden="true" />
-      <div className="absolute -bottom-[10%] -left-[10%] z-0 h-[400px] w-[400px] rounded-full bg-[#F7D3DD]/40 blur-3xl" aria-hidden="true" />
+      <div className="absolute -bottom-[10%] -left-[10%] z-0 h-[400px] w-[400px] rounded-full bg-brand-accentLight/40 blur-3xl" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
@@ -36,13 +36,13 @@ export function HeroBanner() {
               </Link>
               <Link
                 href="/routines"
-                className="inline-flex h-14 items-center justify-center gap-3 rounded-full border border-[#E8E4DF] bg-white px-8 text-xs font-bold uppercase tracking-[0.18em] text-brand-bgDark transition-all duration-300 hover:border-[#D97898] hover:text-brand-primary"
+                className="inline-flex h-14 items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white px-8 text-xs font-bold uppercase tracking-[0.18em] text-brand-bgDark transition-all duration-300 hover:border-brand-primary hover:text-brand-primary"
               >
                 View Routines
               </Link>
             </div>
             
-            <div className="mt-14 grid grid-cols-2 gap-6 border-t border-[#F5F3F0] pt-8 sm:grid-cols-3">
+            <div className="mt-14 grid grid-cols-2 gap-6 border-t border-neutral-100 pt-8 sm:grid-cols-3">
               <div className="flex flex-col items-center lg:items-start">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary-hover">
                   <ShieldCheck size={18} />
@@ -83,7 +83,7 @@ export function HeroBanner() {
             
             {/* Floating Product Card */}
             <div className="absolute -bottom-6 -left-4 z-20 flex w-72 items-center gap-4 rounded-[2rem] bg-white/95 p-4 shadow-[0_20px_50px_-10px_rgba(53,19,29,0.1)] backdrop-blur-md sm:-left-12 lg:-bottom-10 lg:-left-16">
-              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[1.2rem] bg-[#F5F3F0]">
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[1.2rem] bg-neutral-100">
                 <Image
                   src={IMAGES.heroProducts.cosrx}
                   alt="Featured serum"
@@ -97,7 +97,7 @@ export function HeroBanner() {
                 <p className="mt-1 font-display text-[1.35rem] font-semibold leading-tight text-brand-bgDark">Botanical Serum</p>
                 <Link 
                   href="/shop" 
-                  className="mt-2 flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary-hover transition hover:bg-[#AD4B64] hover:text-white"
+                  className="mt-2 flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary-hover transition hover:bg-brand-primary-hover hover:text-white"
                   aria-label="Shop Botanical Serum"
                 >
                   <ArrowRight size={14} />

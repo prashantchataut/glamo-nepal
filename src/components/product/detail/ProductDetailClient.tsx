@@ -210,7 +210,7 @@ export default function ProductDetailClient({
           </div>
 
           <div
-            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-[#f8f0ec] shadow-editorial lg:order-2 lg:cursor-zoom-in"
+            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-brand-surfaceWarm shadow-editorial lg:order-2 lg:cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleZoom}
