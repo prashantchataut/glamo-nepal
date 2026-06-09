@@ -59,7 +59,6 @@ export function ProfileForm() {
       return;
     }
     void fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initials = (name || user?.phone || "Glamo customer")
@@ -85,84 +84,100 @@ export function ProfileForm() {
 
   if (initialLoading && isFetching) {
     return (
-      <div className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
-        <div className="flex flex-col gap-5 border-b border-border/70 pb-6 sm:flex-row sm:items-center">
+      <div className="space-y-6">
+        <div className="flex items-center gap-5">
           <div className="h-20 w-20 animate-pulse rounded-full bg-brand-bgLight" />
-          <div className="space-y-2">
-            <div className="h-7 w-48 animate-pulse rounded-2xl bg-brand-bgLight" />
-            <div className="h-4 w-64 animate-pulse rounded-2xl bg-brand-bgLight" />
+          <div className="space-y-3">
+            <div className="h-6 w-40 animate-pulse rounded-xl bg-brand-bgLight" />
+            <div className="h-4 w-56 animate-pulse rounded-xl bg-brand-bgLight" />
           </div>
         </div>
-        <div className="mt-6 space-y-5">
-          <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
-          <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
-          <div className="h-12 animate-pulse rounded-2xl bg-brand-bgLight" />
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="h-14 animate-pulse rounded-2xl bg-brand-bgLight" />
+          <div className="h-14 animate-pulse rounded-2xl bg-brand-bgLight" />
+          <div className="h-14 animate-pulse rounded-2xl bg-brand-bgLight" />
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
-      <div className="flex flex-col gap-5 border-b border-border/70 pb-6 sm:flex-row sm:items-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-primary/10 font-display text-2xl font-semibold text-brand-primary">
+    <form onSubmit={submit} className="space-y-8">
+      <div className="flex items-center gap-5">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 font-display text-2xl font-semibold text-primary ring-1 ring-primary/10">
           {initials}
         </div>
         <div>
-          <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">Profile details</h2>
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-brand-textPrimary md:text-3xl">Profile details</h2>
           <p className="mt-1 text-sm text-brand-textMuted">Keep your contact details up to date.</p>
         </div>
       </div>
 
       {loadError && (
-        <div role="alert" className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-error/30 bg-error/5 px-4 py-3">
+        <div role="alert" className="flex items-center justify-between gap-3 rounded-2xl border border-error/20 bg-error/5 px-5 py-4">
           <p className="text-sm text-error">Could not load your profile.</p>
           <button
             type="button"
             onClick={() => void fetchProfile()}
-            className="shrink-0 text-xs font-semibold uppercase tracking-[0.14em] text-error underline-offset-4 hover:underline"
+            className="shrink-0 rounded-full border border-error/25 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-error transition-colors hover:bg-error/10"
           >
-            Try again
+            Retry
           </button>
         </div>
       )}
 
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <label className="text-sm font-semibold text-brand-textPrimary">
-          Full name
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="profile-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-textMuted">
+            Full name
+          </label>
           <input
+            id="profile-name"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(e) => setName(e.target.value)}
             disabled={isSaving || isFetching}
-            className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-brand-textPrimary outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Your name"
           />
-        </label>
-        <label className="text-sm font-semibold text-brand-textPrimary">
-          Email{isGoogleOnly ? " (managed by Google)" : " (optional)"}
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="profile-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-textMuted">
+            Email{isGoogleOnly ? " (managed by Google)" : ""}
+          </label>
           <input
+            id="profile-email"
             value={email}
-            onChange={isGoogleOnly ? undefined : (event) => setEmail(event.target.value)}
+            onChange={isGoogleOnly ? undefined : (e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             disabled={isSaving || isFetching || isGoogleOnly}
-            className="mt-2 w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 outline-none focus:ring-2 focus:ring-brand-primary/25 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-brand-textPrimary outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
           />
-        </label>
-        <label className="text-sm font-semibold text-brand-textPrimary">
-          Phone
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="profile-phone" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-textMuted">
+            Phone
+          </label>
           <input
+            id="profile-phone"
             value={user?.phone || ""}
             readOnly
             placeholder="+977 98XXXXXXXX"
-            className="mt-2 w-full cursor-not-allowed rounded-2xl border border-border bg-brand-bgLight px-4 py-3 text-brand-textMuted outline-none"
+            className="w-full cursor-not-allowed rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 text-[15px] text-brand-textMuted outline-none"
           />
-        </label>
+        </div>
       </div>
-      <button
-        disabled={isSaving || isFetching}
-        className="mt-7 rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark disabled:opacity-60"
-      >
-        {isSaving ? "Saving..." : "Save profile"}
-      </button>
+      <div className="flex items-center gap-4 pt-2">
+        <button
+          type="submit"
+          disabled={isSaving || isFetching}
+          className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {isSaving ? "Saving..." : "Save profile"}
+        </button>
+        {isSaving && (
+          <span className="text-sm text-brand-textMuted">Updating your details...</span>
+        )}
+      </div>
     </form>
   );
 }

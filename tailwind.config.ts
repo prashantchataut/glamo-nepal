@@ -25,10 +25,10 @@ const config: Config = {
     extend: {
       fontFamily: {
         display: ['var(--font-display)', 'Playfair Display', 'Georgia', 'serif'],
-        body: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
-        label: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        body: ['var(--font-body)', 'Outfit', 'system-ui', 'sans-serif'],
+        label: ['var(--font-body)', 'Outfit', 'system-ui', 'sans-serif'],
         serif: ['var(--font-display)', 'Playfair Display', 'Georgia', 'serif'],
-        sans: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-body)', 'Outfit', 'system-ui', 'sans-serif'],
       },
       colors: {
         rose: {

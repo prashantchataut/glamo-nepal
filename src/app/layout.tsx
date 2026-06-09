@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Outfit, Playfair_Display } from "next/font/google";
 import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
@@ -9,7 +9,7 @@ import { FirebaseAuthProvider } from "@/components/auth/FirebaseAuthProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
@@ -59,7 +59,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable}`}
+      className={`${outfit.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
         <FirebaseAuthProvider>

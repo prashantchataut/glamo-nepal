@@ -45,41 +45,41 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
 
   if (isLoading || user === null) {
     return (
-      <div className="min-h-screen bg-brand-bgLight flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" aria-label="Loading account" />
+      <div className="flex min-h-screen items-center justify-center bg-brand-bgLight">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Loading account" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-brand-bgLight pb-20 md:pb-0">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <nav className="lg:hidden flex overflow-x-auto gap-1 pb-4 no-scrollbar" aria-label="Account navigation">
+      <div className="mx-auto max-w-[1480px] px-4 py-8 sm:px-6 md:py-12 lg:px-8">
+        <nav className="flex gap-1.5 overflow-x-auto pb-4 no-scrollbar lg:hidden" aria-label="Account navigation">
           {navLinks.map(({ name, href, icon: Icon }) => {
             const active = pathname === href || (href !== "/account" && pathname.startsWith(href));
             return (
-              <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition", active ? "bg-brand-primary text-white" : "bg-white text-brand-textMuted hover:text-brand-primary")}>
+              <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200", active ? "bg-neutral-950 text-white shadow-sm" : "bg-white text-brand-textMuted ring-1 ring-neutral-200/80 hover:text-brand-primary")}>
                 <Icon size={16} strokeWidth={1.7} />
                 {name}
               </Link>
             );
           })}
         </nav>
-        <div className="grid gap-8 lg:grid-cols-[18rem_1fr]">
+        <div className="grid gap-8 lg:grid-cols-[17rem_1fr]">
           <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
-            <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-white shadow-sm">
-              <div className="bg-brand-bgLight p-6 text-brand-textPrimary">
+            <div className="overflow-hidden rounded-[1.75rem] border border-neutral-200/80 bg-white shadow-sm">
+              <div className="bg-gradient-to-br from-brand-bgLight to-white p-6">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white font-display text-xl font-semibold text-brand-primary ring-1 ring-brand-border">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 font-display text-lg font-semibold text-primary ring-1 ring-primary/10">
                     {(user?.name || user?.phone || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">{user?.name || "Your GLAMO account"}</p>
-                    <p className="truncate text-xs text-brand-textMuted">{user?.email || user?.phone || "GLAMO customer"}</p>
+                    <p className="truncate font-display text-base font-semibold text-brand-textPrimary">{user?.name || "Your GLAMO account"}</p>
+                    <p className="truncate text-[13px] text-brand-textMuted">{user?.email || user?.phone || "GLAMO customer"}</p>
                   </div>
                 </div>
               </div>
-              <nav className="grid gap-1 p-3" aria-label="Account navigation">
+              <nav className="grid gap-0.5 p-2" aria-label="Account navigation">
                 {navLinks.map(({ name, href, icon: Icon }) => {
                   const active = pathname === href || (href !== "/account" && pathname.startsWith(href));
                   return (
@@ -87,11 +87,11 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                       key={href}
                       href={href}
                       className={cn(
-                        "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
-                        active ? "bg-brand-primary text-white shadow-sm" : "text-brand-textMuted hover:bg-brand-bgLight hover:text-brand-primary",
+                        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20",
+                        active ? "bg-neutral-950 text-white" : "text-brand-textMuted hover:bg-neutral-50 hover:text-brand-textPrimary",
                       )}
                     >
-                      <Icon size={18} strokeWidth={1.7} />
+                      <Icon size={17} strokeWidth={1.7} />
                       {name}
                     </Link>
                   );
@@ -99,9 +99,9 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="mt-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200"
+                  className="mt-1 flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-medium text-red-500 transition-all duration-200 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200"
                 >
-                  <LogOut size={18} strokeWidth={1.7} />
+                  <LogOut size={17} strokeWidth={1.7} />
                   Logout
                 </button>
               </nav>

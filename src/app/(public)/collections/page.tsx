@@ -13,30 +13,50 @@ export const metadata = createMetadata({
 
 export default function CollectionsPage() {
   return (
-    <main className="min-h-screen bg-brand-bgLight pb-20 md:pb-0">
+    <main className="min-h-screen bg-white pb-20 md:pb-0">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Collections", path: "/collections" }])} />
-      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_48%,#F7F1EA_100%)] py-10 md:py-14">
-        <div className="container mx-auto px-4 md:px-6">
+
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-bgLight via-white to-white">
+        <div className="mx-auto max-w-[1480px] px-4 py-14 md:px-8 md:py-20 lg:py-24">
           <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Curated edits</p>
-          <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">Collections</h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">Explore curated beauty collections designed for every mood, routine, and occasion.</p>
+          <h1 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-brand-textPrimary md:text-7xl lg:text-8xl">
+            Collections
+          </h1>
+          <p className="mt-5 max-w-lg text-base leading-8 text-brand-textMuted md:mt-6 md:text-lg">
+            Explore curated beauty collections designed for every mood, routine, and occasion.
+          </p>
         </div>
       </section>
-      <section className="container mx-auto px-4 py-10 md:px-6 md:py-14">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+
+      <section className="mx-auto max-w-[1480px] px-4 pb-16 pt-4 md:px-8 md:pb-24 md:pt-6">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {PRODUCT_COLLECTIONS.map((collection) => {
             const productCount = getCollectionProducts(collection.slug).length;
             return (
-              <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-primary/30 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none">
+              <Link
+                key={collection.slug}
+                href={`/collections/${collection.slug}`}
+                className="group overflow-hidden rounded-[1.75rem] border border-neutral-200/70 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none"
+              >
                 <div className="relative aspect-[16/10] overflow-hidden">
-                  <Image src={collection.image} alt={collection.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-bgDark/40 via-transparent to-transparent" />
+                  <Image
+                    src={collection.image}
+                    alt={collection.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                 </div>
-                <div className="p-6">
-                  <p className="font-label text-xs font-bold uppercase tracking-[0.2em] text-brand-primary">{collection.eyebrow}</p>
-                  <h2 className="mt-2 font-display text-2xl font-semibold text-brand-textPrimary group-hover:text-brand-primary transition-colors">{collection.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-brand-textMuted line-clamp-2">{collection.description}</p>
-                  <p className="mt-3 text-xs font-semibold text-brand-primary">{productCount} products</p>
+                <div className="p-6 pb-7">
+                  <p className="font-label text-[10px] font-bold uppercase tracking-[0.22em] text-brand-primary">{collection.eyebrow}</p>
+                  <h2 className="mt-2.5 font-display text-[1.375rem] font-semibold leading-snug text-brand-textPrimary transition-colors duration-200 group-hover:text-brand-primary">
+                    {collection.title}
+                  </h2>
+                  <p className="mt-2 text-[13px] leading-6 text-brand-textMuted line-clamp-2">{collection.description}</p>
+                  <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-primary">
+                    {productCount} product{productCount === 1 ? "" : "s"}
+                  </p>
                 </div>
               </Link>
             );

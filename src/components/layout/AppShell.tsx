@@ -46,7 +46,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main id="main-content" className="min-h-screen bg-neutral-50">
           {children}
         </main>
-        <Toaster richColors position="top-center" />
+<Toaster position="top-center" toastOptions={{ duration: 3500, style: { borderRadius: '1rem', padding: '0.75rem 1.25rem', fontSize: '0.875rem', fontWeight: 500, boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)', maxWidth: '420px', width: 'auto' } }} />
       </>
     );
   }
@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <CompareTray />
       <WhatsAppFloatingButton />
       <BackToTopButton />
-      <Toaster richColors position="top-center" />
+      <Toaster position="top-center" toastOptions={{ duration: 3500, style: { borderRadius: '1rem', padding: '0.75rem 1.25rem', fontSize: '0.875rem', fontWeight: 500, boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)', maxWidth: '420px', width: 'auto' } }} />
     </>
   );
 }

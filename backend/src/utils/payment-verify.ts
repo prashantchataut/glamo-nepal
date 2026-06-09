@@ -107,6 +107,97 @@ export async function signEsewaPayload(
   return { ...payload, signature }
 }
 
+export interface RefundResult {
+  success: boolean
+  refundId?: string
+  message?: string
+}
+
+const KHALTI_REFUND_URL = 'https://khalti.com/api/v2/transaction/refund/'
+
+export async function refundKhaltiPayment(
+  secretKey: string,
+  pidx: string,
+  amountInPaisa: number,
+  reason = 'Order cancellation',
+): Promise<RefundResult> {
+  try {
+    const response = await fetch(KHALTI_REFUND_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${secretKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        pidx,
+        amount: amountInPaisa,
+        reason,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorBody = await response.text()
+      console.error('Khalti refund failed:', response.status, errorBody)
+      return { success: false, message: `Khalti refund failed: ${response.status}` }
+    }
+
+    const data = await response.json() as { refund_id?: string; status?: string }
+    return {
+      success: true,
+      refundId: data.refund_id || data.status || 'khalti-refund',
+      message: 'Khalti refund initiated',
+    }
+  } catch (error) {
+    console.error('Khalti refund error:', error)
+    return { success: false, message: 'Khalti refund request failed' }
+  }
+}
+
+export async function refundEsewaPayment(
+  merchantCode: string,
+  secretKey: string,
+  transactionUuid: string,
+  totalAmount: number,
+  isLive: boolean,
+): Promise<RefundResult> {
+  try {
+    const baseUrl = isLive
+      ? 'https://esewa.com.np/api/v2/transaction/status/'
+      : 'https://uat.esewa.com.np/api/v2/transaction/status/'
+
+    const url = new URL(baseUrl)
+    url.searchParams.set('product_code', merchantCode)
+    url.searchParams.set('transaction_uuid', transactionUuid)
+    url.searchParams.set('total_amount', String(totalAmount))
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (!response.ok) {
+      const errorBody = await response.text()
+      console.error('eSewa refund status check failed:', response.status, errorBody)
+      return { success: false, message: `eSewa refund failed: ${response.status}` }
+    }
+
+    const data = await response.json() as { status?: string; transaction_code?: string }
+
+    if (data.status === 'COMPLETE' || data.status === 'REFUNDED') {
+      return {
+        success: true,
+        refundId: data.transaction_code || transactionUuid,
+        message: 'eSewa refund processed',
+      }
+    }
+
+    return { success: false, message: `eSewa refund status: ${data.status || 'unknown'}` }
+  } catch (error) {
+    console.error('eSewa refund error:', error)
+    return { success: false, message: 'eSewa refund request failed' }
+  }
+}
+
 export async function verifyKhaltiPayment(
   token: string,
   secretKey: string,

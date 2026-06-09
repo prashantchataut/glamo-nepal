@@ -34,7 +34,7 @@ setInterval(() => {
 async function redisIncrement(key: string, window: number, max: number, env: AppEnv['Bindings']): Promise<{ allowed: boolean; remaining: number }> {
   const url = env.UPSTASH_REDIS_REST_URL
   const token = env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) return { allowed: true, remaining: max }
+  if (!url || !token) return { allowed: false, remaining: 0 }
 
   try {
     const pipeline = [
@@ -46,12 +46,16 @@ async function redisIncrement(key: string, window: number, max: number, env: App
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(pipeline),
     })
-    if (!res.ok) return { allowed: true, remaining: max }
+    if (!res.ok) {
+      console.error(`Rate limit Redis error: ${res.status}`)
+      return { allowed: false, remaining: 0 }
+    }
     const data = await res.json() as { result?: [number?, ...unknown[]] }
     const count = typeof data?.result?.[0] === 'number' ? data.result[0] : 0
     return { allowed: count <= max, remaining: Math.max(0, max - count) }
-  } catch {
-    return { allowed: true, remaining: max }
+  } catch (err) {
+    console.error('Rate limit Redis connection failed, falling back to memory:', err)
+    return memoryIncrement(key, window, max)
   }
 }
 
@@ -77,7 +81,7 @@ export function rateLimit(config: RateLimitConfig) {
       const key = keyGenerator(c)
       const env = c.env
 
-      const result = env?.UPSTASH_REDIS_REST_URL
+      const result = env?.UPSTASH_REDIS_REST_URL && env?.UPSTASH_REDIS_REST_TOKEN
         ? await redisIncrement(key, config.window, config.max, env)
         : memoryIncrement(key, config.window, config.max)
 

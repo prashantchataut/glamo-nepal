@@ -9,7 +9,7 @@
     --total-header-height: var(--navbar-height);
     --mobile-nav-height: 64px;
     --font-display: var(--font-display), 'Playfair Display', Georgia, serif;
-    --font-body: var(--font-body), 'Inter', system-ui, sans-serif;
+    --font-body: var(--font-body), 'Outfit', system-ui, sans-serif;
     --font-mono: ui-monospace, 'Cascadia Code', monospace;
 
     --background: 40 10% 98%;
@@ -63,6 +63,8 @@
     background: #fff7f9;
     color: var(--color-neutral-900);
     overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
@@ -189,4 +191,11 @@ body.scroll-locked {
   .editorial-heading {
     @apply font-display text-5xl md:text-7xl lg:text-[88px] leading-[0.95] tracking-[-0.04em] text-neutral-900;
   }
+}
+
+[data-sonner-toaster] [data-sonner-toast] {
+  max-width: 420px !important;
+  width: auto !important;
+  margin-left: auto;
+  margin-right: auto;
 }

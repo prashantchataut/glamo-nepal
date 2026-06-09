@@ -54,7 +54,7 @@ export async function verifyCheckoutPayment(c: Context<AppEnv>) {
 
 export async function listOrders(c: Context<AppEnv>) {
   try {
-    const query = c.req.query()
+    const query = c.get('validatedQuery') as any
     const db = c.get('db')
     const user = c.get('user')
     const result = await OrderService.listOrders({
@@ -113,8 +113,14 @@ export async function cancelOrder(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const db = c.get('db')
     const user = c.get('user')
-    const body = await c.req.json().catch(() => ({})) as { reason?: string }
-    const order = await OrderService.cancelOrder(id, db, user, body.reason)
+    const body = (c.get('validatedBody') || await c.req.json().catch(() => ({}))) as { reason?: string }
+    const env = {
+      KHALTI_SECRET_KEY: getEnv(c, 'KHALTI_SECRET_KEY'),
+      ESEWA_MERCHANT_CODE: getEnv(c, 'ESEWA_MERCHANT_CODE'),
+      ESEWA_SECRET_KEY: getEnv(c, 'ESEWA_SECRET_KEY'),
+      ESEWA_IS_LIVE: getEnv(c, 'ESEWA_IS_LIVE'),
+    }
+    const order = await OrderService.cancelOrder(id, db, user, body.reason, env)
     return ApiResponse.success(c, 'Order cancelled', order)
   } catch (error: any) {
     if (error instanceof AppError) {

@@ -2,10 +2,10 @@ import { Hono } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/firebase-auth'
 import { requireRole } from '../../middleware/requireRole'
-import { validateBody } from '../../middleware/validate'
-import { paymentRateLimit, orderTrackingRateLimit } from '../../middleware/rateLimit'
+import { validateBody, validateQuery } from '../../middleware/validate'
+import { paymentRateLimit, orderTrackingRateLimit, generalRateLimit } from '../../middleware/rateLimit'
 import { optionalAuthMiddleware } from '../../middleware/optional-auth'
-import { createOrderSchema, updateOrderStatusSchema } from './order.schema'
+import { createOrderSchema, updateOrderStatusSchema, cancelOrderSchema, orderFilterSchema } from './order.schema'
 import { createOrder, verifyCheckoutPayment, listOrders, getOrder, getPublicOrder, updateOrderStatus, cancelOrder, initiateKhaltiPaymentController, initiateEsewaPaymentController } from './order.controller'
 
 const orderRoutes = new Hono<AppEnv>()
@@ -18,9 +18,9 @@ checkoutRoutes.post('/orders/:id/payments/esewa/initiate', optionalAuthMiddlewar
 checkoutRoutes.get('/track/:orderNumber', orderTrackingRateLimit, getPublicOrder)
 
 orderRoutes.use('*', authMiddleware)
-orderRoutes.get('/', listOrders)
+orderRoutes.get('/', validateQuery(orderFilterSchema), listOrders)
 orderRoutes.get('/:id', getOrder)
-orderRoutes.post('/:id/cancel', cancelOrder)
+orderRoutes.post('/:id/cancel', generalRateLimit, validateBody(cancelOrderSchema), cancelOrder)
 orderRoutes.patch('/:id/status', requireRole(['ADMIN', 'SUPER_ADMIN', 'STAFF']), validateBody(updateOrderStatusSchema), updateOrderStatus)
 
 export { orderRoutes, checkoutRoutes }

@@ -8,6 +8,7 @@ import { getEnv } from '../../utils/env'
 import { sendEmail, orderConfirmation, orderStatusUpdate } from '../../utils/email'
 import { calculateDeliveryFee } from '../../utils/delivery'
 import { validateCoupon } from '../coupons/coupon.service'
+import { refundKhaltiPayment, refundEsewaPayment } from '../../utils/payment-verify'
 import type { AppEnv } from '../../types/bindings'
 import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
@@ -627,7 +628,7 @@ export async function updateOrderStatus(orderId: string, data: UpdateOrderStatus
   return updatedOrder
 }
 
-export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation') {
+export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation', env?: Record<string, string>) {
   const fetchResult = await db.execute({
     sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
     args: [orderId, orderId],
@@ -644,10 +645,34 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
     throw new AppError('This order can no longer be cancelled', 409, 'ORDER_NOT_CANCELLABLE')
   }
 
+  const paymentMethod = (row as any).payment_method as string
+  const paymentStatus = (row as any).payment_status as string
+  const paymentId = (row as any).payment_id as string | null
+  const totalAmount = Number((row as any).total_amount) || 0
+
+  let newPaymentStatus = paymentStatus
+  let refundResult: { success: boolean; refundId?: string; message?: string } | null = null
+
+  if (paymentStatus === 'PAID' && paymentMethod) {
+    const normalizedMethod = paymentMethod.toUpperCase()
+    if (normalizedMethod === 'KHALTI' && env?.KHALTI_SECRET_KEY) {
+      refundResult = await refundKhaltiPayment(env.KHALTI_SECRET_KEY, paymentId || '', totalAmount, reason)
+      if (refundResult.success) newPaymentStatus = 'REFUNDED'
+    } else if (normalizedMethod === 'ESEWA' && env?.ESEWA_MERCHANT_CODE) {
+      const isLive = (env?.ESEWA_IS_LIVE || 'false') === 'true'
+      refundResult = await refundEsewaPayment(env.ESEWA_MERCHANT_CODE, env.ESEWA_SECRET_KEY || '', (row as any).order_number as string, totalAmount / 100, isLive)
+      if (refundResult.success) newPaymentStatus = 'REFUNDED'
+    } else if (normalizedMethod === 'CASH_ON_DELIVERY' || normalizedMethod === 'COD') {
+      newPaymentStatus = paymentStatus
+    } else {
+      newPaymentStatus = 'REFUNDED'
+    }
+  }
+
   try {
     await db.execute({
-      sql: `UPDATE orders SET status = 'CANCELLED', cancelled_at = datetime('now'), cancel_reason = ?, updated_at = datetime('now') WHERE id = ?`,
-      args: [reason, rowId],
+      sql: `UPDATE orders SET status = 'CANCELLED', payment_status = ?, cancelled_at = datetime('now'), cancel_reason = ?, updated_at = datetime('now') WHERE id = ?`,
+      args: [newPaymentStatus, reason, rowId],
     })
   } catch (error) {
     handleDbError(error, 'cancelOrder.update')

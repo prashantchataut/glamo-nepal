@@ -62,6 +62,17 @@ export const updateOrderStatusSchema = z.object({
   comment: z.string().max(500).optional(),
 })
 
+export const cancelOrderSchema = z.object({
+  reason: z.string().max(500).optional(),
+})
+
+export const verifyPaymentSchema = z.object({
+  token: z.string().min(1).optional(),
+  pidx: z.string().min(1).optional(),
+  refId: z.string().min(1).optional(),
+  transactionId: z.string().min(1).optional(),
+})
+
 export const orderFilterSchema = z.object({
   status: z.string().optional(),
   paymentStatus: z.string().optional(),

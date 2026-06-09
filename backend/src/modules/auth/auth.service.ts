@@ -48,7 +48,7 @@ export async function register(
   try {
     await db.execute({
       sql: `INSERT INTO users (id, email, first_name, last_name, phone, role, is_active, email_verified, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, 'CUSTOMER', 1, 1, datetime('now'), datetime('now'))`,
+            VALUES (?, ?, ?, ?, ?, 'CUSTOMER', 1, 0, datetime('now'), datetime('now'))`,
       args: [
         data.uid,
         data.email,

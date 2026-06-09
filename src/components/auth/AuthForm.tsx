@@ -126,9 +126,9 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           return;
         }
         if (code === "auth/unauthorized-domain") {
-          setError("This domain is not authorized for Google sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.");
+          setError("This domain is not authorized for Google sign-in. Add it in Firebase Console.");
         } else if (code === "auth/operation-not-allowed") {
-          setError("Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.");
+          setError("Google sign-in is not enabled. Enable it in Firebase Console.");
         } else {
           setError(err.message || "Google sign-in failed. Please try again.");
         }
@@ -141,25 +141,25 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
   };
 
   return (
-    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[1.5rem] border border-neutral-200 bg-white shadow-editorial md:rounded-[2.75rem] md:grid-cols-[0.95fr_1.05fr]">
-      <aside className="relative flex min-h-[260px] flex-col justify-end bg-neutral-900 p-6 text-white md:min-h-[420px] md:p-10 lg:p-12">
-        <Image src={IMAGES.auth.loginSplit} alt="Editorial beauty portrait for GLAMO account access" fill className="object-cover opacity-55" sizes="(max-width: 768px) 100vw, 45vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/45 to-neutral-950/10" />
+    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[1.5rem] border border-neutral-200/80 bg-white shadow-card md:rounded-[2.5rem] md:grid-cols-[0.95fr_1.05fr]">
+      <aside className="relative flex min-h-[260px] flex-col justify-end bg-neutral-900 p-6 text-white md:min-h-[460px] md:p-10 lg:p-14">
+        <Image src={IMAGES.auth.loginSplit} alt="" fill className="object-cover opacity-50" sizes="(max-width: 768px) 100vw, 45vw" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-neutral-950/10" />
         <div className="relative z-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{copy.eyebrow}</p>
-          <h1 className="mt-3 font-display text-4xl font-light leading-tight tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
-          <p className="mt-4 max-w-md text-sm leading-7 text-white/75 md:mt-5 md:pr-4">{copy.description}</p>
-          <div className="mt-6 rounded-[1.25rem] border border-white/15 bg-neutral-950/45 p-3.5 text-sm leading-6 text-white/75 md:mt-8 md:p-4">
-            <strong className="block text-white">Need help signing in?</strong>
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-primary-light">{copy.eyebrow}</p>
+          <h1 className="mt-3 font-display text-4xl font-light leading-[0.95] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
+          <p className="mt-4 max-w-sm text-sm leading-7 text-white/70 md:mt-5">{copy.description}</p>
+          <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/65 md:mt-8">
+            <strong className="block text-white/90">Need help signing in?</strong>
             Contact GLAMO customer care at {SITE_CONFIG.phone}, or use the forgot password link below.
           </div>
         </div>
       </aside>
 
-      <div className="space-y-5 p-5 md:p-10 lg:p-12">
+      <div className="space-y-5 p-6 md:p-10 lg:p-14">
         <div aria-live="polite" aria-atomic="true">
           {error && (
-            <div className="rounded-[1.25rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+            <div className="mb-5 rounded-2xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
               {error}
             </div>
           )}
@@ -169,16 +169,16 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isLoading}
-          className="flex w-full items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white px-6 py-3.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white px-6 py-3.5 text-sm font-semibold text-neutral-700 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.24 1.05-3.71 1.05-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Continue with Google
         </button>
 
         <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-neutral-200" />
-          <span className="text-xs font-medium uppercase tracking-widest text-neutral-400">or</span>
-          <div className="h-px flex-1 bg-neutral-200" />
+          <div className="h-px flex-1 bg-neutral-100" />
+          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-300">or</span>
+          <div className="h-px flex-1 bg-neutral-100" />
         </div>
 
         <form
@@ -186,8 +186,8 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           className="space-y-4 md:space-y-5"
         >
           {mode === "register" && (
-            <div className="w-full">
-              <label htmlFor="auth-name" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500 md:mb-2">
+            <div className="space-y-2">
+              <label htmlFor="auth-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
                 Full name
               </label>
               <input
@@ -196,15 +196,15 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
                 placeholder="Your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm"
+                className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
                 required={mode === "register"}
                 autoComplete="name"
               />
             </div>
           )}
 
-          <div className="w-full">
-            <label htmlFor="auth-email" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500 md:mb-2">
+          <div className="space-y-2">
+            <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
               Email address
             </label>
             <input
@@ -213,14 +213,14 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm"
+              className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
               required
               autoComplete="email"
             />
           </div>
 
-          <div className="w-full">
-            <label htmlFor="auth-password" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500 md:mb-2">
+          <div className="space-y-2">
+            <label htmlFor="auth-password" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
               Password
             </label>
             <div className="relative">
@@ -230,7 +230,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 pr-10 text-base text-neutral-950 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm"
+                className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 pr-10 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
                 required
                 minLength={8}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
@@ -239,7 +239,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-400 transition-colors hover:text-primary"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-300 transition-colors hover:text-primary"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -250,21 +250,21 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
               </button>
             </div>
             {mode === "register" && (
-              <p id="auth-password-hint" className="mt-1.5 text-[11px] tracking-wide text-neutral-400">
+              <p id="auth-password-hint" className="text-[11px] tracking-wide text-neutral-400">
                 Minimum 8 characters, including a letter and a number
               </p>
             )}
           </div>
 
           {mode === "login" && (
-            <div className="pt-1 text-right md:pt-0">
-              <Link href="/forgot-password" className="text-sm font-medium text-primary hover:text-neutral-900 transition-colors">
+            <div className="pt-1 text-right">
+              <Link href="/forgot-password" className="text-sm font-medium text-primary transition-colors hover:text-brand-primary-hover">
                 Forgot password?
               </Link>
             </div>
           )}
 
-          <button type="submit" disabled={isLoading || !email || !password} className="mt-2 w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300">
+          <button type="submit" disabled={isLoading || !email || !password} className="mt-2 w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-400">
             {isLoading ? (
               <span className="inline-flex items-center justify-center gap-2">
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -278,25 +278,25 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
             )}
           </button>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-sm font-semibold text-primary">
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-1 text-sm font-medium">
             {mode === "login" && (
-              <Link href="/register" className="cursor-pointer text-primary hover:text-neutral-900 transition-colors">
+              <Link href="/register" className="text-primary transition-colors hover:text-brand-primary-hover">
                 Create account
               </Link>
             )}
             {mode === "register" && (
-              <Link href="/login" className="cursor-pointer text-primary hover:text-neutral-900 transition-colors">
+              <Link href="/login" className="text-primary transition-colors hover:text-brand-primary-hover">
                 Sign in instead
               </Link>
             )}
           </div>
 
           {showGuestCheckout && (
-            <div className="mt-4 border-t border-neutral-200 pt-4 text-center">
-              <p className="mb-2 text-xs text-neutral-500">Or continue without an account</p>
+            <div className="mt-5 border-t border-neutral-100 pt-5 text-center">
+              <p className="mb-3 text-xs text-neutral-400">Or continue without an account</p>
               <Link
                 href={redirectUrl.startsWith("/checkout") ? `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}guest=true` : "/checkout?guest=true"}
-                className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-700 transition-colors hover:bg-neutral-50"
+                className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50"
               >
                 Continue as guest
               </Link>
