@@ -114,13 +114,7 @@ export async function cancelOrder(c: Context<AppEnv>) {
     const db = c.get('db')
     const user = c.get('user')
     const body = (c.get('validatedBody') || await c.req.json().catch(() => ({}))) as { reason?: string }
-    const env = {
-      KHALTI_SECRET_KEY: getEnv(c, 'KHALTI_SECRET_KEY'),
-      ESEWA_MERCHANT_CODE: getEnv(c, 'ESEWA_MERCHANT_CODE'),
-      ESEWA_SECRET_KEY: getEnv(c, 'ESEWA_SECRET_KEY'),
-      ESEWA_IS_LIVE: getEnv(c, 'ESEWA_IS_LIVE'),
-    }
-    const order = await OrderService.cancelOrder(id, db, user, body.reason, env)
+    const order = await OrderService.cancelOrder(id, db, user, body.reason, c.env)
     return ApiResponse.success(c, 'Order cancelled', order)
   } catch (error: any) {
     if (error instanceof AppError) {

@@ -1,4 +1,5 @@
 import type { Client, InValue } from '@libsql/client'
+import type { NetlifyBindings } from '../../types/bindings'
 import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, fromSqliteBool, toSqliteBool, withTransaction } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { generateOrderNumber } from '../../utils/orderNumber'
@@ -628,7 +629,7 @@ export async function updateOrderStatus(orderId: string, data: UpdateOrderStatus
   return updatedOrder
 }
 
-export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation', env?: Record<string, string>) {
+export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation', env?: NetlifyBindings) {
   const fetchResult = await db.execute({
     sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
     args: [orderId, orderId],
@@ -717,8 +718,20 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
     action: 'CANCEL',
     entity: 'orders',
     entityId: rowId,
-    changes: { status: 'CANCELLED', reason },
+    changes: { status: 'CANCELLED', reason, paymentStatus: newPaymentStatus, refundInitiated: refundResult?.success ?? false },
   })
+
+  if (newPaymentStatus === 'REFUNDED' && env?.RESEND_API_KEY) {
+    try {
+      const email = (row as any).shipping_address ? JSON.parse((row as any).shipping_address as string)?.email : null
+      if (email) {
+        const { sendEmail, orderStatusUpdate } = await import('../../utils/email')
+        await sendEmail(email, `Order #${(row as any).order_number} - Refund Initiated`, orderStatusUpdate({ orderNumber: (row as any).order_number as string, items: [] }, 'REFUNDED'), env)
+      }
+    } catch (err) {
+      console.error('Failed to send refund notification email:', err)
+    }
+  }
 
   return fetchOrderWithRelations(rowId, db)
 }
