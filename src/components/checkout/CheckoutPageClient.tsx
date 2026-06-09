@@ -41,14 +41,21 @@ import {
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { initiateKhaltiPayment, initiateEsewaPayment } from "@/lib/api/checkout";
 
 const paymentMethods = [
   "Cash on Delivery",
   "Khalti",
   "eSewa",
-  "Cards",
 ] as const;
-const comingSoonMethods = new Set(["Khalti", "eSewa", "Cards"]);
+
+const hasKhaltiKey = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY;
+const hasEsewaKey = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_ESEWA_MERCHANT_ID;
+const comingSoonMethods = new Set<string>([
+  ...(!hasKhaltiKey ? ["Khalti"] : []),
+  ...(!hasEsewaKey ? ["eSewa"] : []),
+  "Cards",
+]);
 const paymentCodeMap: Record<string, PaymentMethodCode> = {
   "Cash on Delivery": "cod",
   Khalti: "khalti",
@@ -330,6 +337,41 @@ export function CheckoutPageClient() {
       setSubmitError(checkoutError);
       toast.error(checkoutError);
       return;
+    }
+
+    const paymentCode = paymentCodeMap[data.payment] || "cod";
+
+    if (paymentCode === "khalti" && order.id) {
+      try {
+        const khaltiResult = await initiateKhaltiPayment(order.id);
+        if (khaltiResult.data?.paymentUrl) {
+          clearCart();
+          window.location.href = khaltiResult.data.paymentUrl;
+          return;
+        }
+      } catch { /* fall through to confirmation page */ }
+    }
+
+    if (paymentCode === "esewa" && order.id) {
+      try {
+        const esewaResult = await initiateEsewaPayment(order.id);
+        if (esewaResult.data?.url && esewaResult.data?.payload) {
+          clearCart();
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = esewaResult.data.url;
+          for (const [key, value] of Object.entries(esewaResult.data.payload)) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = value;
+            form.appendChild(input);
+          }
+          document.body.appendChild(form);
+          form.submit();
+          return;
+        }
+      } catch { /* fall through to confirmation page */ }
     }
 
     router.push(`/order-confirmation/${order.orderNumber}`);

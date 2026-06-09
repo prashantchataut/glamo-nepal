@@ -9,8 +9,10 @@ export interface NetlifyBindings {
   CLOUDINARY_API_KEY: string
   CLOUDINARY_API_SECRET: string
   KHALTI_SECRET_KEY: string
+  KHALTI_PUBLIC_KEY: string
   ESEWA_SECRET_KEY: string
   ESEWA_MERCHANT_CODE: string
+  ESEWA_IS_LIVE: string
   FRONTEND_URL: string
   FREE_SHIPPING_THRESHOLD: string
   COD_FEE: string

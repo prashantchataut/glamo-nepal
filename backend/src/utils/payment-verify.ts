@@ -1,11 +1,77 @@
 const KHALTI_VERIFY_URL = 'https://khalti.com/api/v2/payment/verify/'
 const ESEWA_VERIFY_URL = 'https://esewa.com.np/api/v2/transaction/status/'
+const KHALTI_INITIATE_URL = 'https://khalti.com/api/v2/epayment/initiate/'
+const ESEWA_LIVE_URL = 'https://esewa.com.np/epay/main'
+const ESEWA_TEST_URL = 'https://uat.esewa.com.np/epay/main'
 
 export interface PaymentVerificationResult {
   verified: boolean
   transactionId: string
   amount?: number
   message?: string
+}
+
+export function getEsewaUrl(isLive: boolean): string {
+  return isLive ? ESEWA_LIVE_URL : ESEWA_TEST_URL
+}
+
+export interface KhaltiInitiateResult {
+  paymentUrl: string
+  pidx: string
+}
+
+export async function initiateKhaltiPayment(
+  publicKey: string,
+  secretKey: string,
+  returnUrl: string,
+  amountInPaisa: number,
+  orderId: string,
+  orderNumber: string,
+): Promise<KhaltiInitiateResult> {
+  const response = await fetch(KHALTI_INITIATE_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Key ${secretKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      return_url: returnUrl,
+      website_url: new URL(returnUrl).origin,
+      amount: amountInPaisa,
+      purchase_order_id: orderNumber,
+      purchase_order_name: `GLAMO Order ${orderNumber}`,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorBody = await response.text()
+    throw new Error(`Khalti initiation failed: ${response.status} ${errorBody}`)
+  }
+
+  const data = await response.json() as { payment_url: string; pidx: string }
+  return {
+    paymentUrl: data.payment_url,
+    pidx: data.pidx,
+  }
+}
+
+export function buildEsewaPayload(
+  merchantCode: string,
+  totalAmount: number,
+  transactionUuid: string,
+  isLive: boolean,
+): { url: string; payload: Record<string, string> } {
+  const url = getEsewaUrl(isLive)
+  const payload: Record<string, string> = {
+    amount: String(totalAmount),
+    tax_amount: '0',
+    total_amount: String(totalAmount),
+    transaction_uuid: transactionUuid,
+    product_code: merchantCode,
+    product_service_charge: '0',
+    product_delivery_charge: '0',
+  }
+  return { url, payload }
 }
 
 export async function verifyKhaltiPayment(

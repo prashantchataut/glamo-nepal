@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import { getEnv } from '../../utils/env'
+import { initiateKhaltiPayment, buildEsewaPayload } from '../../utils/payment-verify'
 import * as OrderService from './order.service'
 
 export async function createOrder(c: Context<AppEnv>) {
@@ -148,5 +149,69 @@ function safeUser(c: Context<AppEnv>) {
     return c.get('user')
   } catch {
     return undefined
+  }
+}
+
+export async function initiateKhaltiPaymentController(c: Context<AppEnv>) {
+  try {
+    const { id } = c.req.param()
+    const db = c.get('db')
+    const user = safeUser(c)
+    const order = await OrderService.getOrder(id, db, user)
+
+    if (order.paymentMethod !== 'KHALTI' && order.paymentMethod !== 'khalti') {
+      return ApiResponse.error(c, 'Order is not a Khalti payment order', 400)
+    }
+    if (order.paymentStatus === 'PAID') {
+      return ApiResponse.error(c, 'Order is already paid', 400)
+    }
+
+    const secretKey = getEnv(c, 'KHALTI_SECRET_KEY')
+    const publicKey = getEnv(c, 'KHALTI_PUBLIC_KEY') || process.env.KHALTI_PUBLIC_KEY || ''
+    const origin = new URL(c.req.url).origin
+    const returnUrl = `${origin}/payment/khalti/callback`
+
+    const result = await initiateKhaltiPayment(
+      publicKey,
+      secretKey,
+      returnUrl,
+      order.totalAmount,
+      order.id,
+      order.orderNumber,
+    )
+
+    return ApiResponse.success(c, 'Khalti payment initiated', result)
+  } catch (error: any) {
+    if (error instanceof AppError) return ApiResponse.error(c, error.message, error.statusCode)
+    return ApiResponse.error(c, error.message || 'Failed to initiate Khalti payment', 500)
+  }
+}
+
+export async function initiateEsewaPaymentController(c: Context<AppEnv>) {
+  try {
+    const { id } = c.req.param()
+    const db = c.get('db')
+    const user = safeUser(c)
+    const order = await OrderService.getOrder(id, db, user)
+
+    if (order.paymentMethod !== 'ESEWA' && order.paymentMethod !== 'esewa') {
+      return ApiResponse.error(c, 'Order is not an eSewa payment order', 400)
+    }
+    if (order.paymentStatus === 'PAID') {
+      return ApiResponse.error(c, 'Order is already paid', 400)
+    }
+
+    const merchantCode = getEnv(c, 'ESEWA_MERCHANT_CODE')
+    const isLive = (getEnv(c, 'ESEWA_IS_LIVE') || process.env.ESEWA_IS_LIVE || 'false') === 'true'
+
+    const totalAmount = order.totalAmount / 100
+    const transactionUuid = order.orderNumber
+
+    const result = buildEsewaPayload(merchantCode, totalAmount, transactionUuid, isLive)
+
+    return ApiResponse.success(c, 'eSewa payment initiated', result)
+  } catch (error: any) {
+    if (error instanceof AppError) return ApiResponse.error(c, error.message, error.statusCode)
+    return ApiResponse.error(c, error.message || 'Failed to initiate eSewa payment', 500)
   }
 }

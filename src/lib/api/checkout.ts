@@ -16,3 +16,25 @@ export async function verifyPayment(orderId: string, provider: "khalti" | "esewa
     body: JSON.stringify({ token }),
   });
 }
+
+export interface KhaltiInitiateResult {
+  paymentUrl: string;
+  pidx: string;
+}
+
+export async function initiateKhaltiPayment(orderId: string): Promise<ApiResponse<KhaltiInitiateResult>> {
+  return apiRequest<KhaltiInitiateResult>(`/checkout/orders/${orderId}/payments/khalti/initiate`, {
+    method: "POST",
+  });
+}
+
+export interface EsewaInitiateResult {
+  url: string;
+  payload: Record<string, string>;
+}
+
+export async function initiateEsewaPayment(orderId: string): Promise<ApiResponse<EsewaInitiateResult>> {
+  return apiRequest<EsewaInitiateResult>(`/checkout/orders/${orderId}/payments/esewa/initiate`, {
+    method: "POST",
+  });
+}

@@ -6,13 +6,15 @@ import { validateBody } from '../../middleware/validate'
 import { paymentRateLimit, orderTrackingRateLimit } from '../../middleware/rateLimit'
 import { optionalAuthMiddleware } from '../../middleware/optional-auth'
 import { createOrderSchema, updateOrderStatusSchema } from './order.schema'
-import { createOrder, verifyCheckoutPayment, listOrders, getOrder, getPublicOrder, updateOrderStatus, cancelOrder } from './order.controller'
+import { createOrder, verifyCheckoutPayment, listOrders, getOrder, getPublicOrder, updateOrderStatus, cancelOrder, initiateKhaltiPaymentController, initiateEsewaPaymentController } from './order.controller'
 
 const orderRoutes = new Hono<AppEnv>()
 const checkoutRoutes = new Hono<AppEnv>()
 
 checkoutRoutes.post('/orders', optionalAuthMiddleware, paymentRateLimit, validateBody(createOrderSchema), createOrder)
 checkoutRoutes.post('/orders/:id/payments/:provider/verify', optionalAuthMiddleware, paymentRateLimit, verifyCheckoutPayment)
+checkoutRoutes.post('/orders/:id/payments/khalti/initiate', optionalAuthMiddleware, paymentRateLimit, initiateKhaltiPaymentController)
+checkoutRoutes.post('/orders/:id/payments/esewa/initiate', optionalAuthMiddleware, paymentRateLimit, initiateEsewaPaymentController)
 checkoutRoutes.get('/track/:orderNumber', orderTrackingRateLimit, getPublicOrder)
 
 orderRoutes.use('*', authMiddleware)
