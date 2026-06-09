@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import { getEnv } from '../../utils/env'
+import { toStoredPrice } from '../../utils/price'
 import { initiateKhaltiPayment, buildEsewaPayload, signEsewaPayload } from '../../utils/payment-verify'
 import * as OrderService from './order.service'
 
@@ -181,7 +182,7 @@ export async function initiateKhaltiPaymentController(c: Context<AppEnv>) {
       publicKey,
       secretKey,
       returnUrl,
-      order.totalAmount,
+      toStoredPrice(order.totalAmount),
       order.id,
       order.orderNumber,
     )
@@ -211,7 +212,7 @@ export async function initiateEsewaPaymentController(c: Context<AppEnv>) {
     const secretKey = getEnv(c, 'ESEWA_SECRET_KEY')
     const isLive = (getEnv(c, 'ESEWA_IS_LIVE') || process.env.ESEWA_IS_LIVE || 'false') === 'true'
 
-    const totalAmount = order.totalAmount / 100
+    const totalAmount = order.totalAmount
     const transactionUuid = order.orderNumber
 
     const { url, payload } = buildEsewaPayload(merchantCode, totalAmount, transactionUuid, isLive, secretKey)

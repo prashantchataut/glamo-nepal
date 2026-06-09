@@ -793,7 +793,7 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
     verifiedTransactionId = result.transactionId
   } else if (normalizedProvider === 'esewa' && env?.ESEWA_SECRET_KEY && env?.ESEWA_MERCHANT_CODE) {
     const { verifyEsewaPayment } = await import('../../utils/payment-verify')
-    const result = await verifyEsewaPayment(token, env.ESEWA_MERCHANT_CODE, env.ESEWA_SECRET_KEY, orderTotal)
+    const result = await verifyEsewaPayment(token, env.ESEWA_MERCHANT_CODE, env.ESEWA_SECRET_KEY, toDisplayPrice(orderTotal))
     if (!result.verified) {
       throw new AppError(result.message || 'eSewa payment verification failed', 400, 'PAYMENT_VERIFICATION_FAILED')
     }
