@@ -1,4 +1,4 @@
-ï»¿"use client";
+"use client";
 
 import { useState } from "react";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
@@ -88,7 +88,7 @@ export function AuditLogView() {
       key: "changes",
       header: "Details",
       render: (log) => {
-        if (!log.changes) return <span className="text-brand-textMuted">â€”</span>;
+        if (!log.changes) return <span className="text-brand-textMuted">—</span>;
         try {
           const parsed = typeof log.changes === "string" ? JSON.parse(log.changes) : log.changes;
           const keys = Object.keys(parsed as unknown as Record<string, unknown>);
@@ -116,7 +116,7 @@ export function AuditLogView() {
       key: "ipAddress",
       header: "IP",
       render: (log) => (
-        <span className="font-mono text-xs text-brand-textMuted">{log.ipAddress ?? "â€”"}</span>
+        <span className="font-mono text-xs text-brand-textMuted">{log.ipAddress ?? "—"}</span>
       ),
     },
   ];

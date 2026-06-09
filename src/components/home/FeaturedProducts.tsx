@@ -1,4 +1,4 @@
-﻿import { ProductCard } from "@/components/product/ProductCard";
+import { ProductCard } from "@/components/product/ProductCard";
 import { FEATURED_PRODUCTS } from "@/lib/constants";
 import { Section } from "@/components/common/Section";
 

@@ -80,11 +80,25 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => setMobileMenuOpen(false), [pathname]);
 
   useEffect(() => {
     document.body.classList.toggle("scroll-locked", mobileMenuOpen);
     return () => document.body.classList.remove("scroll-locked");
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [mobileMenuOpen]);
 
   useEffect(() => {
@@ -143,12 +157,12 @@ export function Navbar() {
           "sticky top-0 z-navbar transition-all duration-300",
           isHome
             ? cn(
-                "border-b border-[#f0dce5]/60 bg-[#fff7f9]/90 backdrop-blur-xl",
-                isScrolled && "bg-[#fffaf7]/95 shadow-[0_18px_50px_-44px_rgba(53,19,29,0.45)]",
+                "border-b border-[#f0dce5]/60 bg-brand-bgLight/90 backdrop-blur-xl",
+                isScrolled && "bg-brand-bgLight/95 shadow-[0_18px_50px_-44px_rgba(53,19,29,0.45)]",
               )
             : cn(
                 "border-b",
-                isScrolled ? "border-[#e9dfd8] bg-[#fffaf7]/98 shadow-nav" : "border-[#ead8e8] bg-[#f7e5f5]",
+                isScrolled ? "border-[#e9dfd8] bg-brand-bgLight/98 shadow-nav" : "border-[#ead8e8] bg-brand-surfacePink",
               ),
         )}
       >
@@ -156,7 +170,7 @@ export function Navbar() {
           <div
             className={cn(
               "grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]",
-              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-[0_24px_70px_-58px_rgba(53,19,29,0.45)] ring-1 ring-[#f7d3dd]/50 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
+              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-[0_24px_70px_-58px_rgba(53,19,29,0.45)] ring-1 ring-brand-accentLight/50 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
             )}
           >
             <nav className="hidden items-center gap-6 xl:gap-8 lg:flex" aria-label="Primary navigation">
@@ -171,7 +185,7 @@ export function Navbar() {
                       isHome
                         ? cn(
                             "rounded-full px-3 py-2 tracking-[0.16em] after:bottom-1 after:left-3",
-                            active ? "bg-[#fdecef] text-[#35131d] after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-[#fff7f9] hover:after:w-[calc(100%-1.5rem)]",
+                            active ? "bg-brand-primary-light text-brand-bgDark after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-brand-bgLight hover:after:w-[calc(100%-1.5rem)]",
                           )
                         : cn(
                             "after:-bottom-1.5 after:left-0",
@@ -186,10 +200,11 @@ export function Navbar() {
             </nav>
 
             <button
+              ref={menuButtonRef}
               type="button"
               className={cn(
                 "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden",
-                isHome && "bg-white/75 ring-1 ring-[#f7d3dd]/70 hover:bg-[#fff7f9]",
+                isHome && "bg-white/75 ring-1 ring-brand-accentLight/70 hover:bg-brand-bgLight",
               )}
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
@@ -201,7 +216,7 @@ export function Navbar() {
               href="/"
               className={cn(
                 "font-display justify-self-center text-[26px] font-semibold uppercase leading-none tracking-[0.32em] text-neutral-950 transition-colors hover:text-primary sm:text-[28px]",
-                isHome && "text-[#35131d] drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]",
+                isHome && "text-brand-bgDark drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]",
               )}
               aria-label="GLAMO Nepal home"
             >
@@ -214,7 +229,7 @@ export function Navbar() {
                 onClick={openSearchModal}
                 className={cn(
                   "flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-[#f7d3dd]/70 bg-white/80 px-3 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)] lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
+                  isHome && "border border-brand-accentLight/70 bg-white/80 px-3 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)] lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
                 )}
                 aria-label="Search products"
               >
@@ -229,7 +244,7 @@ export function Navbar() {
                 href="/wishlist"
                 className={cn(
                   "relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex",
-                  isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
                 )}
                 aria-label="Wishlist"
               >
@@ -243,7 +258,7 @@ export function Navbar() {
                   href="/account"
                   className={cn(
                     "hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
-                    isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
                   )}
                   aria-label={`Account, signed in as ${firstName}`}
                 >
@@ -259,7 +274,7 @@ export function Navbar() {
                   href="/login"
                   className={cn(
                     "font-body hidden min-h-10 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
-                    isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
                   )}
                   aria-label="Sign in"
                 >
@@ -271,7 +286,7 @@ export function Navbar() {
                 href="/cart"
                 className={cn(
                   "relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-[#f7d3dd]/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
                 )}
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
               >
@@ -315,7 +330,7 @@ export function Navbar() {
         aria-modal="true"
         aria-label="Navigation menu"
         className={cn(
-          "fixed inset-y-0 left-0 z-menu flex w-[92vw] max-w-sm flex-col overflow-y-auto rounded-r-[30px] bg-[#fffaf7] shadow-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 left-0 z-menu flex w-[92vw] max-w-sm flex-col overflow-y-auto rounded-r-[30px] bg-brand-bgLight shadow-2xl transition-transform duration-300 ease-out lg:hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

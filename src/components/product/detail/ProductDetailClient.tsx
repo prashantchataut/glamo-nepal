@@ -161,8 +161,8 @@ export default function ProductDetailClient({
   }
 
   return (
-    <main className="bg-[#fffaf7] pb-20 md:pb-0">
-      <section className="border-b border-neutral-200 bg-[#f6e6f4] px-4 py-4 md:px-6 lg:px-8">
+    <main className="bg-brand-bgLight pb-20 md:pb-0">
+      <section className="border-b border-neutral-200 bg-brand-surfacePink px-4 py-4 md:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav
             className="flex min-h-10 flex-wrap items-center gap-2 text-sm text-neutral-600"
@@ -338,7 +338,7 @@ export default function ProductDetailClient({
               {product.benefits.slice(0, 3).map((benefit) => (
                 <div
                   key={benefit}
-                  className="rounded-[1.25rem] bg-[#fff7f3] p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
+                  className="rounded-[1.25rem] bg-brand-bgLight p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
                 >
                   {benefit}
                 </div>
@@ -420,7 +420,7 @@ export default function ProductDetailClient({
               {reassurance.map(({ label, text, icon: Icon }) => (
                 <div
                   key={label}
-                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-[#fffaf7] p-4"
+                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-brand-bgLight p-4"
                 >
                   <Icon size={18} className="mt-0.5 text-primary" />
                   <div>
@@ -440,7 +440,7 @@ export default function ProductDetailClient({
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 md:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
         <div className="rounded-[2rem] bg-neutral-950 p-6 text-white md:p-8">
-          <Sparkles size={22} className="text-[#f0d3f3]" />
+          <Sparkles size={22} className="text-brand-accentLight" />
           <h2 className="mt-5 font-display text-4xl font-semibold leading-none">
             Routine notes
           </h2>

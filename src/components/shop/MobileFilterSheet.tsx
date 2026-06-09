@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ShopFilterSidebar, type FilterState } from "./ShopFilterSidebar";

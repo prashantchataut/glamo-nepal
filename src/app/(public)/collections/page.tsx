@@ -1,11 +1,11 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import { PRODUCT_COLLECTIONS, getCollectionProducts } from "@/lib/collections";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
-  title: "Collections — GLAMO NEPAL",
+  title: "Collections � GLAMO NEPAL",
   description: "Explore curated beauty collections at GLAMO NEPAL. Shop festival edits, best sellers, and made-in-Nepal picks.",
   path: "/collections",
   keywords: ["beauty collections", "GLAMO NEPAL", "skincare bundles", "Nepal beauty"],

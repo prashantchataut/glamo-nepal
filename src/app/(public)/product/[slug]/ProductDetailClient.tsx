@@ -152,8 +152,8 @@ export default function ProductDetailClient({
   }
 
   return (
-    <main className="bg-[#fffaf7]">
-      <section className="border-b border-neutral-200 bg-[#f6e6f4] px-4 py-4 md:px-6 lg:px-8">
+    <main className="bg-brand-bgLight">
+      <section className="border-b border-neutral-200 bg-brand-surfacePink px-4 py-4 md:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav
             className="flex min-h-10 flex-wrap items-center gap-2 text-sm text-neutral-600"
@@ -411,7 +411,7 @@ export default function ProductDetailClient({
               {reassurance.map(({ label, text, icon: Icon }) => (
                 <div
                   key={label}
-                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-[#fffaf7] p-4"
+                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-brand-bgLight p-4"
                 >
                   <Icon size={18} className="mt-0.5 text-primary" />
                   <div>

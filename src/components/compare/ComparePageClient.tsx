@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -22,7 +22,7 @@ const rows: CompareRow[] = [
   { label: "Origin", render: (p) => p.origin },
   { label: "Made in Nepal", render: (p) => (p.madeInNepal ? "Yes" : "No") },
   { label: "Stock", render: (p) => `${p.stockCount} units` },
-  { label: "Features", render: (p) => p.benefits.slice(0, 3).join(" · ") },
+  { label: "Features", render: (p) => p.benefits.slice(0, 3).join(" � ") },
 ];
 
 export function ComparePageClient() {

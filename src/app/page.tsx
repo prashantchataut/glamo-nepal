@@ -18,7 +18,7 @@ export const metadata = createMetadata({
 
 export default function HomePage() {
   return (
-    <main className="bg-[#fff7f9]">
+    <main className="bg-brand-bgLight">
       <HeroBanner />
       <ShopByCategory />
       <FeaturedProducts />

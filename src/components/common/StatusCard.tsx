@@ -1,4 +1,4 @@
-﻿
+
 
 export function StatusCard({ icon, label, value, note }: { icon: React.ReactNode; label: string; value: string | number; note?: string }) {
   return (

@@ -9,7 +9,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ eyebrow, title, description, children }: PageHeaderProps) {
   return (
-    <section className="relative overflow-hidden border-b border-neutral-200 bg-[#fffaf7] py-12 md:py-16">
+    <section className="relative overflow-hidden border-b border-neutral-200 bg-brand-bgLight py-12 md:py-16">
       <div className="container relative mx-auto px-4 text-center md:px-6">
         {eyebrow ? <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">{eyebrow}</p> : null}
         <h1 className="mx-auto mt-3 max-w-4xl font-display text-4xl font-semibold leading-[0.98] tracking-[-0.035em] text-neutral-950 md:text-6xl">{title}</h1>

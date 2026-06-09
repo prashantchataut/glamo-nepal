@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
@@ -28,11 +28,11 @@ function formatTimeAgo(timestamp: number): string {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  order: "🛒",
-  stock: "📦",
-  user: "👤",
-  system: "🔔",
-  payment: "💳",
+  order: "??",
+  stock: "??",
+  user: "??",
+  system: "??",
+  payment: "??",
 };
 
 export function NotificationDropdown() {
@@ -111,7 +111,7 @@ export function NotificationDropdown() {
                   key={n._id}
                   className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${n.isRead ? "opacity-60" : ""}`}
                 >
-                  <span className="mt-0.5 text-base">{TYPE_ICONS[n.type] ?? "🔔"}</span>
+                  <span className="mt-0.5 text-base">{TYPE_ICONS[n.type] ?? "??"}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug">{n.title}</p>
                     <p className="mt-0.5 text-xs text-brand-textMuted line-clamp-2">{n.message}</p>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
 import { Search } from "lucide-react";
@@ -137,7 +137,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                   "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                   filters.subCategory === subCategory
                     ? "bg-primary text-white"
-                    : "bg-[#fff7f3] text-neutral-600 hover:text-primary"
+                    : "bg-brand-bgLight text-neutral-600 hover:text-primary"
                 )}
               >
                 {subCategory}
@@ -211,7 +211,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                 filters.concerns.includes(concern)
                   ? "bg-primary text-white"
-                  : "bg-[#fff7f3] text-neutral-600 hover:text-primary"
+                  : "bg-brand-bgLight text-neutral-600 hover:text-primary"
               )}
             >
               {concern}
@@ -284,7 +284,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
             </label>
           </div>
           <p className="text-xs text-neutral-400">
-            Showing रू {filters.minPrice.toLocaleString()} – रू{" "}
+            Showing ?? {filters.minPrice.toLocaleString()} � ??{" "}
             {filters.maxPrice.toLocaleString()}
           </p>
         </div>

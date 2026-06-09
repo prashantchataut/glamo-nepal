@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import NextImage from "next/image";
@@ -200,7 +200,7 @@ export function BannersView() {
                 disabled={isSaving}
                 className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
               >
-                <Save size={15} /> {isSaving ? "Saving…" : "Save banner"}
+                <Save size={15} /> {isSaving ? "Saving�" : "Save banner"}
               </button>
             </div>
           </div>

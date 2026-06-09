@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 
 export function PromoBannerSummerGlow({ className = '' }: { className?: string }) {
   return (
@@ -31,7 +31,7 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
         <p className="text-brand-primary-light text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
         <p className="text-brand-textMuted text-[13px] mb-6">Clean. Vegan. Powerful.</p>
         <a href="/shop" aria-label="Shop summer glow sale" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full border border-brand-gold text-brand-gold text-[13px] font-medium hover:bg-brand-gold hover:text-brand-bgDark transition-colors">
-          Shop Now →
+          Shop Now ?
         </a>
       </div>
     </div>
@@ -75,7 +75,7 @@ export function PromoBannerNewArrivals({ className = '' }: { className?: string 
         <p className="text-brand-primary text-4xl md:text-5xl leading-tight italic font-display">Collection</p>
         <p className="text-brand-textMuted text-sm mt-2 mb-6">Discover our latest additions</p>
         <a href="/collections/new-arrivals" aria-label="Explore new arrivals collection" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full bg-brand-primary text-white text-[13px] font-medium hover:bg-brand-primary-hover transition-colors">
-          Explore →
+          Explore ?
         </a>
       </div>
     </div>

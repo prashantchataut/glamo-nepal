@@ -70,7 +70,7 @@ export function CartPageClient() {
 
   if (!mounted) {
     return (
-      <main className="bg-[#fffaf7] py-12 page-padding">
+      <main className="bg-brand-bgLight py-12 page-padding">
         <div className="mx-auto max-w-7xl">
           <div className="h-8 w-32 skeleton-shimmer rounded-full" />
           <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
@@ -87,9 +87,9 @@ export function CartPageClient() {
 
   if (!items.length) {
     return (
-      <main className="min-h-[72vh] bg-[#fffaf7] px-4 py-20 md:py-28">
+      <main className="min-h-[72vh] bg-brand-bgLight px-4 py-20 md:py-28">
         <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-neutral-200 bg-white p-8 text-center shadow-editorial md:p-12">
-          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-[#f6e6f4] text-primary">
+          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-brand-surfacePink text-primary">
             <ShoppingBag size={28} />
           </div>
           <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
@@ -122,7 +122,7 @@ export function CartPageClient() {
   }
 
   return (
-    <main className="bg-[#fffaf7] px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12">
+    <main className="bg-brand-bgLight px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12">
       <div className="mx-auto max-w-7xl">
         <Link
           href="/shop"
@@ -145,7 +145,7 @@ export function CartPageClient() {
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>
               </div>
-              <div className="mt-5 rounded-[1.25rem] border border-neutral-200 bg-[#fffaf7] p-3.5 md:mt-7 md:rounded-[1.5rem] md:p-4">
+              <div className="mt-5 rounded-[1.25rem] border border-neutral-200 bg-brand-bgLight p-3.5 md:mt-7 md:rounded-[1.5rem] md:p-4">
                 <div className="flex items-center gap-3 text-sm text-neutral-700">
                   <Truck size={18} className="text-primary" />{" "}
                   {remainingForFreeDelivery === 0
