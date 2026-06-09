@@ -11,7 +11,7 @@ export const RATE_LIMITS = {
   event: { max: 50, window: 60 },
   review: { max: 5, window: 60 * 60 },
   contact: { max: 3, window: 60 * 60 },
-  orderTracking: { max: 10, window: 60 },
+  orderTracking: { max: 5, window: 60 },
   general: { max: 100, window: 60 },
 } as const
 

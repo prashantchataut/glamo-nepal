@@ -21,7 +21,6 @@ interface AuthState {
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
   login: (user: AuthUser) => void;
-  initialize: () => void;
   logout: () => Promise<void>;
   updateProfile: (profile: { name?: string; email?: string }) => Promise<void>;
   clearError: () => void;
@@ -38,9 +37,6 @@ export const useAuthStore = create<AuthState>()((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
 
   login: (user) => set({ user, isLoading: false, error: null }),
-  initialize: () => {
-    set({ isLoading: false });
-  },
 
   logout: async () => {
     try {
