@@ -94,6 +94,27 @@ export async function register(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const db = c.get('db')
     const result = await AuthService.register(data, db)
+
+    if (c.env.RESEND_API_KEY && result.user?.email) {
+      try {
+        const token = crypto.randomUUID()
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        await db.execute({
+          sql: `INSERT INTO email_verifications (id, user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?, datetime('now'))`,
+          args: [crypto.randomUUID(), result.user.id, token, expiresAt],
+        }).catch(() => {
+          return db.execute({
+            sql: "UPDATE email_verifications SET token = ?, expires_at = ?, created_at = datetime('now') WHERE user_id = ?",
+            args: [token, expiresAt, result.user.id],
+          })
+        })
+        const { sendVerificationEmail } = await import('../../utils/email')
+        await sendVerificationEmail(result.user.email, result.user.firstName || 'there', token, c.env)
+      } catch (err) {
+        console.error('Failed to send verification email after registration:', err)
+      }
+    }
+
     return ApiResponse.success(c, 'Registration successful', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {

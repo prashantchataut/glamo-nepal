@@ -5,6 +5,7 @@ import { authApi } from "@/lib/api/auth";
 import { GlamoApiError } from "@/lib/api/client";
 import { toast } from "sonner";
 import Link from "next/link";
+import { inputClasses, primaryButtonClasses, errorBoxClasses, successBoxClasses } from "@/lib/form-styles";
 
 export function ForgotPasswordClient() {
   const [email, setEmail] = useState("");
@@ -44,7 +45,7 @@ export function ForgotPasswordClient() {
         </p>
 
         {sent ? (
-          <div className="mt-8 rounded-[1.25rem] border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+          <div className={successBoxClasses}>
             Check your email for a password reset link. You can now return to the <Link href="/login" className="font-semibold underline">sign in page</Link>.
           </div>
         ) : (
@@ -59,13 +60,13 @@ export function ForgotPasswordClient() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                className={inputClasses}
                 required
               />
             </div>
 
             {error && (
-              <div className="rounded-[1.25rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+              <div className={errorBoxClasses} role="alert">
                 {error}
               </div>
             )}
@@ -73,7 +74,7 @@ export function ForgotPasswordClient() {
             <button
               type="submit"
               disabled={isLoading || !email}
-              className="btn-press w-full min-h-[44px] bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className={primaryButtonClasses}
             >
               {isLoading ? "Sending..." : "Send reset link"}
             </button>

@@ -1,4 +1,3 @@
-import { PRODUCTS, CATEGORIES, getProductBySlug as getProductBySlugLocal, getRelatedProducts, searchProducts as searchProductsLocal } from "@/lib/data/catalog-products";
 import type { ApiResponse, Category, PaymentMethod } from "./contracts";
 import type { Product } from "@/types/product";
 import { apiRequest } from "./client";
@@ -20,67 +19,30 @@ export interface ProductListParams {
   perPage?: number;
 }
 
-function sortProducts(products: Product[], sort: ProductListParams["sort"] = "featured") {
-  const result = [...products];
-  switch (sort) {
-    case "price-asc":
-      return result.sort((a, b) => a.price - b.price);
-    case "price-desc":
-      return result.sort((a, b) => b.price - a.price);
-    case "newest":
-      return result.sort((a, b) => Number(Boolean(b.isNewArrival)) - Number(Boolean(a.isNewArrival)));
-    case "best-sellers":
-      return result.sort((a, b) => Number(Boolean(b.isBestSeller)) - Number(Boolean(a.isBestSeller)));
-    case "most-reviewed":
-      return result.sort((a, b) => b.reviewsCount - a.reviewsCount);
-    case "featured":
-    default:
-      return result.sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
-  }
+export async function listProducts(params: ProductListParams = {}): Promise<ApiResponse<Product[]>> {
+  const queryParams = new URLSearchParams();
+  if (params.query) queryParams.set("q", params.query);
+  if (params.category) queryParams.set("category", params.category);
+  if (params.brand) queryParams.set("brand", params.brand);
+  if (params.concern) queryParams.set("concern", params.concern);
+  if (params.skinType) queryParams.set("skinType", params.skinType);
+  if (params.madeInNepal) queryParams.set("madeInNepal", "1");
+  if (params.inStock) queryParams.set("inStock", "1");
+  if (params.minPrice !== undefined) queryParams.set("minPrice", String(params.minPrice));
+  if (params.maxPrice !== undefined) queryParams.set("maxPrice", String(params.maxPrice));
+  if (params.sort) queryParams.set("sort", params.sort);
+  if (params.page) queryParams.set("page", String(params.page));
+  if (params.perPage) queryParams.set("perPage", String(params.perPage));
+
+  const qs = queryParams.toString();
+  const endpoint = params.query ? `/products/search?${qs}` : `/products?${qs}`;
+
+  return apiRequest<Product[]>(endpoint);
 }
 
-export async function listProducts(params: ProductListParams = {}): Promise<ApiResponse<Product[]>> {
-  if (params.query) {
-    try {
-      const apiResult = await apiRequest<Product[]>(`/products/search?q=${encodeURIComponent(params.query)}`);
-      if (apiResult.status === "success" && apiResult.data && apiResult.data.length > 0) {
-        return apiResult;
-      }
-    } catch {}
-    return ok(searchProductsLocal(params.query));
-  }
-
-  try {
-    const queryParams = new URLSearchParams();
-    if (params.category) queryParams.set("category", params.category);
-    if (params.brand) queryParams.set("brand", params.brand);
-    if (params.sort) queryParams.set("sort", params.sort);
-    if (params.page) queryParams.set("page", String(params.page));
-    if (params.perPage) queryParams.set("perPage", String(params.perPage));
-    if (params.inStock !== undefined) queryParams.set("inStock", String(params.inStock));
-
-    const apiResult = await apiRequest<Product[]>(`/products?${queryParams.toString()}`);
-    if (apiResult.status === "success" && apiResult.data && apiResult.data.length > 0) {
-      return apiResult;
-    }
-  } catch {}
-
-  let products = [...PRODUCTS];
-  if (params.category) products = products.filter((p) => p.category === params.category);
-  if (params.brand) products = products.filter((p) => p.brand === params.brand);
-  if (params.concern) products = products.filter((p) => p.concernTags.includes(params.concern as string));
-  if (params.skinType) products = products.filter((p) => p.skinType.includes(params.skinType as string));
-  if (params.madeInNepal) products = products.filter((p) => p.madeInNepal);
-  if (params.inStock) products = products.filter((p) => p.inStock);
-  if (typeof params.minPrice === "number") products = products.filter((p) => p.price >= params.minPrice!);
-  if (typeof params.maxPrice === "number") products = products.filter((p) => p.price <= params.maxPrice!);
-
-  const sorted = sortProducts(products, params.sort);
-  const page = Math.max(1, params.page || 1);
-  const perPage = Math.max(1, params.perPage || sorted.length || 1);
-  const paginated = sorted.slice((page - 1) * perPage, page * perPage);
-
-  return ok(paginated, { page, perPage, total: sorted.length });
+export async function searchProducts(query: string, limit = 8): Promise<ApiResponse<Product[]>> {
+  if (!query.trim()) return ok([]);
+  return apiRequest<Product[]>(`/products/search?q=${encodeURIComponent(query)}&perPage=${limit}`);
 }
 
 export async function getProduct(slug: string): Promise<ApiResponse<Product | null>> {
@@ -90,12 +52,15 @@ export async function getProduct(slug: string): Promise<ApiResponse<Product | nu
       return apiResult;
     }
   } catch {}
-  return ok(getProductBySlugLocal(slug) || null);
+  return ok(null);
 }
 
 export async function listRelatedProducts(slug: string, limit = 4): Promise<ApiResponse<Product[]>> {
-  const localProduct = getProductBySlugLocal(slug);
-  return ok(localProduct ? getRelatedProducts(localProduct, limit) : []);
+  try {
+    return await apiRequest<Product[]>(`/products/${slug}/related?limit=${limit}`);
+  } catch {
+    return ok([]);
+  }
 }
 
 export async function listCategories(): Promise<ApiResponse<Category[]>> {
@@ -105,7 +70,7 @@ export async function listCategories(): Promise<ApiResponse<Category[]>> {
       return apiResult;
     }
   } catch {}
-  return ok(CATEGORIES.map((c) => ({ id: c.slug, name: c.name, slug: c.slug, description: c.description, image: c.image })));
+  return ok([]);
 }
 
 export const PAYMENT_METHODS: PaymentMethod[] = [

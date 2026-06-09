@@ -6,6 +6,7 @@ import { GlamoApiError } from "@/lib/api/client";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import { inputClasses, primaryButtonClasses, errorBoxClasses, successBoxClasses } from "@/lib/form-styles";
 
 export function ResetPasswordClient() {
   const searchParams = useSearchParams();
@@ -66,7 +67,7 @@ export function ResetPasswordClient() {
         </p>
 
         {success ? (
-          <div className="mt-8 rounded-[1.25rem] border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+          <div className={successBoxClasses}>
             Your password has been reset. You can now <Link href="/login" className="font-semibold underline">sign in</Link> with your new password.
           </div>
         ) : (
@@ -81,7 +82,7 @@ export function ResetPasswordClient() {
                 placeholder="At least 8 characters"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                className={inputClasses}
                 required
                 minLength={8}
               />
@@ -97,14 +98,14 @@ export function ResetPasswordClient() {
                 placeholder="Re-enter your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                className={inputClasses}
                 required
                 minLength={8}
               />
             </div>
 
             {error && (
-              <div className="rounded-[1.25rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+              <div className={errorBoxClasses} role="alert">
                 {error}
               </div>
             )}
@@ -112,7 +113,7 @@ export function ResetPasswordClient() {
             <button
               type="submit"
               disabled={isLoading || !newPassword || !confirmPassword}
-              className="btn-press w-full min-h-[44px] bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className={primaryButtonClasses}
             >
               {isLoading ? "Resetting..." : "Reset password"}
             </button>

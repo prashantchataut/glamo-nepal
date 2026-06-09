@@ -2,17 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, AlertCircle, RefreshCw } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
-import { CATEGORIES, PRODUCTS, SORT_OPTIONS, getPriceRange } from "@/lib/data/products";
+import { CATEGORIES, SORT_OPTIONS } from "@/lib/data/products";
 import { listProducts, type ProductListParams } from "@/lib/api/catalog";
 import type { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 import { trackCategoryView } from "@/lib/tracking";
 
-const PRICE_RANGE = getPriceRange();
+const PRICE_RANGE = { min: 0, max: 50000 };
 const DEFAULT_FILTERS: FilterState = {
   category: "",
   subCategory: "",
@@ -69,39 +69,13 @@ function paramsFromFilters(filters: FilterState) {
 
 const ITEMS_PER_PAGE = 12;
 
-function filterProductsLocally(products: Product[], filters: FilterState): Product[] {
-  let result = [...products];
-  const query = filters.search.toLowerCase().trim();
-  if (query)
-    result = result.filter((product) =>
-      [product.name, product.brand, product.sku, product.description, product.category, product.subCategory, ...product.concernTags].join(" ").toLowerCase().includes(query)
-    );
-  if (filters.category) result = result.filter((product) => product.category === filters.category);
-  if (filters.subCategory) result = result.filter((product) => product.subCategory === filters.subCategory);
-  if (filters.brands.length) result = result.filter((product) => filters.brands.includes(product.brand));
-  if (filters.skinType.length) result = result.filter((product) => product.skinType.some((st) => filters.skinType.includes(st)));
-  if (filters.concerns.length) result = result.filter((product) => product.concernTags.some((c) => filters.concerns.includes(c)));
-  if (filters.madeInNepal) result = result.filter((product) => product.madeInNepal);
-  if (filters.inStock) result = result.filter((product) => product.inStock);
-  result = result.filter((product) => product.price >= filters.minPrice && product.price <= filters.maxPrice);
-  switch (filters.sort) {
-    case "price-asc": result.sort((a, b) => a.price - b.price); break;
-    case "price-desc": result.sort((a, b) => b.price - a.price); break;
-    case "newest": result.sort((a, b) => Number(Boolean(b.isNewArrival)) - Number(Boolean(a.isNewArrival))); break;
-    case "best-sellers": result.sort((a, b) => Number(Boolean(b.isBestSeller)) - Number(Boolean(a.isBestSeller))); break;
-    case "most-reviewed": result.sort((a, b) => b.reviewsCount - a.reviewsCount); break;
-    default: result.sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
-  }
-  return result;
-}
-
 export default function ShopPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const urlPage = Number(searchParams.get("page")) || 1;
   const [currentPage, setCurrentPage] = useState(urlPage);
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
@@ -152,16 +126,16 @@ export default function ShopPageContent() {
     })
       .then((result) => {
         if (cancelled) return;
-        if (result.status === "success" && result.data) {
-          setProducts(result.data.length > 0 ? result.data : filterProductsLocally(PRODUCTS, filters));
+        if (result.status === "success" && result.data && result.data.length > 0) {
+          setProducts(result.data);
         } else {
-          setProducts(filterProductsLocally(PRODUCTS, filters));
+          setProducts([]);
         }
       })
       .catch(() => {
         if (cancelled) return;
-        setApiError("Unable to load products. Showing cached data.");
-        setProducts(filterProductsLocally(PRODUCTS, filters));
+        setApiError("Unable to load products. Please try again.");
+        setProducts([]);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -314,7 +288,40 @@ export default function ShopPageContent() {
                 <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-neutral-200 border-t-primary" />
                 <p className="mt-4 text-sm text-neutral-400">Loading products...</p>
               </div>
-            ) : products.length === 0 && !apiError ? (
+            ) : apiError ? (
+              <div className="py-24 text-center">
+                <AlertCircle className="mx-auto h-16 w-16 text-neutral-300" strokeWidth={1} aria-hidden="true" />
+                <h2 className="mt-6 font-display text-xl font-semibold text-neutral-900">Unable to load products</h2>
+                <p className="mt-2 text-sm text-neutral-400">
+                  Something went wrong. Please try again.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setApiError(null);
+                    setIsLoading(true);
+                    listProducts({
+                      query: filters.search || undefined,
+                      category: filters.category || undefined,
+                      sort: filters.sort as ProductListParams["sort"],
+                      page: currentPage,
+                      perPage: ITEMS_PER_PAGE,
+                    })
+                      .then((result) => {
+                        if (result.status === "success" && result.data) {
+                          setProducts(result.data);
+                        }
+                      })
+                      .catch(() => setApiError("Unable to load products. Please try again."))
+                      .finally(() => setIsLoading(false));
+                  }}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary cursor-pointer"
+                >
+                  <RefreshCw size={14} />
+                  Retry
+                </button>
+              </div>
+            ) : products.length === 0 ? (
               <div className="py-24 text-center">
                 <svg className="mx-auto h-16 w-16 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

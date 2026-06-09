@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { authApi } from "@/lib/api/auth";
 import { GlamoApiError } from "@/lib/api/client";
+import { toast } from "sonner";
 import Link from "next/link";
+import { inputClasses, primaryButtonClasses, errorBoxClasses, successBoxClasses } from "@/lib/form-styles";
 
 export function VerifyEmailClient() {
   const searchParams = useSearchParams();
@@ -65,7 +67,7 @@ export function VerifyEmailClient() {
           <button
             onClick={handleVerify}
             disabled={isLoading}
-            className="btn-press mt-6 min-h-[44px] bg-primary px-8 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+            className={primaryButtonClasses + " mt-6 max-w-xs"}
           >
             {isLoading ? "Verifying..." : "Verify Email"}
           </button>
@@ -102,7 +104,7 @@ export function VerifyEmailClient() {
         )}
 
         {resendSuccess ? (
-          <div className="mt-6 rounded-[1.25rem] border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+          <div className={successBoxClasses + " mt-6"}>
             If an account with that email exists, a verification link has been sent.
           </div>
         ) : (
@@ -117,7 +119,7 @@ export function VerifyEmailClient() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+                className={inputClasses}
                 required
               />
             </div>
@@ -125,7 +127,7 @@ export function VerifyEmailClient() {
             <button
               type="submit"
               disabled={resendLoading || !email}
-              className="btn-press w-full min-h-[44px] bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className={primaryButtonClasses}
             >
               {resendLoading ? "Sending..." : "Send verification link"}
             </button>
