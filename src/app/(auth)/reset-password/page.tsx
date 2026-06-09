@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { createMetadata } from "@/lib/seo";
 import { ResetPasswordClient } from "@/components/auth/ResetPasswordClient";
+import { AuthFormSkeleton } from "@/components/common/SkeletonComponents";
 
 export const metadata = createMetadata({
   title: "Reset Password",
@@ -11,7 +12,7 @@ export const metadata = createMetadata({
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<AuthFormSkeleton />}>
       <ResetPasswordClient />
     </Suspense>
   );

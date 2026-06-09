@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import ShopPageContent from "./ShopPageContent";
+import { ProductGridSkeleton } from "@/components/common/SkeletonComponents";
 import { createMetadata, breadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 
@@ -12,7 +13,7 @@ export const metadata = createMetadata({
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-bgLight" />}>
+    <Suspense fallback={<ProductGridSkeleton />}>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Shop", path: "/shop" }])} />
       <ShopPageContent />
     </Suspense>

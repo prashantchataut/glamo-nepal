@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { authApi } from "@/lib/api/auth";
 import { GlamoApiError } from "@/lib/api/client";
-import { toast } from "sonner";
 import Link from "next/link";
-import { inputClasses, primaryButtonClasses, errorBoxClasses, successBoxClasses } from "@/lib/form-styles";
+import { inputClasses, primaryButtonClasses, successBoxClasses } from "@/lib/form-styles";
 
 export function VerifyEmailClient() {
   const searchParams = useSearchParams();

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { createMetadata } from "@/lib/seo";
 import { VerifyEmailClient } from "@/components/auth/VerifyEmailClient";
+import { AuthFormSkeleton } from "@/components/common/SkeletonComponents";
 
 export const metadata = createMetadata({
   title: "Verify Email",
@@ -11,7 +12,7 @@ export const metadata = createMetadata({
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<AuthFormSkeleton />}>
       <VerifyEmailClient />
     </Suspense>
   );

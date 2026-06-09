@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthFormSkeleton } from "@/components/common/SkeletonComponents";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -13,7 +14,7 @@ export default function RegisterPage() {
   return (
     <main className="bg-[#fbf7f3] px-4 py-8 pb-24 md:px-6 md:py-12 md:pb-16">
       <div className="container mx-auto">
-        <Suspense fallback={<div className="mx-auto max-w-5xl bg-white p-8 text-neutral-400">Loading registration...</div>}>
+        <Suspense fallback={<AuthFormSkeleton />}>
           <AuthForm mode="register" />
         </Suspense>
       </div>

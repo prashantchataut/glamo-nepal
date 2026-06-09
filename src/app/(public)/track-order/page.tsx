@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import TrackOrderClient from "./TrackOrderClient";
+import { OrderTrackSkeleton } from "@/components/common/SkeletonComponents";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -11,7 +12,7 @@ export const metadata = createMetadata({
 
 export default function TrackOrderPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-bgLight" />}>
+    <Suspense fallback={<OrderTrackSkeleton />}>
       <TrackOrderClient />
     </Suspense>
   );
