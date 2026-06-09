@@ -37,6 +37,23 @@ export async function verifyFirebaseToken(token: string, projectId: string): Pro
   }
 }
 
+function getSuperAdminEmails(): { owner: string; admins: string[] } {
+  const raw = process.env.SUPER_ADMIN_EMAILS || process.env.ADMIN_EMAIL || ''
+  const emails = raw.split(',').map((e: string) => e.trim().toLowerCase()).filter(Boolean)
+  return {
+    owner: emails[0] || '',
+    admins: emails,
+  }
+}
+
+function isSuperAdmin(email: string): boolean {
+  return getSuperAdminEmails().admins.includes(email.toLowerCase())
+}
+
+function isOwner(email: string): boolean {
+  return getSuperAdminEmails().owner === email.toLowerCase()
+}
+
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   const adminSession = getAdminSessionToken(c)
   if (adminSession) {
@@ -50,17 +67,18 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
       if (result.rows.length > 0) {
         const profile = result.rows[0]
         const isActive = profile.is_active
+        const role = isOwner(adminUser.email) ? 'OWNER' : (profile.role as string)
         c.set('user', {
           id: profile.id as string,
           email: adminUser.email,
-          role: profile.role as string,
+          role,
           isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
         })
         await next()
         return
       }
 
-      if (adminUser.email === process.env.ADMIN_EMAIL) {
+      if (isSuperAdmin(adminUser.email)) {
         const db = c.get('db')
         const existingAdmin = await db.execute({
           sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
@@ -69,19 +87,21 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
         if (existingAdmin.rows.length > 0) {
           const profile = existingAdmin.rows[0]
           const isActive = profile.is_active
+          const role = isOwner(adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
           c.set('user', {
             id: profile.id as string,
             email: adminUser.email,
-            role: profile.role as string,
+            role,
             isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
           })
         } else {
           const adminId = crypto.randomUUID()
+          const role = isOwner(adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
           try {
             await db.execute({
               sql: `INSERT INTO users (id, email, first_name, role, is_active, email_verified, created_at, updated_at)
-                    VALUES (?, ?, 'GLAMO Admin', 'SUPER_ADMIN', 1, 1, datetime('now'), datetime('now'))`,
-              args: [adminId, adminUser.email],
+                    VALUES (?, ?, 'GLAMO Admin', ?, 1, 1, datetime('now'), datetime('now'))`,
+              args: [adminId, adminUser.email, role],
             })
           } catch (error: any) {
             if (!error?.message?.includes('UNIQUE constraint')) {
@@ -91,7 +111,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
           c.set('user', {
             id: adminId,
             email: adminUser.email,
-            role: 'SUPER_ADMIN',
+            role,
             isActive: true,
           })
         }

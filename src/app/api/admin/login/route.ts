@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
     const adminName = process.env.ADMIN_NAME || "GLAMO Admin";
+    const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || adminEmail || "").split(",").map((e: string) => e.trim().toLowerCase()).filter(Boolean);
 
     if (!adminEmail || !adminPassword) {
       return NextResponse.json({ success: false, message: "Admin login is not configured." }, { status: 500 });
@@ -91,12 +92,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 
+    const isOwner = superAdminEmails[0] === email.toLowerCase();
+    const role = isOwner ? "OWNER" : (superAdminEmails.includes(email.toLowerCase()) ? "SUPER_ADMIN" : "admin");
+
     const token = await createAdminSessionToken(email, adminName);
 
     const response = NextResponse.json({
       success: true,
       data: {
-        user: { email, name: adminName, role: "admin" },
+        user: { email, name: adminName, role },
       },
     });
 

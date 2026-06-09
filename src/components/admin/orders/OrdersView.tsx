@@ -33,6 +33,7 @@ export function OrdersView() {
   const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
+  const [pendingStatus, setPendingStatus] = useState<{ orderId: string; status: string; label: string } | null>(null);
 
   const { data: ordersData, meta: ordersMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listOrders({
     status: statusFilter || undefined,
@@ -55,9 +56,16 @@ export function OrdersView() {
   const error = hasError ? "Failed to load orders" : null;
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
+    const label = newStatus.charAt(0) + newStatus.slice(1).toLowerCase();
+    setPendingStatus({ orderId, status: newStatus, label });
+  };
+
+  const confirmStatusChange = async () => {
+    if (!pendingStatus) return;
     try {
-      await updateStatus({ id: orderId, status: newStatus as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
-      toast.success("Order status updated");
+      await updateStatus({ id: pendingStatus.orderId, status: pendingStatus.status as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
+      toast.success(`Order status updated to ${pendingStatus.label}`);
+      setPendingStatus(null);
       refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
@@ -131,8 +139,8 @@ export function OrdersView() {
                 {s.charAt(0) + s.slice(1).toLowerCase()}
               </option>
             ))}
-          </select>
-          {order.status !== "CANCELLED" && (
+</select>
+           {order.status !== "CANCELLED" && (
             <button
               onClick={() => setCancelOrderId(order.id)}
               className="text-xs font-medium text-admin-error hover:underline"
@@ -229,6 +237,17 @@ export function OrdersView() {
           />
         </label>
       </ConfirmDialog>
+
+      <ConfirmDialog
+        open={pendingStatus !== null}
+        onOpenChange={(open) => { if (!open) setPendingStatus(null); }}
+        title={`Change order status to ${pendingStatus?.label || ""}?`}
+        description="This will update the order status. Customers may receive a notification."
+        confirmLabel={`Confirm: ${pendingStatus?.label || ""}`}
+        variant="default"
+        isLoading={false}
+        onConfirm={confirmStatusChange}
+      />
     </section>
   );
 }

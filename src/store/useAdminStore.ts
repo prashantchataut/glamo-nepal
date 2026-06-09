@@ -22,6 +22,20 @@ interface AdminUser {
   role: string;
 }
 
+const ROLE_HIERARCHY: Record<string, string[]> = {
+  OWNER: ["OWNER", "SUPER_ADMIN", "ADMIN"],
+  SUPER_ADMIN: ["SUPER_ADMIN", "ADMIN"],
+  ADMIN: ["ADMIN"],
+};
+
+export function canAccess(userRole: string, requiredRole: string): boolean {
+  const allowed = ROLE_HIERARCHY[userRole] || [userRole];
+  return allowed.includes(requiredRole);
+}
+
+const SUPER_ADMIN_SECTIONS: AdminSection[] = ["coupons", "audit"];
+const OWNER_SECTIONS: AdminSection[] = [];
+
 interface AdminState {
   activeSection: AdminSection;
   sidebarOpen: boolean;

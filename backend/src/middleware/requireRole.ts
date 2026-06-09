@@ -1,10 +1,24 @@
 import { createMiddleware } from 'hono/factory'
 import type { AppEnv } from '../types/bindings'
 
+const ROLE_HIERARCHY: Record<string, string[]> = {
+  OWNER: ['OWNER'],
+  SUPER_ADMIN: ['OWNER', 'SUPER_ADMIN'],
+  ADMIN: ['OWNER', 'SUPER_ADMIN', 'ADMIN'],
+}
+
+function hasRequiredRole(userRole: string, requiredRoles: string[]): boolean {
+  const allowedRoles = ROLE_HIERARCHY[userRole] || [userRole]
+  return requiredRoles.some((role) => allowedRoles.includes(role))
+}
+
 export const requireRole = (roles: string[]) => {
   return createMiddleware<AppEnv>(async (c, next) => {
     const user = c.get('user')
-    if (!user || !roles.includes(user.role)) {
+    if (!user) {
+      return c.json({ success: false, message: 'Forbidden: insufficient permissions', errors: [] }, 403)
+    }
+    if (!hasRequiredRole(user.role, roles)) {
       return c.json({ success: false, message: 'Forbidden: insufficient permissions', errors: [] }, 403)
     }
     if (user.isActive === false) {

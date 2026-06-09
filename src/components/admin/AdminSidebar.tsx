@@ -20,7 +20,8 @@ import {
   Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AdminSection } from "@/store/useAdminStore";
+import { AdminSection, canAccess } from "@/store/useAdminStore";
+import { useAdminStore } from "@/store/useAdminStore";
 
 interface AdminSidebarProps {
   activeSection: AdminSection;
@@ -69,6 +70,23 @@ function SparklesIcon() {
   );
 }
 
+const SECTION_ACCESS: Record<AdminSection, string> = {
+  dashboard: "ADMIN",
+  products: "ADMIN",
+  orders: "ADMIN",
+  inventory: "ADMIN",
+  banners: "ADMIN",
+  blogs: "ADMIN",
+  coupons: "SUPER_ADMIN",
+  popups: "ADMIN",
+  gallery: "ADMIN",
+  team: "ADMIN",
+  customers: "ADMIN",
+  analytics: "ADMIN",
+  audit: "SUPER_ADMIN",
+  settings: "ADMIN",
+};
+
 export function AdminSidebar({
   activeSection,
   onSectionChange,
@@ -77,6 +95,10 @@ export function AdminSidebar({
   onLogout,
   isLoggingOut,
 }: AdminSidebarProps) {
+  const adminUser = useAdminStore((s) => s.adminUser);
+  const userRole = adminUser?.role || "ADMIN";
+
+  const visibleSections = sections.filter((s) => canAccess(userRole, SECTION_ACCESS[s.id]));
   return (
     <aside
       role="navigation"
@@ -114,7 +136,7 @@ export function AdminSidebar({
           role="tablist"
           className="flex-1 space-y-1 overflow-y-auto px-4 py-4"
         >
-          {sections.map((section) => {
+          {visibleSections.map((section) => {
             const Icon = section.icon;
             return (
               <button
