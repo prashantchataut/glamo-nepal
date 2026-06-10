@@ -130,7 +130,7 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={onWishlist}
           className={cn(
-            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-neutral-700 shadow-soft transition-all duration-200 hover:text-primary",
+            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-neutral-700 shadow-soft transition-all duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             "opacity-100 md:opacity-0 md:group-hover:opacity-100",
             isWishlisted &&
               "bg-primary text-white opacity-100 hover:text-white",
@@ -141,7 +141,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {product.inStock && (
-          <div className="absolute inset-x-3 bottom-3 z-10 translate-y-0 opacity-100 transition-all duration-300 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
+          <div className="absolute inset-x-3 bottom-3 z-10 hidden translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
             {product.shadeOptions && product.shadeOptions.length > 0 ? (
               <Link
                 href={`/products/${product.slug}`}
@@ -235,11 +235,29 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="text-[11px] text-neutral-400">
               {product.reviewsCount} reviews
             </span>
-          </div>
+</div>
           {showNotify && !product.inStock && (
             <p className="mt-3 text-xs text-neutral-500">
-              Notify request can be added from the product page.
+              <Link href={`/products/${product.slug}`} className="underline hover:text-primary">View details</Link>
             </p>
+          )}
+          {product.inStock && (
+            <div className="mt-3 md:hidden">
+              {product.shadeOptions && product.shadeOptions.length > 0 ? (
+                <Link href={`/products/${product.slug}`} className="flex h-10 w-full items-center justify-center rounded-full border border-neutral-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition-colors hover:border-primary hover:text-primary">
+                  View options
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onCart}
+                  disabled={addState === "loading"}
+                  className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-primary disabled:opacity-60"
+                >
+                  {addState === "loading" ? <Loader2 size={14} className="animate-spin" /> : addState === "added" ? <><Check size={14} /> Added</> : <><ShoppingBag size={14} /> Add to bag</>}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

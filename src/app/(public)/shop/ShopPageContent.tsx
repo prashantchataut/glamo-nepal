@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -167,9 +167,9 @@ export default function ShopPageContent() {
   }, [filters.category]);
 
   return (
-    <div className="min-h-screen bg-brand-bgLight pb-20 md:pb-0">
+    <div className="min-h-screen bg-neutral-50 pb-20 md:pb-0">
       {/* Page header */}
-      <section className="bg-brand-surfacePink py-12 md:py-18">
+      <section className="bg-gradient-to-b from-rose-50 via-white to-white py-12 md:py-18">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div>
             <span className="type-label text-primary">NPR pricing - Nepal delivery</span>
@@ -210,7 +210,7 @@ export default function ShopPageContent() {
       {/* Main content */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          {/* Sidebar � desktop only */}
+          {/* Sidebar ? desktop only */}
           <div className="hidden w-64 shrink-0 lg:block">
             <ShopFilterSidebar
               filters={filters}

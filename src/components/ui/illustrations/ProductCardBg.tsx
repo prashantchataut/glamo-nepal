@@ -22,7 +22,7 @@ export function ProductCardBg({ className = '' }: { className?: string }) {
 export function ProductCardBgHover({ className = '' }: { className?: string }) {
   return (
     <div className={`absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${className}`} aria-hidden="true">
-      <div className="absolute inset-0 bg-gradient-to-b from-[rgba(217,120,152,0.06)] to-transparent" />
+      <div className="absolute inset-0 bg-card-overlay" />
     </div>
   )
 }

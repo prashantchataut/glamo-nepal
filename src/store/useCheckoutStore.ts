@@ -45,6 +45,7 @@ export interface CheckoutPayload {
   paymentMethod: string;
   giftWrap?: boolean;
   orderNotes?: string;
+  couponCode?: string;
   deliveryFee: number;
   subtotal: number;
   grandTotal: number;
@@ -56,7 +57,13 @@ interface CheckoutState {
   error: string | null;
   lastOrder: SimulatedOrder | null;
   orders: SimulatedOrder[];
+  couponCode: string | null;
+  discountAmount: number;
+  couponError: string | null;
+  couponLoading: boolean;
   placeOrder: (order: Omit<SimulatedOrder, "id" | "createdAt" | "date" | "status"> & Partial<Pick<SimulatedOrder, "status">>, payload: CheckoutPayload) => Promise<SimulatedOrder>;
+  applyCoupon: (code: string, cartTotal: number) => Promise<void>;
+  removeCoupon: () => void;
   reset: () => void;
 }
 
@@ -67,6 +74,22 @@ export const useCheckoutStore = create<CheckoutState>()(
       error: null,
       lastOrder: null,
       orders: [],
+      couponCode: null,
+      discountAmount: 0,
+      couponError: null,
+      couponLoading: false,
+      applyCoupon: async (code, cartTotal) => {
+        set({ couponLoading: true, couponError: null });
+        try {
+          const { validateCoupon } = await import("@/lib/api/checkout");
+          const result = await validateCoupon(code, cartTotal);
+          set({ couponCode: result.code, discountAmount: result.discountAmount, couponError: null, couponLoading: false });
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Invalid coupon code";
+          set({ couponError: message, couponLoading: false });
+        }
+      },
+      removeCoupon: () => set({ couponCode: null, discountAmount: 0, couponError: null }),
       placeOrder: async (order, payload) => {
         set({ status: "pending", error: null });
         try {
@@ -113,7 +136,7 @@ export const useCheckoutStore = create<CheckoutState>()(
           throw err;
         }
       },
-      reset: () => set({ status: "idle", error: null }),
+      reset: () => set({ status: "idle", error: null, couponCode: null, discountAmount: 0, couponError: null }),
     }),
     {
       name: "glamo-checkout-storage",

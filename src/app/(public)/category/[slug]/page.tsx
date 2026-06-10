@@ -2,8 +2,9 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import CategoryPageContent from "./CategoryPageContent";
 import { CATEGORIES } from "@/lib/data/products";
-import { createMetadata, breadcrumbJsonLd } from "@/lib/seo";
+import { createMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { getProductsByCategory } from "@/lib/data/catalog-products";
 
 export function generateStaticParams() {
   return CATEGORIES.map((category) => ({ slug: category.slug }));
@@ -23,13 +24,21 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const category = CATEGORIES.find((item) => item.slug === params.slug);
   if (!category) notFound();
+  const products = getProductsByCategory(params.slug);
   return (
     <Suspense fallback={<div className="min-h-screen bg-brand-bgLight" />}>
-      <JsonLd data={breadcrumbJsonLd([
-        { name: "Home", path: "/" },
-        { name: "Shop", path: "/shop" },
-        { name: category.name, path: `/category/${category.slug}` },
-      ])} />
+      <JsonLd data={[
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Shop", path: "/shop" },
+          { name: category.name, path: `/category/${category.slug}` },
+        ]),
+        itemListJsonLd(products.map((product) => ({
+          name: product.name,
+          url: `/products/${product.slug}`,
+          image: product.image,
+        }))),
+      ]} />
       <CategoryPageContent />
     </Suspense>
   );

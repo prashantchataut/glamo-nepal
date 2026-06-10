@@ -12,10 +12,12 @@ import {
   ClipboardCheck,
   CreditCard,
   Gift,
+  Loader2,
   LockKeyhole,
   MapPin,
   ShieldCheck,
   ShoppingBag,
+  Tag,
   Truck,
   X,
 } from "lucide-react";
@@ -76,12 +78,14 @@ function OrderSummary({
   deliveryFee,
   giftWrapFee,
   codFee,
+  discountAmount,
   total,
 }: {
   subtotal: number;
   deliveryFee: number;
   giftWrapFee: number;
   codFee: number;
+  discountAmount: number;
   total: number;
 }) {
   return (
@@ -108,6 +112,12 @@ function OrderSummary({
           <span className="text-neutral-950">{formatNPR(giftWrapFee)}</span>
         </div>
       )}
+      {discountAmount > 0 && (
+        <div className="flex justify-between text-primary">
+          <span>Discount</span>
+          <span>-{formatNPR(discountAmount)}</span>
+        </div>
+      )}
       <div className="flex justify-between border-t border-neutral-200 pt-4 text-neutral-950">
         <span className="font-semibold">Total</span>
         <span className="font-display text-3xl font-semibold leading-none">
@@ -121,13 +131,14 @@ function OrderSummary({
 export function CheckoutPageClient() {
   const router = useRouter();
   const { items, getSubtotal, clearCart } = useCartStore();
-  const { placeOrder } = useCheckoutStore();
+  const { placeOrder, couponCode, discountAmount, couponError, couponLoading, applyCoupon, removeCoupon } = useCheckoutStore();
   const user = useAuthStore((state) => state.user);
   const authLoading = useAuthStore((state) => state.isLoading);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [couponInput, setCouponInput] = useState("");
 
   const [guestMode, setGuestMode] = useState(false);
   const showAuthChoice = !authLoading && user === null && !guestMode;
@@ -210,7 +221,7 @@ export function CheckoutPageClient() {
   const giftWrapFee = form.giftWrap ? 100 : 0;
   const isCOD = form.payment === "Cash on Delivery";
   const codFee = isCOD ? COD_FEE : 0;
-  const total = subtotal + deliveryFee + giftWrapFee + codFee;
+  const total = subtotal + deliveryFee + giftWrapFee + codFee - discountAmount;
   const districtOptions = useMemo(
     () => getDistrictsForProvince(form.province as Province),
     [form.province],
@@ -315,6 +326,7 @@ export function CheckoutPageClient() {
           paymentMethod: paymentCodeMap[data.payment] || "cod",
           giftWrap: data.giftWrap,
           orderNotes: data.notes,
+          couponCode: couponCode || undefined,
           deliveryFee,
           subtotal,
           grandTotal: total,
@@ -696,7 +708,7 @@ export function CheckoutPageClient() {
                       type="radio"
                       name="delivery"
                       defaultChecked
-                      className="accent-primary"
+                      className="h-5 w-5 cursor-pointer rounded-full border-2 border-neutral-300 text-primary accent-primary focus:ring-2 focus:ring-primary/20"
                     />
                     <Truck className="text-primary" size={20} />
                     <div className="flex-1">
@@ -752,7 +764,7 @@ export function CheckoutPageClient() {
                             {...register("payment")}
                             value={method}
                             disabled={isComingSoon}
-                            className="accent-primary"
+                            className="h-5 w-5 cursor-pointer rounded-full border-2 border-neutral-300 text-primary accent-primary focus:ring-2 focus:ring-primary/20"
                           />
                           <CreditCard size={19} className="text-primary" />
                           <div className="flex-1">
@@ -773,7 +785,7 @@ export function CheckoutPageClient() {
                     <input
                       type="checkbox"
                       {...register("giftWrap")}
-                      className="accent-primary"
+                      className="h-5 w-5 cursor-pointer rounded-full border-2 border-neutral-300 text-primary accent-primary focus:ring-2 focus:ring-primary/20"
                     />
                     <Gift size={18} className="text-primary" /> Add gift wrap
                     for {formatNPR(100)}
@@ -861,6 +873,7 @@ export function CheckoutPageClient() {
                       deliveryFee={deliveryFee}
                       giftWrapFee={giftWrapFee}
                       codFee={codFee}
+                      discountAmount={discountAmount}
                       total={total}
                     />
                   </div>
@@ -958,11 +971,57 @@ export function CheckoutPageClient() {
               ))}
             </div>
             <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-6 md:pt-5">
+              <div className="mb-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                  Promo code
+                </p>
+                {couponCode ? (
+                  <div className="flex items-center justify-between rounded-[1.15rem] border border-primary/30 bg-primary/5 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Tag size={16} className="text-primary" />
+                      <span className="text-sm font-semibold text-neutral-950">{couponCode}</span>
+                      {discountAmount > 0 && (
+                        <span className="text-xs text-primary">-{formatNPR(discountAmount)}</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { removeCoupon(); setCouponInput(""); }}
+                      className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500 transition hover:text-error"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => { setCouponInput(e.target.value); if (couponError) useCheckoutStore.setState({ couponError: null }); }}
+                      placeholder="Enter code"
+                      className="flex-1 rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (couponInput.trim()) applyCoupon(couponInput.trim(), subtotal); } }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => { if (couponInput.trim()) applyCoupon(couponInput.trim(), subtotal); }}
+                      disabled={!couponInput.trim() || couponLoading}
+                      className="rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                    >
+                      {couponLoading ? <Loader2 size={16} className="animate-spin" /> : "Apply"}
+                    </button>
+                  </div>
+                )}
+                {couponError && (
+                  <p className="mt-1.5 text-xs text-error">{couponError}</p>
+                )}
+              </div>
               <OrderSummary
                 subtotal={subtotal}
                 deliveryFee={deliveryFee}
                 giftWrapFee={giftWrapFee}
                 codFee={codFee}
+                discountAmount={discountAmount}
                 total={total}
               />
             </div>

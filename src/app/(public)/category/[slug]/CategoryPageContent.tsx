@@ -50,7 +50,7 @@ export default function CategoryPageContent() {
 
   return (
     <div className="min-h-screen bg-brand-bgLight">
-      <div className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_50%,#F7F1EA_100%)] py-10 md:py-14">
+      <div className="relative overflow-hidden border-b border-brand-border bg-hero-gradient py-10 md:py-14">
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-brand-textMuted"><Link href="/" className="hover:text-brand-primary">Home</Link><span>/</span><Link href="/shop" className="hover:text-brand-primary">Shop</Link><span>/</span><span className="text-brand-textPrimary">{category.name}</span></nav>

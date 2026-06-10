@@ -164,6 +164,14 @@ const config: Config = {
         'search': '0 12px 30px -26px rgba(0,0,0,0.5)',
         'mobile-nav': '0 -1px 3px rgba(0,0,0,0.05)',
         'nav': '0 1px 0 rgba(0,0,0,0.06)',
+        'text-home': '0 1px 0 rgba(255,255,255,0.7)',
+      },
+      dropShadow: {
+        'text-home': '0 1px 0 rgba(255,255,255,0.7)',
+      },
+      backgroundImage: {
+        'card-overlay': 'linear-gradient(135deg, rgba(217,120,152,0.06), transparent 55%)',
+        'shimmer-overlay': 'linear-gradient(135deg, rgba(255,255,255,0.08), transparent 55%)',
       },
       zIndex: {
         'admin-overlay': '45',

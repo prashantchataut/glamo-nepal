@@ -51,6 +51,8 @@ declare global {
   }
 }
 
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "";
+
 export function trackEvent(event: GlamoAnalyticsEvent, payload: AnalyticsPayload = {}) {
   if (typeof window === "undefined") return;
   const data: AnalyticsEventEnvelope = {

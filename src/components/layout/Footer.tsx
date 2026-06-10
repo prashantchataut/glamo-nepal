@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
@@ -129,7 +129,7 @@ export function Footer() {
             <ul className="space-y-3">
               {shopLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-white/70 transition hover:text-white">{link.label}</Link>
+                  <Link href={link.href} className="block py-2 text-sm text-white/70 transition hover:text-white">{link.label}</Link>
                 </li>
               ))}
             </ul>
@@ -140,7 +140,7 @@ export function Footer() {
             <ul className="space-y-3">
               {categoryLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-white/70 transition hover:text-white">{link.label}</Link>
+                  <Link href={link.href} className="block py-2 text-sm text-white/70 transition hover:text-white">{link.label}</Link>
                 </li>
               ))}
             </ul>
@@ -151,7 +151,7 @@ export function Footer() {
             <ul className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-1">
               {helpLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-white/70 transition hover:text-white">{link.label}</Link>
+                  <Link href={link.href} className="block py-2 text-sm text-white/70 transition hover:text-white">{link.label}</Link>
                 </li>
               ))}
             </ul>

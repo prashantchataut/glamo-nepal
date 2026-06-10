@@ -88,8 +88,8 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
   const cspDirectives = [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
     "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://ankura-studio.firebaseapp.com",
     "frame-src https://accounts.google.com https://accounts.google.gg https://ankura-studio.firebaseapp.com https://glamonepal.firebaseapp.com",

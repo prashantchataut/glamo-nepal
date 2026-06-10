@@ -2,13 +2,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { EditorialHero, EditorialSection } from "@/components/common/EditorialPage";
 import { FAQ_ITEMS } from "@/lib/data/faq";
 import { IMAGES } from "@/lib/image-library";
-import { createMetadata } from "@/lib/seo";
+import { createMetadata, faqJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata = createMetadata({ title: "FAQ", description: "Answers about delivery, payments, returns and product support at GLAMO Nepal.", path: "/faq" });
 
 export default function FAQPage() {
   return (
     <main className="bg-neutral-50 pb-20 md:pb-0">
+      <JsonLd data={faqJsonLd(FAQ_ITEMS.map((item) => ({ question: item.question, answer: item.answer })))} />
       <EditorialHero eyebrow="Help center" title="Clear answers before you order." description="Everything customers ask most about delivery, payment, product authenticity, returns and shopping with GLAMO Nepal." image={IMAGES.hero.secondary} imageAlt="Luxury skincare flatlay" />
       <EditorialSection title="Frequently asked questions" description="If you still need help, message us on WhatsApp or use the contact page.">
         <Accordion type="single" collapsible className="border border-neutral-200 bg-white">

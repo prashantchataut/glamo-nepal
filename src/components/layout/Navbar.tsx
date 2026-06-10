@@ -216,7 +216,7 @@ export function Navbar() {
               href="/"
               className={cn(
                 "font-display justify-self-center text-[26px] font-semibold uppercase leading-none tracking-[0.32em] text-neutral-950 transition-colors hover:text-primary sm:text-[28px]",
-                isHome && "text-brand-bgDark drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]",
+                isHome && "text-brand-bgDark drop-shadow-text-home",
               )}
               aria-label="GLAMO Nepal home"
             >

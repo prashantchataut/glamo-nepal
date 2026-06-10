@@ -10,6 +10,32 @@ export async function createCheckoutOrder(payload: CheckoutPayload): Promise<Api
   });
 }
 
+export interface CouponValidationResult {
+  id: string;
+  code: string;
+  description: string | null;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  minOrderAmount: number | null;
+  maxDiscount: number | null;
+  usageLimit: number | null;
+  usageCount: number;
+  perUserLimit: number | null;
+  startsAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  discountAmount: number;
+  cartTotal: number;
+}
+
+export async function validateCoupon(code: string, cartTotal: number): Promise<CouponValidationResult> {
+  const response = await apiRequest<CouponValidationResult>("/coupons/validate", {
+    method: "POST",
+    body: JSON.stringify({ code, cartTotal }),
+  });
+  return response.data;
+}
+
 export async function verifyPayment(orderId: string, provider: "khalti" | "esewa" | "card", token: string): Promise<ApiResponse<Order>> {
   return apiRequest<Order>(`/checkout/orders/${orderId}/payments/${provider}/verify`, {
     method: "POST",

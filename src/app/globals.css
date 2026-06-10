@@ -62,7 +62,7 @@
   }
   body {
     @apply font-sans antialiased;
-    background: #fff7f9;
+    background: var(--color-neutral-50, #FAFAF9);
     color: var(--color-neutral-900);
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
@@ -80,6 +80,16 @@ body.scroll-locked {
 
 .bg-hero-gradient {
   background: linear-gradient(135deg, #FFF9F7 0%, #F8EEF2 48%, #F7F1EA 100%);
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #FDECEF 25%, #FFF7F9 50%, #FDECEF 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-hero-bg {
+  background: linear-gradient(135deg, #FFF7F9 0%, #FDECEF 50%, #FFF7F9 100%);
 }
 
 @layer utilities {

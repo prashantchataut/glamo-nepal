@@ -54,12 +54,12 @@ export function ProfileForm() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
+    if (!useAuthStore.getState().user) {
       setInitialLoading(false);
       return;
     }
     void fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   const initials = (name || user?.phone || "Glamo customer")
     .split(/\s+|@/)
