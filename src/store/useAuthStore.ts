@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { firebaseSignOut } from "@/lib/firebase";
 import { customerApi, type ProfileUpdatePayload } from "@/lib/api/customer";
+import { csrfHeaders } from "@/lib/csrf";
 
 export interface AuthUser {
   id: string;
@@ -49,7 +50,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       if (token) {
         await fetch(`/api/v1/auth/logout`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...csrfHeaders() },
         }).catch((err) => console.error("[Auth] Logout request failed:", err));
       }
     } catch {}

@@ -19,11 +19,11 @@ export interface ReviewsResponse {
 
 export const reviewApi = {
   getProductReviews: (productId: string, page = 1, limit = 10) =>
-    apiRequest<ReviewsResponse>(`/products/${productId}/reviews?page=${page}&limit=${limit}`),
+    apiRequest<ReviewsResponse>(`/reviews/product/${productId}?page=${page}&limit=${limit}`),
 
   createReview: (productId: string, data: { rating: number; title?: string; comment?: string }) =>
-    apiRequest<Review>(`/products/${productId}/reviews`, {
+    apiRequest<Review>(`/reviews`, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, entityId: productId }),
     }),
 };

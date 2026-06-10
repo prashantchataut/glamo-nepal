@@ -32,6 +32,7 @@ interface ProductRow {
   meta_title: string | null
   meta_description: string | null
   tags: string | null
+  attributes: string | null
   search_vector: string | null
   created_at: string
   updated_at: string
@@ -94,6 +95,7 @@ function mapProductRow(row: Record<string, unknown>): ProductRow {
     meta_title: row.meta_title as string | null,
     meta_description: row.meta_description as string | null,
     tags: row.tags as string | null,
+    attributes: row.attributes as string | null,
     search_vector: row.search_vector as string | null,
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
@@ -131,6 +133,42 @@ function mapVariantRow(row: Record<string, unknown>): VariantRow {
   }
 }
 
+interface TaxonomyEntry {
+  id: string
+  name: string
+  slug: string
+}
+
+export interface TaxonomyMaps {
+  categories: Map<string, TaxonomyEntry>
+  brands: Map<string, TaxonomyEntry>
+}
+
+export async function getTaxonomyMaps(db: Client): Promise<TaxonomyMaps> {
+  const cacheKey = 'taxonomy:maps'
+  const cached = await getFromCache<{ categories: TaxonomyEntry[]; brands: TaxonomyEntry[] }>(cacheKey)
+  if (cached) {
+    return {
+      categories: new Map(cached.categories.map((c) => [c.id, c])),
+      brands: new Map(cached.brands.map((b) => [b.id, b])),
+    }
+  }
+
+  const [categoriesResult, brandsResult] = await Promise.all([
+    db.execute({ sql: 'SELECT id, name, slug FROM categories WHERE deleted_at IS NULL', args: [] }),
+    db.execute({ sql: 'SELECT id, name, slug FROM brands WHERE deleted_at IS NULL', args: [] }),
+  ])
+
+  const categories = categoriesResult.rows.map((r) => ({ id: r.id as string, name: r.name as string, slug: r.slug as string }))
+  const brands = brandsResult.rows.map((r) => ({ id: r.id as string, name: r.name as string, slug: r.slug as string }))
+  await setCache(cacheKey, { categories, brands }, CACHE_TTL.PRODUCT_LIST)
+
+  return {
+    categories: new Map(categories.map((c) => [c.id, c])),
+    brands: new Map(brands.map((b) => [b.id, b])),
+  }
+}
+
 interface TaxonomyInfo {
   name: string
   slug: string
@@ -141,7 +179,7 @@ function formatProduct(
   images: ProductImageRow[] = [],
   variants: VariantRow[] = [],
   reviewSummary?: ReviewSummaryRow,
-  taxonomy?: { category?: TaxonomyInfo; brand?: TaxonomyInfo }
+  taxonomy?: TaxonomyMaps
 ) {
   return {
     id: row.id,
@@ -151,11 +189,12 @@ function formatProduct(
     shortDescription: row.short_description,
     sku: row.sku,
     categoryId: row.category_id,
-    categoryName: taxonomy?.category?.name ?? null,
-    categorySlug: taxonomy?.category?.slug ?? null,
+    categoryName: taxonomy?.categories.get(row.category_id)?.name ?? null,
+    categorySlug: taxonomy?.categories.get(row.category_id)?.slug ?? null,
     brandId: row.brand_id,
-    brandName: taxonomy?.brand?.name ?? null,
-    brandSlug: taxonomy?.brand?.slug ?? null,
+    brandName: row.brand_id ? taxonomy?.brands.get(row.brand_id)?.name ?? null : null,
+    brandSlug: row.brand_id ? taxonomy?.brands.get(row.brand_id)?.slug ?? null : null,
+    attributes: safeJsonParse<Record<string, unknown>>(row.attributes, {}),
     basePrice: toDisplayPrice(row.base_price),
     salePrice: row.sale_price !== null ? toDisplayPrice(row.sale_price) : null,
     costPrice: row.cost_price !== null ? toDisplayPrice(row.cost_price) : null,
@@ -208,24 +247,6 @@ function formatVariant(row: VariantRow) {
   }
 }
 
-async function fetchTaxonomyMap(
-  db: Client,
-  table: 'categories' | 'brands',
-  ids: (string | null)[]
-): Promise<Map<string, TaxonomyInfo>> {
-  const map = new Map<string, TaxonomyInfo>()
-  const unique = [...new Set(ids.filter((id): id is string => Boolean(id)))]
-  if (unique.length === 0) return map
-  const result = await db.execute({
-    sql: `SELECT id, name, slug FROM ${table} WHERE id IN (${unique.map(() => '?').join(',')})`,
-    args: unique,
-  })
-  for (const row of result.rows) {
-    map.set(row.id as string, { name: row.name as string, slug: row.slug as string })
-  }
-  return map
-}
-
 async function getCategoryFilter(db: Client, category: string): Promise<string | null> {
   const bySlug = await db.execute({
     sql: "SELECT id FROM categories WHERE slug = ? AND deleted_at IS NULL",
@@ -264,6 +285,9 @@ export async function getProducts(
     tags?: string
     inStock?: boolean
     featured?: boolean
+    concern?: string
+    skinType?: string
+    madeInNepal?: boolean
     sort?: string
     page: number
     limit: number
@@ -329,11 +353,25 @@ export async function getProducts(
     }
   }
 
-  const ALLOWED_SORT_COLUMNS = new Set(['newest', 'price-asc', 'price-desc', 'best-seller', 'most-reviewed', 'rating'])
+  if (filters.concern) {
+    conditions.push('(tags LIKE ? OR attributes LIKE ?)')
+    args.push(`%"${filters.concern}"%`, `%"${filters.concern}"%`)
+  }
+  if (filters.skinType) {
+    conditions.push('(tags LIKE ? OR attributes LIKE ?)')
+    args.push(`%"${filters.skinType}"%`, `%"${filters.skinType}"%`)
+  }
+  if (filters.madeInNepal) {
+    conditions.push("(attributes LIKE '%\"madeInNepal\":true%' OR tags LIKE '%\"made-in-nepal\"%')")
+  }
+
+  const ALLOWED_SORT_COLUMNS = new Set(['newest', 'featured', 'price-asc', 'price-desc', 'best-seller', 'best-sellers', 'most-reviewed', 'rating'])
   const sortKey = ALLOWED_SORT_COLUMNS.has(filters.sort || '') ? (filters.sort || 'newest') : 'newest'
   let orderBy = 'ORDER BY created_at DESC'
   if (sortKey === 'price-asc') orderBy = 'ORDER BY base_price ASC'
   else if (sortKey === 'price-desc') orderBy = 'ORDER BY base_price DESC'
+  else if (sortKey === 'featured') orderBy = 'ORDER BY is_featured DESC, created_at DESC'
+  else if (sortKey === 'best-seller' || sortKey === 'best-sellers') orderBy = "ORDER BY (CASE WHEN attributes LIKE '%\"isBestSeller\":true%' THEN 0 ELSE 1 END) ASC, created_at DESC"
 
   const { page, limit, skip } = parsePagination({ page: String(filters.page), limit: String(filters.limit) })
 
@@ -370,18 +408,12 @@ export async function getProducts(
     variants = varResult.rows.map((row) => mapVariantRow(row as Record<string, unknown>))
   }
 
-  const [categoryMap, brandMap] = await Promise.all([
-    fetchTaxonomyMap(db, 'categories', products.map((p) => p.category_id)),
-    fetchTaxonomyMap(db, 'brands', products.map((p) => p.brand_id)),
-  ])
+  const taxonomy = await getTaxonomyMaps(db)
 
   const formatted = products.map((product) => {
     const productImages = images.filter((i) => i.product_id === product.id)
     const productVariants = variants.filter((v) => v.product_id === product.id)
-    return formatProduct(product, productImages, productVariants, undefined, {
-      category: product.category_id ? categoryMap.get(product.category_id) : undefined,
-      brand: product.brand_id ? brandMap.get(product.brand_id) : undefined,
-    })
+    return formatProduct(product, productImages, productVariants, undefined, taxonomy)
   })
 
   const pagination = buildPaginationResult(total, page, limit)
@@ -442,17 +474,11 @@ export async function searchProducts(query: string, page: number, limit: number,
     images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
   }
 
-  const [categoryMap, brandMap] = await Promise.all([
-    fetchTaxonomyMap(db, 'categories', products.map((p) => p.category_id)),
-    fetchTaxonomyMap(db, 'brands', products.map((p) => p.brand_id)),
-  ])
+  const taxonomy = await getTaxonomyMaps(db)
 
   const formatted = products.map((product) => {
     const productImages = images.filter((i) => i.product_id === product.id)
-    return formatProduct(product, productImages, [], undefined, {
-      category: product.category_id ? categoryMap.get(product.category_id) : undefined,
-      brand: product.brand_id ? brandMap.get(product.brand_id) : undefined,
-    })
+    return formatProduct(product, productImages, [], undefined, taxonomy)
   })
 
   const pagination = buildPaginationResult(total, page, limit)
@@ -499,15 +525,9 @@ export async function getProductBySlug(slug: string, db: Client) {
   const images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
   const variants = varResult.rows.map((row) => mapVariantRow(row as Record<string, unknown>))
 
-  const [categoryMap, brandMap] = await Promise.all([
-    fetchTaxonomyMap(db, 'categories', [productRow.category_id]),
-    fetchTaxonomyMap(db, 'brands', [productRow.brand_id]),
-  ])
+  const taxonomy = await getTaxonomyMaps(db)
 
-  const result = formatProduct(productRow, images, variants, reviewSummary, {
-    category: productRow.category_id ? categoryMap.get(productRow.category_id) : undefined,
-    brand: productRow.brand_id ? brandMap.get(productRow.brand_id) : undefined,
-  })
+  const result = formatProduct(productRow, images, variants, reviewSummary, taxonomy)
   await setCache(cacheKey, result, CACHE_TTL.PRODUCT)
   return result
 }

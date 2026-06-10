@@ -10,6 +10,7 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
+import { csrfHeaders } from "@/lib/csrf";
 
 interface AuthContextValue {
   user: User | null;
@@ -46,6 +47,7 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        ...csrfHeaders(),
       },
       body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
     });

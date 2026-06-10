@@ -26,9 +26,9 @@ export async function submitContactForm(c: Context<AppEnv>) {
   try {
     const env = c.env
     if (env?.RESEND_API_KEY) {
-      const { default: sendEmailDirect } = await import('../../utils/email')
+      const { sendEmail } = await import('../../utils/email')
       const contactEmail = (env as any).CONTACT_EMAIL || (env as any).FROM_EMAIL || 'admin@glamonepal.com'
-      await sendEmailDirect(
+      await sendEmail(
         contactEmail,
         `[Contact Form] ${data.subject}`,
         `<p><strong>Name:</strong> ${data.name}</p><p><strong>Email:</strong> ${data.email}</p>${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}<p><strong>Message:</strong></p><p>${data.message}</p>`,

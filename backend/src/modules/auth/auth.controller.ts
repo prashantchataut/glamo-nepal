@@ -242,7 +242,7 @@ export async function resetPassword(c: Context<AppEnv>) {
       args: [reset.id],
     })
 
-    const changes = (updateResult.meta as any)?.changes ?? (updateResult as any).rowsAffected ?? 0
+    const changes = updateResult.rowsAffected ?? 0
     if (changes === 0) {
       return ApiResponse.error(c, 'This reset token has already been used. Please request a new one.', 400, ['TOKEN_ALREADY_USED'])
     }

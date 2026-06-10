@@ -3,52 +3,39 @@ import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const newsletterSchema = z.object({
   email: z.string().email().max(254),
 });
 
-function getApiBaseUrl(): string {
-  return process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
-}
-
 export async function POST(request: NextRequest) {
-  const csrf = validateCsrf(request);
-  if (!csrf.valid) {
-    return NextResponse.json({ success: false, status: "error", message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
+  const body = await request.json().catch(() => null);
+  const result = newsletterSchema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json({ success: false, message: "Invalid email address", errors: result.error.flatten().fieldErrors }, { status: 400 });
+  }
+
+  const csrfResult = validateCsrf(request);
+  if (!csrfResult.valid) return NextResponse.json({ success: false, message: csrfResult.reason }, { status: 403 });
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+  if (!checkRateLimit("/api/newsletter", ip).allowed) {
+    return NextResponse.json({ success: false, message: "Too many requests. Please try again later." }, { status: 429 });
   }
 
   try {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-    const limit = checkRateLimit("/api/newsletter", ip);
-    if (!limit.allowed) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Too many subscription attempts. Please try again later.", code: "RATE_LIMITED" },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
-      );
-    }
-    const body = await request.json();
-    const result = newsletterSchema.safeParse(body);
-
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Please provide a valid email address.", code: "VALIDATION_ERROR" },
-        { status: 400 },
-      );
-    }
-
-    const apiBaseUrl = getApiBaseUrl();
-    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/newsletter`, {
+    // @ts-expect-error dynamic in-process import
+    const { default: app } = await import("../../../backend/src/index");
+    const upstream = await app.request("/api/v1/newsletter/subscribe", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", cookie: request.headers.get("cookie") || "", "x-csrf-token": request.headers.get("x-csrf-token") || "" },
       body: JSON.stringify(result.data),
     });
-
     const data = await upstream.json();
     return NextResponse.json(data, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, message: "Failed to subscribe. Please try again later." }, { status: 500 });
   }
 }

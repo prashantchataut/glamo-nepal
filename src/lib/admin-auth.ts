@@ -39,7 +39,7 @@ async function hmacSha256(value: string) {
   return bytesToBase64Url(new Uint8Array(signature));
 }
 
-function timingSafeEqual(a: string, b: string) {
+async function timingSafeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
   let mismatch = 0;
   for (let index = 0; index < a.length; index += 1) {
@@ -80,10 +80,13 @@ export async function verifyAdminSessionToken(token?: string | null): Promise<Ad
   const [encodedPayload, signature] = token.split(".");
   if (!encodedPayload || !signature) return null;
 
-  const expectedSignature = await hmacSha256(encodedPayload);
-  if (!timingSafeEqual(signature, expectedSignature)) return null;
-
   try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey("raw", encoder.encode(getSecret()), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    const signatureBytes = Uint8Array.from(atob(signature.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(signature.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+    const valid = await crypto.subtle.verify("HMAC", key, signatureBytes, encoder.encode(encodedPayload));
+    if (!valid) return null;
+
     const payload = JSON.parse(base64UrlToText(encodedPayload)) as AdminSessionPayload;
     if (payload.role !== "admin") return null;
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;

@@ -7,7 +7,8 @@ const protectedPrefixes = ["/account", "/checkout"];
 const authPages = ["/login", "/register"];
 
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
-const FIREBASE_JWKS_URL = `https://www.googleapis.com/robot/v1/metadata/x509/securetoken%40gsignoutserviceaccount.com`;
+const FIREBASE_AUTH_DOMAIN = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || (FIREBASE_PROJECT_ID ? `${FIREBASE_PROJECT_ID}.firebaseapp.com` : "glamonepal.firebaseapp.com");
+const FIREBASE_JWKS_URL = `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`;
 
 let jwksCache: ReturnType<typeof createRemoteJWKSet> | null = null;
 function getJWKS() {
@@ -91,8 +92,8 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self'",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
-    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://ankura-studio.firebaseapp.com",
-    "frame-src https://accounts.google.com https://accounts.google.gg https://ankura-studio.firebaseapp.com https://glamonepal.firebaseapp.com",
+    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://${FIREBASE_AUTH_DOMAIN}",
+    "frame-src https://accounts.google.com https://accounts.google.gg https://${FIREBASE_AUTH_DOMAIN}",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -3,55 +3,35 @@ import { contactSchema } from "@/lib/validations/contact";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
 
-function getApiBaseUrl(): string {
-  return process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
-}
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const csrf = validateCsrf(request);
-  if (!csrf.valid) {
-    return NextResponse.json({ success: false, status: "error", message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
+  const body = await request.json().catch(() => null);
+  const result = contactSchema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json({ success: false, message: "Validation failed", errors: result.error.flatten().fieldErrors }, { status: 400 });
+  }
+
+  const csrfResult = validateCsrf(request);
+  if (!csrfResult.valid) return NextResponse.json({ success: false, message: csrfResult.reason }, { status: 403 });
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+  if (!checkRateLimit("/api/contact", ip).allowed) {
+    return NextResponse.json({ success: false, message: "Too many requests. Please try again later." }, { status: 429 });
   }
 
   try {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-    const limit = checkRateLimit("/api/contact", ip);
-    if (!limit.allowed) {
-      return NextResponse.json(
-        { success: false, status: "error", message: "Too many contact requests. Please try again later.", code: "RATE_LIMITED" },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
-      );
-    }
-
-    const body = await request.json();
-    const result = contactSchema.safeParse(body);
-
-    if (!result.success) {
-      const fieldErrors: Record<string, string[]> = {};
-      for (const issue of result.error.issues) {
-        const field = issue.path.join(".");
-        if (!fieldErrors[field]) fieldErrors[field] = [];
-        fieldErrors[field].push(issue.message);
-      }
-      return NextResponse.json(
-        { success: false, status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors },
-        { status: 400 },
-      );
-    }
-
-    const apiBaseUrl = getApiBaseUrl();
-    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/contact`, {
+    // @ts-expect-error dynamic in-process import
+    const { default: app } = await import("../../../backend/src/index");
+    const upstream = await app.request("/api/v1/contact", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", cookie: request.headers.get("cookie") || "", "x-csrf-token": request.headers.get("x-csrf-token") || "" },
       body: JSON.stringify(result.data),
     });
-
     const data = await upstream.json();
     return NextResponse.json(data, { status: upstream.status });
   } catch {
-    return NextResponse.json(
-      { success: false, status: "error", message: "An unexpected error occurred. Please try again.", code: "INTERNAL_ERROR" },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, message: "Failed to send message. Please try again later." }, { status: 500 });
   }
 }
