@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { IMAGES } from "@/lib/image-library";
 
@@ -18,7 +18,7 @@ export function EditorialStrip() {
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {EDITORIAL_ITEMS.map((item) => (
-            <Link key={item.title} href={item.href} className="group block border border-neutral-200 bg-brand-surfaceWarm">
+            <Link key={item.title} href={item.href} className="group block border border-neutral-200 bg-neutral-100">
               <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
                 <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 33vw" />
               </div>

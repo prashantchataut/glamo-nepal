@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
@@ -12,7 +12,7 @@ import type { Order as ApiOrder } from "@/lib/api/contracts";
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-amber-50 text-amber-700 ring-amber-100",
-  Confirmed: "bg-brand-surfacePink text-primary ring-primary/10",
+  Confirmed: "bg-rose-50 text-primary ring-primary/10",
   Processing: "bg-blue-50 text-blue-700 ring-blue-100",
   Shipped: "bg-indigo-50 text-indigo-700 ring-indigo-100",
   Delivered: "bg-emerald-50 text-emerald-700 ring-emerald-100",
@@ -134,7 +134,7 @@ export function OrdersClient() {
               <article className="group rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:rounded-[2rem] md:p-5">
                 <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                   <div className="flex min-w-0 items-center gap-4">
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-brand-bgLight md:h-20 md:w-20">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-neutral-50 md:h-20 md:w-20">
                       {firstItem ? (
                         <Image
                           src={firstItem.image}
@@ -155,13 +155,13 @@ export function OrdersClient() {
                         <span
                           className={cn(
                             "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ring-1",
-                            statusStyles[order.status] || "bg-brand-bgLight text-neutral-500 ring-neutral-200",
+                            statusStyles[order.status] || "bg-neutral-50 text-neutral-500 ring-neutral-200",
                           )}
                         >
                           {order.status}
                         </span>
                         {order.source === "session" ? (
-                          <span className="rounded-full bg-brand-surfacePink px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+                          <span className="rounded-full bg-rose-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
                             New
                           </span>
                         ) : null}

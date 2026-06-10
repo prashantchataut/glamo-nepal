@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { ReactNode } from "react";
 import { Search } from "lucide-react";
@@ -137,7 +137,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                   "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                   filters.subCategory === subCategory
                     ? "bg-primary text-white"
-                    : "bg-brand-bgLight text-neutral-600 hover:text-primary"
+                    : "bg-neutral-50 text-neutral-600 hover:text-primary"
                 )}
               >
                 {subCategory}
@@ -211,7 +211,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                 filters.concerns.includes(concern)
                   ? "bg-primary text-white"
-                  : "bg-brand-bgLight text-neutral-600 hover:text-primary"
+                  : "bg-neutral-50 text-neutral-600 hover:text-primary"
               )}
             >
               {concern}

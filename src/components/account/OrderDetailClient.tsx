@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useEffect, useState } from "react";
@@ -130,7 +130,7 @@ return (
               const completed = index < activeIndex;
               const current = index === activeIndex;
               return (
-                <div key={step} className="relative rounded-[1rem] bg-brand-bgLight p-4">
+                <div key={step} className="relative rounded-[1rem] bg-neutral-50 p-4">
                   <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold", completed ? "bg-emerald-600 text-white" : current ? "bg-primary text-white" : "bg-white text-neutral-400")}><Icon size={18} /></div>
                   <p className={cn("mt-3 text-sm font-semibold", completed ? "text-emerald-700" : current ? "text-primary" : "text-neutral-400")}>{step}</p>
                   <p className="mt-1 text-xs text-neutral-500">{completed || current ? order.date : "Pending update"}</p>
@@ -146,7 +146,7 @@ return (
           <h2 className="font-display text-2xl font-semibold text-neutral-950">Items</h2>
           <div className="mt-5 space-y-4">
             {order.items.map((item) => (
-              <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-[1.25rem] bg-brand-bgLight p-3">
+              <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-[1.25rem] bg-neutral-50 p-3">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-white">
                   <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                 </div>

@@ -1,6 +1,6 @@
-export function AuthFormSkeleton() {
+﻿export function AuthFormSkeleton() {
   return (
-    <div className="bg-brand-surfaceWarm py-10 md:py-16">
+    <div className="bg-neutral-100 py-10 md:py-16">
       <div className="container mx-auto max-w-md px-4 md:px-6">
         <div className="h-8 w-48 animate-pulse rounded-lg bg-neutral-200" />
         <div className="mt-2 h-4 w-64 animate-pulse rounded bg-neutral-200" />
@@ -34,7 +34,7 @@ export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
 
 export function CheckoutSkeleton() {
   return (
-    <div className="bg-brand-surfaceWarm py-10 md:py-16">
+    <div className="bg-neutral-100 py-10 md:py-16">
       <div className="container mx-auto max-w-4xl px-4 md:px-6">
         <div className="h-8 w-64 animate-pulse rounded-lg bg-neutral-200" />
         <div className="mt-8 space-y-6">
@@ -50,7 +50,7 @@ export function CheckoutSkeleton() {
 
 export function OrderTrackSkeleton() {
   return (
-    <div className="bg-brand-surfaceWarm py-10 md:py-16">
+    <div className="bg-neutral-100 py-10 md:py-16">
       <div className="container mx-auto max-w-2xl px-4 md:px-6">
         <div className="h-8 w-48 animate-pulse rounded-lg bg-neutral-200" />
         <div className="mt-6 h-12 w-full animate-pulse rounded-[1.15rem] bg-neutral-200" />

@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -20,7 +20,7 @@ export default function BrandDetailPage({ params }: { params: { slug: string } }
   const products = getBrandProducts(params.slug);
   return (
     <main className="bg-neutral-50">
-      <section className="border-b border-neutral-200 bg-brand-surfaceWarm">
+      <section className="border-b border-neutral-200 bg-neutral-100">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:px-8">
           <div className="relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-white">
             <Image src={brand.image || IMAGES.hero.secondary} alt={`${brand.name} brand artwork`} fill className="object-contain p-10" sizes="(max-width: 1024px) 100vw, 40vw" priority />

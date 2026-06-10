@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -70,7 +70,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
 
   if (loading) {
     return (
-      <main className="bg-brand-bgLight px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+      <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-lg text-center" aria-live="polite">
           <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-neutral-200 border-t-primary" />
           <p className="mt-4 text-sm text-neutral-500">Loading order details...</p>
@@ -81,9 +81,9 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
 
   if (!order) {
     return (
-      <main className="bg-brand-bgLight px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+      <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-lg text-center" aria-live="polite">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-surfacePink text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary">
             <ShoppingBag size={30} />
           </div>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -130,11 +130,11 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
   };
 
   return (
-    <main className="bg-brand-bgLight px-4 py-8 pb-24 md:px-6 md:py-12 md:pb-16">
+    <main className="bg-neutral-50 px-4 py-8 pb-24 md:px-6 md:py-12 md:pb-16">
       <JsonLd data={orderSchema} />
       <div className="mx-auto max-w-2xl">
         {/* Success header */}
-        <div className="rounded-[2rem] bg-brand-surfacePink px-5 py-6 md:rounded-[2.5rem] md:px-8 md:py-8" role="status" aria-live="polite">
+        <div className="rounded-[2rem] bg-rose-50 px-5 py-6 md:rounded-[2.5rem] md:px-8 md:py-8" role="status" aria-live="polite">
           <div className="text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white md:h-16 md:w-16">
               <CheckCircle2 size={28} />
@@ -189,7 +189,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
             </div>
             <div className="mt-3 space-y-2.5">
               {order.items.slice(0, 3).map((item) => (
-                <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 rounded-[1rem] bg-brand-bgLight p-2.5 md:p-3">
+                <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 rounded-[1rem] bg-neutral-50 p-2.5 md:p-3">
                   <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-16 md:w-14">
                     <Image src={item.image} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 48px, 56px" />
                   </div>

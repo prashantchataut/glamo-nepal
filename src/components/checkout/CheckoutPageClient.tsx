@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
@@ -389,7 +389,7 @@ export function CheckoutPageClient() {
 
   if (authLoading) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center bg-brand-bgLight px-4 py-12">
+      <main className="flex min-h-[60vh] items-center justify-center bg-neutral-50 px-4 py-12">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Verifying your session" />
       </main>
     );
@@ -397,9 +397,9 @@ export function CheckoutPageClient() {
 
   if (showAuthChoice) {
     return (
-      <main className="bg-brand-bgLight px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+      <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-md text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-surfacePink text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary">
             <LockKeyhole size={28} />
           </div>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -433,9 +433,9 @@ export function CheckoutPageClient() {
 
   if (!items.length) {
     return (
-      <main className="bg-brand-bgLight px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+      <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-lg text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-surfacePink text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary">
             <ShoppingBag size={30} />
           </div>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -456,7 +456,7 @@ export function CheckoutPageClient() {
   }
 
   return (
-    <main className="bg-brand-bgLight px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12 lg:px-8">
+    <main className="bg-neutral-50 px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <nav className="mb-4 flex items-center gap-2 text-sm text-neutral-500 md:mb-6" aria-label="Breadcrumb">
           <Link href="/" className="transition hover:text-primary">
@@ -469,7 +469,7 @@ export function CheckoutPageClient() {
           <ChevronRight size={14} aria-hidden="true" />
           <span className="font-medium text-neutral-950">Checkout</span>
         </nav>
-        <div className="mb-6 rounded-[2rem] bg-brand-surfacePink px-4 py-5 md:mb-8 md:rounded-[2.5rem] md:px-8 md:py-6">
+        <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2.5rem] md:px-8 md:py-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
             Secure checkout
           </p>
@@ -703,7 +703,7 @@ export function CheckoutPageClient() {
                   <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Delivery method
                   </h2>
-                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.25rem] border border-primary bg-brand-bgLight p-4 md:rounded-[1.5rem] md:p-5">
+                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.25rem] border border-primary bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
                     <input
                       type="radio"
                       name="delivery"
@@ -757,7 +757,7 @@ export function CheckoutPageClient() {
                       return (
                         <label
                           key={method}
-                          className={`flex cursor-pointer items-center gap-4 rounded-[1.25rem] border p-4 transition md:rounded-[1.5rem] md:p-5 ${form.payment === method ? "border-primary bg-brand-bgLight" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
+                          className={`flex cursor-pointer items-center gap-4 rounded-[1.25rem] border p-4 transition md:rounded-[1.5rem] md:p-5 ${form.payment === method ? "border-primary bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
                         >
                           <input
                             type="radio"
@@ -867,7 +867,7 @@ export function CheckoutPageClient() {
                       </div>
                     ))}
                   </div>
-                  <div className="rounded-[1.25rem] border border-neutral-200 bg-brand-bgLight p-4 md:rounded-[1.5rem] md:p-5">
+                  <div className="rounded-[1.25rem] border border-neutral-200 bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
                     <OrderSummary
                       subtotal={subtotal}
                       deliveryFee={deliveryFee}
@@ -948,7 +948,7 @@ export function CheckoutPageClient() {
               {items.map((item) => (
                 <div
                   key={`${item.product.id}-${item.selectedShade || "base"}-summary`}
-                  className="flex gap-3 rounded-[1rem] bg-brand-bgLight p-2.5 md:rounded-[1.25rem] md:p-3"
+                  className="flex gap-3 rounded-[1rem] bg-neutral-50 p-2.5 md:rounded-[1.25rem] md:p-3"
                 >
                   <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-16 md:w-14 md:rounded-[1rem]">
                     <Image

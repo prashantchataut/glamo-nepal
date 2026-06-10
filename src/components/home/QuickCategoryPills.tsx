@@ -1,4 +1,4 @@
-
+﻿
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -10,10 +10,10 @@ export function QuickCategoryPills() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-label text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-primary">Shop by category</p>
-            <h2 id="quick-category-pills-heading" className="mt-2 font-display text-3xl font-semibold text-brand-textPrimary md:text-4xl">Find your beauty favorites</h2>
+            <p className="font-label text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">Shop by category</p>
+            <h2 id="quick-category-pills-heading" className="mt-2 font-display text-3xl font-semibold text-neutral-900 md:text-4xl">Find your beauty favorites</h2>
           </div>
-          <Link href="/shop" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary transition hover:text-brand-bgDark">
+          <Link href="/shop" className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-brand-bgDark">
             View all products <ArrowRight size={16} />
           </Link>
         </div>
@@ -23,7 +23,7 @@ export function QuickCategoryPills() {
             <Link
               href={pill.link}
               key={pill.id}
-              className="inline-flex items-center rounded-full border border-brand-textPrimary/10 bg-brand-surfacePink px-5 py-3 text-sm font-medium text-brand-textPrimary transition-all duration-300 hover:border-brand-primary/30 hover:bg-white hover:text-brand-primary hover:shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center rounded-full border border-brand-textPrimary/10 bg-rose-50 px-5 py-3 text-sm font-medium text-neutral-900 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:text-primary hover:shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {pill.name}
             </Link>

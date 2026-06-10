@@ -32,11 +32,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     headline: post.title,
     description: post.excerpt,
     image: absoluteUrl(post.image),
+    url: absoluteUrl(`/blog/${post.slug}`),
     author: { "@type": "Organization", name: post.author.name },
-    publisher: { "@type": "Organization", name: "GLAMO NEPAL" },
+    publisher: {
+      "@type": "Organization",
+      name: "GLAMO NEPAL",
+      logo: { "@type": "ImageObject", url: absoluteUrl("/images/logo.svg") },
+    },
     datePublished: post.date,
     dateModified: post.date,
-    mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": absoluteUrl(`/blog/${post.slug}`),
+    },
   };
 
   return (

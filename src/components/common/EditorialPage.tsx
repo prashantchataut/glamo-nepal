@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
@@ -19,7 +19,7 @@ export function EditorialHero({
   cta?: { label: string; href: string };
 }) {
   return (
-    <section className="border-b border-neutral-200 bg-brand-surfaceWarm">
+    <section className="border-b border-neutral-200 bg-neutral-100">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
         <div>
           <p className="type-label text-primary">{eyebrow}</p>

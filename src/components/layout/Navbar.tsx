@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -157,12 +157,12 @@ export function Navbar() {
           "sticky top-0 z-navbar transition-all duration-300",
           isHome
             ? cn(
-                "border-b border-brand-accentLight/60 bg-brand-bgLight/90 backdrop-blur-xl",
-                isScrolled && "bg-brand-bgLight/95 shadow-navbar",
+                "border-b border-brand-accentLight/60 bg-neutral-50/90 backdrop-blur-xl",
+                isScrolled && "bg-neutral-50/95 shadow-navbar",
               )
             : cn(
                 "border-b",
-                isScrolled ? "border-neutral-300 bg-brand-bgLight/98 shadow-nav" : "border-brand-accentLight bg-brand-surfacePink",
+                isScrolled ? "border-neutral-300 bg-neutral-50/98 shadow-nav" : "border-brand-accentLight bg-rose-50",
               ),
         )}
       >
@@ -185,7 +185,7 @@ export function Navbar() {
                       isHome
                         ? cn(
                             "rounded-full px-3 py-2 tracking-[0.16em] after:bottom-1 after:left-3",
-                            active ? "bg-brand-primary-light text-brand-bgDark after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-brand-bgLight hover:after:w-[calc(100%-1.5rem)]",
+                            active ? "bg-primary/10 text-brand-bgDark after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-neutral-50 hover:after:w-[calc(100%-1.5rem)]",
                           )
                         : cn(
                             "after:-bottom-1.5 after:left-0",
@@ -204,7 +204,7 @@ export function Navbar() {
               type="button"
               className={cn(
                 "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden",
-                isHome && "bg-white/75 ring-1 ring-brand-accentLight/70 hover:bg-brand-bgLight",
+                isHome && "bg-white/75 ring-1 ring-brand-accentLight/70 hover:bg-neutral-50",
               )}
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
@@ -330,7 +330,7 @@ export function Navbar() {
         aria-modal="true"
         aria-label="Navigation menu"
         className={cn(
-          "fixed inset-y-0 left-0 z-menu flex w-[92vw] max-w-sm flex-col overflow-y-auto rounded-r-[30px] bg-brand-bgLight shadow-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 left-0 z-menu flex w-[92vw] max-w-sm flex-col overflow-y-auto rounded-r-[30px] bg-neutral-50 shadow-2xl transition-transform duration-300 ease-out lg:hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

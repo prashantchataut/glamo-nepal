@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -37,12 +37,12 @@ export default function KhaltiCallbackPage() {
   }, [searchParams, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-bgLight">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50">
       <div className="text-center">
         {status === "verifying" && (
           <>
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-brand-border border-t-brand-primary" />
-            <p className="mt-4 text-sm text-brand-textMuted">Verifying your Khalti payment...</p>
+            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-neutral-200 border-t-brand-primary" />
+            <p className="mt-4 text-sm text-neutral-500">Verifying your Khalti payment...</p>
           </>
         )}
         {status === "success" && (
@@ -50,8 +50,8 @@ export default function KhaltiCallbackPage() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
               <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
             </div>
-            <p className="mt-4 font-semibold text-brand-textPrimary">Payment successful!</p>
-            <p className="mt-1 text-sm text-brand-textMuted">Redirecting to your order...</p>
+            <p className="mt-4 font-semibold text-neutral-900">Payment successful!</p>
+            <p className="mt-1 text-sm text-neutral-500">Redirecting to your order...</p>
           </>
         )}
         {status === "failed" && (
@@ -59,11 +59,11 @@ export default function KhaltiCallbackPage() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
               <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </div>
-            <p className="mt-4 font-semibold text-brand-textPrimary">Payment failed</p>
-            <p className="mt-1 text-sm text-brand-textMuted">Your order was created but payment could not be verified.</p>
+            <p className="mt-4 font-semibold text-neutral-900">Payment failed</p>
+            <p className="mt-1 text-sm text-neutral-500">Your order was created but payment could not be verified.</p>
             <button
               onClick={() => router.push("/account/orders")}
-              className="mt-4 rounded-full bg-brand-primary px-6 py-3 text-sm font-medium text-white transition hover:bg-brand-primary-dark"
+              className="mt-4 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:bg-brand-primary-dark"
             >
               View your orders
             </button>

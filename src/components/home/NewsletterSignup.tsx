@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -32,7 +32,7 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className="bg-brand-surfaceWarm py-16 md:py-24" aria-labelledby="newsletter-heading">
+    <section className="bg-neutral-100 py-16 md:py-24" aria-labelledby="newsletter-heading">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="relative hidden aspect-[4/3] overflow-hidden bg-neutral-100 md:block">
           <Image src={IMAGES.hero.secondary} alt="Luxury skincare flatlay" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />

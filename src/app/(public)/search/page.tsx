@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+﻿import { Suspense } from "react";
 import SearchPageContent from "./SearchPageContent";
 import { createMetadata } from "@/lib/seo";
 
@@ -11,7 +11,7 @@ export const metadata = createMetadata({
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-bgLight" />}>
+    <Suspense fallback={<div className="min-h-screen bg-neutral-50" />}>
       <SearchPageContent />
     </Suspense>
   );

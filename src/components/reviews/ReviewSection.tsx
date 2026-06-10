@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { Star, MessageSquarePlus } from "lucide-react";
@@ -124,7 +124,7 @@ function ReviewForm({
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Summarize your experience"
           maxLength={120}
-          className="mt-1 w-full rounded-xl border border-neutral-200 bg-brand-bgLight px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 placeholder:text-neutral-400"
+          className="mt-1 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-950 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 placeholder:text-neutral-400"
         />
       </label>
       <label className="block space-y-2 text-sm font-semibold text-neutral-950">
@@ -135,7 +135,7 @@ function ReviewForm({
           placeholder="Share details about your experience with this product"
           rows={4}
           maxLength={1000}
-          className="mt-1 w-full rounded-xl border border-neutral-200 bg-brand-bgLight px-4 py-3 text-sm leading-7 text-neutral-950 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 placeholder:text-neutral-400"
+          className="mt-1 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm leading-7 text-neutral-950 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 placeholder:text-neutral-400"
         />
       </label>
       <button
@@ -219,7 +219,7 @@ export function ReviewSection({ productId }: { productId: string }) {
         </div>
 
         {showForm && user && (
-          <div className="mt-6 rounded-[1.25rem] border border-neutral-200 bg-brand-bgLight p-5">
+          <div className="mt-6 rounded-[1.25rem] border border-neutral-200 bg-neutral-50 p-5">
             <ReviewForm productId={productId} onSuccess={fetchReviews} />
           </div>
         )}

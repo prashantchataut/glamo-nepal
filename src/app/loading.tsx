@@ -1,8 +1,8 @@
-import { ProductCardSkeleton as BrandedProductCardSkeleton, HeroSkeleton } from "@/components/ui/illustrations/LoadingSkeletons";
+﻿import { ProductCardSkeleton as BrandedProductCardSkeleton, HeroSkeleton } from "@/components/ui/illustrations/LoadingSkeletons";
 
 export default function ShopLoading() {
   return (
-    <main className="bg-brand-bgLight py-10 md:py-16">
+    <main className="bg-neutral-50 py-10 md:py-16">
       <div className="container mx-auto px-4 md:px-6">
         <div className="h-8 w-48 rounded skeleton-shimmer" />
         <div className="mt-4 h-12 w-80 rounded skeleton-shimmer" />

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -46,7 +46,7 @@ export default function ContactClient() {
             <Button type="submit" disabled={isSending} className="w-full sm:w-auto">{isSending ? <span className="inline-flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Sending</span> : "Send message"}</Button>
           </form>
         </div>
-        <aside className="border border-neutral-200 bg-brand-surfaceWarm p-6 md:p-8">
+        <aside className="border border-neutral-200 bg-neutral-100 p-6 md:p-8">
           <p className="type-label text-primary">Store information</p>
           <h2 className="mt-3 font-display text-4xl font-medium text-neutral-900">Kathmandu care desk.</h2>
           <div className="mt-8 space-y-5 text-sm leading-7 text-neutral-600">

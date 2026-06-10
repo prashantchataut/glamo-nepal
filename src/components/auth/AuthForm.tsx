@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -258,7 +258,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
 
           {mode === "login" && (
             <div className="pt-1 text-right">
-              <Link href="/forgot-password" className="text-sm font-medium text-primary transition-colors hover:text-brand-primary-hover">
+              <Link href="/forgot-password" className="text-sm font-medium text-primary transition-colors hover:text-primary-hover">
                 Forgot password?
               </Link>
             </div>
@@ -280,12 +280,12 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-1 text-sm font-medium">
             {mode === "login" && (
-              <Link href="/register" className="text-primary transition-colors hover:text-brand-primary-hover">
+              <Link href="/register" className="text-primary transition-colors hover:text-primary-hover">
                 Create account
               </Link>
             )}
             {mode === "register" && (
-              <Link href="/login" className="text-primary transition-colors hover:text-brand-primary-hover">
+              <Link href="/login" className="text-primary transition-colors hover:text-primary-hover">
                 Sign in instead
               </Link>
             )}

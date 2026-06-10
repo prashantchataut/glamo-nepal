@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -110,12 +110,12 @@ export function AccountDashboardClient() {
             {initials(user?.name, user?.phone)}
           </div>
           <div className="min-w-0">
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-brand-textPrimary md:text-3xl">
+            <h1 className="font-display text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
               {user?.name ? `Hello, ${user.name.split(" ")[0]}` : displayName}
             </h1>
-            <p className="mt-0.5 truncate text-sm text-brand-textMuted">{contactInfo}</p>
+            <p className="mt-0.5 truncate text-sm text-neutral-500">{contactInfo}</p>
             {accountBadge && (
-              <span className="mt-2 inline-flex rounded-full bg-brand-bgLight px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-primary ring-1 ring-brand-border/60">
+              <span className="mt-2 inline-flex rounded-full bg-neutral-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary ring-1 ring-brand-border/60">
                 {accountBadge}
               </span>
             )}
@@ -135,8 +135,8 @@ export function AccountDashboardClient() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8 text-primary transition-colors duration-200 group-hover:bg-primary group-hover:text-white">
                 <Icon size={18} strokeWidth={1.7} />
               </div>
-              <h2 className="mt-3 font-display text-[15px] font-semibold text-brand-textPrimary">{link.name}</h2>
-              <p className="mt-1 text-[13px] leading-snug text-brand-textMuted">{link.description}</p>
+              <h2 className="mt-3 font-display text-[15px] font-semibold text-neutral-900">{link.name}</h2>
+              <p className="mt-1 text-[13px] leading-snug text-neutral-500">{link.description}</p>
             </Link>
           );
         })}
@@ -145,8 +145,8 @@ export function AccountDashboardClient() {
       {recentOrders.length > 0 && (
         <section>
           <div className="flex items-end justify-between">
-            <h2 className="font-display text-xl font-semibold text-brand-textPrimary">Recent orders</h2>
-            <Link href="/account/orders" className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary transition-colors hover:text-brand-primary-hover">
+            <h2 className="font-display text-xl font-semibold text-neutral-900">Recent orders</h2>
+            <Link href="/account/orders" className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary-hover">
               View all <ArrowRight size={14} />
             </Link>
           </div>
@@ -155,21 +155,21 @@ export function AccountDashboardClient() {
               const card = (
                 <article className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-neutral-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover md:p-5">
                   <div className="flex min-w-0 items-center gap-4">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-neutral-50">
                       {order.image ? (
                         <Image src={order.image} alt={order.orderNumber} fill className="object-cover" sizes="48px" />
                       ) : (
-                        <Package className="m-3 text-brand-primary" size={20} />
+                        <Package className="m-3 text-primary" size={20} />
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate font-display text-[15px] font-semibold text-brand-textPrimary">{order.orderNumber}</p>
-                      <p className="mt-0.5 text-[13px] text-brand-textMuted">
+                      <p className="truncate font-display text-[15px] font-semibold text-neutral-900">{order.orderNumber}</p>
+                      <p className="mt-0.5 text-[13px] text-neutral-500">
                         {order.date} &middot; {order.itemCount} item{order.itemCount === 1 ? "" : "s"}
                       </p>
                     </div>
                   </div>
-                  <p className="shrink-0 text-sm font-bold text-brand-textPrimary">{formatNPR(order.total)}</p>
+                  <p className="shrink-0 text-sm font-bold text-neutral-900">{formatNPR(order.total)}</p>
                 </article>
               );
               return order.source === "api" ? (

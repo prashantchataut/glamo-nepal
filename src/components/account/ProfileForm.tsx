@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -86,16 +86,16 @@ export function ProfileForm() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-5">
-          <div className="h-20 w-20 animate-pulse rounded-full bg-brand-bgLight" />
+          <div className="h-20 w-20 animate-pulse rounded-full bg-neutral-50" />
           <div className="space-y-3">
-            <div className="h-6 w-40 animate-pulse rounded-xl bg-brand-bgLight" />
-            <div className="h-4 w-56 animate-pulse rounded-xl bg-brand-bgLight" />
+            <div className="h-6 w-40 animate-pulse rounded-xl bg-neutral-50" />
+            <div className="h-4 w-56 animate-pulse rounded-xl bg-neutral-50" />
           </div>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="h-14 animate-pulse rounded-2xl bg-brand-bgLight" />
-          <div className="h-14 animate-pulse rounded-2xl bg-brand-bgLight" />
-          <div className="h-14 animate-pulse rounded-2xl bg-brand-bgLight" />
+          <div className="h-14 animate-pulse rounded-2xl bg-neutral-50" />
+          <div className="h-14 animate-pulse rounded-2xl bg-neutral-50" />
+          <div className="h-14 animate-pulse rounded-2xl bg-neutral-50" />
         </div>
       </div>
     );
@@ -108,8 +108,8 @@ export function ProfileForm() {
           {initials}
         </div>
         <div>
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-brand-textPrimary md:text-3xl">Profile details</h2>
-          <p className="mt-1 text-sm text-brand-textMuted">Keep your contact details up to date.</p>
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">Profile details</h2>
+          <p className="mt-1 text-sm text-neutral-500">Keep your contact details up to date.</p>
         </div>
       </div>
 
@@ -128,7 +128,7 @@ export function ProfileForm() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="profile-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-textMuted">
+          <label htmlFor="profile-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
             Full name
           </label>
           <input
@@ -136,12 +136,12 @@ export function ProfileForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={isSaving || isFetching}
-            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-brand-textPrimary outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-900 outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="Your name"
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="profile-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-textMuted">
+          <label htmlFor="profile-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
             Email{isGoogleOnly ? " (managed by Google)" : ""}
           </label>
           <input
@@ -150,11 +150,11 @@ export function ProfileForm() {
             onChange={isGoogleOnly ? undefined : (e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             disabled={isSaving || isFetching || isGoogleOnly}
-            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-brand-textPrimary outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-900 outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="profile-phone" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-textMuted">
+          <label htmlFor="profile-phone" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
             Phone
           </label>
           <input
@@ -162,7 +162,7 @@ export function ProfileForm() {
             value={user?.phone || ""}
             readOnly
             placeholder="+977 98XXXXXXXX"
-            className="w-full cursor-not-allowed rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 text-[15px] text-brand-textMuted outline-none"
+            className="w-full cursor-not-allowed rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 text-[15px] text-neutral-500 outline-none"
           />
         </div>
       </div>
@@ -175,7 +175,7 @@ export function ProfileForm() {
           {isSaving ? "Saving..." : "Save profile"}
         </button>
         {isSaving && (
-          <span className="text-sm text-brand-textMuted">Updating your details...</span>
+          <span className="text-sm text-neutral-500">Updating your details...</span>
         )}
       </div>
     </form>

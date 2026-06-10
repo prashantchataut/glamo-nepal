@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Heart, Sparkles } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 
@@ -10,10 +10,10 @@ export const metadata = createMetadata({
 
 export default function WishlistLandingPage() {
   return (
-    <main className="bg-brand-bgLight px-4 py-14 md:py-24">
-      <div className="mx-auto max-w-5xl rounded-[2.75rem] bg-brand-surfacePink p-5 md:p-10">
+    <main className="bg-neutral-50 px-4 py-14 md:py-24">
+      <div className="mx-auto max-w-5xl rounded-[2.75rem] bg-rose-50 p-5 md:p-10">
         <div className="grid gap-8 rounded-[2.25rem] bg-white p-7 shadow-editorial md:grid-cols-[0.9fr_1.1fr] md:items-center md:p-10">
-          <div className="relative min-h-[250px] overflow-hidden rounded-[2rem] bg-brand-bgLight">
+          <div className="relative min-h-[250px] overflow-hidden rounded-[2rem] bg-neutral-50">
             <div className="absolute left-8 top-8 flex h-20 w-20 items-center justify-center rounded-full bg-white text-primary shadow-soft">
               <Heart size={30} strokeWidth={1.5} />
             </div>

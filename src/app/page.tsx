@@ -1,4 +1,4 @@
-import { HeroBanner } from "@/components/home/HeroBanner";
+﻿import { HeroBanner } from "@/components/home/HeroBanner";
 import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { BrandPhilosophyBanner } from "@/components/home/BrandPhilosophyBanner";
@@ -20,7 +20,7 @@ export const metadata = createMetadata({
 
 export default function HomePage() {
   return (
-    <main className="bg-brand-bgLight">
+    <main className="bg-neutral-50">
       <JsonLd data={localBusinessJsonLd()} />
       <HeroBanner />
       <ShopByCategory />

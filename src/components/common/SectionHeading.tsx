@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 interface SectionHeadingProps {
@@ -27,12 +27,12 @@ export function SectionHeading({
       )}
     >
       <div className={cn(align === "center" && "max-w-2xl mx-auto")}>
-        <h2 className="font-display text-4xl md:text-5xl font-semibold text-brand-textPrimary">
+        <h2 className="font-display text-4xl md:text-5xl font-semibold text-neutral-900">
           {title}{" "}
-          {accentText && <span className="text-brand-primary italic">{accentText}</span>}
+          {accentText && <span className="text-primary italic">{accentText}</span>}
         </h2>
         {subtitle && (
-          <p className="text-brand-textMuted text-lg mt-4">{subtitle}</p>
+          <p className="text-neutral-500 text-lg mt-4">{subtitle}</p>
         )}
       </div>
       {action && align === "left" && <div className="shrink-0">{action}</div>}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
@@ -161,8 +161,8 @@ export default function ProductDetailClient({
   }
 
   return (
-    <main className="bg-brand-bgLight pb-20 md:pb-0">
-      <section className="border-b border-neutral-200 bg-brand-surfacePink px-4 py-4 md:px-6 lg:px-8">
+    <main className="bg-neutral-50 pb-20 md:pb-0">
+      <section className="border-b border-neutral-200 bg-rose-50 px-4 py-4 md:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav
             className="flex min-h-10 flex-wrap items-center gap-2 text-sm text-neutral-600"
@@ -210,7 +210,7 @@ export default function ProductDetailClient({
           </div>
 
           <div
-            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-brand-surfaceWarm shadow-editorial lg:order-2 lg:cursor-zoom-in"
+            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-neutral-100 shadow-editorial lg:order-2 lg:cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleZoom}
@@ -338,7 +338,7 @@ export default function ProductDetailClient({
               {product.benefits.slice(0, 3).map((benefit) => (
                 <div
                   key={benefit}
-                  className="rounded-[1.25rem] bg-brand-bgLight p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
+                  className="rounded-[1.25rem] bg-neutral-50 p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
                 >
                   {benefit}
                 </div>
@@ -420,7 +420,7 @@ export default function ProductDetailClient({
               {reassurance.map(({ label, text, icon: Icon }) => (
                 <div
                   key={label}
-                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-brand-bgLight p-4"
+                  className="flex gap-3 rounded-[1.35rem] border border-neutral-200 bg-neutral-50 p-4"
                 >
                   <Icon size={18} className="mt-0.5 text-primary" />
                   <div>

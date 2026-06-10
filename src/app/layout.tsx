@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
-import { Outfit, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
+import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
@@ -9,16 +10,20 @@ import { FirebaseAuthProvider } from "@/components/auth/FirebaseAuthProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-const outfit = Outfit({
-  subsets: ["latin"],
+// Self-hosted fonts — eliminate Google Fonts network dependency for CSP compliance and performance.
+// Replace placeholder .woff2 files in src/fonts/ with real variable-weight files downloaded from Google Fonts.
+const outfit = localFont({
+  src: "../../fonts/outfit.woff2",
   variable: "--font-body",
   display: "swap",
+  weight: "100 900",
 });
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
+const playfair = localFont({
+  src: "../../fonts/playfair-display.woff2",
   variable: "--font-display",
   display: "swap",
+  weight: "400 900",
 });
 
 export const metadata = {
@@ -62,12 +67,16 @@ export default function RootLayout({
       className={`${outfit.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-white focus:rounded-lg focus:top-4 focus:left-4">
+          Skip to content
+        </a>
         <FirebaseAuthProvider>
             <ComponentErrorBoundary name="RootLayout">
               <AppShell>{children}</AppShell>
             </ComponentErrorBoundary>
           </FirebaseAuthProvider>
         <ConditionalAnalytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );

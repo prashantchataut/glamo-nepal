@@ -120,8 +120,23 @@ function setCsrfCookie(response: NextResponse, csrfToken: string, request: NextR
   }
 }
 
+const CANONICAL_REDIRECTS: Record<string, string> = {
+  "/privacy": "/privacy-policy",
+  "/terms-and-conditions": "/terms",
+  "/shipping": "/shipping-policy",
+  "/returns": "/return-policy",
+};
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // 301 redirect duplicate pages to canonical URLs
+  const canonicalTarget = CANONICAL_REDIRECTS[pathname];
+  if (canonicalTarget) {
+    const url = new URL(canonicalTarget, request.url);
+    url.search = request.nextUrl.search;
+    return NextResponse.redirect(url, 301);
+  }
 
   const isAdminPath = isPathOrChild(pathname, "/admin");
   const isAdminLogin = isPathOrChild(pathname, "/admin/login");

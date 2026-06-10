@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
       aria-label={product.name}
       className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-card-default transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-card-hover"
     >
-      <div className="relative block aspect-[4/5] overflow-hidden bg-brand-surfaceWarm">
+      <div className="relative block aspect-[4/5] overflow-hidden bg-neutral-100">
         <Link
           href={`/products/${product.slug}`}
           className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"

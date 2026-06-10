@@ -1,6 +1,6 @@
-export default function Loading() {
+﻿export default function Loading() {
   return (
-    <main className="min-h-[60vh] bg-brand-bgLight px-4 py-20">
+    <main className="min-h-[60vh] bg-neutral-50 px-4 py-20">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 h-5 w-36 rounded-full skeleton-shimmer" />
         <div className="mb-4 h-12 w-2/3 max-w-xl rounded-2xl skeleton-shimmer" />

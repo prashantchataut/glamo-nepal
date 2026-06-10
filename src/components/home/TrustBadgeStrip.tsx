@@ -1,4 +1,4 @@
-import { TrustIcon, TrustIconName } from "@/components/ui/illustrations/TrustIcons";
+﻿import { TrustIcon, TrustIconName } from "@/components/ui/illustrations/TrustIcons";
 import { TRUST_BADGES } from "@/lib/constants";
 
 const iconMap: Record<string, TrustIconName> = {
@@ -12,7 +12,7 @@ const iconMap: Record<string, TrustIconName> = {
 export function TrustBadgeStrip() {
   return (
     <div
-      className="bg-brand-primary text-white py-3 border-y border-brand-primary/20"
+      className="bg-primary text-white py-3 border-y border-brand-primary/20"
       role="region"
       aria-label="Trust badges"
     >

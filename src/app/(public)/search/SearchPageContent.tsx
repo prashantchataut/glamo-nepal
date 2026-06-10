@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -31,8 +31,8 @@ export default function SearchPageContent() {
   }, [q, sort]);
 
   return (
-    <div className="min-h-screen bg-brand-bgLight">
-      <section className="relative overflow-hidden bg-brand-surfacePink py-12 md:py-20">
+    <div className="min-h-screen bg-neutral-50">
+      <section className="relative overflow-hidden bg-rose-50 py-12 md:py-20">
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-400">

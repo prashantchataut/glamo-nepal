@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+﻿import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import CategoryPageContent from "./CategoryPageContent";
 import { CATEGORIES } from "@/lib/data/products";
@@ -26,7 +26,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   if (!category) notFound();
   const products = getProductsByCategory(params.slug);
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-bgLight" />}>
+    <Suspense fallback={<div className="min-h-screen bg-neutral-50" />}>
       <JsonLd data={[
         breadcrumbJsonLd([
           { name: "Home", path: "/" },

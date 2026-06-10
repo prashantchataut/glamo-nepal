@@ -1,4 +1,4 @@
-import type { Product } from "@/types/product";
+﻿import type { Product } from "@/types/product";
 import { SITE_CONFIG } from "@/lib/config";
 import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { formatNPR } from "@/lib/utils";
@@ -34,7 +34,7 @@ export const HERO_SLIDES = [
     cta: "Shop Festival Edit",
     ctaLink: "/collections/festival-ready",
     image: "/images/editorial/hero-editorial.svg",
-    bgColor: "bg-brand-surfaceWarm",
+    bgColor: "bg-neutral-100",
     annotation: "Festival Edit",
   },
   {
@@ -45,7 +45,7 @@ export const HERO_SLIDES = [
     cta: "Shop Best Sellers",
     ctaLink: "/collections/best-sellers",
     image: "/images/editorial/shop-collage.svg",
-    bgColor: "bg-brand-primary-light",
+    bgColor: "bg-primary/10",
     annotation: "Best Sellers",
   },
   {
@@ -56,7 +56,7 @@ export const HERO_SLIDES = [
     cta: "Shop Local Picks",
     ctaLink: "/collections/made-in-nepal",
     image: "/images/editorial/new-year-editorial.svg",
-    bgColor: "bg-brand-surfacePink",
+    bgColor: "bg-rose-50",
     annotation: "Local Love",
   },
 ];

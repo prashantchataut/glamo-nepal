@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import ContactClient from "./ContactClient";
 import { IMAGES } from "@/lib/image-library";
 import { createMetadata } from "@/lib/seo";
@@ -8,7 +8,7 @@ export const metadata = createMetadata({ title: "Contact", description: "Contact
 export default function ContactPage() {
   return (
     <main className="bg-neutral-50 pb-20 md:pb-0">
-      <section className="border-b border-neutral-200 bg-brand-surfaceWarm">
+      <section className="border-b border-neutral-200 bg-neutral-100">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8">
           <div>
             <p className="type-label text-primary">Customer care</p>

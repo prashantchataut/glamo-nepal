@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 
 export function HeroCalloutCardA({ className = '' }: { className?: string }) {
   return (
@@ -37,7 +37,7 @@ export function HeroCalloutCardC({ className = '' }: { className?: string }) {
     <div
       className={`inline-flex items-center rounded-full border-[1.5px] border-brand-gold bg-white px-4 py-2 shadow-gold-glow ${className}`}
     >
-      <span className="text-sm font-semibold text-brand-gold">रू 1,299</span>
+      <span className="text-sm font-semibold text-secondary">रू 1,299</span>
     </div>
   )
 }

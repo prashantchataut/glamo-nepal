@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { toast } from "sonner";
@@ -85,8 +85,8 @@ export function PasswordForm() {
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
       <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
-        <h1 className="font-display text-3xl font-semibold text-brand-textPrimary">{isGoogleOnly ? "Set up password" : "Change password"}</h1>
-        <p className="mt-2 text-sm leading-6 text-brand-textMuted">
+        <h1 className="font-display text-3xl font-semibold text-neutral-900">{isGoogleOnly ? "Set up password" : "Change password"}</h1>
+        <p className="mt-2 text-sm leading-6 text-neutral-500">
           {isGoogleOnly
             ? "Set a password so you can sign in with email and password in addition to Google."
             : "Update your password to keep your account secure. You'll need to enter your current password to confirm the change."}
@@ -94,7 +94,7 @@ export function PasswordForm() {
 
         <div className="mt-6 grid gap-5">
           {hasPasswordProvider && (
-          <label className="text-sm font-semibold text-brand-textPrimary">
+          <label className="text-sm font-semibold text-neutral-900">
             Current password
             <div className="relative mt-2">
               <input
@@ -104,12 +104,12 @@ export function PasswordForm() {
                 placeholder="Enter current password"
                 required
                 autoComplete="current-password"
-                className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
+                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-textMuted hover:text-brand-textPrimary"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-900"
               >
                 {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -117,7 +117,7 @@ export function PasswordForm() {
           </label>
           )}
 
-          <label className="text-sm font-semibold text-brand-textPrimary">
+          <label className="text-sm font-semibold text-neutral-900">
             New password
             <div className="relative mt-2">
               <input
@@ -128,19 +128,19 @@ export function PasswordForm() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
+                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
               />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-textMuted hover:text-brand-textPrimary"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-900"
               >
                 {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </label>
 
-          <label className="text-sm font-semibold text-brand-textPrimary">
+          <label className="text-sm font-semibold text-neutral-900">
             Confirm new password
             <div className="relative mt-2">
               <input
@@ -151,12 +151,12 @@ export function PasswordForm() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-2xl border border-border bg-brand-bgLight px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
+                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-textMuted hover:text-brand-textPrimary"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-900"
               >
                 {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -167,14 +167,14 @@ export function PasswordForm() {
         <button
           type="submit"
           disabled={isSaving}
-          className="mt-7 rounded-full bg-brand-primary px-8 py-3 font-semibold text-white transition hover:bg-brand-bgDark disabled:opacity-60"
+          className="mt-7 rounded-full bg-primary px-8 py-3 font-semibold text-white transition hover:bg-neutral-950 disabled:opacity-60"
         >
           {isSaving ? (isGoogleOnly ? "Setting up password..." : "Changing password...") : (isGoogleOnly ? "Set up password" : "Change password")}
         </button>
       </form>
 
-      <aside className="rounded-[2rem] border border-border/70 bg-brand-bgDark p-6 text-white shadow-sm md:p-8">
-        <ShieldCheck className="text-brand-gold" size={32} />
+      <aside className="rounded-[2rem] border border-border/70 bg-neutral-950 p-6 text-white shadow-sm md:p-8">
+        <ShieldCheck className="text-secondary" size={32} />
         <h2 className="mt-4 font-display text-3xl font-semibold">Security tips</h2>
         <ul className="mt-5 space-y-3 text-sm leading-6 text-white/75">
           <li>Use a strong password with at least 8 characters, including numbers and symbols.</li>

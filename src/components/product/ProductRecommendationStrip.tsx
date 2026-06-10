@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useEffect, useState } from "react";
@@ -62,11 +62,11 @@ export function ProductRecommendationStrip({
         <div className="mb-6 flex items-end justify-between">
           <div>
             {subtitle && (
-              <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
+              <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-secondary">
                 {subtitle}
               </p>
             )}
-            <h2 className="font-display text-3xl font-semibold text-brand-textPrimary">
+            <h2 className="font-display text-3xl font-semibold text-neutral-900">
               {title}
             </h2>
           </div>
@@ -78,12 +78,12 @@ export function ProductRecommendationStrip({
                   key={i}
                   className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-white"
                 >
-                  <div className="aspect-[4/5] animate-pulse rounded-t-[1.35rem] bg-brand-bgLight" />
+                  <div className="aspect-[4/5] animate-pulse rounded-t-[1.35rem] bg-neutral-50" />
                   <div className="flex flex-1 flex-col gap-3 p-5">
-                    <div className="h-3 w-20 animate-pulse rounded bg-brand-bgLight" />
-                    <div className="h-6 w-4/5 animate-pulse rounded bg-brand-bgLight" />
-                    <div className="h-4 w-2/3 animate-pulse rounded bg-brand-bgLight" />
-                    <div className="mt-auto h-11 w-full animate-pulse rounded-full bg-brand-bgLight" />
+                    <div className="h-3 w-20 animate-pulse rounded bg-neutral-50" />
+                    <div className="h-6 w-4/5 animate-pulse rounded bg-neutral-50" />
+                    <div className="h-4 w-2/3 animate-pulse rounded bg-neutral-50" />
+                    <div className="mt-auto h-11 w-full animate-pulse rounded-full bg-neutral-50" />
                   </div>
                 </div>
               ))

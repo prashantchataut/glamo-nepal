@@ -1,4 +1,4 @@
-
+﻿
 
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export function BlogPreview() {
           </div>
           <Link href="/blog" className="group flex items-center gap-2 text-primary font-semibold hover:text-brand-bgDark transition-colors duration-300 shrink-0">
             Read All Articles
-            <span className="p-2 bg-brand-primary/10 rounded-full group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
+            <span className="p-2 bg-primary/10 rounded-full group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <MoveRight size={16} />
             </span>
           </Link>
@@ -28,7 +28,7 @@ export function BlogPreview() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {BLOG_POSTS.map((post, i) => (
-            <Link key={post.id} href={`/blog/${post.slug}`} className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-card transition-all duration-500 border border-neutral-200/30 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2" style={{ animationDelay: `${i * 100}ms` }}>
+            <Link key={post.id} href={`/blog/${post.slug}`} className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-card transition-all duration-500 border border-neutral-200/30 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" style={{ animationDelay: `${i * 100}ms` }}>
               <div className="relative aspect-[3/2] overflow-hidden">
                 <Image
                   src={post.image}

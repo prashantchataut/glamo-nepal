@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import Image from "next/image";
@@ -15,19 +15,19 @@ export function CompareTray() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2 overflow-x-auto">
           {items.map((product) => (
-            <div key={product.id} className="flex min-w-0 items-center gap-2 rounded-2xl bg-brand-bgLight p-2 pr-3">
+            <div key={product.id} className="flex min-w-0 items-center gap-2 rounded-2xl bg-neutral-50 p-2 pr-3">
               <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white"><Image src={product.image} alt={product.name} fill className="object-cover" /></div>
               <div className="min-w-[120px]">
-                <p className="line-clamp-1 text-xs font-semibold text-brand-textPrimary">{product.name}</p>
-                <p className="text-[11px] text-brand-gold">{formatNPR(product.price)}</p>
+                <p className="line-clamp-1 text-xs font-semibold text-neutral-900">{product.name}</p>
+                <p className="text-[11px] text-secondary">{formatNPR(product.price)}</p>
               </div>
-              <button onClick={() => removeItem(product.id)} aria-label={`Remove ${product.name} from compare`} className="rounded-full p-1 text-brand-textMuted hover:bg-white hover:text-brand-primary"><X size={14} /></button>
+              <button onClick={() => removeItem(product.id)} aria-label={`Remove ${product.name} from compare`} className="rounded-full p-1 text-neutral-500 hover:bg-white hover:text-primary"><X size={14} /></button>
             </div>
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={clear} className="rounded-full px-4 py-2 text-xs font-semibold text-brand-textMuted hover:bg-brand-bgLight">Clear</button>
-          <Link href="/compare" className="rounded-full bg-brand-primary px-5 py-2 text-sm font-semibold text-white hover:bg-brand-bgDark">Compare {items.length}/3</Link>
+          <button onClick={clear} className="rounded-full px-4 py-2 text-xs font-semibold text-neutral-500 hover:bg-neutral-50">Clear</button>
+          <Link href="/compare" className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-neutral-950">Compare {items.length}/3</Link>
         </div>
       </div>
     </div>

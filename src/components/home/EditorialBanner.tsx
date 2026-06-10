@@ -1,12 +1,12 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { IMAGES } from "@/lib/image-library";
 
 export function EditorialBanner() {
   return (
-    <section aria-labelledby="editorial-banner-heading" className="bg-brand-bgLight py-12 md:py-16 lg:py-20">
+    <section aria-labelledby="editorial-banner-heading" className="bg-neutral-50 py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid overflow-hidden rounded-[34px] border border-neutral-200 bg-brand-surfacePink shadow-editorial lg:grid-cols-[1fr_0.9fr] lg:items-stretch">
+        <div className="grid overflow-hidden rounded-[34px] border border-neutral-200 bg-rose-50 shadow-editorial lg:grid-cols-[1fr_0.9fr] lg:items-stretch">
           <div className="px-5 py-8 sm:px-8 md:py-12 lg:p-12">
             <span className="inline-flex rounded-full bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-primary ring-1 ring-white/80">Curated Beauty Edit</span>
             <h2 id="editorial-banner-heading" className="mt-5 max-w-xl font-display text-4xl font-semibold leading-[0.92] tracking-[-0.04em] text-neutral-950 md:text-6xl">

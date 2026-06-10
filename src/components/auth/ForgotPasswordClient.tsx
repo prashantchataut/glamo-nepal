@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { authApi } from "@/lib/api/auth";
@@ -37,7 +37,7 @@ export function ForgotPasswordClient() {
   }
 
   return (
-    <main className="bg-brand-surfaceWarm py-10 md:py-16">
+    <main className="bg-neutral-100 py-10 md:py-16">
       <div className="container mx-auto max-w-md px-4 md:px-6">
         <h1 className="font-display text-3xl font-semibold text-neutral-900">Reset your password</h1>
         <p className="mt-2 text-sm text-neutral-500">
