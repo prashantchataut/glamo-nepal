@@ -1,20 +1,20 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { IMAGES } from "@/lib/image-library";
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-brand-primary-light/30 to-white pt-8 pb-20 lg:pt-20 lg:pb-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-white pt-8 pb-20 lg:pt-20 lg:pb-32">
       {/* Background Decor */}
       <div className="absolute -top-[20%] -right-[10%] z-0 h-[600px] w-[600px] rounded-full bg-primary/10/60 blur-2xl" aria-hidden="true" />
-      <div className="absolute -bottom-[10%] -left-[10%] z-0 h-[400px] w-[400px] rounded-full bg-brand-accentLight/40 blur-2xl" aria-hidden="true" />
+      <div className="absolute -bottom-[10%] -left-[10%] z-0 h-[400px] w-[400px] rounded-full bg-secondary/10 blur-2xl" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           {/* Text Content */}
           <div className="max-w-2xl text-center lg:text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-accentLight bg-white/90 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary shadow-sm">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-secondary bg-white/90 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary shadow-sm">
               <Sparkles size={14} /> Handpicked Nepali Beauty
             </div>
             

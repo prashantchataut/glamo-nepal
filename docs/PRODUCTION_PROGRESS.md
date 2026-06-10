@@ -6,7 +6,7 @@
 |---|---------|--------|--------|
 | 1 | Server-side rate limiting | Done | `/api/admin/login` 5 req/15 min, `/api/contact` 3 req/hr, default 60 req/min. In-memory with periodic GC. |
 | 2 | CSRF protection (double-submit cookie) | Done | `glamo-csrf-token` cookie set by middleware; validated on every POST/PUT/DELETE to `/api/*` state-changing routes. |
-| 3 | CSP hardening | Done | Nonce-based CSP for scripts; `unsafe-eval` removed entirely; `unsafe-inline` removed from `script-src` (nonce-based CSP). `style-src` retains `unsafe-inline` for Tailwind. |
+| 3 | CSP hardening | Done | Nonce-based CSP for scripts; `unsafe-eval` removed entirely; `unsafe-inline` removed from `script-src` (nonce-based CSP); `style-src` retains `unsafe-inline` for Tailwind; fonts self-hosted, `fonts.gstatic.com` and `fonts.googleapis.com` removed from CSP. |
 | 4 | SVG sanitisation (DOMPurify) | Done | Replaced regex/DOMParser sanitiser with `DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } })`. |
 | 5 | Timing-safe admin auth | Done | Byte-by-byte constant-time comparison for email and password in `/api/admin/login`. |
 | 6 | Server-side order numbers | Done | `/api/checkout` generates `GLM-{year}-{uuid8}` via `crypto.randomUUID()`. Client no longer uses `Math.random()`. |

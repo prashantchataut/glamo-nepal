@@ -18,7 +18,7 @@ export default function WishlistLandingPage() {
               <Heart size={30} strokeWidth={1.5} />
             </div>
             <div className="absolute bottom-8 left-8 right-8 rounded-[1.5rem] bg-neutral-950 p-5 text-white">
-              <Sparkles size={18} className="text-brand-accentLight" />
+              <Sparkles size={18} className="text-secondary" />
               <p className="mt-3 font-display text-3xl font-semibold leading-none">Saved shelf</p>
               <p className="mt-2 text-xs leading-5 text-white/70">Keep skincare, SPF and makeup picks ready for checkout.</p>
             </div>

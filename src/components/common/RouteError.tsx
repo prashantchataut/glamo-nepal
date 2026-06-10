@@ -10,7 +10,7 @@ export function RouteError({ title = "This GLAMO page needs a refresh", descript
     <main className="min-h-[70vh] bg-neutral-50 px-4 py-16">
       <div className="mx-auto max-w-3xl overflow-hidden rounded-[2.25rem] border border-neutral-200 bg-white text-center shadow-editorial">
         <div className="bg-[var(--gradient-editorial)] px-6 py-10 md:px-10 md:py-12">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-amber-700 shadow-sm ring-1 ring-brand-border"><AlertTriangle size={32} /></div>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-amber-700 shadow-sm ring-1 ring-neutral-200"><AlertTriangle size={32} /></div>
           <p className="font-label mt-6 text-xs font-bold uppercase tracking-[0.24em] text-primary">GLAMO recovery</p>
           <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight text-neutral-900 md:text-5xl">{title}</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-neutral-500 md:text-base">{description}</p>

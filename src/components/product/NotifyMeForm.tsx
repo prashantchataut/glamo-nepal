@@ -37,7 +37,7 @@ export function NotifyMeForm({ productName }: { productName: string }) {
               value={contact}
               onChange={(event) => setContact(event.target.value)}
               placeholder="Email or phone number"
-              className="min-h-12 flex-1 rounded-full border border-border bg-neutral-50 px-4 text-sm outline-none focus:ring-2 focus:ring-brand-primary/25"
+              className="min-h-12 flex-1 rounded-full border border-border bg-neutral-50 px-4 text-sm outline-none focus:ring-2 focus:ring-primary/10"
             />
             <button className="min-h-[44px] rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-950">Notify me</button>
           </form>

@@ -16,7 +16,7 @@ export default function CollectionsPage() {
     <main className="min-h-screen bg-white pb-20 md:pb-0">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Collections", path: "/collections" }])} />
 
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-bgLight via-white to-white">
+      <section className="relative overflow-hidden bg-gradient-to-b from-neutral-50 via-white to-white">
         <div className="mx-auto max-w-[1480px] px-4 py-14 md:px-8 md:py-20 lg:py-24">
           <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Curated edits</p>
           <h1 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-neutral-900 md:text-7xl lg:text-8xl">

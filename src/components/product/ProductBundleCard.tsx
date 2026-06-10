@@ -52,7 +52,7 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
             <div className="text-lg font-bold tracking-tight text-secondary">{formatNPR(bundle.bundlePrice)}</div>
             <div className="text-xs text-neutral-500">Bundle saving {formatNPR(bundle.savings)}</div>
           </div>
-          <button type="button" onClick={addBundle} aria-label="Add routine to cart" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 cursor-pointer">
+          <button type="button" onClick={addBundle} aria-label="Add routine to cart" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-primary/15 cursor-pointer">
             <ShoppingBag size={16} /> Add routine
           </button>
         </div>

@@ -18,7 +18,7 @@ export function BlogPreview() {
               Expert advice, tutorials, and deep-dives into the ingredients that transform your skin.
             </p>
           </div>
-          <Link href="/blog" className="group flex items-center gap-2 text-primary font-semibold hover:text-brand-bgDark transition-colors duration-300 shrink-0">
+          <Link href="/blog" className="group flex items-center gap-2 text-primary font-semibold hover:text-neutral-950 transition-colors duration-300 shrink-0">
             Read All Articles
             <span className="p-2 bg-primary/10 rounded-full group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <MoveRight size={16} />

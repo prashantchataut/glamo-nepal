@@ -24,13 +24,13 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
       </svg>
       <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
         <div className="flex items-center gap-2 mb-4">
-          <span className="h-px w-5 bg-brand-gold" />
+          <span className="h-px w-5 bg-secondary" />
           <span className="font-label text-[10px] uppercase tracking-[0.2em] text-secondary font-medium">Limited Time</span>
         </div>
         <p className="font-display italic text-white text-6xl md:text-8xl leading-none mb-2">50%</p>
-        <p className="text-brand-primary-light text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
+        <p className="text-primary/80 text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
         <p className="text-neutral-500 text-[13px] mb-6">Clean. Vegan. Powerful.</p>
-        <a href="/shop" aria-label="Shop summer glow sale" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full border border-brand-gold text-secondary text-[13px] font-medium hover:bg-brand-gold hover:text-brand-bgDark transition-colors">
+        <a href="/shop" aria-label="Shop summer glow sale" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full border border-secondary text-secondary text-[13px] font-medium hover:bg-secondary hover:text-neutral-950 transition-colors">
           Shop Now ?
         </a>
       </div>

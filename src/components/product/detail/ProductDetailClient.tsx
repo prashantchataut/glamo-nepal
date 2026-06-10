@@ -440,7 +440,7 @@ export default function ProductDetailClient({
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 md:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
         <div className="rounded-[2rem] bg-neutral-950 p-6 text-white md:p-8">
-          <Sparkles size={22} className="text-brand-accentLight" />
+          <Sparkles size={22} className="text-secondary" />
           <h2 className="mt-5 font-display text-4xl font-semibold leading-none">
             Routine notes
           </h2>

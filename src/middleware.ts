@@ -128,7 +128,7 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
 };
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   // 301 redirect duplicate pages to canonical URLs
   const canonicalTarget = CANONICAL_REDIRECTS[pathname];
@@ -150,7 +150,7 @@ export async function middleware(request: NextRequest) {
     const isValid = await hasValidAdminToken(request);
     if (!isValid) {
       const loginUrl = new URL("/admin/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
+      loginUrl.searchParams.set("redirect", pathname + search);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
       response.headers.set("x-nonce", nonce);
       setCsrfCookie(response, csrfToken, request);
@@ -177,7 +177,7 @@ export async function middleware(request: NextRequest) {
     const hasAuth = await hasFirebaseAuthToken(request);
     if (!hasAuth) {
       const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
+      loginUrl.searchParams.set("redirect", pathname + search);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
       response.headers.set("x-nonce", nonce);
       return response;

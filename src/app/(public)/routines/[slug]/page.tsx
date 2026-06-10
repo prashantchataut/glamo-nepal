@@ -40,7 +40,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
             <h1 className="mt-3 font-display text-5xl font-semibold leading-tight text-neutral-900 md:text-7xl">{bundle.title}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">{bundle.description}</p>
             <div className="mt-7 flex flex-wrap gap-2">
-              {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-primary shadow-sm ring-1 ring-brand-border">{tag}</span>)}
+              {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-primary shadow-sm ring-1 ring-neutral-200">{tag}</span>)}
             </div>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-page-hero">

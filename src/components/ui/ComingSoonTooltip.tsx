@@ -28,7 +28,7 @@ export function ComingSoonTooltip({ children }: { children: ReactNode }) {
           className="pointer-events-none absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-neutral-950 px-3 py-1.5 text-xs font-medium text-white shadow-lg"
         >
           Coming soon
-          <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-brand-bgDark" />
+          <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-neutral-950" />
         </span>
       )}
     </span>

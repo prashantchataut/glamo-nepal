@@ -132,7 +132,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
 
   const tokenParts = token.split('.')
   if (tokenParts.length !== 3) {
-    console.error(`[Auth] Invalid token format: parts=${tokenParts.length}, len=${token.length}, source=${authHeader ? 'header' : 'cookie'}, prefix=${token.substring(0, 40)}`)
+    console.error(`[Auth] Invalid token format: parts=${tokenParts.length}, len=${token.length}, source=${authHeader ? 'header' : 'cookie'}`)
     return c.json({ success: false, message: 'Unauthorized: invalid token format', errors: [] }, 401)
   }
 
@@ -224,7 +224,9 @@ export async function verifyAdminSession(token: string): Promise<{ email: string
     const expectedSignature = await crypto.subtle.sign('HMAC', key, encoder.encode(encodedPayload))
     const expectedBase64 = btoa(String.fromCharCode(...new Uint8Array(expectedSignature))).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
 
-    if (signature !== expectedBase64) return null
+    const sigBytes = Uint8Array.from(atob(signature.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))
+    const expBytes = Uint8Array.from(atob(expectedBase64.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))
+    if (sigBytes.length !== expBytes.length || !crypto.subtle.timingSafeEqual(sigBytes, expBytes)) return null
 
     const padding = encodedPayload.length % 4
     const padded = padding ? encodedPayload + '='.repeat(4 - padding) : encodedPayload

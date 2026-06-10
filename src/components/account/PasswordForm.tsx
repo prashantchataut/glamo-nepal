@@ -104,7 +104,7 @@ export function PasswordForm() {
                 placeholder="Enter current password"
                 required
                 autoComplete="current-password"
-                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
+                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-primary/10"
               />
               <button
                 type="button"
@@ -128,7 +128,7 @@ export function PasswordForm() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
+                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-primary/10"
               />
               <button
                 type="button"
@@ -151,7 +151,7 @@ export function PasswordForm() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-brand-primary/25"
+                className="w-full rounded-2xl border border-border bg-neutral-50 px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-primary/10"
               />
               <button
                 type="button"

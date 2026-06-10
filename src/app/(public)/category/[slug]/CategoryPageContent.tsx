@@ -92,7 +92,7 @@ export default function CategoryPageContent() {
           <select
             value={sort}
             onChange={(e) => router.push(`/category/${slug}?sort=${e.target.value}`, { scroll: false })}
-            className="text-sm border border-border rounded-full px-4 py-2.5 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 cursor-pointer"
+            className="text-sm border border-border rounded-full px-4 py-2.5 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary/10 cursor-pointer"
           >
             {SORT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
           </select>

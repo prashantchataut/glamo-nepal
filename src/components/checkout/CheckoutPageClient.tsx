@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -142,6 +142,13 @@ export function CheckoutPageClient() {
 
   const [guestMode, setGuestMode] = useState(false);
   const showAuthChoice = !authLoading && user === null && !guestMode;
+  const formHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (guestMode && formHeadingRef.current) {
+      formHeadingRef.current.focus();
+    }
+  }, [guestMode]);
 
   const {
     register,
@@ -356,7 +363,14 @@ export function CheckoutPageClient() {
           window.location.href = khaltiResult.data.paymentUrl;
           return;
         }
-      } catch { /* fall through to confirmation page */ }
+        setSubmitError("Khalti payment could not be initiated. Your order has been placed — please pay from your order details.");
+        setIsSubmitting(false);
+        return;
+      } catch (err) {
+        setSubmitError(getUserMessage(err) || "Khalti payment failed. Your order has been placed — please pay from your order details.");
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     if (paymentCode === "esewa" && order.id) {
@@ -366,19 +380,29 @@ export function CheckoutPageClient() {
           clearCart();
           const form = document.createElement("form");
           form.method = "POST";
-          form.action = esewaResult.data.url;
+          form.action = String(esewaResult.data.url);
+          const allowedKeys = new Set(["amt", "pid", "scd", "suUrl", "fuUrl", "tAmt", "txAmt", "pAmt", "sAmt", "taxAmt"]);
           for (const [key, value] of Object.entries(esewaResult.data.payload)) {
+            if (typeof key !== "string" || typeof value !== "string" && typeof value !== "number") continue;
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
-            input.value = value;
+            input.value = String(value);
             form.appendChild(input);
           }
           document.body.appendChild(form);
           form.submit();
+          form.remove();
           return;
         }
-      } catch { /* fall through to confirmation page */ }
+        setSubmitError("eSewa payment could not be initiated. Your order has been placed — please pay from your order details.");
+        setIsSubmitting(false);
+        return;
+      } catch (err) {
+        setSubmitError(getUserMessage(err) || "eSewa payment failed. Your order has been placed — please pay from your order details.");
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     router.push(`/order-confirmation/${order.orderNumber}`);
@@ -1026,7 +1050,7 @@ export function CheckoutPageClient() {
               />
             </div>
             <div className="mt-4 flex gap-3 rounded-[1rem] bg-neutral-950 p-3.5 text-white md:rounded-[1.25rem] md:p-4">
-              <LockKeyhole size={18} className="mt-0.5 shrink-0 text-brand-accentLight" />
+              <LockKeyhole size={18} className="mt-0.5 shrink-0 text-secondary" />
               <p className="text-xs leading-5 text-white/75">
                 Secure checkout. Your details are encrypted and never shared.
               </p>

@@ -31,7 +31,7 @@ export default function RoutinesPage() {
             <Link key={bundle.slug} href={`/routines/${bundle.slug}`} className="group overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-card-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none">
               <div className="relative aspect-[16/10] overflow-hidden">
                 <Image src={bundle.image} alt={bundle.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-bgDark/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/40 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                   <span className="font-label rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">{bundle.concerns[0]}</span>
                   <span className="rounded-full bg-white/92 px-3 py-1 text-xs font-bold text-secondary shadow-md">{formatNPR(bundle.bundlePrice)}</span>

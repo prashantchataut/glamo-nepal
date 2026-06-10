@@ -13,7 +13,7 @@ export function HeroCalloutCardA({ className = '' }: { className?: string }) {
         <span className="text-[11px] font-medium text-neutral-500 leading-tight">Natural</span>
         <span className="text-[13px] font-bold text-neutral-900 leading-tight">Ingredients</span>
       </div>
-      <span className="absolute top-1.5 right-2 w-1 h-1 rounded-full bg-brand-gold" />
+      <span className="absolute top-1.5 right-2 w-1 h-1 rounded-full bg-secondary" />
     </div>
   )
 }
@@ -35,7 +35,7 @@ export function HeroCalloutCardB({ className = '' }: { className?: string }) {
 export function HeroCalloutCardC({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`inline-flex items-center rounded-full border-[1.5px] border-brand-gold bg-white px-4 py-2 shadow-gold-glow ${className}`}
+      className={`inline-flex items-center rounded-full border-[1.5px] border-secondary bg-white px-4 py-2 shadow-gold-glow ${className}`}
     >
       <span className="text-sm font-semibold text-secondary">रू 1,299</span>
     </div>

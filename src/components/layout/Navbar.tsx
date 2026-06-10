@@ -157,12 +157,12 @@ export function Navbar() {
           "sticky top-0 z-navbar transition-all duration-300",
           isHome
             ? cn(
-                "border-b border-brand-accentLight/60 bg-neutral-50/90 backdrop-blur-xl",
+                "border-b border-secondary/60 bg-neutral-50/90 backdrop-blur-xl",
                 isScrolled && "bg-neutral-50/95 shadow-navbar",
               )
             : cn(
                 "border-b",
-                isScrolled ? "border-neutral-300 bg-neutral-50/98 shadow-nav" : "border-brand-accentLight bg-rose-50",
+                isScrolled ? "border-neutral-300 bg-neutral-50/98 shadow-nav" : "border-secondary bg-rose-50",
               ),
         )}
       >
@@ -170,7 +170,7 @@ export function Navbar() {
           <div
             className={cn(
               "grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]",
-              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-navbar-home ring-1 ring-brand-accentLight/50 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
+              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-navbar-home ring-1 ring-primary/10 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
             )}
           >
             <nav className="hidden items-center gap-6 xl:gap-8 lg:flex" aria-label="Primary navigation">
@@ -185,7 +185,7 @@ export function Navbar() {
                       isHome
                         ? cn(
                             "rounded-full px-3 py-2 tracking-[0.16em] after:bottom-1 after:left-3",
-                            active ? "bg-primary/10 text-brand-bgDark after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-neutral-50 hover:after:w-[calc(100%-1.5rem)]",
+                            active ? "bg-primary/10 text-neutral-950 after:w-[calc(100%-1.5rem)]" : "text-neutral-700 after:w-0 hover:bg-neutral-50 hover:after:w-[calc(100%-1.5rem)]",
                           )
                         : cn(
                             "after:-bottom-1.5 after:left-0",
@@ -204,7 +204,7 @@ export function Navbar() {
               type="button"
               className={cn(
                 "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden",
-                isHome && "bg-white/75 ring-1 ring-brand-accentLight/70 hover:bg-neutral-50",
+                isHome && "bg-white/75 ring-1 ring-primary/15 hover:bg-neutral-50",
               )}
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
@@ -216,7 +216,7 @@ export function Navbar() {
               href="/"
               className={cn(
                 "font-display justify-self-center text-[26px] font-semibold uppercase leading-none tracking-[0.32em] text-neutral-950 transition-colors hover:text-primary sm:text-[28px]",
-                isHome && "text-brand-bgDark drop-shadow-text-home",
+                isHome && "text-neutral-950 drop-shadow-text-home",
               )}
               aria-label="GLAMO Nepal home"
             >
@@ -229,7 +229,7 @@ export function Navbar() {
                 onClick={openSearchModal}
                 className={cn(
                   "flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-brand-accentLight/70 bg-white/80 px-3 shadow-navbar-menu lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
+                  isHome && "border border-secondary/30 bg-white/80 px-3 shadow-navbar-menu lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
                 )}
                 aria-label="Search products"
               >
@@ -244,7 +244,7 @@ export function Navbar() {
                 href="/wishlist"
                 className={cn(
                   "relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex",
-                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
+                  isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                 )}
                 aria-label="Wishlist"
               >
@@ -258,7 +258,7 @@ export function Navbar() {
                   href="/account"
                   className={cn(
                     "hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
-                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
+                    isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                   )}
                   aria-label={`Account, signed in as ${firstName}`}
                 >
@@ -274,7 +274,7 @@ export function Navbar() {
                   href="/login"
                   className={cn(
                     "font-body hidden min-h-10 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
-                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
+                    isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                   )}
                   aria-label="Sign in"
                 >
@@ -286,7 +286,7 @@ export function Navbar() {
                 href="/cart"
                 className={cn(
                   "relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
+                  isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                 )}
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
               >

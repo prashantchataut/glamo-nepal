@@ -68,7 +68,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
         <div className="grid gap-8 lg:grid-cols-[17rem_1fr]">
           <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
             <div className="overflow-hidden rounded-[1.75rem] border border-neutral-200/80 bg-white shadow-sm">
-              <div className="bg-gradient-to-br from-brand-bgLight to-white p-6">
+              <div className="bg-gradient-to-br from-neutral-50 to-white p-6">
                 <div className="flex items-center gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 font-display text-lg font-semibold text-primary ring-1 ring-primary/10">
                     {(user?.name || user?.phone || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}

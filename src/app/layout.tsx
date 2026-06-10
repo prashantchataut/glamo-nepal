@@ -10,20 +10,16 @@ import { FirebaseAuthProvider } from "@/components/auth/FirebaseAuthProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-// Self-hosted fonts — eliminate Google Fonts network dependency for CSP compliance and performance.
-// Replace placeholder .woff2 files in src/fonts/ with real variable-weight files downloaded from Google Fonts.
 const outfit = localFont({
-  src: "../../fonts/outfit.woff2",
+  src: "../fonts/outfit.woff2",
   variable: "--font-body",
   display: "swap",
-  weight: "100 900",
 });
 
 const playfair = localFont({
-  src: "../../fonts/playfair-display.woff2",
+  src: "../fonts/playfair-display.woff2",
   variable: "--font-display",
   display: "swap",
-  weight: "400 900",
 });
 
 export const metadata = {
