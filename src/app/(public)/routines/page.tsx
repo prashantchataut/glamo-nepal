@@ -18,7 +18,7 @@ export default function RoutinesPage() {
   return (
     <main className="min-h-screen bg-brand-bgLight">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Routines", path: "/routines" }])} />
-      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_48%,#F7F1EA_100%)] py-10 md:py-14">
+      <section className="relative overflow-hidden border-b border-brand-border bg-hero-gradient py-10 md:py-14">
         <div className="container mx-auto px-4 md:px-6">
           <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">Curated routines</p>
           <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">Beauty Routines</h1>

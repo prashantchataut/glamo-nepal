@@ -192,9 +192,9 @@ export function SearchModal() {
             className="fixed left-3 right-3 top-3 z-modal overflow-hidden rounded-3xl bg-white shadow-2xl md:left-1/2 md:right-auto md:top-6 md:w-[min(940px,calc(100vw-48px))] md:-translate-x-1/2"
           >
             {/* Search input */}
-            <div className="border-b border-brand-border px-4 md:px-6">
+            <div className="border-b border-neutral-200/80 px-4 md:px-6">
               <div className="flex items-center gap-3 py-4">
-                <Search size={20} className="shrink-0 text-brand-textMuted" strokeWidth={1.5} />
+                <Search size={20} className="shrink-0 text-neutral-500" strokeWidth={1.5} />
                 <label htmlFor="glamo-search-input" className="sr-only">Search GLAMO Nepal products</label>
                 <input
                   id="glamo-search-input"
@@ -204,23 +204,23 @@ export function SearchModal() {
                   value={query}
                   onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }}
                   placeholder="Search skincare, lipstick, sunscreen..."
-                  className="min-h-11 flex-1 bg-transparent text-base text-brand-textPrimary outline-none placeholder:text-brand-textMuted/60 md:text-lg"
+                  className="min-h-11 flex-1 bg-transparent text-base text-neutral-900 outline-none placeholder:text-neutral-400 md:text-lg"
                   aria-controls="glamo-search-results"
                 />
                 {query ? (
                   <button
                     type="button"
                     onClick={() => setQuery("")}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-brand-bgLight focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     aria-label="Clear search"
                   >
-                    <X size={18} className="text-brand-textMuted" />
+                    <X size={18} className="text-neutral-500" />
                   </button>
                 ) : null}
                 <button
                   type="button"
                   onClick={closeSearchModal}
-                  className="rounded-full px-4 py-2 text-sm font-semibold text-brand-textMuted transition hover:bg-brand-bgLight hover:text-brand-textPrimary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                  className="rounded-full px-4 py-2 text-sm font-semibold text-neutral-500 transition hover:bg-neutral-50 hover:text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   aria-label="Close search"
                 >
                   Cancel
@@ -237,7 +237,7 @@ export function SearchModal() {
                   <button
                     type="button"
                     onClick={() => { setSearchError(null); setDebouncedQuery(query); }}
-                    className="mt-3 text-xs font-semibold uppercase tracking-widest text-brand-primary transition hover:text-brand-primary-hover"
+                    className="mt-3 text-xs font-semibold uppercase tracking-widest text-primary transition hover:text-primary"
                   >
                     Retry
                   </button>
@@ -249,7 +249,7 @@ export function SearchModal() {
                 </div>
               ) : debouncedQuery.trim().length >= 2 && results.length > 0 ? (
                 <div>
-                  <p className="mb-4 text-sm text-brand-textMuted">
+                  <p className="mb-4 text-sm text-neutral-500">
                     {results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{debouncedQuery}&rdquo;
                   </p>
                   {suggestions.length ? (
@@ -259,7 +259,7 @@ export function SearchModal() {
                           key={`${suggestion.type}-${suggestion.href}`}
                           type="button"
                           onClick={() => { closeSearchModal(); router.push(suggestion.href); }}
-                          className="font-label inline-flex items-center gap-1 rounded-full bg-brand-bgLight px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-brand-primary transition hover:bg-brand-primary hover:text-white"
+                          className="font-label inline-flex items-center gap-1 rounded-full bg-neutral-50 px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-primary transition hover:bg-primary hover:text-white"
                         >
                           <Sparkles size={12} /> {suggestion.label}
                         </button>
@@ -273,22 +273,22 @@ export function SearchModal() {
                         type="button"
                         onMouseEnter={() => setActiveIndex(index)}
                         onClick={() => goToProduct(index)}
-                        className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
+                        className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                           activeIndex === index
-                            ? "border-brand-primary bg-brand-primary-light"
-                            : "border-brand-border bg-white hover:bg-brand-bgLight"
+                            ? "border-primary bg-primary/10"
+                            : "border-neutral-200/80 bg-white hover:bg-neutral-50"
                         }`}
                         aria-current={activeIndex === index ? "true" : undefined}
                       >
-                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-brand-bgLight">
+                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-neutral-50">
                           <Image src={product.image} alt={`${product.brand} ${product.name}`} fill className="object-cover" sizes="64px" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-label text-[10px] font-bold uppercase tracking-widest text-brand-primary">{product.brand}</p>
-                          <p className="truncate font-display text-lg font-semibold text-brand-textPrimary">{product.name}</p>
-                          <p className="text-sm font-semibold text-brand-gold">{formatNPR(product.price)}</p>
+                          <p className="font-label text-[10px] font-bold uppercase tracking-widest text-primary">{product.brand}</p>
+                          <p className="truncate font-display text-lg font-semibold text-neutral-900">{product.name}</p>
+                          <p className="text-sm font-semibold text-neutral-900 font-display font-semibold">{formatNPR(product.price)}</p>
                         </div>
-                        <ArrowRight size={16} className="text-brand-primary" />
+                        <ArrowRight size={16} className="text-primary" />
                       </button>
                     ))}
                   </div>
@@ -315,7 +315,7 @@ export function SearchModal() {
                             key={term}
                             type="button"
                             onClick={() => goToSearch(term)}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-brand-bgLight px-3 py-2 text-xs font-medium text-brand-textMuted transition hover:bg-brand-primary hover:text-white"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-500 transition hover:bg-primary hover:text-white"
                           >
                             <Clock size={12} /> {term}
                           </button>
@@ -332,7 +332,7 @@ export function SearchModal() {
                             key={term}
                             type="button"
                             onClick={() => goToSearch(term)}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-brand-bgLight px-3 py-2 text-xs font-medium text-brand-textMuted transition hover:bg-brand-primary hover:text-white"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-neutral-50 px-3 py-2 text-xs font-medium text-neutral-500 transition hover:bg-primary hover:text-white"
                           >
                             <TrendingUp size={12} /> {term}
                           </button>

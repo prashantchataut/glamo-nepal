@@ -92,6 +92,7 @@ export function Footer() {
                 <ArrowRight size={17} strokeWidth={1.8} />
               </button>
             </div>
+            <div aria-live="polite">
             {newsletterState === "success" && (
               <p className="text-xs leading-5 text-green-400">You&apos;re on the list! Check your inbox for a welcome note.</p>
             )}
@@ -101,6 +102,7 @@ export function Footer() {
             {newsletterState === "idle" && (
               <p className="text-xs leading-5 text-white/50">No spam — only launches, routines and practical beauty notes.</p>
             )}
+            </div>
           </form>
         </div>
 

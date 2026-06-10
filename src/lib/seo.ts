@@ -77,6 +77,8 @@ export function organizationJsonLd() {
 }
 
 export function productJsonLd(product: Product) {
+  const hasRealReviews = (product.reviewSummary?.count ?? 0) > 0;
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -91,14 +93,19 @@ export function productJsonLd(product: Product) {
       url: absoluteUrl(`/products/${product.slug}`),
       priceCurrency: "NPR",
       price: product.price,
+      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.reviewSummary?.average ?? product.rating,
-      reviewCount: product.reviewSummary?.count ?? product.reviewsCount,
-    },
+    ...(hasRealReviews
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.reviewSummary!.average,
+            reviewCount: product.reviewSummary!.count,
+          },
+        }
+      : {}),
   };
 }
 

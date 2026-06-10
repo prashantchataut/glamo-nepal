@@ -23,7 +23,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint --if-present
+      - run: pnpm run lint
       - run: npx tsc --noEmit
       - run: pnpm run build --if-present
 

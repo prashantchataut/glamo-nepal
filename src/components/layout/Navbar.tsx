@@ -157,12 +157,12 @@ export function Navbar() {
           "sticky top-0 z-navbar transition-all duration-300",
           isHome
             ? cn(
-                "border-b border-[#f0dce5]/60 bg-brand-bgLight/90 backdrop-blur-xl",
+                "border-b border-brand-accentLight/60 bg-brand-bgLight/90 backdrop-blur-xl",
                 isScrolled && "bg-brand-bgLight/95 shadow-navbar",
               )
             : cn(
                 "border-b",
-                isScrolled ? "border-[#e9dfd8] bg-brand-bgLight/98 shadow-nav" : "border-[#ead8e8] bg-brand-surfacePink",
+                isScrolled ? "border-neutral-300 bg-brand-bgLight/98 shadow-nav" : "border-brand-accentLight bg-brand-surfacePink",
               ),
         )}
       >

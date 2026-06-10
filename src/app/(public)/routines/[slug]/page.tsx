@@ -32,7 +32,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
   return (
     <main className="min-h-screen bg-brand-bgLight">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Routines", path: "/routines" }, { name: bundle.title, path: `/routines/${bundle.slug}` }])} />
-      <section className="relative overflow-hidden border-b border-brand-border bg-[linear-gradient(135deg,#FFF9F7_0%,#F8EEF2_48%,#F7F1EA_100%)]">
+      <section className="relative overflow-hidden border-b border-brand-border bg-hero-gradient">
         <div className="container mx-auto grid gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_0.9fr] lg:py-14">
           <div className="self-center">
             <Link href="/routines" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-brand-primary transition hover:text-brand-primary-hover"><ArrowLeft size={16} /> Back to routines</Link>

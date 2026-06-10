@@ -38,17 +38,7 @@ async function hasFirebaseAuthToken(request: NextRequest): Promise<boolean> {
   }
 
   if (!FIREBASE_PROJECT_ID) {
-    const parts = token.split(".");
-    if (parts.length !== 3) return false;
-    try {
-      const payload = JSON.parse(atob(parts[1]));
-      if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return false;
-      if (!payload.iss || !payload.iss.startsWith("https://securetoken.google.com/")) return false;
-      if (!payload.aud) return false;
-      return true;
-    } catch {
-      return false;
-    }
+    return false;
   }
 
   try {
@@ -79,10 +69,25 @@ function generateCsrfToken(): string {
   return hex;
 }
 
-function addSecurityHeaders(response: NextResponse) {
+function generateNonce(): string {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
+}
+
+function addSecurityHeaders(response: NextResponse, nonce?: string) {
+  const scriptSrc = [
+    "'self'",
+    nonce ? `'nonce-${nonce}'` : "'unsafe-inline'",
+    "https://cdn.vercel-insights.com",
+    "https://va.vercel-scripts.com",
+    "https://www.gstatic.com",
+    "https://apis.google.com",
+  ].join(" ");
+
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com",
+    `script-src ${scriptSrc}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
@@ -124,17 +129,20 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
 
   const csrfToken = generateCsrfToken();
+  const nonce = generateNonce();
 
   if (isAdminPath && !isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
     if (!isValid) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-      const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
+      response.headers.set("x-nonce", nonce);
       setCsrfCookie(response, csrfToken, request);
       return response;
     }
-    const response = addSecurityHeaders(NextResponse.next());
+    const response = addSecurityHeaders(NextResponse.next(), nonce);
+    response.headers.set("x-nonce", nonce);
     setCsrfCookie(response, csrfToken, request);
     return response;
   }
@@ -142,9 +150,10 @@ export async function middleware(request: NextRequest) {
   if (isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
     if (isValid) {
-      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
+      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)), nonce);
     }
-    const response = addSecurityHeaders(NextResponse.next());
+    const response = addSecurityHeaders(NextResponse.next(), nonce);
+    response.headers.set("x-nonce", nonce);
     setCsrfCookie(response, csrfToken, request);
     return response;
   }
@@ -154,18 +163,21 @@ export async function middleware(request: NextRequest) {
     if (!hasAuth) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-      return addSecurityHeaders(NextResponse.redirect(loginUrl));
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
   }
 
   if (isAuthPage) {
     const hasAuth = await hasFirebaseAuthToken(request);
     if (hasAuth) {
-      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
+      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)), nonce);
     }
   }
 
-  const response = addSecurityHeaders(NextResponse.next());
+  const response = addSecurityHeaders(NextResponse.next(), nonce);
+  response.headers.set("x-nonce", nonce);
   setCsrfCookie(response, csrfToken, request);
   return response;
 }

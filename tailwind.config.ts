@@ -83,6 +83,7 @@ const config: Config = {
           accentLight: '#F0D3F3',
           textPrimary: '#1A1512',
           textMuted: '#7A726B',
+          heroGradient: 'linear-gradient(135deg, #FFF9F7 0%, #F8EEF2 48%, #F7F1EA 100%)',
         },
         whatsapp: '#25D366',
         admin: {

@@ -13,7 +13,7 @@ const navItems = [
   { icon: Home, label: "Home", href: "/", action: undefined as string | undefined },
   { icon: ShoppingBag, label: "Cart", href: "/cart", action: undefined as string | undefined },
   { icon: Search, label: "Search", href: "#", action: "search" as const },
-  { icon: Heart, label: "Wishlist", href: "/account/wishlist", action: undefined as string | undefined },
+  { icon: Heart, label: "Wishlist", href: "/wishlist", action: undefined as string | undefined },
   { icon: User, label: "Account", href: "/account", action: undefined as string | undefined },
 ];
 
@@ -44,7 +44,7 @@ export function MobileBottomNav() {
 
           if (item.action === "search") {
             return (
-              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-primary" : "text-neutral-400 hover:text-primary")} aria-label="Open search">
+              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", isActive ? "text-primary" : "text-neutral-400 hover:text-primary")} aria-label="Open search">
                 <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
                 <span className="text-[11px] font-medium">{item.label}</span>
               </button>

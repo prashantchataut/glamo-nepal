@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Viewport } from "next";
 import { Outfit, Playfair_Display } from "next/font/google";
 import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
+import { getNonce } from "@/components/providers/NonceProvider";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
@@ -50,18 +51,21 @@ export const metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const nonce = await getNonce();
+
   return (
     <html
       lang="en"
       suppressHydrationWarning
+      nonce={nonce}
       className={`${outfit.variable} ${playfair.variable}`}
     >
-      <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
+      <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased" nonce={nonce}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-white focus:rounded-lg focus:top-4 focus:left-4">
           Skip to content
         </a>

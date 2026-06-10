@@ -8,6 +8,8 @@ import { EditorialStrip } from "@/components/home/EditorialStrip";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { LazySection } from "@/components/common/LazySection";
 import { createMetadata } from "@/lib/seo";
+import { localBusinessJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata = createMetadata({
   title: "GLAMO Nepal — Premium Beauty & Skincare",
@@ -19,6 +21,7 @@ export const metadata = createMetadata({
 export default function HomePage() {
   return (
     <main className="bg-brand-bgLight">
+      <JsonLd data={localBusinessJsonLd()} />
       <HeroBanner />
       <ShopByCategory />
       <FeaturedProducts />

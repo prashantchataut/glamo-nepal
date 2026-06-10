@@ -201,7 +201,7 @@ export default function ProductDetailClient({
           </div>
 
           <div
-            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-[#f8f0ec] shadow-editorial lg:order-2 lg:cursor-zoom-in"
+            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-brand-bgLight shadow-editorial lg:order-2 lg:cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleZoom}
@@ -431,7 +431,7 @@ export default function ProductDetailClient({
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 md:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
         <div className="rounded-[2rem] bg-neutral-950 p-6 text-white md:p-8">
-          <Sparkles size={22} className="text-[#f0d3f3]" />
+          <Sparkles size={22} className="text-brand-accentLight" />
           <h2 className="mt-5 font-display text-4xl font-semibold leading-none">
             Routine notes
           </h2>

@@ -47,6 +47,8 @@
     --color-surface: #FFFFFF;
     --color-error: #C0392B;
     --color-success: #27AE60;
+
+    --shadow-toast: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
   }
 }
 
@@ -74,6 +76,10 @@
 body.scroll-locked {
   overflow: hidden;
   padding-right: var(--scrollbar-width, 0px);
+}
+
+.bg-hero-gradient {
+  background: linear-gradient(135deg, #FFF9F7 0%, #F8EEF2 48%, #F7F1EA 100%);
 }
 
 @layer utilities {

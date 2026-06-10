@@ -4,7 +4,7 @@ import { IMAGES } from "@/lib/image-library";
 
 export function BrandPhilosophyBanner() {
   return (
-    <section className="bg-[#eef8ca]">
+    <section className="bg-brand-surfaceLime">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 md:py-24 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="relative aspect-[4/5] overflow-hidden rounded-[38px] bg-neutral-100 shadow-editorial lg:aspect-[5/6]">
           <Image src={IMAGES.editorial.brandMission} alt="Woman applying skincare in an editorial beauty ritual" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />

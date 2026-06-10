@@ -6,7 +6,7 @@ All responses include the following security headers via `src/middleware.ts`:
 
 | Header | Value | Purpose |
 |--------|-------|---------|
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'nonce-<per-request>' https://cdn.vercel-insights.com; style-src 'self' 'nonce-<per-request>' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com; connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests` | Prevents XSS, clickjacking, data exfiltration. No `unsafe-inline` in script-src. No `unsafe-eval`. |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'nonce-<per-request>' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com; connect-src 'self' https://api.glamonepal.com https://khalti.com https://esewa.com.np https://pay.khalti.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://ankura-studio.firebaseapp.com; frame-src https://accounts.google.com https://accounts.google.gg https://ankura-studio.firebaseapp.com https://glamonepal.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests` | Prevents XSS, clickjacking, data exfiltration. script-src uses nonce-based CSP (`'nonce-<random>'` per request); falls back to `'unsafe-inline'` only when nonce is unavailable. `unsafe-eval` is completely removed from script-src. style-src retains `'unsafe-inline'` (required by Tailwind CSS). |
 | `X-Frame-Options` | `DENY` | Prevents clickjacking |
 | `X-Content-Type-Options` | `nosniff` | Prevents MIME sniffing |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage |
@@ -34,13 +34,17 @@ All responses include the following security headers via `src/middleware.ts`:
 - Admin login uses byte-by-byte constant-time comparison for both email and password
 - Eliminates timing side-channel attacks on admin credentials
 
-### 2.4 Open Redirect Prevention
+### 2.4 Firebase Auth Fail-Close
+- When `FIREBASE_PROJECT_ID` is missing, the Firebase auth middleware rejects all tokens (returns `false`) instead of falling back to unsigned base64 JWT validation
+- Prevents token forgery in misconfigured environments where the project ID env var is absent
+
+### 2.5 Open Redirect Prevention
 - `sanitizeRedirect()` in `auth-cookies.ts` validates redirect URLs:
   - Must start with `/`
   - Rejects `//` (protocol-relative URLs)
   - Falls back to `/account` for invalid redirects
 
-### 2.5 Hardcoded Credentials Removed
+### 2.6 Hardcoded Credentials Removed
 - AuthForm default values use empty strings
 - Password fields use `autoComplete="new-password"` for new passwords
 
@@ -84,6 +88,11 @@ All validation schemas include `max()` constraints:
 - `sanitizeSvg()` in `AdminDashboard.tsx` uses `DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } })`
 - Replaces previous regex/DOMParser approach which was bypassable
 - Package: `dompurify` + `@types/dompurify`
+
+## 5b. Structured Data Integrity (IMPLEMENTED)
+
+- `productJsonLd()` in `src/lib/seo.ts` conditionally omits `aggregateRating` when the product has no real reviews (`reviewSummary.count === 0` or missing)
+- Prevents Google Rich Results warnings for products with zero reviews but a fabricated rating
 
 ## 6. Server-Side Order Numbers (IMPLEMENTED)
 
@@ -169,7 +178,7 @@ Added error.tsx and loading.tsx for:
 
 ## 11. QA Sign-Off Checklist
 
-- [x] Security headers (CSP with nonces, HSTS, X-Frame-Options, etc.) added to all responses
+- [x] Security headers (CSP with nonce-based script-src, HSTS, X-Frame-Options, etc.) added to all responses. script-src uses `'nonce-<random>'` per request, falling back to `'unsafe-inline'` when nonce is unavailable. `unsafe-eval` removed from script-src. style-src retains `'unsafe-inline'` (required by Tailwind CSS).
 - [x] Auth cookies use `__Host-` prefix, `HttpOnly`, `Secure`, `SameSite=Lax`
 - [x] Hardcoded credentials removed from AuthForm
 - [x] Server-side rate limiting on login (5/15min) and contact (3/hr) endpoints
@@ -195,6 +204,8 @@ Added error.tsx and loading.tsx for:
 - [x] Error boundaries added around interactive components
 - [x] Error and loading pages added for collections and routes
 - [x] Auth cookie logic deduplicated into shared utility
+- [x] Firebase auth middleware fail-closes (rejects all tokens) when FIREBASE_PROJECT_ID is missing
+- [x] productJsonLd omits aggregateRating when no real reviews exist
 - [x] WhatsApp ping animation has aria-hidden
 - [x] `prefers-reduced-motion` respected in HeroBanner and all auto-rotations
 - [x] ProductCard Quick View marked as aria-hidden

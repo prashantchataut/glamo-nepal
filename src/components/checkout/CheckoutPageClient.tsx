@@ -129,14 +129,8 @@ export function CheckoutPageClient() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
 
-  const isGuest = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("guest");
-  const [, setShowGuestOption] = useState(false);
-
-  useEffect(() => {
-    if (!authLoading && user === null && !isGuest) {
-      setShowGuestOption(true);
-    }
-  }, [authLoading, user, isGuest]);
+  const [guestMode, setGuestMode] = useState(false);
+  const showAuthChoice = !authLoading && user === null && !guestMode;
 
   const {
     register,
@@ -329,7 +323,7 @@ export function CheckoutPageClient() {
       );
     } catch (err) {
       setIsSubmitting(false);
-      if (err instanceof GlamoApiError && err.status === 401) {
+      if (err instanceof GlamoApiError && err.status === 401 && user) {
         const redirect = encodeURIComponent(window.location.pathname + window.location.search);
         router.replace(`/login?redirect=${redirect}`);
         return;
@@ -385,6 +379,42 @@ export function CheckoutPageClient() {
     return (
       <main className="flex min-h-[60vh] items-center justify-center bg-brand-bgLight px-4 py-12">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Verifying your session" />
+      </main>
+    );
+  }
+
+  if (showAuthChoice) {
+    return (
+      <main className="bg-brand-bgLight px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-surfacePink text-primary">
+            <LockKeyhole size={28} />
+          </div>
+          <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
+            Almost there
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-neutral-500">
+            Log in to track your order and earn rewards, or continue as a guest.
+          </p>
+          <div className="mt-8 flex flex-col gap-3">
+            <Link
+              href={`/login?redirect=${encodeURIComponent("/checkout")}`}
+              className="flex min-h-12 w-full items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+            >
+              Log in
+            </Link>
+            <button
+              type="button"
+              onClick={() => setGuestMode(true)}
+              className="flex min-h-12 w-full items-center justify-center rounded-full border border-neutral-200 bg-white px-8 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-700 transition-colors hover:border-neutral-400"
+            >
+              Continue as guest
+            </button>
+          </div>
+          <p className="mt-6 text-xs leading-5 text-neutral-400">
+            You&apos;ll still enter your name, phone, and delivery address.
+          </p>
+        </div>
       </main>
     );
   }

@@ -1,3 +1,5 @@
+import { Star } from "lucide-react";
+
 const TESTIMONIALS = [
   { quote: "The site feels curated, not overwhelming. I found a gentle serum and knew exactly why it fit my routine.", name: "Priya", location: "Kathmandu" },
   { quote: "I care most about authenticity. GLAMO makes the shopping experience feel calm and trustworthy.", name: "Anisha", location: "Pokhara" },
@@ -17,7 +19,7 @@ export function Testimonials() {
             {TESTIMONIALS.map((item) => (
               <article key={item.name} className="border border-white/15 p-6">
                 <div className="flex gap-1 text-secondary" aria-label="5 out of 5 stars">
-                  {Array.from({ length: 5 }).map((_, index) => <span key={index}>★</span>)}
+                  {Array.from({ length: 5 }).map((_, index) => <Star key={index} size={14} fill="currentColor" />)}
                 </div>
                 <blockquote className="mt-5 font-display text-2xl leading-snug text-white/90">“{item.quote}”</blockquote>
                 <p className="mt-6 text-sm font-semibold text-white">{item.name}</p>
