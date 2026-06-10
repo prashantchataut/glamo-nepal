@@ -9,6 +9,22 @@ import { TrendingUp, ShoppingCart, Package } from "lucide-react";
 import type { ComponentType } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
+const ORDER_STATUS_COLORS = {
+  PENDING: "#f59e0b",
+  CONFIRMED: "#3b82f6",
+  PROCESSING: "#8b5cf6",
+  SHIPPED: "#06b6d4",
+  DELIVERED: "#10b981",
+  CANCELLED: "#ef4444",
+} as const;
+
+const CHART_COLORS = {
+  grid: "#e5e7eb",
+  axisText: "#6b7280",
+  revenue: "#6366f1",
+  fallback: "#6b7280",
+} as const;
+
 type DateRange = "7d" | "30d" | "month" | "custom";
 
 function getDateRange(range: DateRange): { start: string; end: string } {
@@ -89,18 +105,10 @@ export function AnalyticsView() {
 
   const orderStatusData = useMemo(() => {
     if (!stats?.orderStatusBreakdown) return [];
-    const statusColors: Record<string, string> = {
-      PENDING: "#f59e0b",
-      CONFIRMED: "#3b82f6",
-      PROCESSING: "#8b5cf6",
-      SHIPPED: "#06b6d4",
-      DELIVERED: "#10b981",
-      CANCELLED: "#ef4444",
-    };
     return Object.entries(stats.orderStatusBreakdown).map(([status, count]) => ({
       name: status.charAt(0) + status.slice(1).toLowerCase(),
       value: count,
-      color: statusColors[status] ?? "#6b7280",
+      color: (ORDER_STATUS_COLORS as Record<string, string>)[status] ?? CHART_COLORS.fallback,
     }));
   }, [stats]);
 
@@ -173,11 +181,11 @@ export function AnalyticsView() {
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={revenueChartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: CHART_COLORS.axisText }} />
+                  <YAxis tick={{ fontSize: 11, fill: CHART_COLORS.axisText }} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
                   <Tooltip formatter={(value) => [formatNPR(Number(value)), "Revenue"]} labelFormatter={(label) => label} />
-                  <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} strokeWidth={2} />
+                  <Area type="monotone" dataKey="revenue" stroke={CHART_COLORS.revenue} fill={CHART_COLORS.revenue} fillOpacity={0.1} strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

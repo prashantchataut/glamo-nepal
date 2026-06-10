@@ -209,7 +209,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 key={shade.name}
                 title={shade.name}
                 className="h-3 w-3 rounded-full border border-neutral-200"
-                style={{ backgroundColor: shade.hex || "#E8E4DF" }}
+                style={{ backgroundColor: shade.hex || "var(--color-neutral-200)" }}
               />
             ))}
             {product.shadeOptions.length > 6 && (

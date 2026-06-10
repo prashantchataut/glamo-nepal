@@ -366,7 +366,7 @@ export default function ProductDetailClient({
                     >
                       <span
                         className="h-4 w-4 rounded-full border border-white/70 ring-1 ring-neutral-200"
-                        style={{ backgroundColor: option.hex || "#E8E4DF" }}
+                        style={{ backgroundColor: option.hex || "var(--color-neutral-200)" }}
                       />
                       {option.name}
                     </button>

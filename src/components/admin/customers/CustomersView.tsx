@@ -206,6 +206,17 @@ export function CustomersView() {
         onOpenChange={(open) => { if (!open) setSelectedUserId(null); }}
         userId={selectedUserId}
       />
+
+      <ConfirmDialog
+        open={pendingToggle !== null}
+        onOpenChange={(open) => { if (!open) setPendingToggle(null); }}
+        title={`${pendingToggle?.isActive ? "Activate" : "Deactivate"} user?`}
+        description={`Are you sure you want to ${pendingToggle?.label} this user? ${pendingToggle?.isActive ? "They will regain access to their account." : "They will lose access to their account."}`}
+        confirmLabel={`Confirm: ${pendingToggle?.isActive ? "Activate" : "Deactivate"}`}
+        variant={pendingToggle?.isActive ? "default" : "destructive"}
+        isLoading={isToggling}
+        onConfirm={confirmToggleStatus}
+      />
     </section>
   );
 }

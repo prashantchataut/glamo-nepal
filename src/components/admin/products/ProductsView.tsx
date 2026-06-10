@@ -86,6 +86,8 @@ export function ProductsView() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [pendingBulkStatus, setPendingBulkStatus] = useState<{ ids: string[]; isActive: boolean } | null>(null);
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
 
   const { data: productsData, meta: productsMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listProducts({
     page,
@@ -129,18 +131,26 @@ export function ProductsView() {
     }
   }, [deleteId, deleteProduct, refetch]);
 
-  const handleBulkStatus = useCallback(async (isActive: boolean) => {
+  const requestBulkStatus = useCallback((isActive: boolean) => {
     if (selectedIds.size === 0) return;
-    const ids = Array.from(selectedIds);
+    setPendingBulkStatus({ ids: Array.from(selectedIds), isActive });
+  }, [selectedIds]);
+
+  const confirmBulkStatus = useCallback(async () => {
+    if (!pendingBulkStatus) return;
+    setIsBulkLoading(true);
     try {
-      await bulkUpdateStatus({ ids, isActive });
-      toast.success(`${ids.length} product${ids.length > 1 ? "s" : ""} ${isActive ? "activated" : "deactivated"}`);
+      await bulkUpdateStatus({ ids: pendingBulkStatus.ids, isActive: pendingBulkStatus.isActive });
+      toast.success(`${pendingBulkStatus.ids.length} product${pendingBulkStatus.ids.length > 1 ? "s" : ""} ${pendingBulkStatus.isActive ? "activated" : "deactivated"}`);
       setSelectedIds(new Set());
+      setPendingBulkStatus(null);
       refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setIsBulkLoading(false);
     }
-  }, [selectedIds, bulkUpdateStatus, refetch]);
+  }, [pendingBulkStatus, bulkUpdateStatus, refetch]);
 
   const handleExport = useCallback(() => {
     if (!products.length) return;
@@ -186,7 +196,7 @@ export function ProductsView() {
           )}
           <div>
             <p className="font-semibold text-brand-textPrimary">{product.name}</p>
-            <p className="text-xs text-brand-textMuted">{product.brand?.name ?? "—"}</p>
+            <p className="text-xs text-brand-textMuted">{product.brand?.name ?? "ï¿½"}</p>
           </div>
         </div>
       ),
@@ -194,12 +204,12 @@ export function ProductsView() {
     {
       key: "sku",
       header: "SKU",
-      render: (product) => <span className="font-mono text-xs">{product.sku ?? "—"}</span>,
+      render: (product) => <span className="font-mono text-xs">{product.sku ?? "ï¿½"}</span>,
     },
     {
       key: "category",
       header: "Category",
-      render: (product) => <span className="capitalize">{product.category?.name ?? "—"}</span>,
+      render: (product) => <span className="capitalize">{product.category?.name ?? "ï¿½"}</span>,
     },
     {
       key: "price",
@@ -295,14 +305,14 @@ export function ProductsView() {
             {selectedIds.size} selected
           </span>
           <button
-            onClick={() => handleBulkStatus(true)}
+            onClick={() => requestBulkStatus(true)}
             className="btn-press inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
           >
             <CheckSquare size={12} />
             Activate
           </button>
           <button
-            onClick={() => handleBulkStatus(false)}
+            onClick={() => requestBulkStatus(false)}
             className="btn-press inline-flex items-center gap-1.5 rounded-full border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-brand-textPrimary transition hover:bg-brand-bgLight"
           >
             <Square size={12} />

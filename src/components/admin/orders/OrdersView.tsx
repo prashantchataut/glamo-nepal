@@ -34,6 +34,7 @@ export function OrdersView() {
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [pendingStatus, setPendingStatus] = useState<{ orderId: string; status: string; label: string } | null>(null);
+  const [isStatusLoading, setIsStatusLoading] = useState(false);
 
   const { data: ordersData, meta: ordersMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listOrders({
     status: statusFilter || undefined,
@@ -62,6 +63,7 @@ export function OrdersView() {
 
   const confirmStatusChange = async () => {
     if (!pendingStatus) return;
+    setIsStatusLoading(true);
     try {
       await updateStatus({ id: pendingStatus.orderId, status: pendingStatus.status as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
       toast.success(`Order status updated to ${pendingStatus.label}`);
@@ -69,6 +71,8 @@ export function OrdersView() {
       refetch();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setIsStatusLoading(false);
     }
   };
 
@@ -223,7 +227,7 @@ export function OrdersView() {
         description="This will mark the order as cancelled. This action cannot be undone."
         confirmLabel="Cancel order"
         variant="destructive"
-        isLoading={false}
+        isLoading={isStatusLoading}
         onConfirm={handleCancelOrder}
       >
         <label className="mt-2 block space-y-2 text-sm font-medium">
@@ -245,7 +249,7 @@ export function OrdersView() {
         description="This will update the order status. Customers may receive a notification."
         confirmLabel={`Confirm: ${pendingStatus?.label || ""}`}
         variant="default"
-        isLoading={false}
+        isLoading={isStatusLoading}
         onConfirm={confirmStatusChange}
       />
     </section>
