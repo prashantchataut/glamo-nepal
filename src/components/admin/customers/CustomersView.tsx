@@ -86,8 +86,7 @@ export function CustomersView() {
     } finally {
       setIsToggling(false);
       setPendingToggle(null);
-    }
-  }
+}
   }
 
   const columns: Column<UserRow>[] = [

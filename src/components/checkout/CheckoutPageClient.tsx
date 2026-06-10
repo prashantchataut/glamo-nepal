@@ -130,13 +130,13 @@ export function CheckoutPageClient() {
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
 
   const isGuest = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("guest");
+  const [, setShowGuestOption] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user === null && !isGuest) {
-      const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-      router.replace(`/login?redirect=${redirect}&prompt=guest`);
+      setShowGuestOption(true);
     }
-  }, [authLoading, user, router, isGuest]);
+  }, [authLoading, user, isGuest]);
 
   const {
     register,
@@ -381,7 +381,7 @@ export function CheckoutPageClient() {
     }, 100);
   }
 
-  if (authLoading || user === null) {
+  if (authLoading) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center bg-brand-bgLight px-4 py-12">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Verifying your session" />

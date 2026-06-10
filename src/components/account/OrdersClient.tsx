@@ -167,7 +167,7 @@ export function OrdersClient() {
                         ) : null}
                       </div>
                       <p className="mt-1 text-sm text-neutral-500">
-                        Placed on {order.date} · {order.items.length} item{order.items.length !== 1 ? "s" : ""} ·{" "}
+                        Placed on {order.date} ï¿½ {order.items.length} item{order.items.length !== 1 ? "s" : ""} ï¿½{" "}
                         {order.paymentMethod}
                       </p>
                       <p className="mt-2 line-clamp-1 text-sm text-neutral-500">{order.shippingAddress}</p>

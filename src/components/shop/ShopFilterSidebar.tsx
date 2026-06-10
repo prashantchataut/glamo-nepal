@@ -284,7 +284,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
             </label>
           </div>
           <p className="text-xs text-neutral-400">
-            Showing ?? {filters.minPrice.toLocaleString()} – ??{" "}
+            Showing ?? {filters.minPrice.toLocaleString()} ï¿½ ??{" "}
             {filters.maxPrice.toLocaleString()}
           </p>
         </div>

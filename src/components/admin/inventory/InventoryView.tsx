@@ -1,4 +1,4 @@
-"use client";
+ï»¿"use client";
 
 import { useMemo, useState } from "react";
 import { useAdminData } from "@/lib/hooks/useAdminData";
@@ -93,14 +93,14 @@ export function InventoryView() {
       render: (row) => (
         <div>
           <p className="font-semibold text-brand-textPrimary">{row.name}</p>
-          <p className="text-xs text-brand-textMuted">{row.sku || "—"}</p>
+          <p className="text-xs text-brand-textMuted">{row.sku || "ï¿½"}</p>
         </div>
       ),
     },
     {
       key: "category",
       header: "Category",
-      render: (row) => <span className="text-sm">{row.category?.name || "—"}</span>,
+      render: (row) => <span className="text-sm">{row.category?.name || "ï¿½"}</span>,
     },
     {
       key: "stock_quantity",
@@ -167,7 +167,7 @@ export function InventoryView() {
         )}
 
         <div className="mt-5 flex items-center gap-3">
-          <SearchInput onSearch={setSearch} placeholder="Search products…" className="max-w-xs" />
+          <SearchInput onSearch={setSearch} placeholder="Search productsï¿½" className="max-w-xs" />
         </div>
 
         <div className="mt-4">
@@ -210,7 +210,7 @@ export function InventoryView() {
                 <div key={item.id} className="flex flex-col gap-2 rounded-xl border border-brand-border p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-semibold">{item.name}</p>
-                    <p className="text-xs text-brand-textMuted">{item.sku} · Reorder at {item.low_stock_threshold}</p>
+                    <p className="text-xs text-brand-textMuted">{item.sku} ï¿½ Reorder at {item.low_stock_threshold}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusPill variant={stockStatusToVariant(status)}>{status}</StatusPill>

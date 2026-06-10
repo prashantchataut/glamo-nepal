@@ -17,8 +17,8 @@ import { formatNPR } from "@/lib/utils";
 import { StatusPill, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
-import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
+import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
 import { useAdminStore } from "@/store/useAdminStore";
@@ -406,6 +406,17 @@ export function ProductsView() {
         open={detailId !== null}
         onOpenChange={(open) => { if (!open) setDetailId(null); }}
         productId={detailId}
+      />
+
+      <ConfirmDialog
+        open={pendingBulkStatus !== null}
+        onOpenChange={(open) => { if (!open) setPendingBulkStatus(null); }}
+        title={`${pendingBulkStatus?.isActive ? "Activate" : "Deactivate"} ${pendingBulkStatus?.ids.length ?? 0} product${(pendingBulkStatus?.ids.length ?? 0) > 1 ? "s" : ""}?`}
+        description={`Are you sure you want to ${pendingBulkStatus?.isActive ? "activate" : "deactivate"} the selected product${(pendingBulkStatus?.ids.length ?? 0) > 1 ? "s" : ""}?`}
+        confirmLabel={`Confirm: ${pendingBulkStatus?.isActive ? "Activate" : "Deactivate"}`}
+        variant={pendingBulkStatus?.isActive ? "default" : "destructive"}
+        isLoading={isBulkLoading}
+        onConfirm={confirmBulkStatus}
       />
     </section>
   );

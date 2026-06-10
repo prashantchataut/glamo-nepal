@@ -154,7 +154,7 @@ export default function ShopPageContent() {
     filters.concerns.forEach((c) => list.push({ key: `concern-${c}`, label: c, remove: () => ({ ...filters, concerns: filters.concerns.filter((v) => v !== c) }) }));
     if (filters.madeInNepal) list.push({ key: "madeInNepal", label: "Made in Nepal", remove: () => ({ ...filters, madeInNepal: false }) });
     if (filters.inStock) list.push({ key: "inStock", label: "In stock", remove: () => ({ ...filters, inStock: false }) });
-    if (filters.minPrice > PRICE_RANGE.min || filters.maxPrice < PRICE_RANGE.max) list.push({ key: "price", label: `?? ${filters.minPrice.toLocaleString()} – ?? ${filters.maxPrice.toLocaleString()}`, remove: () => ({ ...filters, minPrice: PRICE_RANGE.min, maxPrice: PRICE_RANGE.max }) });
+    if (filters.minPrice > PRICE_RANGE.min || filters.maxPrice < PRICE_RANGE.max) list.push({ key: "price", label: `?? ${filters.minPrice.toLocaleString()} ï¿½ ?? ${filters.maxPrice.toLocaleString()}`, remove: () => ({ ...filters, minPrice: PRICE_RANGE.min, maxPrice: PRICE_RANGE.max }) });
     return list;
   }, [filters]);
 
@@ -172,7 +172,7 @@ export default function ShopPageContent() {
       <section className="bg-brand-surfacePink py-12 md:py-18">
         <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <span className="type-label text-primary">?? pricing · Nepal delivery</span>
+            <span className="type-label text-primary">?? pricing ï¿½ Nepal delivery</span>
             <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-neutral-900 md:text-7xl">
               {categoryObj?.name || "The beauty edit"}
             </h1>
@@ -213,7 +213,7 @@ export default function ShopPageContent() {
       {/* Main content */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          {/* Sidebar — desktop only */}
+          {/* Sidebar ï¿½ desktop only */}
           <div className="hidden w-64 shrink-0 lg:block">
             <ShopFilterSidebar
               filters={filters}
