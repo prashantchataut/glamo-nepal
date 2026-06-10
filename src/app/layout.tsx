@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Viewport } from "next";
-import localFont from "next/font/local";
+import { Outfit, Playfair_Display } from "next/font/google";
 import { ConditionalAnalytics } from "@/components/common/ConditionalAnalytics";
 import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
 import "./globals.css";
@@ -10,16 +10,20 @@ import { FirebaseAuthProvider } from "@/components/auth/FirebaseAuthProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-const outfit = localFont({
-  src: "../fonts/outfit.woff2",
+// Fonts are downloaded and self-hosted at build time by next/font (no runtime
+// third-party request), satisfying CSP and performance requirements.
+const outfit = Outfit({
+  subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const playfair = localFont({
-  src: "../fonts/playfair-display.woff2",
+const playfair = Playfair_Display({
+  subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata = {

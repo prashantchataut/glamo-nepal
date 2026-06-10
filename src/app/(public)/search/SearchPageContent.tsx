@@ -3,9 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { searchProducts, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/data/products";
+import { searchProducts as mockSearchProducts, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/data/products";
+import { searchProducts as apiSearchProducts } from "@/lib/api/catalog";
+import type { Product } from "@/types/product";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ProductCard } from "@/components/product/ProductCard";
 import { getNoResultRecommendations, getSearchSuggestions } from "@/lib/search";
@@ -14,11 +16,25 @@ export default function SearchPageContent() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
   const [sort, setSort] = useState("featured");
+  const [liveResults, setLiveResults] = useState<Product[] | null>(null);
   const suggestions = useMemo(() => getSearchSuggestions(q, 8), [q]);
   const noResultRecommendations = useMemo(() => getNoResultRecommendations(q, 8), [q]);
 
+  // Prefer live catalog search; fall back to the static catalog on error/empty.
+  useEffect(() => {
+    if (!q.trim()) { setLiveResults(null); return; }
+    let cancelled = false;
+    apiSearchProducts(q, 48)
+      .then((result) => {
+        if (cancelled) return;
+        setLiveResults(result.status === "success" && result.data.length > 0 ? result.data : null);
+      })
+      .catch(() => { if (!cancelled) setLiveResults(null); });
+    return () => { cancelled = true; };
+  }, [q]);
+
   const results = useMemo(() => {
-    const found = searchProducts(q);
+    const found = [...(liveResults ?? mockSearchProducts(q))];
     switch (sort) {
       case "price-asc": found.sort((a, b) => a.price - b.price); break;
       case "price-desc": found.sort((a, b) => b.price - a.price); break;
@@ -28,7 +44,7 @@ export default function SearchPageContent() {
       default: break;
     }
     return found;
-  }, [q, sort]);
+  }, [q, sort, liveResults]);
 
   return (
     <div className="min-h-screen bg-neutral-50">
