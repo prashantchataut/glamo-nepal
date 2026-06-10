@@ -383,6 +383,7 @@ export function CheckoutPageClient() {
           form.action = String(esewaResult.data.url);
           const allowedKeys = new Set(["amt", "pid", "scd", "suUrl", "fuUrl", "tAmt", "txAmt", "pAmt", "sAmt", "taxAmt"]);
           for (const [key, value] of Object.entries(esewaResult.data.payload)) {
+            if (!allowedKeys.has(key)) continue;
             if (typeof key !== "string" || typeof value !== "string" && typeof value !== "number") continue;
             const input = document.createElement("input");
             input.type = "hidden";

@@ -803,12 +803,20 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
     if (!result.verified) {
       throw new AppError(result.message || 'Khalti payment verification failed', 400, 'PAYMENT_VERIFICATION_FAILED')
     }
+    const paidAmountPaisa = result.amount
+    const expectedAmountPaisa = orderTotal * 100
+    if (paidAmountPaisa == null || Math.abs(paidAmountPaisa - expectedAmountPaisa) > 100) {
+      throw new AppError(`Payment amount mismatch. Expected NPR ${orderTotal}, received NPR ${(paidAmountPaisa ?? 0) / 100}.`, 400, 'PAYMENT_AMOUNT_MISMATCH')
+    }
     verifiedTransactionId = result.transactionId
   } else if (normalizedProvider === 'esewa' && env?.ESEWA_SECRET_KEY && env?.ESEWA_MERCHANT_CODE) {
     const { verifyEsewaPayment } = await import('../../utils/payment-verify')
     const result = await verifyEsewaPayment(token, env.ESEWA_MERCHANT_CODE, env.ESEWA_SECRET_KEY, orderTotal)
     if (!result.verified) {
       throw new AppError(result.message || 'eSewa payment verification failed', 400, 'PAYMENT_VERIFICATION_FAILED')
+    }
+    if (result.amount == null || Math.abs(result.amount - orderTotal) > 1) {
+      throw new AppError(`Payment amount mismatch. Expected NPR ${orderTotal}, received NPR ${result.amount ?? 0}.`, 400, 'PAYMENT_AMOUNT_MISMATCH')
     }
     verifiedTransactionId = result.transactionId
   } else if (normalizedProvider === 'cod') {
