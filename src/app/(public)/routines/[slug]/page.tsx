@@ -43,7 +43,7 @@ export default function RoutineDetailPage({ params }: { params: { slug: string }
               {[...bundle.skinTypes, ...bundle.concerns].slice(0, 8).map((tag) => <span key={tag} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-primary shadow-sm ring-1 ring-brand-border">{tag}</span>)}
             </div>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-brand-border bg-white shadow-page-hero">
             <Image src={bundle.image} alt={bundle.title} fill sizes="(max-width: 1024px) 100vw, 420px" priority className="object-cover" />
           </div>
         </div>

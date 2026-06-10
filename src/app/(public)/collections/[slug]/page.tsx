@@ -30,7 +30,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
             <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-brand-textPrimary md:text-7xl">{collection.title}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-brand-textMuted">{collection.description}</p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-brand-border bg-white shadow-[0_26px_90px_-60px_rgba(36,31,34,0.45)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-brand-border bg-white shadow-page-hero">
             <Image src={collection.image} alt={collection.title} fill sizes="(max-width: 1024px) 100vw, 420px" priority className="object-cover" />
           </div>
         </div>

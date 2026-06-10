@@ -133,7 +133,7 @@ export function CartPageClient() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section>
-            <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:rounded-[2.25rem] md:p-5 md:shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)]">
+            <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-5 md:shadow-card-prominent">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                 Shopping bag
               </p>
@@ -165,7 +165,7 @@ export function CartPageClient() {
               {items.map((item) => (
                 <article
                   key={`${item.product.id}-${item.selectedShade || "base"}`}
-                  className="grid grid-cols-[80px_minmax(0,1fr)] gap-3 rounded-[1.5rem] border border-neutral-200 bg-white p-3 shadow-[0_18px_60px_-52px_rgba(26,21,18,0.35)] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:rounded-[2rem] sm:p-5 sm:shadow-[0_18px_60px_-52px_rgba(26,21,18,0.45)]"
+                  className="grid grid-cols-[80px_minmax(0,1fr)] gap-3 rounded-[1.5rem] border border-neutral-200 bg-white p-3 shadow-card-sm sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:rounded-[2rem] sm:p-5 sm:shadow-card-default"
                 >
                   <Link
                     href={`/products/${item.product.slug}`}

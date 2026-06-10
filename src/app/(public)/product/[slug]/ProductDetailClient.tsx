@@ -231,7 +231,7 @@ export default function ProductDetailClient({
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-54px_rgba(26,21,18,0.55)] md:p-7">
+          <div className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-card-elevated md:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <Link

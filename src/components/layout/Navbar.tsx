@@ -158,7 +158,7 @@ export function Navbar() {
           isHome
             ? cn(
                 "border-b border-[#f0dce5]/60 bg-brand-bgLight/90 backdrop-blur-xl",
-                isScrolled && "bg-brand-bgLight/95 shadow-[0_18px_50px_-44px_rgba(53,19,29,0.45)]",
+                isScrolled && "bg-brand-bgLight/95 shadow-navbar",
               )
             : cn(
                 "border-b",
@@ -170,7 +170,7 @@ export function Navbar() {
           <div
             className={cn(
               "grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2 lg:grid-cols-[1fr_auto_1fr]",
-              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-[0_24px_70px_-58px_rgba(53,19,29,0.45)] ring-1 ring-brand-accentLight/50 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
+              isHome && "rounded-full border border-white/80 bg-white/80 px-2.5 shadow-navbar-home ring-1 ring-brand-accentLight/50 backdrop-blur-xl lg:min-h-[62px] lg:px-4",
             )}
           >
             <nav className="hidden items-center gap-6 xl:gap-8 lg:flex" aria-label="Primary navigation">
@@ -229,7 +229,7 @@ export function Navbar() {
                 onClick={openSearchModal}
                 className={cn(
                   "flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-brand-accentLight/70 bg-white/80 px-3 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)] lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
+                  isHome && "border border-brand-accentLight/70 bg-white/80 px-3 shadow-navbar-menu lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
                 )}
                 aria-label="Search products"
               >
@@ -244,7 +244,7 @@ export function Navbar() {
                 href="/wishlist"
                 className={cn(
                   "relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex",
-                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
                 )}
                 aria-label="Wishlist"
               >
@@ -258,7 +258,7 @@ export function Navbar() {
                   href="/account"
                   className={cn(
                     "hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
-                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
                   )}
                   aria-label={`Account, signed in as ${firstName}`}
                 >
@@ -274,7 +274,7 @@ export function Navbar() {
                   href="/login"
                   className={cn(
                     "font-body hidden min-h-10 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
-                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                    isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
                   )}
                   aria-label="Sign in"
                 >
@@ -286,7 +286,7 @@ export function Navbar() {
                 href="/cart"
                 className={cn(
                   "relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-[0_12px_32px_-28px_rgba(53,19,29,0.55)]",
+                  isHome && "border border-brand-accentLight/70 bg-white/80 shadow-navbar-menu",
                 )}
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
               >
@@ -300,7 +300,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={openSearchModal}
-              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-500 shadow-[0_12px_30px_-26px_rgba(0,0,0,0.5)] ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-500 shadow-search ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Search skincare, makeup, brands"
             >
               <span className="flex min-w-0 items-center gap-2">

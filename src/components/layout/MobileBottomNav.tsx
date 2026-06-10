@@ -29,7 +29,7 @@ export function MobileBottomNav() {
   }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-neutral-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)] md:hidden" aria-label="Mobile navigation">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-neutral-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-mobile-nav md:hidden" aria-label="Mobile navigation">
       <div className="flex h-full items-center justify-around">
         {navItems.map((item) => {
           const isActive = item.href !== "#" && (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)));

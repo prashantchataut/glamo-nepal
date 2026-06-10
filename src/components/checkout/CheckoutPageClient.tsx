@@ -443,7 +443,7 @@ export function CheckoutPageClient() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
-          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:rounded-[2.25rem] md:p-7">
+          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-7">
             <div className="mb-6 flex items-center justify-between gap-2 md:mb-8">
               {steps.map((step, i) => {
                 const Icon = step.icon;

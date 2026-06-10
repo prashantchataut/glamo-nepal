@@ -70,7 +70,7 @@ export function HeroBanner() {
           {/* Visual Composition */}
           <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
             {/* Main Image */}
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-[0_30px_90px_-20px_rgba(217,120,152,0.3)] ring-1 ring-white/50">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-hero-image ring-1 ring-white/50">
               <Image
                 src={IMAGES.hero.secondary}
                 alt="Premium skincare assortment"
@@ -82,7 +82,7 @@ export function HeroBanner() {
             </div>
             
             {/* Floating Product Card */}
-            <div className="absolute -bottom-6 -left-4 z-20 flex w-72 items-center gap-4 rounded-[2rem] bg-white/95 p-4 shadow-[0_20px_50px_-10px_rgba(53,19,29,0.1)] backdrop-blur-md sm:-left-12 lg:-bottom-10 lg:-left-16">
+            <div className="absolute -bottom-6 -left-4 z-20 flex w-72 items-center gap-4 rounded-[2rem] bg-white/95 p-4 shadow-hero-callout backdrop-blur-md sm:-left-12 lg:-bottom-10 lg:-left-16">
               <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[1.2rem] bg-neutral-100">
                 <Image
                   src={IMAGES.heroProducts.cosrx}

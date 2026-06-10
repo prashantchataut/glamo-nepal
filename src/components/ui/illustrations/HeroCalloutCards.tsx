@@ -3,7 +3,7 @@ import React from 'react'
 export function HeroCalloutCardA({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-[0_8px_32px_rgba(201,96,122,0.12)] border-l-[3px] border-l-brand-primary relative ${className}`}
+      className={`flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-accent-soft border-l-[3px] border-l-brand-primary relative ${className}`}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M8 14C8 14 3 11 3 7C3 5 4.5 3 6 3C7 3 8 4 8 4C8 4 9 3 10 3C11.5 3 13 5 13 7C13 11 8 14 8 14Z" fill="#D97898" opacity="0.8"/>
@@ -21,7 +21,7 @@ export function HeroCalloutCardA({ className = '' }: { className?: string }) {
 export function HeroCalloutCardB({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-800 px-4 py-2.5 shadow-[0_8px_24px_rgba(201,96,122,0.28)] ${className}`}
+      className={`flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-800 px-4 py-2.5 shadow-accent-medium ${className}`}
     >
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M7 2L8.5 5.5L12 6L9.5 8.5L10 12L7 10.5L4 12L4.5 8.5L2 6L5.5 5.5L7 2Z" fill="#C9A84C"/>
@@ -35,7 +35,7 @@ export function HeroCalloutCardB({ className = '' }: { className?: string }) {
 export function HeroCalloutCardC({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`inline-flex items-center rounded-full border-[1.5px] border-brand-gold bg-white px-4 py-2 shadow-[0_0_16px_rgba(201,168,76,0.2)] ${className}`}
+      className={`inline-flex items-center rounded-full border-[1.5px] border-brand-gold bg-white px-4 py-2 shadow-gold-glow ${className}`}
     >
       <span className="text-sm font-semibold text-brand-gold">रू 1,299</span>
     </div>

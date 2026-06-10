@@ -17,7 +17,7 @@ export function ShopByCategory() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {categories.map((category, index) => (
           <Link key={category.name} href={category.href} className={index === 0 ? "group sm:col-span-2 lg:col-span-1" : "group"}>
-            <article className="h-full overflow-hidden rounded-[30px] border border-neutral-200 bg-brand-surfaceWarm shadow-[0_18px_60px_-48px_rgba(26,21,18,0.45)] transition-all hover:-translate-y-0.5 hover:border-primary/35">
+            <article className="h-full overflow-hidden rounded-[30px] border border-neutral-200 bg-brand-surfaceWarm shadow-category transition-all hover:-translate-y-0.5 hover:border-primary/35">
               <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
                 <Image src={category.image} alt={`${category.name} beauty category`} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw" />
               </div>

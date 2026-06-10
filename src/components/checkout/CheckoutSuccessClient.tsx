@@ -151,7 +151,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
           </div>
         </div>
 
-        <div className="mt-6 rounded-[1.5rem] border border-neutral-200 bg-white shadow-[0_18px_70px_-56px_rgba(26,21,18,0.55)] md:mt-8 md:rounded-[2rem]">
+        <div className="mt-6 rounded-[1.5rem] border border-neutral-200 bg-white shadow-card-prominent md:mt-8 md:rounded-[2rem]">
           {/* Order number */}
           <div className="flex items-start justify-between gap-4 p-4 md:p-6">
             <div>

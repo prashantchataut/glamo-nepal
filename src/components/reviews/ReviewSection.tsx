@@ -184,7 +184,7 @@ export function ReviewSection({ productId }: { productId: string }) {
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
-      <div className="rounded-[2rem] border border-neutral-200 bg-white p-5 shadow-[0_18px_70px_-54px_rgba(26,21,18,0.55)] md:p-7">
+      <div className="rounded-[2rem] border border-neutral-200 bg-white p-5 shadow-card-elevated md:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-display text-2xl font-semibold text-neutral-950">
