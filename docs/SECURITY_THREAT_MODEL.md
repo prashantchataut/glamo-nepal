@@ -113,30 +113,30 @@ All Critical and High findings have been remediated. Medium and Low findings are
 - **Impact:** `glamo-access-token` cookie extractable via JS
 - **Recommendation:** Set HttpOnly on the Firebase token cookie
 
-#### FIND-009: Contact Form — No Persistence, No Notification
+#### FIND-009: Contact Form — No Persistence, No Notification ✅ FIXED
 - **Location:** `backend/src/modules/contact/contact.controller.ts`
 - **Impact:** Contact submissions only logged to console, lost on restart
-- **Recommendation:** Persist to database and send notification emails
+- **Fix:** Persist to `contact_submissions` table and send notification email via Resend (best-effort)
 
-#### FIND-010: Password Reset — TOCTOU Race Condition
-- **Location:** `backend/src/modules/auth/auth.controller.ts:221-257`
+#### FIND-010: Password Reset — TOCTOU Race Condition ✅ FIXED
+- **Location:** `backend/src/modules/auth/auth.controller.ts:240-248`
 - **Impact:** Two simultaneous requests with same reset token could both pass SELECT check
-- **Recommendation:** Use atomic UPDATE with WHERE `used_at IS NULL` condition
+- **Fix:** Atomic `UPDATE ... WHERE used_at IS NULL` with `rowsAffected` check prevents race condition
 
 #### FIND-011: Order Price Verification Bypass ✅ FIXED
 - **Location:** `backend/src/modules/orders/order.schema.ts`
 - **Impact:** `subtotal` and `grandTotal` were optional, allowing clients to omit them and bypass price verification
 - **Fix:** Made `subtotal`, `grandTotal`, and `deliveryFee` required in the Zod schema
 
-#### FIND-012: Public Order Lookup — Weak Verification
+#### FIND-012: Public Order Lookup — Weak Verification ✅ FIXED
 - **Location:** `backend/src/modules/orders/order.service.ts:739-781`
 - **Impact:** Order data returned (with redacted fields) even without email/phone verification
-- **Recommendation:** Require email or phone verification for all order lookups
+- **Fix:** Require email or phone verification for all order lookups; removed redacted-data-without-verification path
 
-#### FIND-013: Payment Replay — No Duplicate Payment ID Check
-- **Location:** `backend/src/utils/payment-verify.ts`
+#### FIND-013: Payment Replay — No Duplicate Payment ID Check ✅ FIXED
+- **Location:** `backend/src/modules/orders/order.service.ts`
 - **Impact:** Same payment token could be replayed for different orders
-- **Recommendation:** Track payment IDs in database and reject duplicates
+- **Fix:** Check `payment_id` uniqueness before marking order as paid
 
 #### FIND-014: Error Messages Leak Internal Info ✅ FIXED
 - **Location:** `backend/src/index.ts:60-67`
@@ -155,10 +155,10 @@ All Critical and High findings have been remediated. Medium and Low findings are
 
 ### Low
 
-#### FIND-016: CORS Empty Origin String
+#### FIND-016: CORS Empty Origin String ✅ FIXED
 - **Location:** `backend/src/index.ts:43`
 - **Impact:** Returns empty string for missing origin, which some browsers may interpret permissively
-- **Recommendation:** Return `null` instead of `''` for missing origin
+- **Fix:** Explicit null check before allowlist — returns `false` for missing/empty origin
 
 #### FIND-017: JWT Token Details Logged ✅ FIXED
 - **Location:** `backend/src/middleware/firebase-auth.ts:135`
@@ -297,13 +297,9 @@ cd backend && npx vitest run  # ✅ 64/64 pass
 
 ## Residual Risks & Follow-Up Recommendations
 
-1. **Admin session revocation** (FIND-001) — Implement server-side session store with `jti` claims
-2. **Admin MFA** (FIND-021) — Add TOTP-based multi-factor authentication
-3. **Payment replay prevention** (FIND-013) — Track payment IDs in database
-4. **Password reset TOCTOU** (FIND-010) — Use atomic UPDATE for token consumption
-5. **Contact form persistence** (FIND-009) — Add database storage and email notifications
-6. **HttpOnly admin cookies** (FIND-007) — Migrate to server-set HttpOnly cookies
-7. **CSP style-src hardening** (FIND-023) — Remove 'unsafe-inline' for styles
-8. **Public order lookup** (FIND-012) — Require email/phone verification
-9. **User ID mutation** (FIND-015) — Add `firebase_uid` column, stop mutating primary key
-10. **CORS origin handling** (FIND-016) — Return `null` instead of `''` for missing origin
+1. **Admin MFA** (FIND-021) — Add TOTP-based multi-factor authentication (explicitly out of scope for now)
+2. **HttpOnly admin cookies** (FIND-007) — Migrate to server-set HttpOnly cookies
+3. **CSP style-src hardening** (FIND-023) — Remove 'unsafe-inline' for styles
+4. **User ID mutation** (FIND-015) — Add `firebase_uid` column, stop mutating primary key
+5. **IP stored without consent** (FIND-020) — Add explicit consent or remove IP storage from newsletter
+6. **JWKS URI parameter** (FIND-018) — Remove unused `projectId` parameter or add clarifying comment
