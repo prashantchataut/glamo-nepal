@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { PRODUCTS, CATEGORIES } from "@/lib/data/products";
+import { CATEGORIES } from "@/lib/data/products";
 import { BLOG_POSTS_SYNC } from "@/lib/data/blog";
 import { SITE_CONFIG } from "@/lib/config";
 import { PRODUCT_COLLECTIONS } from "@/lib/collections";
 import { getBrandProfiles } from "@/lib/brands";
 import { PRODUCT_BUNDLES } from "@/lib/data/bundles";
-import { listProductsServer, listCategoriesServer } from "@/lib/api/server";
+import { getAllServerProducts } from "@/lib/server/catalog";
 
 // Revalidate sitemap daily via ISR so newly published catalog entries appear.
 export const revalidate = 86400;
@@ -20,16 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Prefer the live catalog; fall back to the bundled static catalog when the
   // data service is unreachable (e.g. during a build before provisioning).
-  const [liveProducts, liveCategories] = await Promise.all([
-    listProductsServer("perPage=500"),
-    listCategoriesServer(),
-  ]);
-  const productSlugs = liveProducts.length > 0
-    ? liveProducts.map((p) => p.slug)
-    : PRODUCTS.map((p) => p.slug);
-  const categorySlugs = liveCategories.length > 0
-    ? liveCategories.map((c) => c.slug)
-    : CATEGORIES.map((c) => c.slug);
+  const products = await getAllServerProducts();
+  const productSlugs = products.map((p) => p.slug);
+  const categorySlugs = CATEGORIES.map((c) => c.slug);
 
   const staticRoutes = [
     { path: "", priority: 1, changefreq: "daily" as const },

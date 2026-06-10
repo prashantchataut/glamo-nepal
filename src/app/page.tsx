@@ -11,6 +11,8 @@ import { createMetadata } from "@/lib/seo";
 import { localBusinessJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 
+export const revalidate = 300;
+
 export const metadata = createMetadata({
   title: "GLAMO Nepal — Premium Beauty & Skincare",
   description:

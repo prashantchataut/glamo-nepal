@@ -1,17 +1,20 @@
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getBlogPost, getRelatedPosts, getBlogPosts } from "@/lib/data/blog";
+import { getServerBlogPost, getServerRelatedPosts } from "@/lib/server/blog";
+import { BLOG_POSTS } from "@/lib/data/blog-content";
 import { absoluteUrl } from "@/lib/utils";
 import { breadcrumbJsonLd, createMetadata } from "@/lib/seo";
 import BlogPostClient from "./BlogPostClient";
 
-export async function generateStaticParams() {
-  const { posts } = await getBlogPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+export const revalidate = 600;
+export const dynamicParams = true;
+
+export function generateStaticParams() {
+  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = await getBlogPost(params.slug);
+  const post = await getServerBlogPost(params.slug);
   return createMetadata({
     title: post?.title ?? "Blog — GLAMO NEPAL",
     description: post?.excerpt ?? "Beauty tips, skincare routines and Nepal beauty advice from GLAMO NEPAL.",
@@ -22,9 +25,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getBlogPost(params.slug);
+  const post = await getServerBlogPost(params.slug);
   if (!post) notFound();
-  const related = await getRelatedPosts(post.slug, 3);
+  const related = await getServerRelatedPosts(post.slug, 3);
 
   const articleJsonLd = {
     "@context": "https://schema.org",

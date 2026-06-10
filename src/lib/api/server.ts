@@ -1,6 +1,6 @@
 import "server-only";
 import type { Product } from "@/types/product";
-import { adaptProduct, adaptProducts } from "./product-adapter";
+import { adaptApiProduct as adaptProduct, adaptApiProducts as adaptProducts } from "./product-adapter";
 
 /**
  * Server-side data access that calls the in-process Hono backend directly

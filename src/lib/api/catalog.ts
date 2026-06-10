@@ -1,7 +1,7 @@
 import type { ApiResponse, Category, PaymentMethod } from "./contracts";
 import type { Product } from "@/types/product";
 import { apiRequest } from "./client";
-import { adaptProduct, adaptProducts } from "./product-adapter";
+import { adaptApiProduct as adaptProduct, adaptApiProducts as adaptProducts } from "./product-adapter";
 
 const ok = <T>(data: T, meta?: ApiResponse<T>["meta"]): ApiResponse<T> => ({ status: "success", data, meta });
 

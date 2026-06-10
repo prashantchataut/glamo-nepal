@@ -24,7 +24,7 @@ function sortProducts(list: Product[], sort: string): Product[] {
   return result;
 }
 
-export default function CategoryPageContent() {
+export default function CategoryPageContent({ initialProducts }: { initialProducts?: Product[] }) {
   const params = useParams();
   const slug = params.slug as string;
   const searchParams = useSearchParams();
@@ -48,7 +48,7 @@ export default function CategoryPageContent() {
   }, [slug, sort]);
 
   const products = useMemo(() => {
-    const source = liveProducts ?? PRODUCTS.filter(p => p.category === slug);
+    const source = initialProducts && initialProducts.length > 0 ? [...initialProducts] : PRODUCTS.filter(p => p.category === slug);
     const filtered = activeSub ? source.filter(p => p.subCategory === activeSub) : source;
     return sortProducts(filtered, sort);
   }, [slug, activeSub, sort, liveProducts]);

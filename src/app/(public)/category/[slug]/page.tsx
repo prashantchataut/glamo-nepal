@@ -4,7 +4,9 @@ import CategoryPageContent from "./CategoryPageContent";
 import { CATEGORIES } from "@/lib/data/products";
 import { createMetadata, breadcrumbJsonLd, itemListJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getProductsByCategory } from "@/lib/data/catalog-products";
+import { getServerProductsByCategory } from "@/lib/server/catalog";
+
+export const revalidate = 300;
 
 export function generateStaticParams() {
   return CATEGORIES.map((category) => ({ slug: category.slug }));
@@ -21,10 +23,10 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   });
 }
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
   const category = CATEGORIES.find((item) => item.slug === params.slug);
   if (!category) notFound();
-  const products = getProductsByCategory(params.slug);
+  const products = await getServerProductsByCategory(params.slug);
   return (
     <Suspense fallback={<div className="min-h-screen bg-neutral-50" />}>
       <JsonLd data={[
@@ -39,7 +41,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           image: product.image,
         }))),
       ]} />
-      <CategoryPageContent />
+      <CategoryPageContent initialProducts={products} />
     </Suspense>
   );
 }

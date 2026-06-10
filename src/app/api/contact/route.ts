@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { contactSchema } from "@/lib/validations/contact";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { validateCsrf } from "@/lib/csrf";
+import app from "../../../../backend/src/index";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,8 +23,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // @ts-expect-error dynamic in-process import
-    const { default: app } = await import("../../../backend/src/index");
     const upstream = await app.request("/api/v1/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json", cookie: request.headers.get("cookie") || "", "x-csrf-token": request.headers.get("x-csrf-token") || "" },

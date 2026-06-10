@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
-import { BLOG_POSTS_SYNC as BLOG_POSTS } from "@/lib/data/blog";
+import { getServerBlogPosts } from "@/lib/server/blog";
 
-export function BlogPreview() {
+export async function BlogPreview() {
+  const { posts } = await getServerBlogPosts({ limit: 6 });
   return (
     <section aria-labelledby="blog-preview-heading" className="py-12 md:py-16 lg:py-20 bg-neutral-50">
       <div className="container mx-auto px-4 md:px-6">
@@ -27,7 +28,7 @@ export function BlogPreview() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {BLOG_POSTS.map((post, i) => (
+          {posts.map((post, i) => (
             <Link key={post.id} href={`/blog/${post.slug}`} className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-card transition-all duration-500 border border-neutral-200/30 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" style={{ animationDelay: `${i * 100}ms` }}>
               <div className="relative aspect-[3/2] overflow-hidden">
                 <Image

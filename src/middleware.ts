@@ -7,7 +7,6 @@ const protectedPrefixes = ["/account", "/checkout"];
 const authPages = ["/login", "/register"];
 
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
-const FIREBASE_AUTH_DOMAIN = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || (FIREBASE_PROJECT_ID ? `${FIREBASE_PROJECT_ID}.firebaseapp.com` : "glamonepal.firebaseapp.com");
 const FIREBASE_JWKS_URL = `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`;
 
 let jwksCache: ReturnType<typeof createRemoteJWKSet> | null = null;
