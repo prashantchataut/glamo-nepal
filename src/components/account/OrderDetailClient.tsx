@@ -114,7 +114,7 @@ return (
       </Link>
       <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary">Order detail</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary-text">Order detail</p>
           <h1 className="mt-2 font-display text-4xl font-semibold text-neutral-950 md:text-5xl">{order.orderNumber}</h1>
           <p className="mt-2 text-sm text-neutral-500">Placed on {order.date} · Paid by {order.paymentMethod}</p>
         </div>

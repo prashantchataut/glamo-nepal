@@ -48,6 +48,7 @@ const config: Config = {
           DEFAULT: '#D97898',
           light: '#EFB4C5',
           dark: '#AD4B64',
+          text: '#B05474',
         },
         secondary: {
           DEFAULT: '#B88967',

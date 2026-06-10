@@ -213,7 +213,7 @@ export function ProductCard({ product }: ProductCardProps) {
               />
             ))}
             {product.shadeOptions.length > 6 && (
-              <span className="text-[10px] text-neutral-400">
+              <span className="text-[10px] text-neutral-500">
                 +{product.shadeOptions.length - 6}
               </span>
             )}
@@ -227,12 +227,12 @@ export function ProductCard({ product }: ProductCardProps) {
                 {formatNPR(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="text-xs text-neutral-400 line-through">
+                <span className="text-xs text-neutral-500 line-through">
                   {formatNPR(product.originalPrice)}
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-neutral-400">
+            <span className="text-[11px] text-neutral-500">
               {product.reviewsCount} reviews
             </span>
 </div>

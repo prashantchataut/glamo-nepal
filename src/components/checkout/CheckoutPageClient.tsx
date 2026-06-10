@@ -271,7 +271,7 @@ export function CheckoutPageClient() {
       ? "bg-neutral-950 text-white"
       : currentStep > step
         ? "bg-primary text-white"
-        : "bg-white text-neutral-400";
+        : "bg-white text-neutral-500";
   }
 
   async function onSubmit(data: CheckoutFormData) {
@@ -448,7 +448,7 @@ export function CheckoutPageClient() {
               Continue as guest
             </button>
           </div>
-          <p className="mt-6 text-xs leading-5 text-neutral-400">
+          <p className="mt-6 text-xs leading-5 text-neutral-500">
             You&apos;ll still enter your name, phone, and delivery address.
           </p>
         </div>
@@ -495,7 +495,7 @@ export function CheckoutPageClient() {
           <span className="font-medium text-neutral-950">Checkout</span>
         </nav>
         <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2.5rem] md:px-8 md:py-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
             Secure checkout
           </p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -511,19 +511,21 @@ export function CheckoutPageClient() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-7">
-            <div className="mb-6 flex items-center justify-between gap-2 md:mb-8">
+            <nav aria-label="Checkout progress">
+              <ol role="list" className="mb-6 flex items-center justify-between gap-2 md:mb-8">
               {steps.map((step, i) => {
                 const Icon = step.icon;
                 const isActive = currentStep === i;
                 const isCompleted = i < currentStep;
                 return (
-                  <button
-                    key={step.label}
-                    type="button"
-                    onClick={() => setCurrentStep(i)}
-                    className="flex flex-col items-center gap-1.5"
-                    aria-current={isActive ? "step" : undefined}
-                  >
+                  <li key={step.label}>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(i)}
+                      className="flex flex-col items-center gap-1.5"
+                      aria-current={isActive ? "step" : undefined}
+                      aria-label={`${step.label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
+                    >
                     <div
                       className={`flex h-9 w-9 items-center justify-center rounded-full transition md:h-10 md:w-10 ${stepButton(i)}`}
                     >
@@ -534,19 +536,20 @@ export function CheckoutPageClient() {
                       )}
                     </div>
                     <span
-                      className={`text-[10px] font-semibold uppercase tracking-[0.08em] md:text-xs md:tracking-[0.12em] ${isActive || isCompleted ? "text-neutral-950" : "text-neutral-400"}`}
+                      className={`text-[10px] font-semibold uppercase tracking-[0.08em] md:text-xs md:tracking-[0.12em] ${isActive || isCompleted ? "text-neutral-950" : "text-neutral-500"}`}
                     >
                       {step.label}
                     </span>
-                  </button>
+                    </button>
+                  </li>
                 );
               })}
-            </div>
+            </ol></nav>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting}>
               {currentStep === 0 && (
                 <div className="space-y-4 md:space-y-5">
-                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
+                  <h2 ref={formHeadingRef} tabIndex={-1} className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl" onFocus={(e) => e.target.blur()}>
                     Contact & shipping
                   </h2>
                   {savedAddresses.length > 0 && (
@@ -578,13 +581,15 @@ export function CheckoutPageClient() {
                       </label>
                       <input
                         id="name"
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? "name-error" : undefined}
                         {...register("name")}
                         className={inputClass}
                         placeholder="Your full name"
                         autoComplete="name"
                       />
                       {errors.name && (
-                        <p className={errorClass}>{errors.name.message}</p>
+                        <p id="name-error" className={errorClass} role="alert">{errors.name.message}</p>
                       )}
                     </div>
                     <div>
@@ -593,13 +598,15 @@ export function CheckoutPageClient() {
                       </label>
                       <input
                         id="phone"
+                        aria-invalid={!!errors.phone}
+                        aria-describedby={errors.phone ? "phone-error" : undefined}
                         {...register("phone")}
                         className={inputClass}
                         placeholder="98XXXXXXXX"
                         autoComplete="tel"
                       />
                       {errors.phone && (
-                        <p className={errorClass}>{errors.phone.message}</p>
+                        <p id="phone-error" className={errorClass} role="alert">{errors.phone.message}</p>
                       )}
                     </div>
                   </div>
@@ -610,13 +617,15 @@ export function CheckoutPageClient() {
                     <input
                       id="email"
                       type="email"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
                       {...register("email")}
                       className={inputClass}
                       placeholder="your@email.com"
                       autoComplete="email"
                     />
                     {errors.email && (
-                      <p className={errorClass}>{errors.email.message}</p>
+                      <p id="email-error" className={errorClass} role="alert">{errors.email.message}</p>
                     )}
                     <p className="mt-1 text-[11px] text-neutral-500">For order confirmation and delivery updates.</p>
                   </div>
@@ -644,6 +653,8 @@ export function CheckoutPageClient() {
                       </label>
                       <select
                         id="district"
+                        aria-invalid={!!errors.district}
+                        aria-describedby={errors.district ? "district-error" : undefined}
                         {...register("district")}
                         onChange={(e) => updateDistrict(e.target.value)}
                         className={inputClass}
@@ -655,7 +666,7 @@ export function CheckoutPageClient() {
                         ))}
                       </select>
                       {errors.district && (
-                        <p className={errorClass}>{errors.district.message}</p>
+                        <p id="district-error" className={errorClass} role="alert">{errors.district.message}</p>
                       )}
                     </div>
                   </div>
@@ -666,6 +677,8 @@ export function CheckoutPageClient() {
                       </label>
                       <select
                         id="city"
+                        aria-invalid={!!errors.city}
+                        aria-describedby={errors.city ? "city-error" : undefined}
                         {...register("city")}
                         className={inputClass}
                       >
@@ -676,7 +689,7 @@ export function CheckoutPageClient() {
                         ))}
                       </select>
                       {errors.city && (
-                        <p className={errorClass}>{errors.city.message}</p>
+                        <p id="city-error" className={errorClass} role="alert">{errors.city.message}</p>
                       )}
                     </div>
                     <div>
@@ -685,13 +698,15 @@ export function CheckoutPageClient() {
                       </label>
                       <input
                         id="ward"
+                        aria-invalid={!!errors.ward}
+                        aria-describedby={errors.ward ? "ward-error" : undefined}
                         {...register("ward")}
                         className={inputClass}
                         placeholder="Ward number"
                         autoComplete="address-line2"
                       />
                       {errors.ward && (
-                        <p className={errorClass}>{errors.ward.message}</p>
+                        <p id="ward-error" className={errorClass} role="alert">{errors.ward.message}</p>
                       )}
                     </div>
                   </div>
@@ -701,13 +716,15 @@ export function CheckoutPageClient() {
                     </label>
                     <input
                       id="address"
+                      aria-invalid={!!errors.address}
+                      aria-describedby={errors.address ? "address-error" : undefined}
                       {...register("address")}
                       className={inputClass}
                       placeholder="House no., street, locality"
                       autoComplete="street-address"
                     />
                     {errors.address && (
-                      <p className={errorClass}>{errors.address.message}</p>
+                      <p id="address-error" className={errorClass} role="alert">{errors.address.message}</p>
                     )}
                   </div>
                   <button
@@ -963,7 +980,7 @@ export function CheckoutPageClient() {
           </section>
 
           <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-editorial md:rounded-[2.25rem] md:p-6 lg:sticky lg:top-24">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
               Bag summary
             </p>
             <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-neutral-950 md:text-4xl">

@@ -48,21 +48,21 @@ export function HeroBanner() {
                   <ShieldCheck size={18} />
                 </div>
                 <p className="mt-3 text-sm font-bold text-neutral-900">Authentic</p>
-                <p className="mt-1 text-xs text-neutral-400">100% Genuine</p>
+                <p className="mt-1 text-xs text-neutral-500">100% Genuine</p>
               </div>
               <div className="flex flex-col items-center lg:items-start">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary-hover">
                   <Truck size={18} />
                 </div>
                 <p className="mt-3 text-sm font-bold text-neutral-900">Fast Delivery</p>
-                <p className="mt-1 text-xs text-neutral-400">All across Nepal</p>
+                <p className="mt-1 text-xs text-neutral-500">All across Nepal</p>
               </div>
               <div className="hidden flex-col items-center sm:flex lg:items-start">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary-hover">
                   <Sparkles size={18} />
                 </div>
                 <p className="mt-3 text-sm font-bold text-neutral-900">Curated</p>
-                <p className="mt-1 text-xs text-neutral-400">Expert selected</p>
+                <p className="mt-1 text-xs text-neutral-500">Expert selected</p>
               </div>
             </div>
           </div>

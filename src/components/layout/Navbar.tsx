@@ -307,7 +307,7 @@ export function Navbar() {
                 <Search size={15} strokeWidth={1.7} />
                 <span className="truncate">Search skincare, makeup, SPF, brands...</span>
               </span>
-              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400 sm:block">
+              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500 sm:block">
                 Search
               </span>
             </button>

@@ -44,7 +44,7 @@ export function MobileBottomNav() {
 
           if (item.action === "search") {
             return (
-              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", isActive ? "text-primary" : "text-neutral-400 hover:text-primary")} aria-label="Open search">
+              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", isActive ? "text-primary" : "text-neutral-500 hover:text-primary")} aria-label="Open search">
                 <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
                 <span className="text-[11px] font-medium">{item.label}</span>
               </button>
@@ -52,7 +52,7 @@ export function MobileBottomNav() {
           }
 
           return (
-            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-primary" : "text-neutral-400 hover:text-primary")} aria-label={item.label}>
+            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 transition-colors", isActive ? "text-primary" : "text-neutral-500 hover:text-primary")} aria-label={item.label}>
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className={cn("text-[11px] font-medium", isActive && "font-semibold")}>{item.label}</span>
               {count > 0 && (

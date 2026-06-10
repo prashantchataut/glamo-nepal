@@ -109,7 +109,7 @@ export function VerifyEmailClient() {
         ) : (
           <form onSubmit={(e) => { e.preventDefault(); handleResend(); }} className="mt-8 space-y-5">
             <div className="w-full">
-              <label htmlFor="verify-email" className="type-label mb-2 block text-neutral-400">
+              <label htmlFor="verify-email" className="type-label mb-2 block text-neutral-500">
                 Email address
               </label>
               <input

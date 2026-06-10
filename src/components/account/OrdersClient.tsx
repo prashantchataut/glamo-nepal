@@ -94,7 +94,7 @@ export function OrdersClient() {
     <div>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary">Order history</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary-text">Order history</p>
           <h1 className="mt-2 font-display text-4xl font-semibold leading-tight text-neutral-950 md:text-5xl">
             Your GLAMO orders
           </h1>

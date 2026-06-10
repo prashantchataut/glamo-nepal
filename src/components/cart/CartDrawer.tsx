@@ -166,7 +166,7 @@ export function CartDrawer() {
                           <div className="flex min-w-0 flex-1 flex-col">
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
                                   {item.product.brand}
                                 </span>
                                 <h3 className="line-clamp-2 font-display text-[15px] font-semibold leading-tight text-neutral-900">
@@ -178,7 +178,7 @@ export function CartDrawer() {
                               </div>
                               <button
                                 onClick={() => removeItem(item.product.id, item.selectedShade)}
-                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-neutral-500 transition hover:bg-neutral-100 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                                 aria-label={`Remove ${item.product.name}`}
                               >
                                 <Trash2 size={15} strokeWidth={1.7} />
@@ -235,7 +235,7 @@ export function CartDrawer() {
                   <span>Estimated total</span>
                   <span className="font-display tracking-tight">{formatNPR(totalPrice)}</span>
                 </div>
-                <p className="text-[11px] text-neutral-400">Final total calculated at checkout with delivery</p>
+                <p className="text-[11px] text-neutral-500">Final total calculated at checkout with delivery</p>
               </div>
               <Link
                 href="/checkout"

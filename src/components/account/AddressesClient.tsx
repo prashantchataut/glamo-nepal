@@ -155,7 +155,7 @@ export function AddressesClient() {
     <div>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="type-label text-primary">Addresses</p>
+          <p className="type-label text-primary-text">Addresses</p>
           <h1 className="mt-3 font-display text-4xl font-medium text-neutral-900 md:text-5xl">Saved delivery addresses</h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-neutral-600">Manage your Nepal delivery addresses for faster checkout.</p>
         </div>

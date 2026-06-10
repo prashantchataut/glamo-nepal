@@ -139,7 +139,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white md:h-16 md:w-16">
               <CheckCircle2 size={28} />
             </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
               Order Confirmed
             </p>
             <h1 className="mt-2 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">

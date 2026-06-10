@@ -187,7 +187,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
         >
           {mode === "register" && (
             <div className="space-y-2">
-              <label htmlFor="auth-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+              <label htmlFor="auth-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
                 Full name
               </label>
               <input
@@ -204,7 +204,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           )}
 
           <div className="space-y-2">
-            <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+            <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
               Email address
             </label>
             <input
@@ -220,7 +220,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="auth-password" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+            <label htmlFor="auth-password" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
               Password
             </label>
             <div className="relative">
@@ -250,7 +250,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
               </button>
             </div>
             {mode === "register" && (
-              <p id="auth-password-hint" className="text-[11px] tracking-wide text-neutral-400">
+              <p id="auth-password-hint" className="text-[11px] tracking-wide text-neutral-500">
                 Minimum 8 characters, including a letter and a number
               </p>
             )}
@@ -264,7 +264,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
             </div>
           )}
 
-          <button type="submit" disabled={isLoading || !email || !password} className="mt-2 w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-400">
+          <button type="submit" disabled={isLoading || !email || !password} className="mt-2 w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
             {isLoading ? (
               <span className="inline-flex items-center justify-center gap-2">
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -293,7 +293,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
 
           {showGuestCheckout && (
             <div className="mt-5 border-t border-neutral-100 pt-5 text-center">
-              <p className="mb-3 text-xs text-neutral-400">Or continue without an account</p>
+              <p className="mb-3 text-xs text-neutral-500">Or continue without an account</p>
               <Link
                 href={redirectUrl.startsWith("/checkout") ? `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}guest=true` : "/checkout?guest=true"}
                 className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50"

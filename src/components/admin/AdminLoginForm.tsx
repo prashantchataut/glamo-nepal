@@ -64,7 +64,7 @@ export function AdminLoginForm() {
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5">
         <div className="w-full">
-          <label htmlFor="admin-email" className="type-label mb-2 block text-neutral-400">Email</label>
+          <label htmlFor="admin-email" className="type-label mb-2 block text-neutral-500">Email</label>
           <input
             id="admin-email"
             type="email"
@@ -72,13 +72,13 @@ export function AdminLoginForm() {
             onChange={(event) => setEmail(event.target.value)}
             placeholder="Enter email"
             autoComplete="username"
-            className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+            className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-500 focus:border-primary focus:outline-none"
             required
           />
         </div>
 
         <div className="w-full">
-          <label htmlFor="admin-password" className="type-label mb-2 block text-neutral-400">Password</label>
+          <label htmlFor="admin-password" className="type-label mb-2 block text-neutral-500">Password</label>
           <div className="relative">
             <input
               id="admin-password"
@@ -86,13 +86,13 @@ export function AdminLoginForm() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
-              className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 pr-10 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-400 focus:border-primary focus:outline-none"
+              className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 pr-10 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-500 focus:border-primary focus:outline-none"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-400 transition-colors hover:text-primary"
+              className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-500 transition-colors hover:text-primary"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

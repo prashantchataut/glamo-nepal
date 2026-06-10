@@ -51,7 +51,7 @@ export function ForgotPasswordClient() {
         ) : (
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div className="w-full">
-              <label htmlFor="forgot-email" className="type-label mb-2 block text-neutral-400">
+              <label htmlFor="forgot-email" className="type-label mb-2 block text-neutral-500">
                 Email address
               </label>
               <input

@@ -115,7 +115,7 @@ export function AccountDashboardClient() {
             </h1>
             <p className="mt-0.5 truncate text-sm text-neutral-500">{contactInfo}</p>
             {accountBadge && (
-              <span className="mt-2 inline-flex rounded-full bg-neutral-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary ring-1 ring-neutral-200/60">
+              <span className="mt-2 inline-flex rounded-full bg-neutral-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-text ring-1 ring-neutral-200/60">
                 {accountBadge}
               </span>
             )}

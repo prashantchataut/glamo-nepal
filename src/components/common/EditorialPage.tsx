@@ -22,7 +22,7 @@ export function EditorialHero({
     <section className="border-b border-neutral-200 bg-neutral-100">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
         <div>
-          <p className="type-label text-primary">{eyebrow}</p>
+          <p className="type-label text-primary-text">{eyebrow}</p>
           <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">
             {title}
           </h1>
@@ -65,7 +65,7 @@ export function EditorialSection({
     <section className={`bg-neutral-50 py-12 md:py-16 ${className}`}>
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div className="mb-8 max-w-3xl">
-          {eyebrow ? <p className="type-label text-primary">{eyebrow}</p> : null}
+          {eyebrow ? <p className="type-label text-primary-text">{eyebrow}</p> : null}
           <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-neutral-900 md:text-5xl">{title}</h2>
           {description ? <p className="mt-4 text-base leading-7 text-neutral-600">{description}</p> : null}
         </div>
@@ -80,7 +80,7 @@ export function InfoCard({ title, body, href }: { title: string; body: string; h
     <div className="h-full border border-neutral-200 bg-white p-6 transition-colors hover:border-primary/30 md:p-7">
       <h3 className="font-display text-2xl font-medium leading-tight text-neutral-900">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-neutral-600">{body}</p>
-      {href ? <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Explore <ArrowRight size={14} /></span> : null}
+      {href ? <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary-text">Explore <ArrowRight size={14} /></span> : null}
     </div>
   );
   return href ? <Link href={href} className="block h-full">{content}</Link> : content;

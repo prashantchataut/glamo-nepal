@@ -73,7 +73,7 @@ export function ResetPasswordClient() {
         ) : (
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div className="w-full">
-              <label htmlFor="new-password" className="type-label mb-2 block text-neutral-400">
+              <label htmlFor="new-password" className="type-label mb-2 block text-neutral-500">
                 New password
               </label>
               <input
@@ -89,7 +89,7 @@ export function ResetPasswordClient() {
             </div>
 
             <div className="w-full">
-              <label htmlFor="confirm-password" className="type-label mb-2 block text-neutral-400">
+              <label htmlFor="confirm-password" className="type-label mb-2 block text-neutral-500">
                 Confirm new password
               </label>
               <input

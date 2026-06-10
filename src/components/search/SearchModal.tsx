@@ -23,6 +23,7 @@ export function SearchModal() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const router = useRouter();
   const reduceMotion = useReducedMotion();
   const suggestions = getSearchSuggestions(debouncedQuery, 7);
@@ -40,8 +41,13 @@ export function SearchModal() {
   }, [query]);
 
   useEffect(() => {
-    if (isSearchModalOpen) window.setTimeout(() => inputRef.current?.focus(), 80);
+    if (isSearchModalOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      window.setTimeout(() => inputRef.current?.focus(), 80);
+    }
     if (!isSearchModalOpen) {
+      previousFocusRef.current?.focus();
+      previousFocusRef.current = null;
       setQuery("");
       setDebouncedQuery("");
       setActiveIndex(0);
@@ -229,7 +235,7 @@ export function SearchModal() {
             </div>
 
             {/* Results */}
-            <div id="glamo-search-results" className="max-h-[78vh] overflow-y-auto px-4 py-6 md:px-6">
+            <div id="glamo-search-results" aria-live="polite" className="max-h-[78vh] overflow-y-auto px-4 py-6 md:px-6">
               {searchError ? (
                 <div className="py-12 text-center">
                   <RefreshCw size={24} className="mx-auto text-neutral-300" strokeWidth={1.5} />

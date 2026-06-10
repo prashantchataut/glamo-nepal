@@ -21,7 +21,7 @@ export function EmptyState({ variant, className, query }: { variant: Variant; cl
         <span className="absolute bottom-5 right-5 h-4 w-4 rounded-full bg-primary/80" />
         <Icon size={42} className="text-primary" strokeWidth={1.35} />
       </div>
-      <p className="type-label mt-8 text-xs font-bold uppercase tracking-widest text-primary">GLAMO Nepal</p>
+      <p className="type-label mt-8 text-xs font-bold uppercase tracking-widest text-primary-text">GLAMO Nepal</p>
       <h3 className="mt-2 font-display text-3xl font-semibold leading-tight text-neutral-900 md:text-4xl">
         {variant === "search" && query ? `No results for "${query}"` : config.title}
       </h3>
