@@ -55,10 +55,10 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
         return data.data;
       }
     } else {
-      console.error("[Auth] Backend sync failed:", res.status, await res.text().catch(() => ""));
+      console.error("[Auth] Account sync failed:", res.status, await res.text().catch(() => ""));
     }
   } catch (error) {
-    console.error("[Auth] Failed to sync user with backend:", error);
+    console.error("[Auth] Failed to sync user account:", error);
   }
   return null;
 }

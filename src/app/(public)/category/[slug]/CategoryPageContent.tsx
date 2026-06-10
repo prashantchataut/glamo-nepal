@@ -2,12 +2,27 @@
 // Client component required: uses browser-only interactivity, hooks, stores, or Next.js error-boundary reset.
 
 import { useSearchParams, useRouter, useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { PRODUCTS, CATEGORIES, SORT_OPTIONS } from "@/lib/data/products";
+import { listProducts, type ProductListParams } from "@/lib/api/catalog";
+import type { Product } from "@/types/product";
 import { ProductCard } from "@/components/product/ProductCard";
+
+function sortProducts(list: Product[], sort: string): Product[] {
+  const result = [...list];
+  switch (sort) {
+    case "price-asc": result.sort((a, b) => a.price - b.price); break;
+    case "price-desc": result.sort((a, b) => b.price - a.price); break;
+    case "newest": result.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0)); break;
+    case "best-sellers": result.sort((a, b) => (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0)); break;
+    case "most-reviewed": result.sort((a, b) => b.reviewsCount - a.reviewsCount); break;
+    default: result.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)); break;
+  }
+  return result;
+}
 
 export default function CategoryPageContent() {
   const params = useParams();
@@ -15,24 +30,28 @@ export default function CategoryPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [activeSub, setActiveSub] = useState<string>("");
+  const [liveProducts, setLiveProducts] = useState<Product[] | null>(null);
 
   const category = CATEGORIES.find(c => c.slug === slug);
   const sort = searchParams.get("sort") || "featured";
 
-  const products = useMemo(() => {
-    let result = PRODUCTS.filter(p => p.category === slug);
-    if (activeSub) result = result.filter(p => p.subCategory === activeSub);
+  // Prefer live catalog data; fall back to the static catalog on error/empty.
+  useEffect(() => {
+    let cancelled = false;
+    listProducts({ category: slug, sort: sort as ProductListParams["sort"], perPage: 60 })
+      .then((result) => {
+        if (cancelled) return;
+        setLiveProducts(result.status === "success" && result.data.length > 0 ? result.data : null);
+      })
+      .catch(() => { if (!cancelled) setLiveProducts(null); });
+    return () => { cancelled = true; };
+  }, [slug, sort]);
 
-    switch (sort) {
-      case "price-asc": result.sort((a, b) => a.price - b.price); break;
-      case "price-desc": result.sort((a, b) => b.price - a.price); break;
-      case "newest": result.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0)); break;
-      case "best-sellers": result.sort((a, b) => (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0)); break;
-      case "most-reviewed": result.sort((a, b) => b.reviewsCount - a.reviewsCount); break;
-      default: result.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)); break;
-    }
-    return result;
-  }, [slug, activeSub, sort]);
+  const products = useMemo(() => {
+    const source = liveProducts ?? PRODUCTS.filter(p => p.category === slug);
+    const filtered = activeSub ? source.filter(p => p.subCategory === activeSub) : source;
+    return sortProducts(filtered, sort);
+  }, [slug, activeSub, sort, liveProducts]);
 
   if (!category) {
     return (

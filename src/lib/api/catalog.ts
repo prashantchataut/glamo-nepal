@@ -1,6 +1,7 @@
 import type { ApiResponse, Category, PaymentMethod } from "./contracts";
 import type { Product } from "@/types/product";
 import { apiRequest } from "./client";
+import { adaptProduct, adaptProducts } from "./product-adapter";
 
 const ok = <T>(data: T, meta?: ApiResponse<T>["meta"]): ApiResponse<T> => ({ status: "success", data, meta });
 
@@ -37,19 +38,21 @@ export async function listProducts(params: ProductListParams = {}): Promise<ApiR
   const qs = queryParams.toString();
   const endpoint = params.query ? `/products/search?${qs}` : `/products?${qs}`;
 
-  return apiRequest<Product[]>(endpoint);
+  const result = await apiRequest<unknown[]>(endpoint);
+  return { ...result, data: adaptProducts(result.data) };
 }
 
 export async function searchProducts(query: string, limit = 8): Promise<ApiResponse<Product[]>> {
   if (!query.trim()) return ok([]);
-  return apiRequest<Product[]>(`/products/search?q=${encodeURIComponent(query)}&perPage=${limit}`);
+  const result = await apiRequest<unknown[]>(`/products/search?q=${encodeURIComponent(query)}&perPage=${limit}`);
+  return { ...result, data: adaptProducts(result.data) };
 }
 
 export async function getProduct(slug: string): Promise<ApiResponse<Product | null>> {
   try {
-    const apiResult = await apiRequest<Product>(`/products/${slug}`);
+    const apiResult = await apiRequest<unknown>(`/products/${slug}`);
     if (apiResult.status === "success" && apiResult.data) {
-      return apiResult;
+      return { ...apiResult, data: adaptProduct(apiResult.data) };
     }
   } catch {}
   return ok(null);
@@ -57,7 +60,8 @@ export async function getProduct(slug: string): Promise<ApiResponse<Product | nu
 
 export async function listRelatedProducts(slug: string, limit = 4): Promise<ApiResponse<Product[]>> {
   try {
-    return await apiRequest<Product[]>(`/products/${slug}/related?limit=${limit}`);
+    const result = await apiRequest<unknown[]>(`/products/${slug}/related?limit=${limit}`);
+    return { ...result, data: adaptProducts(result.data) };
   } catch {
     return ok([]);
   }

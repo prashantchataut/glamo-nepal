@@ -5,23 +5,31 @@ import { SITE_CONFIG } from "@/lib/config";
 import { PRODUCT_COLLECTIONS } from "@/lib/collections";
 import { getBrandProfiles } from "@/lib/brands";
 import { PRODUCT_BUNDLES } from "@/lib/data/bundles";
+import { listProductsServer, listCategoriesServer } from "@/lib/api/server";
 
-// Revalidate sitemap daily via ISR
+// Revalidate sitemap daily via ISR so newly published catalog entries appear.
 export const revalidate = 86400;
-
-// TODO: When the backend API is available, fetch products from /api/v1/products
-// instead of using the static PRODUCTS array. Use try/catch with PRODUCTS as fallback
-// since the backend may not be available at build time.
-// Example:
-//   const products = await fetch(`${base}/api/v1/products`).then(r => r.json()).catch(() => PRODUCTS);
 
 function toISO8601(date: Date): string {
   return date.toISOString();
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.website).replace(/\/$/, "");
   const now = new Date();
+
+  // Prefer the live catalog; fall back to the bundled static catalog when the
+  // data service is unreachable (e.g. during a build before provisioning).
+  const [liveProducts, liveCategories] = await Promise.all([
+    listProductsServer("perPage=500"),
+    listCategoriesServer(),
+  ]);
+  const productSlugs = liveProducts.length > 0
+    ? liveProducts.map((p) => p.slug)
+    : PRODUCTS.map((p) => p.slug);
+  const categorySlugs = liveCategories.length > 0
+    ? liveCategories.map((c) => c.slug)
+    : CATEGORIES.map((c) => c.slug);
 
   const staticRoutes = [
     { path: "", priority: 1, changefreq: "daily" as const },
@@ -44,16 +52,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority,
   }));
 
-  const categoryRoutes = CATEGORIES.map((category) => ({
-    url: `${base}/category/${category.slug}`,
+  const categoryRoutes = categorySlugs.map((slug) => ({
+    url: `${base}/category/${slug}`,
     lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.75,
   }));
 
-  // TODO: Replace PRODUCTS with API-fetched products when /api/v1/products is available
-  const productRoutes = PRODUCTS.map((product) => ({
-    url: `${base}/products/${product.slug}`,
+  const productRoutes = productSlugs.map((slug) => ({
+    url: `${base}/products/${slug}`,
     lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.8,

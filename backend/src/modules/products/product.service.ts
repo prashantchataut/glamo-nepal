@@ -131,7 +131,18 @@ function mapVariantRow(row: Record<string, unknown>): VariantRow {
   }
 }
 
-function formatProduct(row: ProductRow, images: ProductImageRow[] = [], variants: VariantRow[] = [], reviewSummary?: ReviewSummaryRow) {
+interface TaxonomyInfo {
+  name: string
+  slug: string
+}
+
+function formatProduct(
+  row: ProductRow,
+  images: ProductImageRow[] = [],
+  variants: VariantRow[] = [],
+  reviewSummary?: ReviewSummaryRow,
+  taxonomy?: { category?: TaxonomyInfo; brand?: TaxonomyInfo }
+) {
   return {
     id: row.id,
     name: row.name,
@@ -140,7 +151,11 @@ function formatProduct(row: ProductRow, images: ProductImageRow[] = [], variants
     shortDescription: row.short_description,
     sku: row.sku,
     categoryId: row.category_id,
+    categoryName: taxonomy?.category?.name ?? null,
+    categorySlug: taxonomy?.category?.slug ?? null,
     brandId: row.brand_id,
+    brandName: taxonomy?.brand?.name ?? null,
+    brandSlug: taxonomy?.brand?.slug ?? null,
     basePrice: toDisplayPrice(row.base_price),
     salePrice: row.sale_price !== null ? toDisplayPrice(row.sale_price) : null,
     costPrice: row.cost_price !== null ? toDisplayPrice(row.cost_price) : null,
@@ -191,6 +206,24 @@ function formatVariant(row: VariantRow) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
+}
+
+async function fetchTaxonomyMap(
+  db: Client,
+  table: 'categories' | 'brands',
+  ids: (string | null)[]
+): Promise<Map<string, TaxonomyInfo>> {
+  const map = new Map<string, TaxonomyInfo>()
+  const unique = [...new Set(ids.filter((id): id is string => Boolean(id)))]
+  if (unique.length === 0) return map
+  const result = await db.execute({
+    sql: `SELECT id, name, slug FROM ${table} WHERE id IN (${unique.map(() => '?').join(',')})`,
+    args: unique,
+  })
+  for (const row of result.rows) {
+    map.set(row.id as string, { name: row.name as string, slug: row.slug as string })
+  }
+  return map
 }
 
 async function getCategoryFilter(db: Client, category: string): Promise<string | null> {
@@ -336,10 +369,18 @@ export async function getProducts(
     variants = varResult.rows.map((row) => mapVariantRow(row as Record<string, unknown>))
   }
 
+  const [categoryMap, brandMap] = await Promise.all([
+    fetchTaxonomyMap(db, 'categories', products.map((p) => p.category_id)),
+    fetchTaxonomyMap(db, 'brands', products.map((p) => p.brand_id)),
+  ])
+
   const formatted = products.map((product) => {
     const productImages = images.filter((i) => i.product_id === product.id)
     const productVariants = variants.filter((v) => v.product_id === product.id)
-    return formatProduct(product, productImages, productVariants)
+    return formatProduct(product, productImages, productVariants, undefined, {
+      category: product.category_id ? categoryMap.get(product.category_id) : undefined,
+      brand: product.brand_id ? brandMap.get(product.brand_id) : undefined,
+    })
   })
 
   const pagination = buildPaginationResult(total, page, limit)
@@ -400,9 +441,17 @@ export async function searchProducts(query: string, page: number, limit: number,
     images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
   }
 
+  const [categoryMap, brandMap] = await Promise.all([
+    fetchTaxonomyMap(db, 'categories', products.map((p) => p.category_id)),
+    fetchTaxonomyMap(db, 'brands', products.map((p) => p.brand_id)),
+  ])
+
   const formatted = products.map((product) => {
     const productImages = images.filter((i) => i.product_id === product.id)
-    return formatProduct(product, productImages)
+    return formatProduct(product, productImages, [], undefined, {
+      category: product.category_id ? categoryMap.get(product.category_id) : undefined,
+      brand: product.brand_id ? brandMap.get(product.brand_id) : undefined,
+    })
   })
 
   const pagination = buildPaginationResult(total, page, limit)
@@ -449,7 +498,15 @@ export async function getProductBySlug(slug: string, db: Client) {
   const images = imgResult.rows.map((row) => mapImageRow(row as Record<string, unknown>))
   const variants = varResult.rows.map((row) => mapVariantRow(row as Record<string, unknown>))
 
-  const result = formatProduct(productRow, images, variants, reviewSummary)
+  const [categoryMap, brandMap] = await Promise.all([
+    fetchTaxonomyMap(db, 'categories', [productRow.category_id]),
+    fetchTaxonomyMap(db, 'brands', [productRow.brand_id]),
+  ])
+
+  const result = formatProduct(productRow, images, variants, reviewSummary, {
+    category: productRow.category_id ? categoryMap.get(productRow.category_id) : undefined,
+    brand: productRow.brand_id ? brandMap.get(productRow.brand_id) : undefined,
+  })
   await setCache(cacheKey, result, CACHE_TTL.PRODUCT)
   return result
 }
