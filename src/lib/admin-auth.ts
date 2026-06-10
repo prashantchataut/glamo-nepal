@@ -3,6 +3,7 @@ export interface AdminSessionPayload {
   role: "admin";
   name: string;
   exp: number;
+  jti: string;
 }
 
 export const ADMIN_SESSION_COOKIE = process.env.NODE_ENV === "production"
@@ -61,11 +62,13 @@ export function getAdminCredentials() {
 }
 
 export async function createAdminSessionToken(email: string, name = "GLAMO Admin") {
+  const jti = crypto.randomUUID();
   const payload: AdminSessionPayload = {
     email,
     name,
     role: "admin",
     exp: Math.floor(Date.now() / 1000) + ADMIN_SESSION_MAX_AGE_SECONDS,
+    jti,
   };
   const encodedPayload = bytesToBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
   const signature = await hmacSha256(encodedPayload);

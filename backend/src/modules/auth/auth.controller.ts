@@ -237,14 +237,19 @@ export async function resetPassword(c: Context<AppEnv>) {
     const bcrypt = await import('bcryptjs')
     const hashedPassword = await bcrypt.hash(password, 12)
 
+    const updateResult = await db.execute({
+      sql: "UPDATE password_resets SET used_at = datetime('now') WHERE id = ? AND used_at IS NULL",
+      args: [reset.id],
+    })
+
+    const changes = (updateResult.meta as any)?.changes ?? (updateResult as any).rowsAffected ?? 0
+    if (changes === 0) {
+      return ApiResponse.error(c, 'This reset token has already been used. Please request a new one.', 400, ['TOKEN_ALREADY_USED'])
+    }
+
     await db.execute({
       sql: "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?",
       args: [hashedPassword, reset.user_id],
-    })
-
-    await db.execute({
-      sql: "UPDATE password_resets SET used_at = datetime('now') WHERE id = ?",
-      args: [reset.id],
     })
 
     return ApiResponse.success(c, 'Password has been reset successfully.', null)

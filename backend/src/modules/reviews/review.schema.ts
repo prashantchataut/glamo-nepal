@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+const entityId = z.string().min(1).max(64).regex(/^[A-Za-z0-9_-]+$/)
+
 export const createReviewSchema = z.object({
-  productId: z.string().uuid(),
+  productId: entityId,
   rating: z.number().int().min(1).max(5),
   title: z.string().max(200).optional(),
   comment: z.string().max(2000).optional(),
@@ -14,14 +16,14 @@ export const updateReviewSchema = z.object({
 })
 
 export const reviewFilterSchema = z.object({
-  productId: z.string().uuid().optional(),
+  productId: entityId.optional(),
   isApproved: z.string().optional().transform(v => v === 'true'),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 
 export const idParamSchema = z.object({
-  id: z.string().uuid(),
+  id: entityId,
 })
 
 export type CreateReviewInput = z.infer<typeof createReviewSchema>

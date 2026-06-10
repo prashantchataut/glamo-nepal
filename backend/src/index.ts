@@ -41,7 +41,8 @@ const ALLOWED_ORIGINS = IS_PRODUCTION ? PRODUCTION_ORIGINS : [...PRODUCTION_ORIG
 app.use('*', cors({
   origin: (origin) => {
     if (!origin) return ''
-    return ALLOWED_ORIGINS.includes(origin) ? origin : ''
+    if (ALLOWED_ORIGINS.includes(origin)) return origin
+    return ''
   },
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Idempotency-Key'],

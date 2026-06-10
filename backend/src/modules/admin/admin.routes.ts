@@ -31,5 +31,30 @@ adminRoutes.get('/users', authMiddleware, requireRole(['ADMIN']), validateQuery(
 adminRoutes.get('/users/:id', authMiddleware, requireRole(['ADMIN']), getUserById)
 adminRoutes.patch('/users/:id/role', authMiddleware, requireRole(['OWNER']), validateBody(updateUserRoleSchema), updateUserRole)
 adminRoutes.patch('/users/:id/status', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateUserStatusSchema), updateUserStatus)
+adminRoutes.post('/logout', authMiddleware, requireRole(['ADMIN']), async (c) => {
+  const user = c.get('user')
+  const cookieHeader = c.req.header('Cookie') || ''
+  const cookieName = process.env.NODE_ENV === 'production' ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
+  const token = match?.[1]
+
+  if (token) {
+    const { verifyAdminSession } = await import('../../middleware/firebase-auth')
+    const adminUser = await verifyAdminSession(token)
+    if (adminUser?.jti) {
+      const db = c.get('db')
+      try {
+        await db.execute({
+          sql: "INSERT OR IGNORE INTO admin_session_revocations (id, jti, email, revoked_at) VALUES (?, ?, ?, datetime('now'))",
+          args: [crypto.randomUUID(), adminUser.jti, adminUser.email],
+        })
+      } catch {
+        // Revocation table may not exist yet
+      }
+    }
+  }
+
+  return c.json({ success: true, message: 'Logged out' })
+})
 
 export { adminRoutes }

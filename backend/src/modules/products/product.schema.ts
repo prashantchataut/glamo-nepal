@@ -4,9 +4,16 @@ export const productFilterSchema = z.object({
   category: z.string().optional(),
   brand: z.string().optional(),
   search: z.string().optional(),
+  q: z.string().optional(),
   minPrice: z.coerce.number().nonnegative().optional(),
   maxPrice: z.coerce.number().nonnegative().optional(),
   tags: z.string().optional(),
+  concern: z.string().optional(),
+  skinType: z.string().optional(),
+  madeInNepal: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true' || v === '1'),
   inStock: z
     .string()
     .optional()
@@ -15,7 +22,8 @@ export const productFilterSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === 'true' || v === '1'),
-  sort: z.enum(['newest', 'price-asc', 'price-desc', 'best-seller', 'most-reviewed', 'rating']).default('newest'),
+  perPage: z.coerce.number().int().positive().max(100).optional(),
+  sort: z.enum(['newest', 'featured', 'price-asc', 'price-desc', 'best-seller', 'best-sellers', 'most-reviewed', 'rating']).default('newest'),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(24),
 })

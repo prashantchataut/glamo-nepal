@@ -12,7 +12,7 @@ export const CACHE_TTL = {
 const memoryCache = new Map<string, { value: unknown; expires: number }>()
 
 // Periodically clean up expired entries
-setInterval(() => {
+const cleanupTimer = setInterval(() => {
   const now = Date.now()
   for (const [key, entry] of Array.from(memoryCache.entries())) {
     if (entry.expires < now) {
@@ -20,6 +20,9 @@ setInterval(() => {
     }
   }
 }, 60_000)
+if (typeof cleanupTimer === 'object' && 'unref' in cleanupTimer) {
+  cleanupTimer.unref()
+}
 
 export async function getFromCache<T>(key: string): Promise<T | null> {
   const entry = memoryCache.get(key)

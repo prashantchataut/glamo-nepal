@@ -5,21 +5,16 @@ async function seed() {
   const dbUrl = process.env.TURSO_DB_URL
   const authToken = process.env.TURSO_AUTH_TOKEN
 
-  if (!dbUrl || !authToken) {
-    console.error('TURSO_DB_URL and TURSO_AUTH_TOKEN environment variables are required')
+  const isLocalFile = dbUrl?.startsWith('file:')
+  if (!dbUrl || (!authToken && !isLocalFile)) {
+    console.error('TURSO_DB_URL environment variable is required')
+    console.error('(TURSO_AUTH_TOKEN is optional for local file: URLs)')
     process.exit(1)
   }
 
-  const db = createClient({ url: dbUrl, authToken })
+  const db = isLocalFile ? createClient({ url: dbUrl }) : createClient({ url: dbUrl, authToken })
 
   console.log('Seeding database...')
-
-  // Check if already seeded
-  const existing = await db.execute({ sql: 'SELECT COUNT(*) as count FROM categories', args: [] })
-  if (existing.rows[0].count !== 0) {
-    console.log('Database already seeded. Skipping.')
-    return
-  }
 
   const now = new Date().toISOString()
 
@@ -38,7 +33,7 @@ async function seed() {
 
   for (const s of settings) {
     await db.execute({
-      sql: `INSERT INTO site_settings (id, key, value, group_name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO site_settings (id, key, value, group_name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
       args: [randomUUID(), s.key, s.value, s.group, now, now],
     })
   }
@@ -56,7 +51,7 @@ async function seed() {
 
   for (const cat of categories) {
     await db.execute({
-      sql: `INSERT INTO categories (id, name, slug, description, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO categories (id, name, slug, description, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?, ?)`,
       args: [cat.id, cat.name, cat.slug, `${cat.name} products curated for Nepal`, categories.indexOf(cat) + 1, now, now],
     })
   }
@@ -72,16 +67,13 @@ async function seed() {
 
   for (const brand of brands) {
     await db.execute({
-      sql: `INSERT INTO brands (id, name, slug, description, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO brands (id, name, slug, description, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?)`,
       args: [brand.id, brand.name, brand.slug, `${brand.name} brand`, now, now],
     })
   }
   console.log(`✓ ${brands.length} brands`)
 
   // ─── Admin User ────────────────────────────────────────────────────────────────
-  // This user will be created via Firebase Auth, but we need a profile entry
-  // The actual user ID will come from Firebase Auth after registration
-  // For now, we create a placeholder that will be updated on first admin login
   console.log('✓ Admin user will be created on first login via Firebase Auth')
 
   // ─── Sample Banners ───────────────────────────────────────────────────────────
@@ -93,7 +85,7 @@ async function seed() {
 
   for (const banner of banners) {
     await db.execute({
-      sql: `INSERT INTO banners (id, title, subtitle, image_url, position, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO banners (id, title, subtitle, image_url, position, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`,
       args: [banner.id, banner.title, banner.subtitle, '/placeholder-banner.jpg', banner.position, banner.sortOrder, now, now],
     })
   }
@@ -101,7 +93,7 @@ async function seed() {
 
   // ─── Sample Popups ────────────────────────────────────────────────────────────
   await db.execute({
-    sql: `INSERT INTO popups (id, title, content, trigger_type, delay_ms, cookie_days, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, 1, ?, ?)`,
+    sql: `INSERT OR REPLACE INTO popups (id, title, content, trigger_type, delay_ms, cookie_days, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, 1, ?, ?)`,
     args: ['popup-newsletter-1', 'Get 10% Off Your First Order!', 'Subscribe to our newsletter and get an exclusive discount code.', 'TIME_DELAY', 5000, 7, now, now],
   })
   console.log('✓ 1 popup')
@@ -115,7 +107,7 @@ async function seed() {
 
   for (const member of team) {
     await db.execute({
-      sql: `INSERT INTO team_members (id, name, role, bio, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO team_members (id, name, role, bio, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
       args: [member.id, member.name, member.role, `${member.name} brings passion and expertise to GLAMO Nepal.`, member.sort_order, now, now],
     })
   }
@@ -130,7 +122,7 @@ async function seed() {
 
   for (const item of galleryItems) {
     await db.execute({
-      sql: `INSERT INTO gallery_items (id, title, description, image_url, category, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO gallery_items (id, title, description, image_url, category, sort_order, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`,
       args: [item.id, item.title, `${item.title} showcase`, '/placeholder-gallery.jpg', item.category, item.sortOrder, now, now],
     })
   }

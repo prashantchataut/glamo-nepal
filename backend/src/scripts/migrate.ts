@@ -6,13 +6,14 @@ async function migrate() {
   const dbUrl = process.env.TURSO_DB_URL
   const authToken = process.env.TURSO_AUTH_TOKEN
 
-  if (!dbUrl || !authToken) {
-    console.error('TURSO_DB_URL and TURSO_AUTH_TOKEN environment variables are required')
-    console.error('Set them in .env or pass them as environment variables')
+  const isLocalFile = dbUrl?.startsWith('file:')
+  if (!dbUrl || (!authToken && !isLocalFile)) {
+    console.error('TURSO_DB_URL environment variable is required')
+    console.error('(TURSO_AUTH_TOKEN is optional for local file: URLs)')
     process.exit(1)
   }
 
-  const db = createClient({ url: dbUrl, authToken })
+  const db = isLocalFile ? createClient({ url: dbUrl }) : createClient({ url: dbUrl, authToken })
 
   console.log('Running migrations...')
 
@@ -23,6 +24,14 @@ async function migrate() {
     .split(';')
     .map(s => s.trim())
     .filter(s => s.length > 0 && !s.startsWith('--'))
+    .map(s =>
+      s
+        .split('\n')
+        .filter(line => !line.trim().startsWith('--'))
+        .join('\n')
+        .trim(),
+    )
+    .filter(s => s.length > 0)
 
   for (const statement of statements) {
     try {
@@ -36,6 +45,27 @@ async function migrate() {
       } else {
         console.error(`✗ Error: ${error.message}`)
         console.error(`  Statement: ${statement.substring(0, 100)}...`)
+      }
+    }
+  }
+
+  // Column upgrades for databases created before these columns existed.
+  // SQLite tolerates re-runs: "duplicate column name" errors are skipped.
+  const columnUpgrades = [
+    'ALTER TABLE products ADD COLUMN attributes TEXT',
+    'ALTER TABLE product_variants ADD COLUMN deleted_at TEXT',
+    'ALTER TABLE orders ADD COLUMN deleted_at TEXT',
+    'ALTER TABLE reviews ADD COLUMN deleted_at TEXT',
+  ]
+  for (const statement of columnUpgrades) {
+    try {
+      await db.execute({ sql: statement, args: [] })
+      console.log(`✓ ${statement}`)
+    } catch (error: any) {
+      if (error.message?.includes('duplicate column name')) {
+        console.log(`→ Skipping (column exists): ${statement}`)
+      } else {
+        console.error(`✗ Error: ${error.message}`)
       }
     }
   }

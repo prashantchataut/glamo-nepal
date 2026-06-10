@@ -15,7 +15,7 @@ export const stockReportFilterSchema = z.object({
 })
 
 export const inventoryLogFilterSchema = z.object({
-  productId: z.string().uuid().optional(),
+  productId: z.string().min(1).max(64).optional(),
   changeType: z.enum(['RESTOCK', 'SALE', 'ADJUSTMENT', 'RETURN', 'CANCEL_RESTORE']).optional(),
   startDate: z.string().datetime({ offset: true }).optional(),
   endDate: z.string().datetime({ offset: true }).optional(),

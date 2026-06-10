@@ -18,8 +18,8 @@ const eventItemSchema = z.object({
 })
 
 export const trackEventsSchema = z.object({
-  session_id: z.string().uuid(),
-  user_id: z.string().uuid().optional(),
+  session_id: z.string().min(1).max(128),
+  user_id: z.string().min(1).max(128).optional(),
   events: z.array(eventItemSchema).min(1).max(50),
 })
 

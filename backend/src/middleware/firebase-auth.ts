@@ -57,9 +57,23 @@ function isOwner(email: string): boolean {
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   const adminSession = getAdminSessionToken(c)
   if (adminSession) {
-    const adminUser = await verifyAdminSession(adminSession)
-    if (adminUser) {
-      const db = c.get('db')
+const adminUser = await verifyAdminSession(adminSession)
+      if (adminUser) {
+        if (adminUser.jti) {
+          try {
+            const db = c.get('db')
+            const revoked = await db.execute({
+              sql: "SELECT id FROM admin_session_revocations WHERE jti = ? LIMIT 1",
+              args: [adminUser.jti],
+            })
+            if (revoked.rows.length > 0) {
+              return c.json({ success: false, message: 'Session revoked', errors: [] }, 401)
+            }
+          } catch {
+            // Revocation table may not exist yet; allow through if check fails
+          }
+        }
+        const db = c.get('db')
       const result = await db.execute({
         sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL AND role IN ('ADMIN', 'SUPER_ADMIN')",
         args: [adminUser.email],
@@ -231,7 +245,7 @@ function getAdminSessionToken(c: Parameters<typeof authMiddleware>[0]): string |
   return match?.[1]
 }
 
-export async function verifyAdminSession(token: string): Promise<{ email: string; name: string; role: string } | null> {
+export async function verifyAdminSession(token: string): Promise<{ email: string; name: string; role: string; jti?: string } | null> {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET
   if (!secret || secret.length === 0) return null
 
@@ -260,7 +274,7 @@ export async function verifyAdminSession(token: string): Promise<{ email: string
     if (payload.role !== 'admin') return null
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null
 
-    return { email: payload.email, name: payload.name, role: payload.role }
+    return { email: payload.email, name: payload.name, role: payload.role, jti: payload.jti }
   } catch {
     return null
   }

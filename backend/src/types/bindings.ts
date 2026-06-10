@@ -19,6 +19,8 @@ export interface NetlifyBindings {
   FREE_SHIPPING_THRESHOLD: string
   COD_FEE: string
   AUTH_SECRET: string
+  CONTACT_EMAIL?: string
+  FROM_EMAIL?: string
 }
 
 export type AppEnv = {

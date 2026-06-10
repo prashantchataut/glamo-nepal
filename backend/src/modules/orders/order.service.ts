@@ -737,6 +737,10 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
 }
 
 export async function getPublicOrder(orderNumber: string, db: Client, verificationEmail?: string, verificationPhone?: string) {
+  if (!verificationEmail && !verificationPhone) {
+    throw new AppError('Email or phone verification is required to view order details', 400, 'VERIFICATION_REQUIRED')
+  }
+
   const result = await db.execute({
     sql: 'SELECT * FROM orders WHERE order_number = ? AND deleted_at IS NULL LIMIT 1',
     args: [orderNumber],
@@ -758,19 +762,6 @@ export async function getPublicOrder(orderNumber: string, db: Client, verificati
         throw new AppError('Order verification failed. Please provide the email or phone used when placing the order.', 403, 'ORDER_VERIFICATION_FAILED')
       }
     }
-  } else {
-    const redacted = { ...row }
-    const shippingAddr = safeJsonParse<Record<string, unknown>>((redacted as any).shipping_address as string | null, {} as Record<string, unknown>)
-    const safeAddress: Record<string, unknown> = {}
-    if (shippingAddr) {
-      safeAddress.city = shippingAddr.city
-      safeAddress.province = shippingAddr.province
-      safeAddress.country = shippingAddr.country
-    }
-    ;(redacted as any).shipping_address = safeJsonStringify(safeAddress)
-    ;(redacted as any).billing_address = null
-    ;(redacted as any).payment_id = null
-    ;(redacted as any).user_id = null
   }
 
   const [items, history] = await Promise.all([
@@ -825,6 +816,14 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
     throw new AppError(`Payment verification not available for ${provider}. No credentials configured.`, 400, 'PAYMENT_PROVIDER_NOT_CONFIGURED')
   } else {
     throw new AppError('Card payment verification is not yet implemented. Please contact support.', 400, 'PAYMENT_PROVIDER_NOT_CONFIGURED')
+  }
+
+  const existingPayment = await db.execute({
+    sql: "SELECT id FROM orders WHERE payment_id = ? AND id != ? AND deleted_at IS NULL LIMIT 1",
+    args: [verifiedTransactionId, rowId],
+  })
+  if (existingPayment.rows.length > 0) {
+    throw new AppError('This payment has already been applied to another order', 409, 'PAYMENT_ALREADY_USED')
   }
 
   try {
