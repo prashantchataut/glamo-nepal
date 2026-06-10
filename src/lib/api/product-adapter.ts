@@ -1,128 +1,130 @@
 import type { Product, ProductBadge, ShadeOption } from "@/types/product";
+import { PRODUCTS } from "@/lib/data/catalog-products";
 
-/**
- * Shape returned by the backend product serializer (formatProduct in
- * backend/src/modules/products/product.service.ts). The storefront `Product`
- * type is richer, so this adapter maps the persisted fields and leaves
- * content-only fields (benefits, ingredients, etc.) empty when absent.
- */
-interface BackendProductImage {
-  url: string;
-  isPrimary?: boolean;
-  sortOrder?: number;
-  altText?: string | null;
-}
-
-interface BackendVariant {
-  name: string;
-  attributes?: Record<string, string> | null;
-  stockQuantity?: number;
-}
-
-interface BackendProduct {
+export interface ApiProduct {
   id: string;
   name: string;
   slug: string;
   description?: string | null;
   shortDescription?: string | null;
   sku?: string | null;
+  categoryId?: string | null;
   categoryName?: string | null;
   categorySlug?: string | null;
+  brandId?: string | null;
   brandName?: string | null;
-  basePrice?: number;
+  brandSlug?: string | null;
+  basePrice?: number | null;
   salePrice?: number | null;
+  currency?: string;
+  isActive?: boolean;
   isFeatured?: boolean;
-  stockQuantity?: number;
-  tags?: string[];
-  images?: BackendProductImage[];
-  variants?: BackendVariant[];
-  reviewSummary?: { avgRating?: number; average?: number; count?: number } | null;
+  trackInventory?: boolean;
+  stockQuantity?: number | null;
+  tags?: string[] | null;
+  attributes?: Record<string, unknown> | null;
+  images?: Array<{ url?: string | null; isPrimary?: boolean; altText?: string | null }> | null;
+  variants?: Array<{ name?: string | null; stockQuantity?: number | null; attributes?: Record<string, unknown> | null }> | null;
+  reviewSummary?: { avgRating?: number | null; count?: number | null } | null;
+  createdAt?: string | null;
 }
 
-function isBackendProduct(raw: unknown): raw is BackendProduct {
-  return (
-    typeof raw === "object" &&
-    raw !== null &&
-    "basePrice" in raw &&
-    !("price" in (raw as Record<string, unknown>))
-  );
+const FALLBACK_IMAGE = "/images/editorial/newsletter-vanity.svg";
+const NEW_ARRIVAL_WINDOW_MS = 45 * 24 * 60 * 60 * 1000;
+
+function isStorefrontProduct(value: unknown): value is Product {
+  return Boolean(value && typeof value === "object" && "price" in (value as Record<string, unknown>) && "image" in (value as Record<string, unknown>));
 }
 
-function pickImage(images: BackendProductImage[] | undefined): string {
-  if (!images || images.length === 0) return "";
-  const primary = images.find((img) => img.isPrimary);
-  return (primary ?? images[0]).url ?? "";
+function findCatalogMatch(raw: { id?: unknown; slug?: unknown }): Product | undefined {
+  return PRODUCTS.find((p) => p.id === raw.id || p.slug === raw.slug);
 }
 
-function deriveBadge(raw: BackendProduct): ProductBadge | undefined {
-  if (raw.salePrice != null && raw.basePrice != null && raw.salePrice < raw.basePrice) {
-    return "Sale";
-  }
-  if (raw.isFeatured) return "Best Seller";
-  return undefined;
+function attrString(attributes: Record<string, unknown> | null | undefined, key: string): string | undefined {
+  const value = attributes?.[key];
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
-function shadesFromVariants(variants: BackendVariant[] | undefined): ShadeOption[] | undefined {
-  if (!variants || variants.length === 0) return undefined;
-  const shades = variants
-    .map((variant) => ({
-      name: variant.name,
-      hex: variant.attributes?.hex || variant.attributes?.color,
-      stockCount: variant.stockQuantity,
-    }))
-    .filter((shade) => Boolean(shade.name));
-  return shades.length > 0 ? shades : undefined;
+function attrStringArray(attributes: Record<string, unknown> | null | undefined, key: string): string[] {
+  const value = attributes?.[key];
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
-/**
- * Map a single backend product DTO to the storefront `Product` type.
- * Idempotent: if given an object that is already a storefront `Product`
- * (has `price`), it is returned unchanged.
- */
-export function adaptProduct(raw: unknown): Product {
-  if (!isBackendProduct(raw)) {
-    return raw as Product;
-  }
+function attrNumber(attributes: Record<string, unknown> | null | undefined, key: string): number | undefined {
+  const value = attributes?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
 
-  const tags = Array.isArray(raw.tags) ? raw.tags : [];
-  const basePrice = raw.basePrice ?? 0;
-  const hasSale = raw.salePrice != null && raw.salePrice < basePrice;
-  const stockCount = raw.stockQuantity ?? 0;
-  const reviewAverage = raw.reviewSummary?.avgRating ?? raw.reviewSummary?.average ?? 0;
+export function adaptApiProduct(raw: unknown): Product | null {
+  if (!raw || typeof raw !== "object") return null;
+  if (isStorefrontProduct(raw)) return raw as Product;
+
+  const api = raw as unknown as ApiProduct;
+  if (typeof api.id !== "string" || typeof api.slug !== "string" || typeof api.name !== "string") return null;
+
+  const catalog = findCatalogMatch(api);
+
+  const basePrice = typeof api.basePrice === "number" ? api.basePrice : catalog?.price ?? 0;
+  const salePrice = typeof api.salePrice === "number" ? api.salePrice : catalog?.originalPrice ? null : null;
+  const price = salePrice != null && salePrice < basePrice ? salePrice : basePrice;
+  const originalPrice = salePrice != null && basePrice > salePrice ? basePrice : catalog?.originalPrice;
+
+  const sortedImages = Array.isArray(api.images) ? [...api.images].sort((a, b) => Number(b?.isPrimary ? 1 : 0) - Number(a?.isPrimary ? 1 : 0)) : [];
+  const imageUrls = sortedImages.map((img) => img?.url).filter((url): url is string => typeof url === "string" && url.length > 0);
+  const image = imageUrls[0] ?? catalog?.image ?? FALLBACK_IMAGE;
+
+  const stockCount = typeof api.stockQuantity === "number" ? api.stockQuantity : catalog?.stockCount ?? 0;
+  const inStock = api.trackInventory === false ? true : stockCount > 0;
+
+  const tags = Array.isArray(api.tags) ? api.tags.filter((t): t is string => typeof t === "string") : [];
+  const attributes = api.attributes ?? {};
+
+  const shadeOptions: ShadeOption[] | undefined = Array.isArray(api.variants) && api.variants.length > 0
+    ? api.variants.filter((v) => v && v.name).map((v) => ({ name: v.name as string, hex: typeof v.attributes?.hex === "string" ? v.attributes.hex : undefined, stockCount: typeof v.stockQuantity === "number" ? v.stockQuantity : undefined }))
+    : catalog?.shadeOptions;
+
+  const reviewCount = api.reviewSummary?.count ?? 0;
+  const rating = reviewCount > 0 ? Math.round((api.reviewSummary?.avgRating ?? 0) * 10) / 10 : (attrNumber(attributes, "rating") ?? catalog?.rating ?? 0);
+  const badge = attrString(attributes, "badge");
+
+  const createdAtMs = api.createdAt ? Date.parse(api.createdAt) : NaN;
+  const isNewArrival = Number.isFinite(createdAtMs) ? Date.now() - createdAtMs < NEW_ARRIVAL_WINDOW_MS : catalog?.isNewArrival;
 
   return {
-    id: String(raw.id),
-    name: raw.name,
-    slug: raw.slug,
-    sku: raw.sku ?? "",
-    brand: raw.brandName ?? "",
-    category: raw.categorySlug ?? "",
-    subCategory: "",
-    price: hasSale && raw.salePrice != null ? raw.salePrice : basePrice,
-    originalPrice: hasSale ? basePrice : undefined,
-    mrp: basePrice,
-    image: pickImage(raw.images),
-    images: raw.images?.map((img) => img.url).filter(Boolean),
-    badge: deriveBadge(raw),
-    rating: reviewAverage,
-    reviewsCount: raw.reviewSummary?.count ?? 0,
-    skinType: [],
-    concernTags: tags,
-    benefits: [],
-    howToUse: [],
-    ingredients: [],
-    size: "",
-    origin: "",
-    madeInNepal: tags.some((tag) => tag.toLowerCase().includes("made in nepal")),
-    shadeOptions: shadesFromVariants(raw.variants),
+    id: api.id,
+    name: api.name,
+    slug: api.slug,
+    sku: api.sku || catalog?.sku || api.id,
+    brand: api.brandName || catalog?.brand || "GLAMO",
+    category: api.categorySlug || catalog?.category || "",
+    subCategory: catalog?.subCategory || attrString(attributes, "subCategory") || "",
+    price,
+    originalPrice,
+    image,
+    images: imageUrls.length > 0 ? imageUrls : catalog?.images ?? [image],
+    badge: badge && (["Sale", "New", "Best Seller", "Limited"] as string[]).includes(badge) ? (badge as ProductBadge) : catalog?.badge,
+    rating,
+    reviewsCount: reviewCount > 0 ? reviewCount : (attrNumber(attributes, "reviewsCount") ?? catalog?.reviewsCount ?? 0),
+    skinType: attrStringArray(attributes, "skinType").length > 0 ? attrStringArray(attributes, "skinType") : catalog?.skinType ?? [],
+    concernTags: tags.length > 0 ? tags : catalog?.concernTags ?? [],
+    benefits: attrStringArray(attributes, "benefits").length > 0 ? attrStringArray(attributes, "benefits") : catalog?.benefits ?? [],
+    howToUse: attrStringArray(attributes, "howToUse").length > 0 ? attrStringArray(attributes, "howToUse") : catalog?.howToUse ?? [],
+    ingredients: attrStringArray(attributes, "ingredients").length > 0 ? attrStringArray(attributes, "ingredients") : catalog?.ingredients ?? [],
+    size: attrString(attributes, "size") || catalog?.size || "",
+    origin: attrString(attributes, "origin") || catalog?.origin || "",
+    madeInNepal: attributes.madeInNepal === true || catalog?.madeInNepal || tags.includes("made-in-nepal"),
+    shadeOptions,
     stockCount,
-    inStock: stockCount > 0,
-    description: raw.description ?? raw.shortDescription ?? "",
-    isFeatured: raw.isFeatured ?? undefined,
+    inStock,
+    description: api.description || api.shortDescription || catalog?.description || "",
+    deliveryNote: attrString(attributes, "deliveryNote") || catalog?.deliveryNote,
+    isFeatured: api.isFeatured ?? catalog?.isFeatured,
+    isBestSeller: attributes.isBestSeller === true || catalog?.isBestSeller || tags.includes("best-seller"),
+    isNewArrival,
   };
 }
 
-export function adaptProducts(raw: unknown): Product[] {
+export function adaptApiProducts(raw: unknown): Product[] {
   if (!Array.isArray(raw)) return [];
-  return raw.map(adaptProduct);
+  return raw.map((item) => adaptApiProduct(item)).filter((p): p is Product => p !== null);
 }
