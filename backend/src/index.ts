@@ -59,9 +59,12 @@ app.use('*', idempotencyGuard())
 
 app.onError((err, c) => {
   console.error('Unhandled error:', err)
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : (err.message || 'Internal server error')
   return c.json({
     success: false,
-    message: err.message || 'Internal server error',
+    message,
     errors: [],
   }, 500)
 })

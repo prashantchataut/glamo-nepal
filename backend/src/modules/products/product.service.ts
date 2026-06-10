@@ -297,8 +297,9 @@ export async function getProducts(
   if (filters.search) {
     const terms = filters.search.trim().split(/\s+/)
     for (const term of terms) {
+      const escaped = term.replace(/[%_\\]/g, '\\$&')
       conditions.push('(name LIKE ? OR short_description LIKE ? OR tags LIKE ?)')
-      args.push(`%${term}%`, `%${term}%`, `%"${term}"%`)
+      args.push(`%${escaped}%`, `%${escaped}%`, `%"${escaped}"%`)
     }
   }
 

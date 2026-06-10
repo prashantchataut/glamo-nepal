@@ -103,17 +103,37 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
                     VALUES (?, ?, 'GLAMO Admin', ?, 1, 1, datetime('now'), datetime('now'))`,
               args: [adminId, adminUser.email, role],
             })
+            c.set('user', {
+              id: adminId,
+              email: adminUser.email,
+              role,
+              isActive: true,
+            })
           } catch (error: any) {
-            if (!error?.message?.includes('UNIQUE constraint')) {
-              console.error('[Auth] Failed to create admin user:', error)
+            if (error?.message?.includes('UNIQUE constraint')) {
+              const retryResult = await db.execute({
+                sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
+                args: [adminUser.email],
+              })
+              if (retryResult.rows.length > 0) {
+                const profile = retryResult.rows[0]
+                const isActive = profile.is_active
+                const role = isOwner(adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
+                c.set('user', {
+                  id: profile.id as string,
+                  email: adminUser.email,
+                  role,
+                  isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+                })
+              } else {
+                console.error('[Auth] Admin user exists but cannot be retrieved, denying access')
+                return c.json({ success: false, message: 'Unauthorized', errors: [] }, 401)
+              }
+            } else {
+              console.error('[Auth] Failed to create admin user, denying access')
+              return c.json({ success: false, message: 'Unauthorized', errors: [] }, 401)
             }
           }
-          c.set('user', {
-            id: adminId,
-            email: adminUser.email,
-            role,
-            isActive: true,
-          })
         }
         await next()
         return
@@ -132,7 +152,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
 
   const tokenParts = token.split('.')
   if (tokenParts.length !== 3) {
-    console.error(`[Auth] Invalid token format: parts=${tokenParts.length}, len=${token.length}, source=${authHeader ? 'header' : 'cookie'}`)
+    console.error('[Auth] Invalid token format')
     return c.json({ success: false, message: 'Unauthorized: invalid token format', errors: [] }, 401)
   }
 
@@ -226,7 +246,12 @@ export async function verifyAdminSession(token: string): Promise<{ email: string
 
     const sigBytes = Uint8Array.from(atob(signature.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))
     const expBytes = Uint8Array.from(atob(expectedBase64.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))
-    if (sigBytes.length !== expBytes.length || !crypto.subtle.timingSafeEqual(sigBytes, expBytes)) return null
+    if (sigBytes.length !== expBytes.length) return null
+    let mismatch = 0
+    for (let i = 0; i < sigBytes.length; i++) {
+      mismatch |= sigBytes[i] ^ expBytes[i]
+    }
+    if (mismatch !== 0) return null
 
     const padding = encodedPayload.length % 4
     const padded = padding ? encodedPayload + '='.repeat(4 - padding) : encodedPayload

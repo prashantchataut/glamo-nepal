@@ -1,65 +1,65 @@
-{
-  "version": 1,
-  "skills": {
-    "ai-podcast": {
-      "source": "inference-sh-skills/skills",
-      "sourceType": "github",
-      "skillPath": "ai-podcast/SKILL.md",
-      "computedHash": "8dd67854dc81f95dad7bf23940c9d3c2cf5a51cd97d341c8903bfb50cb5ef8ba"
-    },
-    "belt": {
-      "source": "belt-sh/cli",
-      "sourceType": "github",
-      "skillPath": ".agents/skills/belt/SKILL.md",
-      "computedHash": "089aafb91641896947cc004126ef31b806f109d514107fa683203ae5d3f706e2"
-    },
-    "canvas-design": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "15cce4711e34491d0f2ce1f4e4e47e7786ed7d5b94b1485c9206a8632d9f41cf"
-    },
-    "design-expert": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "203e63ce0998c72def5dfbf33f58c860f1fa0a53c538c3b70365c2c871f9a78b"
-    },
-    "frontend-design": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "e8118284a6365753790d44bb2758a6032b3af27fa84696428d9233f2be0f4e78"
-    },
-    "impeccable": {
-      "source": "pbakaus/impeccable",
-      "sourceType": "github",
-      "skillPath": "skill/SKILL.md",
-      "computedHash": "c8f645c3e9aace8baf528021165168bac77d4f761f0ab7baf45e06e01691500f"
-    },
-    "security-threat-model": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "b3ad2dc0b2eee1f189680fdb8cf3b17853f12ab3403d389393f4237ebc6f9821"
-    },
-    "skill-creator": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "12d0da39c495673a2acce3d54b9e5d3e81db59f8314e28c4935c4602333ff430"
-    },
-    "supabase": {
-      "source": "supabase/agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/supabase/SKILL.md",
-      "computedHash": "5e179217b674b2c9617e54b09578b1119a315c784c22a9f22d940926de082d87"
-    },
-    "supabase-postgres-best-practices": {
-      "source": "supabase/agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
-      "computedHash": "8e41c7417894e6f394614ee7ca3ee5322b1e58d890255d441f42dea98732597f"
-    },
-    "web-design-reviewer": {
-      "source": "smithery.ai",
-      "sourceType": "well-known",
-      "computedHash": "10c6fad8b4f01dbeae969009d81d6c306c8a96d56077cad9bfe2a73a38f5dcbe"
-    }
-  }
+﻿{
+    "version":  1,
+    "skills":  {
+                   "ai-podcast":  {
+                                      "source":  "inference-sh-skills/skills",
+                                      "sourceType":  "github",
+                                      "skillPath":  "ai-podcast/SKILL.md",
+                                      "computedHash":  "8dd67854dc81f95dad7bf23940c9d3c2cf5a51cd97d341c8903bfb50cb5ef8ba"
+                                  },
+                   "belt":  {
+                                "source":  "belt-sh/cli",
+                                "sourceType":  "github",
+                                "skillPath":  ".agents/skills/belt/SKILL.md",
+                                "computedHash":  "089aafb91641896947cc004126ef31b806f109d514107fa683203ae5d3f706e2"
+                            },
+                   "canvas-design":  {
+                                         "source":  "smithery.ai",
+                                         "sourceType":  "well-known",
+                                         "computedHash":  "15cce4711e34491d0f2ce1f4e4e47e7786ed7d5b94b1485c9206a8632d9f41cf"
+                                     },
+                   "design-expert":  {
+                                         "source":  "smithery.ai",
+                                         "sourceType":  "well-known",
+                                         "computedHash":  "203e63ce0998c72def5dfbf33f58c860f1fa0a53c538c3b70365c2c871f9a78b"
+                                     },
+                   "frontend-design":  {
+                                           "source":  "smithery.ai",
+                                           "sourceType":  "well-known",
+                                           "computedHash":  "e8118284a6365753790d44bb2758a6032b3af27fa84696428d9233f2be0f4e78"
+                                       },
+                   "impeccable":  {
+                                      "source":  "pbakaus/impeccable",
+                                      "sourceType":  "github",
+                                      "skillPath":  "skill/SKILL.md",
+                                      "computedHash":  "c8f645c3e9aace8baf528021165168bac77d4f761f0ab7baf45e06e01691500f"
+                                  },
+                   "security-threat-model":  {
+                                                 "source":  "smithery.ai",
+                                                 "sourceType":  "well-known",
+                                                 "computedHash":  "b3ad2dc0b2eee1f189680fdb8cf3b17853f12ab3403d389393f4237ebc6f9821"
+                                             },
+                   "skill-creator":  {
+                                         "source":  "smithery.ai",
+                                         "sourceType":  "well-known",
+                                         "computedHash":  "12d0da39c495673a2acce3d54b9e5d3e81db59f8314e28c4935c4602333ff430"
+                                     },
+                   "supabase":  {
+                                    "source":  "supabase/agent-skills",
+                                    "sourceType":  "github",
+                                    "skillPath":  "skills/supabase/SKILL.md",
+                                    "computedHash":  "5e179217b674b2c9617e54b09578b1119a315c784c22a9f22d940926de082d87"
+                                },
+                   "supabase-postgres-best-practices":  {
+                                                            "source":  "supabase/agent-skills",
+                                                            "sourceType":  "github",
+                                                            "skillPath":  "skills/supabase-postgres-best-practices/SKILL.md",
+                                                            "computedHash":  "8e41c7417894e6f394614ee7ca3ee5322b1e58d890255d441f42dea98732597f"
+                                                        },
+                   "web-design-reviewer":  {
+                                               "source":  "smithery.ai",
+                                               "sourceType":  "well-known",
+                                               "computedHash":  "10c6fad8b4f01dbeae969009d81d6c306c8a96d56077cad9bfe2a73a38f5dcbe"
+                                           }
+               }
 }

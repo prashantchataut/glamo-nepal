@@ -70,11 +70,23 @@ function memoryIncrement(key: string, window: number, max: number): { allowed: b
   return { allowed: true, remaining: max - newCount }
 }
 
+function getClientIp(c: Context<AppEnv>): string {
+  const forwarded = c.req.header('x-forwarded-for')
+  if (forwarded) {
+    const ips = forwarded.split(',').map(ip => ip.trim())
+    const trustedProxyCount = parseInt(process.env.TRUSTED_PROXY_COUNT || '1', 10)
+    const clientIndex = Math.max(0, ips.length - trustedProxyCount)
+    const clientIp = ips[clientIndex]
+    if (clientIp) return clientIp
+  }
+  return c.req.header('x-real-ip') || c.req.header('cf-connecting-ip') || 'unknown'
+}
+
 export function rateLimit(config: RateLimitConfig) {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
     try {
       const keyGenerator = config.keyGenerator ?? (() => {
-        const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+        const ip = getClientIp(c)
         return `ratelimit:${ip}:${c.req.path}`
       })
 
@@ -92,9 +104,10 @@ export function rateLimit(config: RateLimitConfig) {
         c.header('Retry-After', String(config.window))
         return c.json({ success: false, message: 'Too many requests, please try again later', errors: [] }, 429)
       }
-    } catch (err) {
-      console.warn('Rate limiting error, allowing request:', err)
-    }
+} catch (err) {
+    console.error('Rate limiting error, denying request:', err)
+    return c.json({ success: false, message: 'Too many requests, please try again later', errors: [] }, 429)
+  }
 
     await next()
   }
@@ -104,7 +117,7 @@ export const authRateLimit = rateLimit({
   max: RATE_LIMITS.auth.max,
   window: RATE_LIMITS.auth.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    const ip = getClientIp(c)
     return `ratelimit:${ip}:auth`
   },
 })
@@ -113,7 +126,7 @@ export const passwordResetRateLimit = rateLimit({
   max: RATE_LIMITS.passwordReset.max,
   window: RATE_LIMITS.passwordReset.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    const ip = getClientIp(c)
     return `ratelimit:${ip}:password-reset`
   },
 })
@@ -122,7 +135,7 @@ export const couponRateLimit = rateLimit({
   max: RATE_LIMITS.coupon.max,
   window: RATE_LIMITS.coupon.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    const ip = getClientIp(c)
     return `ratelimit:${ip}:coupon`
   },
 })
@@ -132,7 +145,7 @@ export const paymentRateLimit = rateLimit({
   window: RATE_LIMITS.payment.window,
   keyGenerator: (c) => {
     const user = c.get('user')
-    const id = user?.id ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    const id = user?.id ?? getClientIp(c)
     return `ratelimit:${id}:payment`
   },
 })
@@ -146,7 +159,7 @@ export const eventRateLimit = rateLimit({
   max: RATE_LIMITS.event.max,
   window: RATE_LIMITS.event.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    const ip = getClientIp(c)
     return `ratelimit:${ip}:event`
   },
 })
@@ -156,7 +169,7 @@ export const reviewRateLimit = rateLimit({
   window: RATE_LIMITS.review.window,
   keyGenerator: (c) => {
     const user = c.get('user')
-    const id = user?.id ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    const id = user?.id ?? getClientIp(c)
     return `ratelimit:${id}:review`
   },
 })
@@ -165,7 +178,7 @@ export const contactRateLimit = rateLimit({
   max: RATE_LIMITS.contact.max,
   window: RATE_LIMITS.contact.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    const ip = getClientIp(c)
     return `ratelimit:${ip}:contact`
   },
 })
@@ -174,7 +187,7 @@ export const orderTrackingRateLimit = rateLimit({
   max: RATE_LIMITS.orderTracking.max,
   window: RATE_LIMITS.orderTracking.window,
   keyGenerator: (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? c.req.header('x-real-ip') ?? 'unknown'
+    const ip = getClientIp(c)
     return `ratelimit:${ip}:order-tracking`
   },
 })

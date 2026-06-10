@@ -44,14 +44,23 @@ export const createOrderSchema = z.object({
   customer: customerSchema.optional(),
   shippingAddress: addressSchema,
   billingAddress: addressSchema.optional(),
-  paymentMethod: z.enum(['CASH_ON_DELIVERY', 'KHALTI', 'ESEWA', 'BANK_TRANSFER', 'COD', 'CARD', 'CARDS', 'cod', 'khalti', 'esewa', 'card', 'cards', 'Cash on Delivery', 'Khalti', 'eSewa', 'Cards']),
+  paymentMethod: z.preprocess(
+    (val) => {
+      if (typeof val !== 'string') return val
+      const normalized = val.toUpperCase().replace(/ /g, '_')
+      if (normalized === 'COD') return 'CASH_ON_DELIVERY'
+      if (normalized === 'CARDS') return 'CARD'
+      return normalized
+    },
+    z.enum(['CASH_ON_DELIVERY', 'KHALTI', 'ESEWA', 'BANK_TRANSFER', 'CARD'])
+  ),
   couponCode: z.string().optional(),
   notes: z.string().max(500).optional(),
   orderNotes: z.string().max(500).optional(),
   giftWrap: z.boolean().optional(),
-  deliveryFee: z.coerce.number().nonnegative().optional(),
-  subtotal: z.coerce.number().nonnegative().optional(),
-  grandTotal: z.coerce.number().nonnegative().optional(),
+  deliveryFee: z.coerce.number().nonnegative(),
+  subtotal: z.coerce.number().nonnegative(),
+  grandTotal: z.coerce.number().nonnegative(),
   currency: z.literal('NPR').optional(),
   items: z.array(orderItemSchema).min(1),
 })

@@ -203,7 +203,7 @@ async function findOrCreateCustomer(data: CreateOrderInput, db: Client, authUser
   if (existingUser) return existingUser.id
 
   const { firstName, lastName } = splitName(customer.name)
-  const email = customer.email?.toLowerCase() || `guest+${Date.now()}-${Math.floor(Math.random() * 100000)}@glamonepal.local`
+  const email = customer.email?.toLowerCase() || `guest+${crypto.randomUUID()}@glamonepal.local`
   const id = crypto.randomUUID()
 
   try {

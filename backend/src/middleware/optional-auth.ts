@@ -34,6 +34,7 @@ export const optionalAuthMiddleware = createMiddleware<AppEnv>(async (c, next) =
       const { verifyFirebaseToken } = await import('../middleware/firebase-auth')
       const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || ''
       if (!projectId) {
+        console.warn('[OptionalAuth] FIREBASE_PROJECT_ID not configured, skipping auth')
         await next()
         return
       }

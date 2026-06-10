@@ -395,8 +395,9 @@ export async function getUsers(db: Client, filters: { search?: string; role?: st
   const args: any[] = []
 
   if (search) {
+    const escaped = search.replace(/[%_\\]/g, '\\$&')
     whereClauses.push(`(first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)`)
-    const searchPattern = `%${search}%`
+    const searchPattern = `%${escaped}%`
     args.push(searchPattern, searchPattern, searchPattern)
   }
   if (role) {

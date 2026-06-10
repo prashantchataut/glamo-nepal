@@ -3,6 +3,8 @@ import type { AppEnv } from '../types/bindings'
 
 const IDEMPOTENCY_KEY_HEADER = 'x-idempotency-key'
 const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000
+const MAX_CACHE_SIZE = 10000
+const MAX_KEY_LENGTH = 128
 
 interface CacheEntry {
   status: number
@@ -12,14 +14,27 @@ interface CacheEntry {
 
 const idempotencyCache = new Map<string, CacheEntry>()
 
-setInterval(() => {
+function evictExpiredEntries(): void {
   const now = Date.now()
   for (const [key, entry] of Array.from(idempotencyCache.entries())) {
     if (now - entry.createdAt > IDEMPOTENCY_TTL_MS) {
       idempotencyCache.delete(key)
     }
   }
-}, 60 * 60 * 1000)
+  if (idempotencyCache.size > MAX_CACHE_SIZE) {
+    let oldestKey: string | null = null
+    let oldestTime = Infinity
+    for (const [key, entry] of idempotencyCache.entries()) {
+      if (entry.createdAt < oldestTime) {
+        oldestTime = entry.createdAt
+        oldestKey = key
+      }
+    }
+    if (oldestKey) idempotencyCache.delete(oldestKey)
+  }
+}
+
+setInterval(evictExpiredEntries, 60 * 60 * 1000)
 
 export function idempotencyGuard() {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
@@ -33,6 +48,10 @@ export function idempotencyGuard() {
     if (!key) {
       await next()
       return
+    }
+
+    if (key.length > MAX_KEY_LENGTH) {
+      return c.json({ success: false, message: 'Idempotency key too long', errors: ['IDEMPOTENCY_KEY_TOO_LONG'] }, 400)
     }
 
     const cached = idempotencyCache.get(key)

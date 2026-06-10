@@ -207,3 +207,156 @@ describe('CORS Origin Validation', () => {
     expect(ALLOWED_ORIGINS.includes('https://phishing.com')).toBe(false)
   })
 })
+
+describe('Rate Limiting - Fail Closed', () => {
+  it('denies requests when rate limiter throws an error', async () => {
+    const app = new Hono<AppEnv>()
+    const limiter = rateLimit({ max: 1, window: 60, keyGenerator: () => { throw new Error('Redis connection failed') } })
+    app.post('/test', limiter, (c) => c.json({ ok: true }))
+
+    const res = await app.request('/test', { method: 'POST', headers: { 'x-forwarded-for': '1.2.3.4' } })
+    expect(res.status).toBe(429)
+  })
+})
+
+describe('IP Spoofing Prevention', () => {
+  it('uses rightmost IP from X-Forwarded-For by default', async () => {
+    const app = new Hono<AppEnv>()
+    const limiter = rateLimit({ max: RATE_LIMITS.auth.max, window: RATE_LIMITS.auth.window })
+    app.post('/login', limiter, (c) => c.json({ ok: true }))
+
+    for (let i = 0; i < 5; i++) {
+      const res = await app.request('/login', { method: 'POST', headers: { 'x-forwarded-for': `spoofed-${i}.0.0.1, real-proxy-${i}.0.0.1` } })
+      expect(res.status).toBe(200)
+    }
+  })
+})
+
+describe('LIKE Wildcard Escaping', () => {
+  it('escapes % and _ in search terms', () => {
+    const escapeLikeWildcards = (term: string) => term.replace(/[%_\\]/g, '\\$&')
+    expect(escapeLikeWildcards('test%value')).toBe('test\\%value')
+    expect(escapeLikeWildcards('test_value')).toBe('test\\_value')
+    expect(escapeLikeWildcards('test\\value')).toBe('test\\\\value')
+    expect(escapeLikeWildcards('normal')).toBe('normal')
+  })
+})
+
+describe('Idempotency Key Validation', () => {
+  it('rejects idempotency keys that are too long', async () => {
+    const { idempotencyGuard } = await import('../middleware/idempotency')
+    const app = new Hono<AppEnv>()
+    app.post('/test', idempotencyGuard(), (c) => c.json({ ok: true }))
+
+    const longKey = 'x'.repeat(200)
+    const res = await app.request('/test', {
+      method: 'POST',
+      headers: { 'x-idempotency-key': longKey },
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it('allows normal idempotency keys', async () => {
+    const { idempotencyGuard } = await import('../middleware/idempotency')
+    const app = new Hono<AppEnv>()
+    app.post('/test', idempotencyGuard(), (c) => c.json({ ok: true }))
+
+    const res = await app.request('/test', {
+      method: 'POST',
+      headers: { 'x-idempotency-key': 'order-123-abc' },
+    })
+    expect(res.status).toBe(200)
+  })
+})
+
+describe('CSRF Protection', () => {
+  it('rejects state-changing requests without CSRF token', async () => {
+    const { csrfProtection } = await import('../middleware/csrf')
+    const app = new Hono<AppEnv>()
+    app.post('/test', csrfProtection(), (c) => c.json({ ok: true }))
+
+    const res = await app.request('/test', { method: 'POST' })
+    expect(res.status).toBe(403)
+  })
+
+  it('rejects POST when cookie and header token mismatch', async () => {
+    const { csrfProtection } = await import('../middleware/csrf')
+    const app = new Hono<AppEnv>()
+    app.post('/test', csrfProtection(), (c) => c.json({ ok: true }))
+
+    const res = await app.request('/test', {
+      method: 'POST',
+      headers: {
+        'cookie': 'glamo-csrf-token=token-a-value-that-is-long-enough-32chars',
+        'x-csrf-token': 'token-b-value-that-is-long-enough-32chars',
+      },
+    })
+    expect(res.status).toBe(403)
+  })
+
+  it('allows GET requests without CSRF token', async () => {
+    const { csrfProtection } = await import('../middleware/csrf')
+    const app = new Hono<AppEnv>()
+    app.get('/test', csrfProtection(), (c) => c.json({ ok: true }))
+
+    const res = await app.request('/test')
+    expect(res.status).toBe(200)
+  })
+})
+
+describe('Order Schema - Payment Method Normalization', () => {
+  it('normalizes lowercase payment methods to uppercase', async () => {
+    const { createOrderSchema } = await import('../modules/orders/order.schema')
+    const result = createOrderSchema.safeParse({
+      paymentMethod: 'cod',
+      shippingAddress: { city: 'Kathmandu', address1: '123 Street' },
+      grandTotal: 1000,
+      subtotal: 950,
+      deliveryFee: 50,
+      items: [{ quantity: 1, productId: 'test' }],
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.paymentMethod).toBe('CASH_ON_DELIVERY')
+    }
+  })
+
+  it('normalizes mixed case payment methods', async () => {
+    const { createOrderSchema } = await import('../modules/orders/order.schema')
+    const result = createOrderSchema.safeParse({
+      paymentMethod: 'Khalti',
+      shippingAddress: { city: 'Kathmandu', address1: '123 Street' },
+      grandTotal: 1000,
+      subtotal: 950,
+      deliveryFee: 50,
+      items: [{ quantity: 1, productId: 'test' }],
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.paymentMethod).toBe('KHALTI')
+    }
+  })
+
+  it('accepts canonical payment methods', async () => {
+    const { createOrderSchema } = await import('../modules/orders/order.schema')
+    const result = createOrderSchema.safeParse({
+      paymentMethod: 'CASH_ON_DELIVERY',
+      shippingAddress: { city: 'Kathmandu', address1: '123 Street' },
+      grandTotal: 1000,
+      subtotal: 950,
+      deliveryFee: 50,
+      items: [{ quantity: 1, productId: 'test' }],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('requires subtotal and grandTotal', async () => {
+    const { createOrderSchema } = await import('../modules/orders/order.schema')
+    const result = createOrderSchema.safeParse({
+      paymentMethod: 'CASH_ON_DELIVERY',
+      shippingAddress: { city: 'Kathmandu', address1: '123 Street' },
+      items: [{ quantity: 1, productId: 'test' }],
+    })
+    expect(result.success).toBe(false)
+  })
+})

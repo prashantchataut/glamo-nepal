@@ -35,7 +35,7 @@ export function validateCsrf(request: Request): { valid: boolean; reason?: strin
   const headerToken = request.headers.get(CSRF_HEADER_NAME);
 
   if (!cookieToken && !headerToken) {
-    return { valid: true };
+    return { valid: false, reason: "CSRF token missing. Please refresh the page and try again." };
   }
 
   if (!cookieToken) {
