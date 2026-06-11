@@ -6,7 +6,6 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
-import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
 import { formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { useUIStore } from "@/store/useUIStore";
@@ -66,8 +65,6 @@ export function CartDrawer() {
   }, [isCartOpen, handleKeyDown]);
 
   const totalPrice = getTotalPrice();
-  const progress = Math.min((totalPrice / FREE_DELIVERY_THRESHOLD) * 100, 100);
-  const amountToFreeShipping = Math.max(FREE_DELIVERY_THRESHOLD - totalPrice, 0);
   const itemCount = useMemo(() => items.reduce((total, item) => total + item.quantity, 0), [items]);
 
   if (!mounted) return null;
@@ -122,24 +119,6 @@ export function CartDrawer() {
               >
                 <X size={22} strokeWidth={1.5} />
               </button>
-            </div>
-
-            <div className="border-b border-neutral-200/80 bg-neutral-50/60 p-5">
-              <p className="mb-3 text-center text-sm font-medium text-neutral-700">
-                {amountToFreeShipping > 0 ? (
-                  <>
-                    Add <span className="font-bold text-primary">{formatNPR(amountToFreeShipping)}</span> for free delivery.
-                  </>
-                ) : (
-                  <span className="font-bold text-emerald-600">Free delivery unlocked.</span>
-                )}
-              </p>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5" style={{ WebkitOverflowScrolling: "touch" }}>

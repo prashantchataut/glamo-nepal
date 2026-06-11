@@ -99,7 +99,10 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         syncingRef.current = syncKey;
 
         try {
-          const token = await user.getIdToken().catch(() => null);
+          const token = await user.getIdToken().catch((err) => {
+            console.error("[Auth] Failed to get ID token:", err);
+            return null;
+          });
           setAuthCookie(token);
 
           if (token) {
@@ -116,6 +119,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
                 role: backendUser.role || "customer",
               });
             } else {
+              console.warn("[Auth] Backend sync failed, using Firebase-only user data");
               login({
                 id: user.uid,
                 email: user.email || undefined,
@@ -125,6 +129,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
               });
             }
           } else {
+            console.warn("[Auth] No ID token available, using Firebase-only user data");
             login({
               id: user.uid,
               email: user.email || undefined,

@@ -172,7 +172,7 @@ export default function ShopPageContent() {
       <section className="bg-gradient-to-b from-rose-50 via-white to-white py-12 md:py-18">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div>
-            <span className="type-label text-primary">NPR pricing - Nepal delivery</span>
+            <span className="type-label text-primary">NPR pricing - Kathmandu Valley delivery</span>
             <h1 className="mt-3 font-display text-5xl font-light leading-none tracking-[-0.02em] text-neutral-900 md:text-7xl">
               {categoryObj?.name || "The beauty edit"}
             </h1>

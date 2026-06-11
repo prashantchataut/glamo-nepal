@@ -11,10 +11,9 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
-  Truck,
   X,
 } from "lucide-react";
-import { FREE_DELIVERY_THRESHOLD, calculateDeliveryFee } from "@/lib/delivery";
+import { calculateDeliveryFee } from "@/lib/delivery";
 import { cn, formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { trackCheckoutStart } from "@/lib/tracking";
@@ -59,14 +58,6 @@ export function CartPageClient() {
     () => items.reduce((sum, item) => sum + item.quantity, 0),
     [items],
   );
-  const progress = Math.min(
-    100,
-    Math.round((subtotal / FREE_DELIVERY_THRESHOLD) * 100),
-  );
-  const remainingForFreeDelivery = Math.max(
-    0,
-    FREE_DELIVERY_THRESHOLD - subtotal,
-  );
 
   if (!mounted) {
     return (
@@ -97,7 +88,7 @@ export function CartPageClient() {
           </h1>
           <p className="mx-auto mt-5 max-w-md text-sm leading-7 text-neutral-500">
             Browse curated skincare, makeup and fragrance essentials selected
-            for Nepal delivery.
+            for delivery in Kathmandu Valley.
           </p>
           <Link
             href="/shop"
@@ -137,22 +128,8 @@ export function CartPageClient() {
                 <p className="text-sm text-neutral-500">
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>
-              </div>
-              <div className="mt-5 rounded-[1.25rem] border border-neutral-200 bg-neutral-50 p-3.5 md:mt-7 md:rounded-[1.5rem] md:p-4">
-                <div className="flex items-center gap-3 text-sm text-neutral-700">
-                  <Truck size={18} className="text-primary" />{" "}
-                  {remainingForFreeDelivery === 0
-                    ? "You have unlocked free delivery."
-                    : `${formatNPR(remainingForFreeDelivery)} away from free delivery.`}
-                </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-neutral-200">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
-            </div>
+</div>
+             </div>
 
             <div className="mt-4 space-y-3 md:mt-5 md:space-y-4">
               {items.map((item) => (

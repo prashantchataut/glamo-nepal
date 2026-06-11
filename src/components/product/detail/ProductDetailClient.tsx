@@ -40,7 +40,7 @@ const reassurance = [
     icon: ShieldCheck,
   },
   {
-    label: "Nepal delivery",
+    label: "Kathmandu Valley delivery",
     text: "Kathmandu Valley usually ships fastest.",
     icon: Truck,
   },

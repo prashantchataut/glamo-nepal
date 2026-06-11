@@ -71,7 +71,7 @@ export function Footer() {
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/50">Join the GLAMO beauty list</p>
             <h2 className="mt-3 max-w-xl font-display text-3xl font-medium leading-[0.98] tracking-[-0.02em] text-white md:text-5xl">
-              Softer routines, new drops and Nepal delivery notes.
+              Softer routines, new drops and Kathmandu Valley delivery notes.
             </h2>
           </div>
           <form

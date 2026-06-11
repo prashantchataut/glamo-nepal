@@ -36,7 +36,7 @@ export function NewsletterSignup() {
       <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16">
         <div>
           <h2 id="newsletter-heading" className="font-display text-4xl font-medium leading-[0.95] tracking-[-0.02em] text-white md:text-5xl">New drops, better routines.</h2>
-          <p className="mt-4 max-w-md text-[0.9375rem] leading-[1.7] text-white/60">Curated product edits, restock notes and Nepal delivery updates. No spam, no noisy beauty myths.</p>
+          <p className="mt-4 max-w-md text-[0.9375rem] leading-[1.7] text-white/60">Curated product edits, restock notes and Kathmandu Valley delivery updates. No spam, no noisy beauty myths.</p>
         </div>
         <div aria-live="polite">
           {submitted ? (

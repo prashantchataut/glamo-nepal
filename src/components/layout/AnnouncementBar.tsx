@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
-import { formatNPR } from "@/lib/utils";
+import { SITE_CONFIG } from "@/lib/config";
 
 export function AnnouncementBar() {
   const [isVisible, setIsVisible] = useState(true);
@@ -28,7 +27,7 @@ export function AnnouncementBar() {
       aria-label="Announcement"
     >
       <p className="type-label text-[11px] tracking-[0.1em] text-center px-8">
-        FREE DELIVERY ON ORDERS OVER {formatNPR(FREE_DELIVERY_THRESHOLD)} &nbsp;|&nbsp; AUTHENTIC PRODUCTS ONLY &nbsp;|&nbsp; 7-DAY RETURNS
+        AUTHENTIC PRODUCTS ONLY &nbsp;|&nbsp; 7-DAY RETURNS &nbsp;|&nbsp; {SITE_CONFIG.phone}
       </p>
       <button
         onClick={handleDismiss}

@@ -38,8 +38,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const params = useSearchParams();
   const { syncComplete, loading: authLoading } = useFirebaseAuth();
   const user = useAuthStore((s) => s.user);
-  const syncCompleteRef = useRef(syncComplete);
-  syncCompleteRef.current = syncComplete;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -102,7 +100,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         await signInWithEmailAndPassword(email, password);
         toast.success("Signed in successfully.");
       }
-      await waitForSyncAndRedirect();
     } catch (err: unknown) {
       if (err instanceof Error) {
         const code = (err as { code?: string }).code || "";
@@ -138,7 +135,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     try {
       await signInWithPopup();
       toast.success("Signed in with Google.");
-      await waitForSyncAndRedirect();
     } catch (err: unknown) {
       if (err instanceof Error) {
         const code = (err as { code?: string }).code || "";

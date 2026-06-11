@@ -1,7 +1,5 @@
 ﻿import type { Product } from "@/types/product";
 import { SITE_CONFIG } from "@/lib/config";
-import { FREE_DELIVERY_THRESHOLD } from "@/lib/delivery";
-import { formatNPR } from "@/lib/utils";
 import { PRODUCTS, CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES } from "@/lib/data/catalog-products";
 
 export { CATEGORIES, BRANDS, SKIN_TYPES, CONCERNS, SORT_OPTIONS, TRENDING_SEARCHES };
@@ -19,9 +17,9 @@ export const NAV_LINKS = [
 ];
 
 export const ANNOUNCEMENT_MESSAGES = [
-  { icon: "truck" as const, text: `FREE DELIVERY ON ORDERS OVER ${formatNPR(FREE_DELIVERY_THRESHOLD)}` },
   { icon: "shield" as const, text: "AUTHENTIC BEAUTY CURATION" },
   { icon: "leaf" as const, text: "MADE IN NEPAL PICKS AVAILABLE" },
+  { icon: "truck" as const, text: "KATHMANDU VALLEY DELIVERY" },
   { icon: "phone" as const, text: SITE_CONFIG.phone },
 ];
 

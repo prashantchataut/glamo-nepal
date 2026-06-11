@@ -1,9 +1,9 @@
 export const FAQ_ITEMS = [
-  { question: "Where do you deliver?", answer: "GLAMO NEPAL delivers inside Kathmandu Valley and to many locations across Nepal through available courier partners. Delivery availability is confirmed during checkout." },
-  { question: "How long does Kathmandu Valley delivery take?", answer: "Most Kathmandu Valley orders are prepared for delivery within 1 to 2 business days, depending on stock, address details and courier timing." },
-  { question: "How long does outside-Valley delivery take?", answer: "Outside-Valley orders usually take 3 to 5 business days after dispatch. Remote areas may require additional time." },
+  { question: "Where do you deliver?", answer: "GLAMO NEPAL currently delivers within Kathmandu Valley. Delivery availability is confirmed during checkout." },
+  { question: "How long does delivery take?", answer: "Most Kathmandu Valley orders are prepared for delivery within 1 to 2 business days, depending on stock, address details and courier timing." },
+  { question: "How long does delivery take outside Kathmandu Valley?", answer: "We currently deliver within Kathmandu Valley only. Outside-Valley delivery will be available soon." },
   { question: "Which payment methods are available?", answer: "You can choose Khalti, eSewa, Cash on Delivery or Cards where those options are available for your order and location." },
-  { question: "Is Cash on Delivery available?", answer: "Cash on Delivery depends on district, order value and courier coverage. The checkout page shows availability before you place an order." },
+  { question: "Is Cash on Delivery available?", answer: "Cash on Delivery is available within Kathmandu Valley. The checkout page shows COD availability before you place an order." },
   { question: "Are products authentic?", answer: "GLAMO NEPAL curates beauty products with authenticity, clear product information and careful sourcing in mind." },
   { question: "Can I return a product?", answer: "Returns are considered within 7 days for eligible unused, unopened and sealed products. Beauty and hygiene items may have restrictions once opened." },
   { question: "What if an item arrives damaged or incorrect?", answer: "Contact GLAMO NEPAL as soon as possible with your order details and clear photos so the support team can review the issue." },

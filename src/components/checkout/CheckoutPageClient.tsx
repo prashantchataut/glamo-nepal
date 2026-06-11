@@ -28,7 +28,7 @@ import { GlamoApiError } from "@/lib/api/client";
 import { getUserMessage } from "@/lib/api/error-handler";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
-import { calculateDeliveryFee, getDeliveryRule, FREE_DELIVERY_THRESHOLD, COD_FEE } from "@/lib/delivery";
+import { calculateDeliveryFee, getDeliveryRule, COD_FEE } from "@/lib/delivery";
 import {
   PROVINCES,
   getDistrictsForProvince,
@@ -495,14 +495,12 @@ export function CheckoutPageClient() {
           <span className="font-medium text-neutral-950">Checkout</span>
         </nav>
         <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2rem] md:px-8 md:py-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
-              Checkout
-            </h1>
-            <p className="max-w-sm text-sm leading-7 text-neutral-600">
-              Delivery within Kathmandu Valley. Cash on delivery available.
-            </p>
-          </div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
+            Secure checkout
+          </p>
+          <h1 className="mt-2 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
+            Confirm your beauty bag.
+          </h1>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
@@ -1073,10 +1071,6 @@ export function CheckoutPageClient() {
               <div className="flex items-center gap-2">
                 <ShieldCheck size={14} className="shrink-0 text-primary" />
                 <span>Authentic products, verified before dispatch</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Truck size={14} className="shrink-0 text-primary" />
-                <span>Free delivery on orders over {formatNPR(FREE_DELIVERY_THRESHOLD)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Gift size={14} className="shrink-0 text-primary" />

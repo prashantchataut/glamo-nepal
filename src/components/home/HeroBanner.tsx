@@ -35,7 +35,7 @@ export function HeroBanner() {
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-hero-image">
               <Image
                 src={IMAGES.hero.secondary}
-                alt="Premium skincare assortment for Nepal delivery"
+                alt="Premium skincare assortment for Kathmandu delivery"
                 fill
                 priority
                 className="object-cover"

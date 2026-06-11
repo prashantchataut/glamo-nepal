@@ -22,7 +22,7 @@ export function BrandPhilosophyBanner() {
               <p className="mt-1 text-sm leading-6 text-neutral-500">Every product verified for authenticity before it reaches you.</p>
             </div>
             <div className="border-l-2 border-secondary pl-5">
-              <p className="font-display text-lg font-semibold text-neutral-900">Nepal-aware delivery</p>
+              <p className="font-display text-lg font-semibold text-neutral-900">Kathmandu Valley delivery</p>
               <p className="mt-1 text-sm leading-6 text-neutral-500">Realistic timelines, local support, and transparent tracking.</p>
             </div>
             <div className="border-l-2 border-neutral-400 pl-5">
