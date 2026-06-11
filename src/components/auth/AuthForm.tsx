@@ -76,8 +76,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
   if (authLoading || (syncComplete && user)) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="mt-3 text-sm text-neutral-500">
+            {syncComplete ? "Redirecting to your account..." : "Signing you in..."}
+          </p>
+        </div>
       </div>
     );
   }

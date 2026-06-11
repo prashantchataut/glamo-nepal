@@ -8,15 +8,19 @@ import Link from "next/link";
 import { inputClasses, primaryButtonClasses, errorBoxClasses, successBoxClasses } from "@/lib/form-styles";
 
 export function ForgotPasswordClient() {
-  const [email, setEmail] = useState("");
+const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (cooldown) return;
     setError("");
     setIsLoading(true);
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 60000);
     try {
       await authApi.forgotPassword(email);
       setSent(true);
@@ -73,10 +77,10 @@ export function ForgotPasswordClient() {
 
             <button
               type="submit"
-              disabled={isLoading || !email}
+              disabled={isLoading || cooldown || !email}
               className={primaryButtonClasses}
             >
-              {isLoading ? "Sending..." : "Send reset link"}
+              {isLoading ? "Sending..." : cooldown ? "Please wait..." : "Send reset link"}
             </button>
           </form>
         )}

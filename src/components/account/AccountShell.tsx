@@ -46,39 +46,67 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   if (isLoading || user === null) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label="Loading account" />
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="mt-3 text-sm text-neutral-400">Loading your account...</p>
+        </div>
       </div>
     );
   }
 
+  const initials = (user?.name || user?.phone || "Glamo customer")
+    .split(/\s+|@/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <div className="min-h-screen bg-neutral-50 pb-20 md:pb-0">
       <div className="mx-auto max-w-[1480px] px-4 py-8 sm:px-6 md:py-12 lg:px-8">
+        {/* Mobile scrollable nav */}
         <nav className="flex gap-1.5 overflow-x-auto pb-4 no-scrollbar lg:hidden" aria-label="Account navigation">
           {navLinks.map(({ name, href, icon: Icon }) => {
             const active = pathname === href || (href !== "/account" && pathname.startsWith(href));
             return (
-              <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200", active ? "bg-neutral-950 text-white shadow-sm" : "bg-white text-neutral-500 ring-1 ring-neutral-200/80 hover:text-primary")}>
-                <Icon size={16} strokeWidth={1.7} />
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200",
+                  active
+                    ? "bg-neutral-950 text-white shadow-sm"
+                    : "bg-white text-neutral-500 ring-1 ring-neutral-200/80 hover:text-primary hover:ring-primary/30",
+                )}
+              >
+                <Icon size={15} strokeWidth={1.8} />
                 {name}
               </Link>
             );
           })}
         </nav>
+
         <div className="grid gap-8 lg:grid-cols-[17rem_1fr]">
+          {/* Desktop sidebar */}
           <aside className="hidden lg:block lg:sticky lg:top-[calc(var(--total-header-height)+24px)] lg:self-start">
-            <div className="overflow-hidden rounded-[1.75rem] border border-neutral-200/80 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-[1.75rem] border border-neutral-200/80 bg-white shadow-card">
+              {/* User card */}
               <div className="bg-gradient-to-br from-neutral-50 to-white p-6">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 font-display text-lg font-semibold text-primary ring-1 ring-primary/10">
-                    {(user?.name || user?.phone || "Glamo customer").split(/\s+|@/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 font-display text-lg font-semibold text-primary ring-1 ring-primary/10">
+                    {initials}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-display text-base font-semibold text-neutral-900">{user?.name || "Your GLAMO account"}</p>
+                    <p className="truncate font-display text-base font-semibold text-neutral-900">
+                      {user?.name || "Your GLAMO account"}
+                    </p>
                     <p className="truncate text-[13px] text-neutral-500">{user?.email || user?.phone || "GLAMO customer"}</p>
                   </div>
                 </div>
               </div>
+
+              {/* Nav links */}
               <nav className="grid gap-0.5 p-2" aria-label="Account navigation">
                 {navLinks.map(({ name, href, icon: Icon }) => {
                   const active = pathname === href || (href !== "/account" && pathname.startsWith(href));
@@ -87,26 +115,34 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                       key={href}
                       href={href}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20",
-                        active ? "bg-neutral-950 text-white" : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900",
+                        "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900",
                       )}
                     >
-                      <Icon size={17} strokeWidth={1.7} />
+                      <Icon
+                        size={17}
+                        strokeWidth={active ? 2 : 1.5}
+                        className={cn("transition-colors", active ? "text-primary" : "text-neutral-400 group-hover:text-neutral-600")}
+                      />
                       {name}
                     </Link>
                   );
                 })}
+                <div className="my-1.5 border-t border-neutral-100" />
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="mt-1 flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-medium text-red-500 transition-all duration-200 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200"
+                  className="group flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-medium text-neutral-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
                 >
-                  <LogOut size={17} strokeWidth={1.7} />
-                  Logout
+                  <LogOut size={17} strokeWidth={1.5} className="text-neutral-300 transition-colors group-hover:text-red-400" />
+                  Sign out
                 </button>
               </nav>
             </div>
           </aside>
+
           <main className="min-w-0">{children}</main>
         </div>
       </div>

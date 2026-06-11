@@ -235,30 +235,29 @@ export function AddressesClient() {
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {addresses.map((addr) => (
-            <div key={addr.id} className={`relative rounded-[1.5rem] border bg-white p-5 shadow-editorial transition ${addr.isDefault ? "border-primary ring-2 ring-primary/20" : "border-neutral-200"}`}>
+            <div key={addr.id} className={`group relative rounded-[1.5rem] border bg-white p-5 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover ${addr.isDefault ? "border-primary/30 ring-2 ring-primary/15" : "border-neutral-200/80"}`}>
               {addr.isDefault && (
-                <div className="absolute -top-2.5 right-4 flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                  <Star size={10} /> Default
+                <div className="absolute -top-2.5 right-4 flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                  <Star size={10} fill="currentColor" /> Default
                 </div>
               )}
               <p className="font-semibold text-neutral-900">{addr.fullName}</p>
-              <p className="mt-1 text-sm text-neutral-600">{addr.phone}</p>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">
-                {addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}<br />
-                {addr.ward}, {addr.city}, {addr.district}<br />
-                {addr.province}
-                {addr.landmark ? ` — Near ${addr.landmark}` : ""}
-              </p>
+              <p className="mt-1 text-sm text-neutral-500">{addr.phone}</p>
+              <div className="mt-3 space-y-0.5 text-sm leading-6 text-neutral-600">
+                <p>{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ""}</p>
+                <p>{[addr.city, addr.district].filter(Boolean).join(", ")}{addr.ward ? ` - Ward ${addr.ward}` : ""}</p>
+                <p>{addr.province}{addr.landmark ? ` · Near ${addr.landmark}` : ""}</p>
+              </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => startEdit(addr)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50">
+                <button type="button" onClick={() => startEdit(addr)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
                   <Pencil size={12} /> Edit
                 </button>
                 {!addr.isDefault && (
-                  <button type="button" onClick={() => handleSetDefault(addr.id!)} className="inline-flex items-center gap-1 rounded-full border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/5">
+                  <button type="button" onClick={() => handleSetDefault(addr.id!)} className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/5">
                     <Star size={12} /> Set default
                   </button>
                 )}
-                <button type="button" onClick={() => handleDelete(addr.id!)} disabled={deletingId === addr.id} className="inline-flex items-center gap-1 rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
+                <button type="button" onClick={() => handleDelete(addr.id!)} disabled={deletingId === addr.id} className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50">
                   {deletingId === addr.id ? <span className="h-3 w-3 animate-spin rounded-full border-2 border-red-400 border-t-transparent" /> : <Trash2 size={12} />}
                   Remove
                 </button>

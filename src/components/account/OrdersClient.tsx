@@ -111,12 +111,16 @@ export function OrdersClient() {
       </div>
 
       {!isLoading && error && orders.length === 0 ? (
-        <div className="mt-8 rounded-[2rem] border border-error/30 bg-error/5 p-12 text-center">
-          <p className="text-sm text-error">{error}</p>
+        <div className="mt-8 rounded-[2rem] border border-error/20 bg-error/5 p-8 text-center md:p-12">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-error/10">
+            <Package className="h-6 w-6 text-error" />
+          </div>
+          <p className="mt-4 font-display text-lg font-semibold text-neutral-900">Could not load orders</p>
+          <p className="mt-2 text-sm text-neutral-500">Something went wrong while fetching your order history.</p>
           <button
             type="button"
             onClick={() => void loadOrders()}
-            className="mt-4 inline-flex items-center justify-center rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
           >
             Try again
           </button>
@@ -167,7 +171,7 @@ export function OrdersClient() {
                         ) : null}
                       </div>
                       <p className="mt-1 text-sm text-neutral-500">
-                        Placed on {order.date} � {order.items.length} item{order.items.length !== 1 ? "s" : ""} �{" "}
+                        Placed on {order.date} &middot; {order.items.length} item{order.items.length !== 1 ? "s" : ""} &middot;{" "}
                         {order.paymentMethod}
                       </p>
                       <p className="mt-2 line-clamp-1 text-sm text-neutral-500">{order.shippingAddress}</p>
@@ -197,10 +201,18 @@ export function OrdersClient() {
           })}
 
           {orders.length === 0 && (
-            <div className="mt-8 rounded-[2rem] border border-neutral-200 bg-white p-12 text-center shadow-sm">
-              <Package className="mx-auto h-12 w-12 text-neutral-300" />
-              <p className="mt-4 text-lg font-semibold text-neutral-950">No orders yet</p>
-              <p className="mt-1 text-sm text-neutral-500">Your order history will appear here once you make a purchase.</p>
+            <div className="mt-8 rounded-[2rem] border border-neutral-200/80 bg-white p-12 text-center shadow-card">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Package className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="mt-4 font-display text-xl font-semibold text-neutral-950">No orders yet</h3>
+              <p className="mt-2 text-sm text-neutral-500">Your order history will appear here once you make a purchase.</p>
+              <Link
+                href="/shop"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+              >
+                <ShoppingBag size={14} /> Start shopping
+              </Link>
             </div>
           )}
         </div>

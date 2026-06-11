@@ -54,7 +54,9 @@ adminRoutes.post('/logout', authMiddleware, requireRole(['ADMIN']), async (c) =>
     }
   }
 
-  return c.json({ success: true, message: 'Logged out' })
+  const response = c.json({ success: true, message: 'Logged out' })
+  response.headers.append('Set-Cookie', `${cookieName}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`)
+  return response
 })
 
 export { adminRoutes }

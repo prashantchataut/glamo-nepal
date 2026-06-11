@@ -222,7 +222,9 @@ async function findOrCreateCustomer(data: CreateOrderInput, db: Client, authUser
   const email = customer.email?.toLowerCase() || `guest+${crypto.randomUUID()}@glamonepal.local`
   const id = crypto.randomUUID()
 
-  try {
+  // Race condition: concurrent requests may both reach INSERT.
+    // The UNIQUE constraint on email/phone catches this; we retry the SELECT.
+    try {
     await db.execute({
       sql: `INSERT INTO users (id, email, phone, first_name, last_name, role, is_active, email_verified, phone_verified, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, 'CUSTOMER', 1, ?, 0, datetime('now'), datetime('now'))`,
@@ -395,11 +397,12 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
 
   const clientSubtotal = data.subtotal !== undefined ? toStoredPrice(data.subtotal) : null
   const clientGrandTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
-  const tolerance = 2
-  if (clientSubtotal !== null && Math.abs(clientSubtotal - subtotal) > tolerance) {
+  const subtotalTolerance = 0
+  const totalTolerance = 1
+  if (clientSubtotal !== null && Math.abs(clientSubtotal - subtotal) > subtotalTolerance) {
     throw new AppError('Subtotal mismatch — prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
   }
-  if (clientGrandTotal !== null && Math.abs(clientGrandTotal - totalAmount) > tolerance) {
+  if (clientGrandTotal !== null && Math.abs(clientGrandTotal - totalAmount) > totalTolerance) {
     throw new AppError('Total mismatch — prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
   }
 
@@ -697,46 +700,40 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
   }
 
   try {
-    await db.execute({
-      sql: `UPDATE orders SET status = 'CANCELLED', payment_status = ?, cancelled_at = datetime('now'), cancel_reason = ?, updated_at = datetime('now') WHERE id = ?`,
-      args: [newPaymentStatus, reason, rowId],
-    })
-  } catch (error) {
-    handleDbError(error, 'cancelOrder.update')
-  }
-
-  try {
-    await db.execute({
-      sql: `INSERT INTO order_status_histories (id, order_id, status, comment, changed_by, created_at)
-            VALUES (?, ?, 'CANCELLED', ?, ?, datetime('now'))`,
-      args: [crypto.randomUUID(), rowId, reason, user.id],
-    })
-  } catch (error) {
-    console.error('Failed to insert cancellation history:', error)
-  }
-
-  try {
-    const orderItems = await getOrderItems(rowId, db)
-    for (const item of orderItems) {
-      if (item.variant_id) {
-        await db.execute({
-          sql: 'UPDATE product_variants SET stock_quantity = stock_quantity + ? WHERE id = ?',
-          args: [item.quantity, item.variant_id],
-        })
-      }
-      const productResult = await db.execute({
-        sql: 'SELECT track_inventory FROM products WHERE id = ?',
-        args: [item.product_id],
+    await withTransaction(db, async (tx) => {
+      await tx.execute({
+        sql: `UPDATE orders SET status = 'CANCELLED', payment_status = ?, cancelled_at = datetime('now'), cancel_reason = ?, updated_at = datetime('now') WHERE id = ?`,
+        args: [newPaymentStatus, reason, rowId],
       })
-      if (productResult.rows.length > 0 && fromSqliteBool((productResult.rows[0] as any).track_inventory)) {
-        await db.execute({
-          sql: 'UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?',
-          args: [item.quantity, item.product_id],
+
+      await tx.execute({
+        sql: `INSERT INTO order_status_histories (id, order_id, status, comment, changed_by, created_at)
+              VALUES (?, ?, 'CANCELLED', ?, ?, datetime('now'))`,
+        args: [crypto.randomUUID(), rowId, reason, user.id],
+      })
+
+      const orderItems = await getOrderItems(rowId, tx)
+      for (const item of orderItems) {
+        if (item.variant_id) {
+          await tx.execute({
+            sql: 'UPDATE product_variants SET stock_quantity = stock_quantity + ? WHERE id = ?',
+            args: [item.quantity, item.variant_id],
+          })
+        }
+        const productResult = await tx.execute({
+          sql: 'SELECT track_inventory FROM products WHERE id = ?',
+          args: [item.product_id],
         })
+        if (productResult.rows.length > 0 && fromSqliteBool((productResult.rows[0] as any).track_inventory)) {
+          await tx.execute({
+            sql: 'UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?',
+            args: [item.quantity, item.product_id],
+          })
+        }
       }
-    }
+    })
   } catch (error) {
-    console.error('Failed to restore inventory after cancellation:', error)
+    handleDbError(error, 'cancelOrder.transaction')
   }
 
   await createAuditLog(db, {
