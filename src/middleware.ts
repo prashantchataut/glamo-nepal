@@ -89,6 +89,7 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
   const scriptSrc = [
     "'self'",
     nonce ? `'nonce-${nonce}'` : "'unsafe-inline'",
+    "'strict-dynamic'",
     "https://cdn.vercel-insights.com",
     "https://va.vercel-scripts.com",
     "https://www.gstatic.com",
@@ -101,8 +102,8 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
-    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://pay.khalti.com https://esewa.com.np https://www.esewa.com.np https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://${FIREBASE_AUTH_DOMAIN} https://www.googletagmanager.com",
-    "frame-src https://accounts.google.com https://accounts.google.gg https://esewa.com.np https://www.esewa.com.np https://khalti.com https://pay.khalti.com https://${FIREBASE_AUTH_DOMAIN}",
+    "connect-src 'self' https://api.glamonepal.com https://khalti.com https://pay.khalti.com https://esewa.com.np https://www.esewa.com.np https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.googletagmanager.com",
+    "frame-src https://accounts.google.com https://accounts.google.gg https://esewa.com.np https://www.esewa.com.np https://khalti.com https://pay.khalti.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -6,7 +6,6 @@ import { Section } from "@/components/common/Section";
 export function BrandsMarquee() {
   return (
     <Section
-      label="Featured Brands"
       heading="Brands We Trust"
       cta={{ label: "View All Brands", href: "/brands" }}
     >

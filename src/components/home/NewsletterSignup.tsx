@@ -1,9 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
-import { IMAGES } from "@/lib/image-library";
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("");
@@ -34,30 +32,26 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className="bg-neutral-100 py-16 md:py-24" aria-labelledby="newsletter-heading">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="relative hidden aspect-[4/3] overflow-hidden bg-neutral-100 md:block">
-          <Image src={IMAGES.hero.secondary} alt="Luxury skincare flatlay" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />
+    <section className="bg-neutral-950 py-16 md:py-24" aria-labelledby="newsletter-heading">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16">
+        <div>
+          <h2 id="newsletter-heading" className="font-display text-4xl font-medium leading-[0.95] tracking-[-0.02em] text-white md:text-5xl">New drops, better routines.</h2>
+          <p className="mt-4 max-w-md text-[0.9375rem] leading-[1.7] text-white/60">Curated product edits, restock notes and Nepal delivery updates. No spam, no noisy beauty myths.</p>
         </div>
-        <div className="bg-white p-7 shadow-card md:p-10 lg:p-12">
-          <p className="type-label text-primary">GLAMO letters</p>
-          <h2 id="newsletter-heading" className="mt-3 font-display text-5xl font-light leading-tight text-neutral-900 md:text-6xl">New drops, better routines.</h2>
-          <p className="mt-4 max-w-lg text-base leading-8 text-neutral-600">Receive curated product edits, restock notes and Nepal delivery updates. No spam, no noisy beauty myths.</p>
-          <div aria-live="polite" className="mt-8">
-            {submitted ? (
-<div className="rounded-[1.5rem] border border-neutral-200/80 bg-neutral-50 p-6">
-                <p className="font-display text-2xl text-neutral-900">You&apos;re on the list.</p>
-                <p className="mt-2 text-sm leading-6 text-neutral-500">We&apos;ll send the next GLAMO edit to your inbox.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-                <input id="newsletter-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} placeholder="Email address" required aria-invalid={error ? "true" : undefined} aria-describedby={error ? "newsletter-email-error" : undefined} disabled={submitting} className="min-h-12 rounded-2xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10" />
-                <button type="submit" disabled={submitting} className="min-h-12 rounded-full bg-neutral-950 px-7 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-neutral-800 disabled:opacity-40">{submitting ? "Joining..." : "Join"}</button>
-              </form>
-            )}
-            {error ? <p id="newsletter-email-error" role="alert" className="mt-3 text-sm text-error">{error}</p> : null}
-          </div>
+        <div aria-live="polite">
+          {submitted ? (
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-8">
+              <p className="font-display text-2xl text-white">You&apos;re on the list.</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">We&apos;ll send the next GLAMO edit to your inbox.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3 sm:flex-row sm:gap-3">
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+              <input id="newsletter-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} placeholder="Your email address" required aria-invalid={error ? "true" : undefined} aria-describedby={error ? "newsletter-email-error" : undefined} disabled={submitting} className="min-h-[52px] flex-1 rounded-full border border-white/15 bg-white/10 px-6 text-sm text-white placeholder:text-white/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              <button type="submit" disabled={submitting} className="min-h-[52px] rounded-full bg-primary px-8 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary-dark disabled:opacity-40">{submitting ? "Joining..." : "Join"}</button>
+            </form>
+          )}
+          {error ? <p id="newsletter-email-error" role="alert" className="mt-3 text-sm text-red-400">{error}</p> : null}
         </div>
       </div>
     </section>

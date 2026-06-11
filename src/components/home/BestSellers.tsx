@@ -6,7 +6,6 @@ export async function BestSellers() {
   const products = await getServerBestSellers(4);
   return (
     <Section
-      label="Best Sellers"
       heading="Most Loved"
       cta={{ label: "View All", href: "/collections/best-sellers" }}
     >

@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { type ReactNode } from "react";
 
 interface SectionProps {
-  label?: string;
   heading: string;
   subheading?: string;
   cta?: { label: string; href: string };
@@ -13,7 +12,6 @@ interface SectionProps {
 }
 
 export function Section({
-  label,
   heading,
   subheading,
   cta,
@@ -36,14 +34,9 @@ export function Section({
           )}
         >
           <div className={cn(align === "center" && "max-w-2xl mx-auto")}>
-            {label && (
-              <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-                {label}
-              </span>
-            )}
             <h2 className="font-display text-4xl font-semibold leading-[0.95] tracking-[-0.035em] text-neutral-950 md:text-5xl">{heading}</h2>
             {subheading && (
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-600">
+              <p className={cn("mt-4 max-w-xl text-[0.9375rem] leading-[1.7] text-neutral-500", align === "center" && "mx-auto")}>
                 {subheading}
               </p>
             )}

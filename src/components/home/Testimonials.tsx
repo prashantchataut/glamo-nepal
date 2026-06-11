@@ -12,18 +12,17 @@ export function Testimonials() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
           <div>
-            <p className="type-label text-secondary">Customer notes</p>
-            <h2 id="testimonials-heading" className="mt-3 font-display text-5xl font-light leading-tight md:text-6xl">Beauty shopping that feels easier.</h2>
+            <h2 id="testimonials-heading" className="font-display text-4xl font-medium leading-[0.95] tracking-[-0.02em] md:text-5xl">Beauty shopping that feels easier.</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {TESTIMONIALS.map((item) => (
-              <article key={item.name} className="border border-white/15 p-6">
+<article key={item.name} className="rounded-[1.5rem] border border-white/12 bg-white/5 p-6">
                 <div className="flex gap-1 text-secondary" aria-label="5 out of 5 stars">
                   {Array.from({ length: 5 }).map((_, index) => <Star key={index} size={14} fill="currentColor" />)}
                 </div>
-                <blockquote className="mt-5 font-display text-2xl leading-snug text-white/90">“{item.quote}”</blockquote>
+                <blockquote className="mt-5 text-lg leading-snug text-white/90">&ldquo;{item.quote}&rdquo;</blockquote>
                 <p className="mt-6 text-sm font-semibold text-white">{item.name}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/45">{item.location}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/40">{item.location}</p>
               </article>
             ))}
           </div>

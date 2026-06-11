@@ -1,8 +1,24 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
+import { createHmac } from 'crypto'
 
 const CSRF_COOKIE_NAME = 'glamo-csrf-token'
 const CSRF_HEADER_NAME = 'x-csrf-token'
+const CSRF_SECRET = process.env.CSRF_SECRET || process.env.AUTH_SECRET || ''
+
+function getHmacKey(): Buffer | null {
+  if (!CSRF_SECRET) return null
+  return Buffer.from(CSRF_SECRET, 'utf-8')
+}
+
+function signToken(rawToken: string): string | null {
+  const key = getHmacKey()
+  if (!key) return rawToken
+  const hmac = createHmac('sha256', key)
+  hmac.update(rawToken)
+  const sig = hmac.digest('base64').replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
+  return `${rawToken}.${sig}`
+}
 
 export function csrfProtection() {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
@@ -14,22 +30,22 @@ export function csrfProtection() {
     }
 
     const cookieHeader = c.req.header('cookie') || ''
-    let cookieToken = ''
+    let signedCookieToken = ''
     for (const pair of cookieHeader.split(';')) {
       const trimmed = pair.trim()
       if (trimmed.startsWith(`${CSRF_COOKIE_NAME}=`)) {
-        cookieToken = decodeURIComponent(trimmed.slice(CSRF_COOKIE_NAME.length + 1))
+        signedCookieToken = decodeURIComponent(trimmed.slice(CSRF_COOKIE_NAME.length + 1))
         break
       }
     }
 
     const headerToken = c.req.header(CSRF_HEADER_NAME)
 
-    if (!cookieToken && !headerToken) {
+    if (!signedCookieToken && !headerToken) {
       return c.json({ success: false, message: 'CSRF token missing. Please refresh the page and try again.', errors: ['CSRF_TOKEN_MISSING'] }, 403)
     }
 
-    if (!cookieToken) {
+    if (!signedCookieToken) {
       return c.json({ success: false, message: 'Missing CSRF cookie. Please refresh the page.', errors: ['CSRF_COOKIE_MISSING'] }, 403)
     }
 
@@ -37,11 +53,22 @@ export function csrfProtection() {
       return c.json({ success: false, message: 'Missing CSRF token header. Please refresh the page.', errors: ['CSRF_HEADER_MISSING'] }, 403)
     }
 
-    if (cookieToken !== headerToken) {
+    let cookieRawToken: string | null = null
+    const dotIndex = signedCookieToken.lastIndexOf('.')
+    if (dotIndex === -1) {
+      cookieRawToken = signedCookieToken
+    } else {
+      const expectedSigned = signToken(signedCookieToken.slice(0, dotIndex))
+      if (expectedSigned && expectedSigned === signedCookieToken) {
+        cookieRawToken = signedCookieToken.slice(0, dotIndex)
+      }
+    }
+
+    if (!cookieRawToken || cookieRawToken !== headerToken) {
       return c.json({ success: false, message: 'CSRF token mismatch. Please refresh the page.', errors: ['CSRF_MISMATCH'] }, 403)
     }
 
-    if (cookieToken.length < 32) {
+    if (cookieRawToken.length < 32) {
       return c.json({ success: false, message: 'Invalid CSRF token.', errors: ['CSRF_INVALID'] }, 403)
     }
 

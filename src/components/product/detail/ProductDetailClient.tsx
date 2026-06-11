@@ -162,7 +162,7 @@ export default function ProductDetailClient({
 
   return (
     <main className="bg-neutral-50 pb-20 md:pb-0">
-      <section className="border-b border-neutral-200 bg-rose-50 px-4 py-4 md:px-6 lg:px-8">
+      <section className="border-b border-neutral-200/60 bg-neutral-50 px-4 py-3 md:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <nav
             className="flex min-h-10 flex-wrap items-center gap-2 text-sm text-neutral-600"
@@ -210,7 +210,7 @@ export default function ProductDetailClient({
           </div>
 
           <div
-            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-neutral-100 shadow-editorial lg:order-2 lg:cursor-zoom-in"
+            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-neutral-200/80 bg-neutral-100 shadow-editorial lg:order-2 lg:cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleZoom}
@@ -240,7 +240,7 @@ export default function ProductDetailClient({
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-[2.25rem] border border-neutral-200 bg-white p-5 shadow-card-elevated md:p-7">
+          <div className="rounded-[1.5rem] border border-neutral-200/80 bg-white p-5 shadow-card md:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <Link
@@ -535,15 +535,10 @@ export default function ProductDetailClient({
 
       {related.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                Complete the shelf
-              </p>
-              <h2 className="mt-2 font-display text-4xl font-semibold tracking-[-0.03em] text-neutral-950">
-                You may also like
-              </h2>
-            </div>
+<div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-neutral-950">
+              You may also like
+            </h2>
             <Link
               href="/shop"
               className="hidden text-sm font-semibold text-neutral-600 hover:text-primary md:inline"

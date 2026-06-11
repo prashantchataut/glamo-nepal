@@ -42,7 +42,7 @@ export function AdminDashboard() {
     setAuthed(null);
     setAuthError(null);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
     fetch("/api/v1/admin/dashboard", { credentials: "include", signal: controller.signal })
       .then(async (res) => {
@@ -78,8 +78,11 @@ export function AdminDashboard() {
   }, [verifySession]);
 
   useEffect(() => {
-    if (authed === false && !authError) {
-      window.location.href = "/admin/login";
+    if (authed === false) {
+      const timer = setTimeout(() => {
+        window.location.href = "/admin/login";
+      }, authError ? 3000 : 0);
+      return () => clearTimeout(timer);
     }
   }, [authed, authError]);
 

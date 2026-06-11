@@ -14,18 +14,24 @@ import type { AppEnv } from '../../types/bindings'
 import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
 
-const deletedAtCache = new Map<string, boolean>()
+let deletedAtCache: Map<string, boolean> | null = null
+
+function getDeletedAtCache(): Map<string, boolean> {
+  if (!deletedAtCache) deletedAtCache = new Map()
+  return deletedAtCache
+}
 
 async function hasDeletedAtColumn(db: Client, table: string): Promise<boolean> {
-  const cached = deletedAtCache.get(table)
+  const cache = getDeletedAtCache()
+  const cached = cache.get(table)
   if (cached !== undefined) return cached
   try {
     const result = await db.execute({ sql: `SELECT COUNT(*) as cnt FROM pragma_table_info('${table}') WHERE name = 'deleted_at'`, args: [] })
     const has = Number((result.rows[0] as any)?.cnt ?? 0) > 0
-    deletedAtCache.set(table, has)
+    cache.set(table, has)
     return has
   } catch {
-    deletedAtCache.set(table, false)
+    cache.set(table, false)
     return false
   }
 }
@@ -197,10 +203,12 @@ async function findOrCreateCustomer(data: CreateOrderInput, db: Client, authUser
   const customer = data.customer
   if (!customer) throw new AppError('Customer details are required for guest checkout', 400, 'CUSTOMER_REQUIRED')
 
+  const userHasDeletedAt = await hasDeletedAtColumn(db, 'users')
+
   let existingUser: UserRow | null = null
   if (customer.email) {
     const result = await db.execute({
-      sql: 'SELECT id, email, phone, first_name, last_name FROM users WHERE LOWER(email) = ? AND deleted_at IS NULL LIMIT 1',
+      sql: `SELECT id, email, phone, first_name, last_name FROM users WHERE LOWER(email) = ?${userHasDeletedAt ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
       args: [customer.email.toLowerCase()],
     })
     if (result.rows.length > 0) {
@@ -209,7 +217,7 @@ async function findOrCreateCustomer(data: CreateOrderInput, db: Client, authUser
   }
   if (!existingUser && customer.phone) {
     const result = await db.execute({
-      sql: 'SELECT id, email, phone, first_name, last_name FROM users WHERE phone = ? AND deleted_at IS NULL LIMIT 1',
+      sql: `SELECT id, email, phone, first_name, last_name FROM users WHERE phone = ?${userHasDeletedAt ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
       args: [customer.phone],
     })
     if (result.rows.length > 0) {
@@ -774,8 +782,9 @@ export async function getPublicOrder(orderNumber: string, db: Client, verificati
 
   if (verificationEmail || verificationPhone) {
     const userId = (row as any).user_id as string
+    const userHasDeletedAt = await hasDeletedAtColumn(db, 'users')
     const userResult = await db.execute({
-      sql: 'SELECT email, phone FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1',
+      sql: `SELECT email, phone FROM users WHERE id = ?${userHasDeletedAt ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
       args: [userId],
     })
     if (userResult.rows.length > 0) {

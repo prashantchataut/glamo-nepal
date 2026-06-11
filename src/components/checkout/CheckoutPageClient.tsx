@@ -494,17 +494,13 @@ export function CheckoutPageClient() {
           <ChevronRight size={14} aria-hidden="true" />
           <span className="font-medium text-neutral-950">Checkout</span>
         </nav>
-        <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2.5rem] md:px-8 md:py-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
-            Secure checkout
-          </p>
-          <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-7xl">
-              Confirm your beauty bag.
+        <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2rem] md:px-8 md:py-6">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
+              Checkout
             </h1>
             <p className="max-w-sm text-sm leading-7 text-neutral-600">
-              Delivery rules are Nepal-aware. Digital payments stay marked
-              coming soon until the gateway is ready.
+              Delivery within Kathmandu Valley. Cash on delivery available.
             </p>
           </div>
         </div>

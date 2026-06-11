@@ -81,9 +81,11 @@ export function ProfileForm() {
         id: user!.id,
         name: [updated.firstName, updated.lastName].filter(Boolean).join(" ") || user!.name,
         email: updated.email || user!.email,
-        phone: updated.phone || phone,
+        phone: updated.phone ?? phone,
         role: "customer",
       });
+
+      void fetchProfile();
       toast.success("Profile saved.");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save profile";

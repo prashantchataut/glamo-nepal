@@ -13,18 +13,17 @@ const categories = [
 
 export function ShopByCategory() {
   return (
-    <Section label="Shop by category" heading="Choose your ritual" subheading="Visual doors into skincare, makeup, hair care and fragrance — built for browsing, not guessing." className="bg-white">
+    <Section heading="Choose your ritual" subheading="Skincare, makeup, hair care and fragrance, curated for you." className="bg-white">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {categories.map((category, index) => (
-          <Link key={category.name} href={category.href} className={index === 0 ? "group sm:col-span-2 lg:col-span-1" : "group"}>
-            <article className="h-full overflow-hidden rounded-[30px] border border-neutral-200 bg-neutral-100 shadow-category transition-all hover:-translate-y-0.5 hover:border-primary/35">
+        {categories.map((category) => (
+          <Link key={category.name} href={category.href} className="group">
+            <article className="h-full overflow-hidden rounded-[1.75rem] border border-neutral-200/80 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover hover:border-primary/25">
               <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
                 <Image src={category.image} alt={`${category.name} beauty category`} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw" />
               </div>
-              <div className="p-4">
-                <h3 className="font-display text-2xl text-neutral-900">{category.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-500">{category.copy}</p>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Shop now</p>
+              <div className="px-4 pb-5 pt-3">
+                <h3 className="font-display text-xl font-semibold text-neutral-900 transition-colors group-hover:text-primary">{category.name}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-neutral-500">{category.copy}</p>
               </div>
             </article>
           </Link>

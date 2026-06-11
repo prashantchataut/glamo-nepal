@@ -47,29 +47,29 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const hasRedirected = useRef(false);
 
   const redirectTo = params.get("redirect") || "/account";
 
+  function sanitizeRedirect(url: string): string {
+    if (url.startsWith("//") || url.startsWith("http") || url.startsWith("www")) return "/account";
+    try {
+      const parsed = new URL(url, "https://glamonepal.com");
+      if (!parsed.pathname.startsWith("/")) return "/account";
+      return parsed.pathname + parsed.search;
+    } catch {
+      return "/account";
+    }
+  }
+
+  const safeRedirect = sanitizeRedirect(redirectTo);
+
   useEffect(() => {
-    if (syncComplete && user) {
-      const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
+    if (syncComplete && user && !hasRedirected.current) {
+      hasRedirected.current = true;
       router.replace(safeRedirect);
     }
-  }, [syncComplete, user, redirectTo, router]);
-
-  const waitForSyncAndRedirect = async () => {
-    const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
-
-    const maxWait = 5000;
-    const interval = 100;
-    let elapsed = 0;
-    while (!syncCompleteRef.current && elapsed < maxWait) {
-      await new Promise((resolve) => setTimeout(resolve, interval));
-      elapsed += interval;
-    }
-
-    router.push(safeRedirect);
-  };
+  }, [syncComplete, user, safeRedirect, router]);
 
   const copy = labels[mode];
   const showGuestCheckout = params.get("prompt") === "guest";
@@ -167,8 +167,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         <Image src={IMAGES.auth.loginSplit} alt="" fill className="object-cover opacity-50" sizes="(max-width: 768px) 100vw, 45vw" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-neutral-950/10" />
         <div className="relative z-10">
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-primary-light">{copy.eyebrow}</p>
-          <h1 className="mt-3 font-display text-4xl font-light leading-[0.95] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
+          <h1 className="font-display text-4xl font-light leading-[0.95] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
           <p className="mt-4 max-w-sm text-sm leading-7 text-white/70 md:mt-5">{copy.description}</p>
           <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/65 md:mt-8">
             <strong className="block text-white/90">Need help signing in?</strong>
@@ -198,7 +197,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-neutral-100" />
-          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-300">or</span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">or</span>
           <div className="h-px flex-1 bg-neutral-100" />
         </div>
 

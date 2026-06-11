@@ -221,21 +221,16 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         <div className="mt-auto pt-4">
-          <div className="flex items-end justify-between gap-3">
             <div className="flex items-baseline gap-2">
               <span className="font-display text-2xl font-semibold leading-none text-neutral-950">
                 {formatNPR(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="text-xs text-neutral-500 line-through">
+                <span className="text-xs text-neutral-400 line-through">
                   {formatNPR(product.originalPrice)}
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-neutral-500">
-              {product.reviewsCount} reviews
-            </span>
-</div>
           {showNotify && !product.inStock && (
             <p className="mt-3 text-xs text-neutral-500">
               <Link href={`/products/${product.slug}`} className="underline hover:text-primary">View details</Link>

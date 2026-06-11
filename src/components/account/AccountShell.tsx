@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, LayoutDashboard, LockKeyhole, LogOut, MapPin, Package, UserRound } from "lucide-react";
@@ -28,11 +28,23 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   const clearCart = useCartStore((state) => state.clearCart);
   const resetCheckout = useCheckoutStore((state) => state.reset);
 
+  const [timedOut, setTimedOut] = useState(false);
+
   useEffect(() => {
-    if (!isLoading && user === null) {
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        useAuthStore.getState().setLoading(false);
+        setTimedOut(true);
+      }
+    }, 10000);
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!isLoading && user === null && !timedOut) {
       router.replace("/login?redirect=/account");
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, timedOut, router]);
 
   const handleLogout = async () => {
     await logout();
@@ -43,7 +55,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
     router.refresh();
   };
 
-  if (isLoading || user === null) {
+  if (isLoading || (user === null && !timedOut)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-50">
         <div className="text-center">

@@ -88,14 +88,11 @@ export function CartPageClient() {
   if (!items.length) {
     return (
       <main className="min-h-[72vh] bg-neutral-50 px-4 py-20 md:py-28">
-        <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-neutral-200 bg-white p-8 text-center shadow-editorial md:p-12">
+        <div className="mx-auto max-w-2xl rounded-[2rem] border border-neutral-200 bg-white p-8 text-center shadow-card md:p-12">
           <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-rose-50 text-primary">
             <ShoppingBag size={28} />
           </div>
-          <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
-            Your beauty bag
-          </p>
-          <h1 className="mt-3 font-display text-5xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-6xl">
+          <h1 className="mt-8 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.03em] text-neutral-950 md:text-5xl">
             Your bag is ready for its first glow pick.
           </h1>
           <p className="mx-auto mt-5 max-w-md text-sm leading-7 text-neutral-500">
@@ -112,7 +109,6 @@ export function CartPageClient() {
         <div className="mx-auto mt-10 max-w-7xl">
           <ProductRecommendationStrip
             title="Recommended for you"
-            subtitle="Editor picks"
             context="cart"
             limit={4}
           />
@@ -133,14 +129,11 @@ export function CartPageClient() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section>
-            <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-5 md:shadow-card-prominent">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
-                Shopping bag
-              </p>
-              <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl md:tracking-[-0.05em]">
-                  Ready for checkout
-                </h1>
+<div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card md:rounded-[2rem] md:p-5">
+               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                 <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
+                   Shopping bag
+                 </h1>
                 <p className="text-sm text-neutral-500">
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>

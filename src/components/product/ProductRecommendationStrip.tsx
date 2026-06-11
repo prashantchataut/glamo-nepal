@@ -9,7 +9,6 @@ import type { Product } from "@/types/product";
 
 interface ProductRecommendationStripProps {
   title: string;
-  subtitle?: string;
   context: "home" | "product" | "cart" | "shop";
   productId?: string;
   limit?: number;
@@ -18,7 +17,6 @@ interface ProductRecommendationStripProps {
 
 export function ProductRecommendationStrip({
   title,
-  subtitle,
   context,
   productId,
   limit = 8,
@@ -59,17 +57,10 @@ export function ProductRecommendationStrip({
   return (
     <section className="bg-white py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="mb-6 flex items-end justify-between">
-          <div>
-            {subtitle && (
-              <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-secondary">
-                {subtitle}
-              </p>
-            )}
-            <h2 className="font-display text-3xl font-semibold text-neutral-900">
-              {title}
-            </h2>
-          </div>
+        <div className="mb-8 flex items-end justify-between">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-neutral-900">
+            {title}
+          </h2>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {loading

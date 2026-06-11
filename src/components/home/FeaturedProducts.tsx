@@ -6,7 +6,6 @@ export async function FeaturedProducts() {
   const products = await getServerFeaturedProducts(4);
   return (
     <Section
-      label="New Arrivals"
       heading="What's New"
       cta={{ label: "View All", href: "/collections/new-arrivals" }}
     >

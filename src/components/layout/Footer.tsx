@@ -70,7 +70,7 @@ export function Footer() {
         <div className="grid gap-8 rounded-[34px] border border-white/10 bg-white/[0.035] p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/50">Join the GLAMO beauty list</p>
-            <h2 className="mt-3 max-w-xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-white md:text-6xl">
+            <h2 className="mt-3 max-w-xl font-display text-3xl font-medium leading-[0.98] tracking-[-0.02em] text-white md:text-5xl">
               Softer routines, new drops and Nepal delivery notes.
             </h2>
           </div>
@@ -176,7 +176,6 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-white/40 md:flex-row md:items-center md:justify-between">
           <p>&copy; {new Date().getFullYear()} {SITE_CONFIG.fullTitle}. All rights reserved.</p>
-          <p className="text-[10px] tracking-widest text-white/20">Made by Ankura Studio</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             {SITE_CONFIG.paymentMethods.map((method) => (
               <span key={method} className="uppercase tracking-[0.12em]">{method}</span>

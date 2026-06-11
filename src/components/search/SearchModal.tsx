@@ -292,7 +292,7 @@ export function SearchModal() {
                         <div className="min-w-0 flex-1">
                           <p className="font-label text-[10px] font-bold uppercase tracking-widest text-primary">{product.brand}</p>
                           <p className="truncate font-display text-lg font-semibold text-neutral-900">{product.name}</p>
-                          <p className="text-sm font-semibold text-neutral-900 font-display font-semibold">{formatNPR(product.price)}</p>
+                          <p className="font-display text-sm font-semibold text-neutral-900">{formatNPR(product.price)}</p>
                         </div>
                         <ArrowRight size={16} className="text-primary" />
                       </button>

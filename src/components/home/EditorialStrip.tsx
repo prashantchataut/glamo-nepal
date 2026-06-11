@@ -12,20 +12,19 @@ export function EditorialStrip() {
   return (
     <section className="bg-white py-16 md:py-24" aria-labelledby="editorial-strip-heading">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mb-10 max-w-2xl">
-          <p className="type-label text-primary">The edit</p>
-          <h2 id="editorial-strip-heading" className="mt-3 font-display text-5xl font-light text-neutral-900 md:text-6xl">Beauty stories worth shopping.</h2>
+        <div className="mb-12 max-w-2xl">
+          <h2 id="editorial-strip-heading" className="font-display text-4xl font-semibold leading-[0.95] tracking-[-0.035em] text-neutral-950 md:text-5xl">Beauty stories worth shopping.</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {EDITORIAL_ITEMS.map((item) => (
-            <Link key={item.title} href={item.href} className="group block border border-neutral-200 bg-neutral-100">
+            <Link key={item.title} href={item.href} className="group block overflow-hidden rounded-[1.75rem] border border-neutral-200/80 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover hover:border-primary/25">
               <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
                 <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 33vw" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-950/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
               </div>
-              <div className="p-5">
-                <p className="type-label text-primary">{item.kicker}</p>
-                <h3 className="mt-2 font-display text-3xl leading-tight text-neutral-900">{item.title}</h3>
-                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 group-hover:text-primary">Explore collection</p>
+              <div className="px-5 pb-5 pt-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">{item.kicker}</p>
+                <h3 className="mt-2 font-display text-2xl font-semibold leading-tight tracking-[-0.01em] text-neutral-900 transition-colors group-hover:text-primary">{item.title}</h3>
               </div>
             </Link>
           ))}
