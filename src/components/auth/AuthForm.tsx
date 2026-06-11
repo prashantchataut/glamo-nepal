@@ -124,7 +124,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         } else if (code === "auth/email-already-in-use") {
           setError("An account with this email already exists.");
         } else if (code === "auth/weak-password") {
-          setError("Password must be at least 8 characters with a letter and a number.");
+          setError("Password must be at least 8 characters with a letter, number, and special character.");
         } else if (code === "auth/invalid-email") {
           setError("Please enter a valid email address.");
         } else if (code === "auth/too-many-requests") {
