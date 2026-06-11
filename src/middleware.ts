@@ -48,7 +48,7 @@ async function hasFirebaseAuthToken(request: NextRequest): Promise<boolean> {
       audience: FIREBASE_PROJECT_ID,
     });
     const result = !!payload.sub && !!payload.exp;
-    firebaseTokenCache = { token, result, expires: Date.now() + 5 * 60 * 1000 };
+    firebaseTokenCache = { token, result, expires: Date.now() + 60 * 1000 };
     return result;
   } catch {
     firebaseTokenCache = { token, result: false, expires: Date.now() + 60 * 1000 };
@@ -67,6 +67,16 @@ function generateCsrfToken(): string {
     hex += array[i].toString(16).padStart(2, "0");
   }
   return hex;
+}
+
+async function signCsrfToken(token: string): Promise<string> {
+  const secret = process.env.CSRF_SECRET || process.env.AUTH_SECRET || "";
+  if (!secret) return token;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(token));
+  const sigB64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+  return `${token}.${sigB64}`;
 }
 
 function generateNonce(): string {
@@ -108,15 +118,17 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
   return response;
 }
 
-function setCsrfCookie(response: NextResponse, csrfToken: string, request: NextRequest) {
+async function setCsrfCookie(response: NextResponse, csrfToken: string, request: NextRequest) {
   if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
-    response.cookies.set(CSRF_TOKEN_COOKIE, csrfToken, {
-      httpOnly: false,
-      sameSite: "lax",
+    const signedToken = await signCsrfToken(csrfToken);
+    response.cookies.set(CSRF_TOKEN_COOKIE, signedToken, {
+      httpOnly: true,
+      sameSite: "strict",
       secure: IS_PRODUCTION,
       path: "/",
       maxAge: 60 * 60 * 24,
     });
+    response.headers.set("x-csrf-token", csrfToken);
   }
 }
 

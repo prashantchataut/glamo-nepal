@@ -4,6 +4,22 @@ import { createAuditLog } from '../../utils/audit'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
 import type { NetlifyBindings } from '../../types/bindings'
 
+const deletedAtCache = new Map<string, boolean>()
+
+async function hasAccountDeletedAtColumn(db: Client): Promise<boolean> {
+  const cached = deletedAtCache.get('orders')
+  if (cached !== undefined) return cached
+  try {
+    const result = await db.execute({ sql: "SELECT COUNT(*) as cnt FROM pragma_table_info('orders') WHERE name = 'deleted_at'", args: [] })
+    const has = Number((result.rows[0] as any)?.cnt ?? 0) > 0
+    deletedAtCache.set('orders', has)
+    return has
+  } catch {
+    deletedAtCache.set('orders', false)
+    return false
+  }
+}
+
 function formatProfile(profile: any, counts: { orderCount: number; wishlistCount: number; addressCount: number }) {
   return {
     id: profile.id,
@@ -48,15 +64,17 @@ function formatAddress(row: any) {
 
 export async function getProfile(db: Client, userId: string) {
   const result = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ? AND deleted_at IS NULL`,
+    sql: `SELECT * FROM users WHERE id = ?`,
     args: [userId],
   })
 
   const profile = result.rows[0]
   if (!profile) throw new AppError('Profile not found', 404, 'PROFILE_NOT_FOUND')
 
+  const orderSoftDelete = await hasAccountDeletedAtColumn(db)
+  const orderWhere = orderSoftDelete ? ' AND deleted_at IS NULL' : ''
   const [orderResult, wishlistResult, addressResult] = await Promise.all([
-    db.execute({ sql: `SELECT COUNT(*) as count FROM orders WHERE user_id = ?`, args: [userId] }),
+    db.execute({ sql: `SELECT COUNT(*) as count FROM orders WHERE user_id = ?${orderWhere}`, args: [userId] }),
     db.execute({ sql: `SELECT COUNT(*) as count FROM wishlist_items WHERE user_id = ?`, args: [userId] }),
     db.execute({ sql: `SELECT COUNT(*) as count FROM user_addresses WHERE user_id = ?`, args: [userId] }),
   ])
@@ -70,7 +88,7 @@ export async function getProfile(db: Client, userId: string) {
 
 export async function updateProfile(db: Client, userId: string, data: { firstName?: string; lastName?: string; phone?: string }, auditUserId: string) {
   const existingResult = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ? AND deleted_at IS NULL`,
+    sql: `SELECT * FROM users WHERE id = ?`,
     args: [userId],
   })
 

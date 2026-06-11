@@ -51,7 +51,7 @@ export default function SearchPageContent() {
       <section className="relative overflow-hidden bg-rose-50 py-12 md:py-20">
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
-            <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-400">
+            <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-500">
               <Link href="/" className="cursor-pointer transition-colors hover:text-primary">Home</Link>
               <span>/</span>
               <span className="text-neutral-900">Search</span>

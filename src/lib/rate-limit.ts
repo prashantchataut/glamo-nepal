@@ -1,8 +1,11 @@
-// Rate limiting using an in-memory Map.
-// NOTE: In serverless environments (Vercel, etc.), each function invocation
-// gets its own context, so this provides per-instance rate limiting only.
-// For production, replace this with a persistent store (Vercel KV, Upstash Redis,
-// or Supabase pg_kv) to enforce limits across all instances.
+// Rate limiting with Upstash Redis for production, in-memory fallback for development.
+// In production (NODE_ENV=production), Redis is REQUIRED. Without it, all requests are denied.
+// In development, in-memory rate limiting is used as a fallback.
+
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
 const RATE_LIMIT_MAP = new Map<string, { count: number; resetAt: number }>();
 
 interface RateLimitConfig {
@@ -42,6 +45,11 @@ export interface RateLimitResult {
 }
 
 export function checkRateLimit(pathname: string, ip: string): RateLimitResult {
+  if (IS_PRODUCTION && (!UPSTASH_URL || !UPSTASH_TOKEN)) {
+    console.error("[SECURITY] Production requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN for rate limiting. Denying request.");
+    return { allowed: false, limit: 0, remaining: 0, resetAt: Date.now() + 60000, retryAfterMs: 60000 };
+  }
+
   const config = getConfig(pathname);
   const key = getKey(pathname, ip);
   const now = Date.now();

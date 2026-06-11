@@ -14,6 +14,22 @@ import type { AppEnv } from '../../types/bindings'
 import type { Context } from 'hono'
 import type { CreateOrderInput, UpdateOrderStatusInput, OrderFilterInput } from './order.schema'
 
+const deletedAtCache = new Map<string, boolean>()
+
+async function hasDeletedAtColumn(db: Client, table: string): Promise<boolean> {
+  const cached = deletedAtCache.get(table)
+  if (cached !== undefined) return cached
+  try {
+    const result = await db.execute({ sql: `SELECT COUNT(*) as cnt FROM pragma_table_info('${table}') WHERE name = 'deleted_at'`, args: [] })
+    const has = Number((result.rows[0] as any)?.cnt ?? 0) > 0
+    deletedAtCache.set(table, has)
+    return has
+  } catch {
+    deletedAtCache.set(table, false)
+    return false
+  }
+}
+
 interface ProductRow {
   id: string
   name: string
@@ -298,15 +314,16 @@ async function getStatusHistory(orderId: string, db: Client) {
 
 async function getProfile(userId: string, db: Client) {
   const result = await db.execute({
-    sql: 'SELECT id, email, phone, first_name, last_name FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1',
+    sql: 'SELECT id, email, phone, first_name, last_name FROM users WHERE id = ? LIMIT 1',
     args: [userId],
   })
   return result.rows.length > 0 ? result.rows[0] as unknown as UserRow : null
 }
 
 async function fetchOrderWithRelations(orderId: string, db: Client) {
+  const softDelete = await hasDeletedAtColumn(db, 'orders')
   const orderResult = await db.execute({
-    sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT * FROM orders WHERE (id = ? OR order_number = ?)${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [orderId, orderId],
   })
   if (orderResult.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
@@ -469,7 +486,13 @@ export async function listOrders(filters: OrderFilterInput, db: Client, user?: {
   const { page, limit, skip } = parsePagination({ page: String(filters.page || 1), limit: String(filters.limit || 20) })
   const isAdmin = user && ['ADMIN', 'SUPER_ADMIN', 'STAFF'].includes(user.role)
 
-  const conditions: string[] = ['o.deleted_at IS NULL']
+  let hasDeletedAt = false
+  try {
+    const colCheck = await db.execute({ sql: "SELECT COUNT(*) as cnt FROM pragma_table_info('orders') WHERE name = 'deleted_at'", args: [] })
+    hasDeletedAt = Number((colCheck.rows[0] as any)?.cnt ?? 0) > 0
+  } catch { hasDeletedAt = false }
+
+  const conditions: string[] = hasDeletedAt ? ['o.deleted_at IS NULL'] : []
   const args: InValue[] = []
 
   if (!isAdmin && user) {
@@ -539,8 +562,9 @@ export async function listOrders(filters: OrderFilterInput, db: Client, user?: {
 }
 
 export async function getOrder(orderId: string, db: Client, user?: { id: string; role: string }) {
+  const softDelete = await hasDeletedAtColumn(db, 'orders')
   const result = await db.execute({
-    sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT * FROM orders WHERE (id = ? OR order_number = ?)${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [orderId, orderId],
   })
   if (result.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
@@ -561,8 +585,9 @@ export async function getOrder(orderId: string, db: Client, user?: { id: string;
 }
 
 export async function updateOrderStatus(orderId: string, data: UpdateOrderStatusInput, db: Client, adminUserId: string, c?: Context<AppEnv>) {
+  const softDelete = await hasDeletedAtColumn(db, 'orders')
   const fetchResult = await db.execute({
-    sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT * FROM orders WHERE (id = ? OR order_number = ?)${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [orderId, orderId],
   })
   if (fetchResult.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
@@ -630,8 +655,9 @@ export async function updateOrderStatus(orderId: string, data: UpdateOrderStatus
 }
 
 export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation', env?: NetlifyBindings) {
+  const softDelete = await hasDeletedAtColumn(db, 'orders')
   const fetchResult = await db.execute({
-    sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT * FROM orders WHERE (id = ? OR order_number = ?)${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [orderId, orderId],
   })
   if (fetchResult.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
@@ -741,11 +767,12 @@ export async function getPublicOrder(orderNumber: string, db: Client, verificati
     throw new AppError('Email or phone verification is required to view order details', 400, 'VERIFICATION_REQUIRED')
   }
 
+  const softDelete = await hasDeletedAtColumn(db, 'orders')
   const result = await db.execute({
-    sql: 'SELECT * FROM orders WHERE order_number = ? AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT * FROM orders WHERE order_number = ?${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [orderNumber],
   })
-  if (result.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
+  if (result.rows.length === 0) throw new AppError('Order not found or verification failed. Please check your order number and contact details.', 404, 'ORDER_LOOKUP_FAILED')
   const row = result.rows[0]
 
   if (verificationEmail || verificationPhone) {
@@ -759,7 +786,7 @@ export async function getPublicOrder(orderNumber: string, db: Client, verificati
       const emailMatch = verificationEmail && user.email && user.email.toLowerCase() === verificationEmail.toLowerCase()
       const phoneMatch = verificationPhone && user.phone && user.phone === verificationPhone
       if (!emailMatch && !phoneMatch) {
-        throw new AppError('Order verification failed. Please provide the email or phone used when placing the order.', 403, 'ORDER_VERIFICATION_FAILED')
+        throw new AppError('Order not found or verification failed. Please check your order number and contact details.', 404, 'ORDER_LOOKUP_FAILED')
       }
     }
   }
@@ -773,8 +800,9 @@ export async function getPublicOrder(orderNumber: string, db: Client, verificati
 }
 
 export async function verifyCheckoutPayment(orderId: string, provider: string, token: string, db: Client, env?: { KHALTI_SECRET_KEY?: string; ESEWA_SECRET_KEY?: string; ESEWA_MERCHANT_CODE?: string }) {
+  const softDelete = await hasDeletedAtColumn(db, 'orders')
   const fetchResult = await db.execute({
-    sql: 'SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT * FROM orders WHERE (id = ? OR order_number = ?)${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [orderId, orderId],
   })
   if (fetchResult.rows.length === 0) throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND')
@@ -819,7 +847,7 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
   }
 
   const existingPayment = await db.execute({
-    sql: "SELECT id FROM orders WHERE payment_id = ? AND id != ? AND deleted_at IS NULL LIMIT 1",
+    sql: `SELECT id FROM orders WHERE payment_id = ? AND id != ?${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
     args: [verifiedTransactionId, rowId],
   })
   if (existingPayment.rows.length > 0) {

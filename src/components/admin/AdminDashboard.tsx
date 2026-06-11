@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useAdminStore } from "@/store/useAdminStore";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
@@ -36,37 +36,52 @@ export function AdminDashboard() {
   const { activeSection, setActiveSection, sidebarOpen, setAdminUser } = useAdminStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/v1/admin/dashboard", { credentials: "include" })
+  const verifySession = useCallback(() => {
+    setAuthed(null);
+    setAuthError(null);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    fetch("/api/v1/admin/dashboard", { credentials: "include", signal: controller.signal })
       .then(async (res) => {
-        if (!cancelled) {
-          setAuthed(res.ok);
-          if (res.ok) {
-            try {
-              const meRes = await fetch("/api/v1/admin/me", { credentials: "include" });
-              if (meRes.ok) {
-                const meData = await meRes.json();
-                if (meData?.data) {
-                  setAdminUser(meData.data);
-                }
+        clearTimeout(timeout);
+        setAuthed(res.ok);
+        if (res.ok) {
+          setAuthError(null);
+          try {
+            const meRes = await fetch("/api/v1/admin/me", { credentials: "include" });
+            if (meRes.ok) {
+              const meData = await meRes.json();
+              if (meData?.data) {
+                setAdminUser(meData.data);
               }
-            } catch {}
-          }
+            }
+          } catch {}
+        } else {
+          setAuthError("Session expired. Please sign in again.");
         }
       })
-      .catch(() => {
-        if (!cancelled) setAuthed(false);
+      .catch((err) => {
+        clearTimeout(timeout);
+        console.error("[AdminDashboard] Session verification failed:", err);
+        setAuthed(false);
+        setAuthError(err.name === "AbortError" ? "Request timed out. Please try again." : "Could not connect to server. Please try again.");
       });
-    return () => { cancelled = true; };
+    return () => { clearTimeout(timeout); controller.abort(); };
   }, [setAdminUser]);
 
   useEffect(() => {
-    if (authed === false) {
+    const cleanup = verifySession();
+    return cleanup;
+  }, [verifySession]);
+
+  useEffect(() => {
+    if (authed === false && !authError) {
       window.location.href = "/admin/login";
     }
-  }, [authed]);
+  }, [authed, authError]);
 
   if (authed === null) {
     return (
@@ -79,7 +94,22 @@ export function AdminDashboard() {
     );
   }
 
-  if (!authed) return null;
+  if (!authed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-brand-bgLight">
+        <div className="max-w-sm text-center">
+          <p className="text-sm text-red-600">{authError || "Session expired"}</p>
+          <button
+            type="button"
+            onClick={() => { verifySession(); }}
+            className="mt-4 rounded-full bg-neutral-950 px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-neutral-800"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   async function handleLogout() {
     setIsLoggingOut(true);

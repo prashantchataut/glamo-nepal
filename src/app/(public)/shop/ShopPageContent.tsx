@@ -237,7 +237,7 @@ export default function ShopPageContent() {
                     </span>
                   )}
                 </button>
-                <p className="type-body-sm text-neutral-400">
+                <p className="type-body-sm text-neutral-500">
                   {products.length} result{products.length !== 1 ? "s" : ""}
                 </p>
               </div>
@@ -283,13 +283,13 @@ export default function ShopPageContent() {
             {isLoading ? (
               <div className="py-24 text-center">
                 <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-neutral-200 border-t-primary" />
-                <p className="mt-4 text-sm text-neutral-400">Loading products...</p>
+                <p className="mt-4 text-sm text-neutral-500">Loading products...</p>
               </div>
             ) : apiError ? (
               <div className="py-24 text-center">
                 <AlertCircle className="mx-auto h-16 w-16 text-neutral-300" strokeWidth={1} aria-hidden="true" />
                 <h2 className="mt-6 font-display text-xl font-semibold text-neutral-900">Unable to load products</h2>
-                <p className="mt-2 text-sm text-neutral-400">
+                <p className="mt-2 text-sm text-neutral-500">
                   Something went wrong. Please try again.
                 </p>
                 <button
@@ -324,7 +324,7 @@ export default function ShopPageContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <h2 className="type-heading-sm mt-6 text-neutral-900">No products found</h2>
-                <p className="type-body-md mt-2 text-neutral-400">
+                <p className="type-body-md mt-2 text-neutral-500">
                   Try clearing filters or searching for something different.
                 </p>
                 <button

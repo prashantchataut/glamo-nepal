@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 import { validateCsrf } from "@/lib/csrf";
+import { compare } from "bcryptjs";
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW = 60;
@@ -11,26 +12,6 @@ const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const loginAttempts = new Map<string, { count: number; expires: number }>();
 const CLEANUP_INTERVAL = 120_000;
 let lastCleanup = Date.now();
-
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    const buf = Buffer.alloc(Math.max(a.length, b.length));
-    const aBuf = Buffer.from(a);
-    const bBuf = Buffer.from(b);
-    let result = a.length !== b.length ? 1 : 0;
-    for (let i = 0; i < buf.length; i++) {
-      result |= (aBuf[i] ?? 0) ^ (bBuf[i] ?? 0);
-    }
-    return result === 0;
-  }
-  const aBuf = Buffer.from(a);
-  const bBuf = Buffer.from(b);
-  let result = 0;
-  for (let i = 0; i < aBuf.length; i++) {
-    result |= aBuf[i] ^ bBuf[i];
-  }
-  return result === 0;
-}
 
 async function checkRateLimitRedis(ip: string): Promise<boolean> {
   const key = `admin_login:${ip}`;
@@ -88,7 +69,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const csrf = validateCsrf(request);
+  const csrf = await validateCsrf(request);
   if (!csrf.valid) {
     return NextResponse.json({ success: false, message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
   }
@@ -110,11 +91,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Admin login is not configured." }, { status: 500 });
     }
 
-    if (adminPassword.length < 12) {
-      console.warn("[SECURITY] ADMIN_PASSWORD is less than 12 characters. Use a stronger password.");
+    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+    const isEmailMatch = email.toLowerCase() === adminEmail.toLowerCase();
+    if (!isEmailMatch) {
+      return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 
-    if (!timingSafeEqual(email, adminEmail) || !timingSafeEqual(password, adminPassword)) {
+    let isPasswordValid = false;
+    if (adminPasswordHash) {
+      isPasswordValid = await compare(password, adminPasswordHash);
+    } else {
+      if (adminPassword.length < 12) {
+        console.warn("[SECURITY] ADMIN_PASSWORD is less than 12 characters. Use a stronger password. Set ADMIN_PASSWORD_HASH instead for proper security.");
+      }
+      isPasswordValid = password === adminPassword;
+    }
+
+    if (!isPasswordValid) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 
@@ -144,12 +137,17 @@ sameSite: "strict",
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  const csrf = await validateCsrf(request);
+  if (!csrf.valid) {
+    return NextResponse.json({ success: false, message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
+  }
+
   const response = NextResponse.json({ success: true });
   response.cookies.set(ADMIN_SESSION_COOKIE, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: 0,
   });

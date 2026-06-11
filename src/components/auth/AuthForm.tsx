@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { SITE_CONFIG } from "@/lib/config";
 import { IMAGES } from "@/lib/image-library";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useFirebaseAuth } from "./FirebaseAuthProvider";
 
 export type AuthMode = "login" | "register";
@@ -32,14 +33,14 @@ const labels: Record<AuthMode, { eyebrow: string; title: string; description: st
   },
 };
 
-export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
+export function AuthForm({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const params = useSearchParams();
-  const { syncComplete } = useFirebaseAuth();
+  const { syncComplete, loading: authLoading } = useFirebaseAuth();
+  const user = useAuthStore((s) => s.user);
   const syncCompleteRef = useRef(syncComplete);
   syncCompleteRef.current = syncComplete;
 
-  const [mode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -47,12 +48,16 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const copy = labels[mode];
-  const showGuestCheckout = params.get("prompt") === "guest";
-  const redirectUrl = params.get("redirect") || "/account";
+  const redirectTo = params.get("redirect") || "/account";
+
+  useEffect(() => {
+    if (syncComplete && user) {
+      const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
+      router.replace(safeRedirect);
+    }
+  }, [syncComplete, user, redirectTo, router]);
 
   const waitForSyncAndRedirect = async () => {
-    const redirectTo = params.get("redirect") || "/account";
     const safeRedirect = /^\/[a-zA-Z0-9/_-]*(?:\?[a-zA-Z0-9_=&-]*)?$/.test(redirectTo) && !redirectTo.startsWith("//") ? redirectTo : "/account";
 
     const maxWait = 5000;
@@ -65,6 +70,17 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
 
     router.push(safeRedirect);
   };
+
+  const copy = labels[mode];
+  const showGuestCheckout = params.get("prompt") === "guest";
+
+  if (authLoading || (syncComplete && user)) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,7 +311,7 @@ export function AuthForm({ mode: initialMode }: { mode: AuthMode }) {
             <div className="mt-5 border-t border-neutral-100 pt-5 text-center">
               <p className="mb-3 text-xs text-neutral-500">Or continue without an account</p>
               <Link
-                href={redirectUrl.startsWith("/checkout") ? `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}guest=true` : "/checkout?guest=true"}
+                href={redirectTo.startsWith("/checkout") ? `${redirectTo}${redirectTo.includes("?") ? "&" : "?"}guest=true` : "/checkout?guest=true"}
                 className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50"
               >
                 Continue as guest

@@ -7,6 +7,8 @@ function createMockResponse(data: unknown, ok = true, status = 200): Response {
     ok,
     status,
     json: () => Promise.resolve(data),
+    headers: new Headers(),
+    clone: () => createMockResponse(data, ok, status) as Response,
   } as Response;
 }
 

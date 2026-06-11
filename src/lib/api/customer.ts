@@ -5,7 +5,7 @@ import { csrfHeaders } from "@/lib/csrf";
 export interface ProfileUpdatePayload {
   firstName?: string;
   lastName?: string;
-  phone?: string;
+  phone?: string | null;
 }
 
 export interface CreateAddressPayload {

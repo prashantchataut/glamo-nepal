@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 import { useAdminStore } from "@/store/useAdminStore";
 
 export function AdminLoginForm() {
@@ -28,6 +28,9 @@ export function AdminLoginForm() {
         headers: { "Content-Type": "application/json", ...csrfHeaders() },
         body: JSON.stringify({ email, password }),
       });
+
+      const csrfToken = res.headers.get("x-csrf-token");
+      if (csrfToken) setCsrfToken(csrfToken);
 
       const data = await res.json().catch(() => null);
 

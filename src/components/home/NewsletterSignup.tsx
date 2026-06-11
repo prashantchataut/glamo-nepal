@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 import { IMAGES } from "@/lib/image-library";
 
 export function NewsletterSignup() {
@@ -21,6 +21,8 @@ export function NewsletterSignup() {
     setSubmitting(true);
     try {
       const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({ email }) });
+      const csrfToken = res.headers.get("x-csrf-token");
+      if (csrfToken) setCsrfToken(csrfToken);
       const data = await res.json();
       if (data.success || data.status === "success") setSubmitted(true);
       else setError(data.message || "Something went wrong. Please try again.");

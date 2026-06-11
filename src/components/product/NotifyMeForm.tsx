@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Bell, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 
 export function NotifyMeForm({ productName }: { productName: string }) {
   const [contact, setContact] = useState("");
@@ -27,6 +27,8 @@ export function NotifyMeForm({ productName }: { productName: string }) {
         headers: { "Content-Type": "application/json", ...csrfHeaders() },
         body: JSON.stringify({ email }),
       });
+      const csrfToken = res.headers.get("x-csrf-token");
+      if (csrfToken) setCsrfToken(csrfToken);
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         toast.error(data?.message || "We could not save your request. Please try again.");

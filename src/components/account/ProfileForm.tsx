@@ -6,25 +6,20 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { customerApi } from "@/lib/api/customer";
 import { GlamoApiError } from "@/lib/api/client";
 import { getUserMessage } from "@/lib/api/error-handler";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
 
 export function ProfileForm() {
   const user = useAuthStore((state) => state.user);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [isSaving, setSaving] = useState(false);
   const [isFetching, setFetching] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const isGoogleOnly = isFirebaseConfigured
-    ? !auth()?.currentUser?.providerData?.some((p) => p.providerId === "password")
-    : false;
-
   useEffect(() => {
     setName(user?.name || "");
-    setEmail(user?.email || "");
-  }, [user?.name, user?.email]);
+    setPhone(user?.phone || "");
+  }, [user?.name, user?.phone]);
 
   const fetchProfile = useCallback(async () => {
     const currentUser = useAuthStore.getState().user;
@@ -35,6 +30,7 @@ export function ProfileForm() {
       const response = await customerApi.me();
       const profile = response.data;
       const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
+      setPhone(profile.phone || currentUser.phone || "");
       useAuthStore.getState().setUser({
         id: profile.id,
         name: fullName || profile.name || currentUser.name,
@@ -72,7 +68,22 @@ export function ProfileForm() {
     event.preventDefault();
     setSaving(true);
     try {
-      await useAuthStore.getState().updateProfile({ name, email });
+      const nameParts = (name || "").trim().split(/\s+/);
+      const payload: { firstName?: string; lastName?: string; phone?: string | null } = {};
+      if (nameParts.length > 0) payload.firstName = nameParts[0];
+      if (nameParts.length > 1) payload.lastName = nameParts.slice(1).join(" ");
+      if (phone !== (user?.phone || "")) payload.phone = phone || null;
+
+      const response = await customerApi.updateProfile(payload);
+      const updated = response.data;
+
+      useAuthStore.getState().setUser({
+        id: user!.id,
+        name: [updated.firstName, updated.lastName].filter(Boolean).join(" ") || user!.name,
+        email: updated.email || user!.email,
+        phone: updated.phone || phone,
+        role: "customer",
+      });
       toast.success("Profile saved.");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save profile";
@@ -109,7 +120,7 @@ export function ProfileForm() {
         </div>
         <div>
           <h2 className="font-display text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">Profile details</h2>
-          <p className="mt-1 text-sm text-neutral-500">Keep your contact details up to date.</p>
+          <p className="mt-1 text-sm text-neutral-500">Keep your name and phone number up to date.</p>
         </div>
       </div>
 
@@ -142,16 +153,16 @@ export function ProfileForm() {
         </div>
         <div className="space-y-2">
           <label htmlFor="profile-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
-            Email{isGoogleOnly ? " (managed by Google)" : ""}
+            Email
           </label>
           <input
             id="profile-email"
-            value={email}
-            onChange={isGoogleOnly ? undefined : (e) => setEmail(e.target.value)}
+            value={user?.email || ""}
+            readOnly
+            className="w-full cursor-not-allowed rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 text-[15px] text-neutral-500 outline-none"
             placeholder="you@example.com"
-            disabled={isSaving || isFetching || isGoogleOnly}
-            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-900 outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
           />
+          <p className="text-[11px] text-neutral-400">Email is linked to your account and cannot be changed here.</p>
         </div>
         <div className="space-y-2">
           <label htmlFor="profile-phone" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
@@ -159,10 +170,12 @@ export function ProfileForm() {
           </label>
           <input
             id="profile-phone"
-            value={user?.phone || ""}
-            readOnly
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={isSaving || isFetching}
+            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-900 outline-none transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="+977 98XXXXXXXX"
-            className="w-full cursor-not-allowed rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 text-[15px] text-neutral-500 outline-none"
           />
         </div>
       </div>

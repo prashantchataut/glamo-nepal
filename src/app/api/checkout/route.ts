@@ -55,7 +55,7 @@ function getApiBaseUrl(): string {
 }
 
 export async function POST(request: NextRequest) {
-  const csrf = validateCsrf(request);
+  const csrf = await validateCsrf(request);
   if (!csrf.valid) {
     return NextResponse.json({ success: false, status: "error", message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
   }

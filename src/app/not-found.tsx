@@ -9,7 +9,7 @@ export default function NotFound() {
         <h1 className="type-display-lg text-neutral-900 -mt-4 italic">
           Page not found
         </h1>
-        <p className="type-body-md text-neutral-400 mt-4 max-w-md mx-auto">
+        <p className="type-body-md text-neutral-500 mt-4 max-w-md mx-auto">
           The page you&apos;re looking for may have moved, sold out, or never existed. Continue shopping or search for what you need.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">

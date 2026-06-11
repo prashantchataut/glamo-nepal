@@ -23,7 +23,7 @@ interface AuthState {
   setLoading: (isLoading: boolean) => void;
   login: (user: AuthUser) => void;
   logout: () => Promise<void>;
-  updateProfile: (profile: { name?: string; email?: string }) => Promise<void>;
+  updateProfile: (profile: { name?: string; email?: string; phone?: string }) => Promise<void>;
   clearError: () => void;
 }
 
@@ -74,6 +74,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       const payload: ProfileUpdatePayload = {};
       if (nameParts.length > 0) payload.firstName = nameParts[0];
       if (nameParts.length > 1) payload.lastName = nameParts.slice(1).join(" ");
+      if ("phone" in profile && profile.phone !== undefined) payload.phone = typeof profile.phone === "string" ? profile.phone : null;
 
       const response = await customerApi.updateProfile(payload);
       const updated = response.data;

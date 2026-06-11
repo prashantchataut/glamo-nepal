@@ -10,6 +10,11 @@ const nextConfig = {
       "@libsql/isomorphic-ws",
     ],
   },
+  api: {
+    bodyParser: {
+      sizeLimit: "1mb",
+    },
+  },
   images: {
     dangerouslyAllowSVG: false,
     contentDispositionType: "attachment",

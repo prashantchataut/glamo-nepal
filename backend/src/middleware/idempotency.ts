@@ -5,6 +5,7 @@ const IDEMPOTENCY_KEY_HEADER = 'x-idempotency-key'
 const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000
 const MAX_CACHE_SIZE = 10000
 const MAX_KEY_LENGTH = 128
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 
 interface CacheEntry {
   status: number
@@ -36,6 +37,41 @@ function evictExpiredEntries(): void {
 
 setInterval(evictExpiredEntries, 60 * 60 * 1000)
 
+async function getFromRedis(key: string, env: AppEnv['Bindings']): Promise<CacheEntry | null> {
+  const url = env?.UPSTASH_REDIS_REST_URL
+  const token = env?.UPSTASH_REDIS_REST_TOKEN
+  if (!url || !token) return null
+
+  try {
+    const res = await fetch(`${url}/get/idempotency:${key}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) return null
+    const data = await res.json() as { result: string | null }
+    if (!data.result) return null
+    return JSON.parse(data.result) as CacheEntry
+  } catch {
+    return null
+  }
+}
+
+async function setToRedis(key: string, entry: CacheEntry, env: AppEnv['Bindings']): Promise<void> {
+  const url = env?.UPSTASH_REDIS_REST_URL
+  const token = env?.UPSTASH_REDIS_REST_TOKEN
+  if (!url || !token) return
+
+  try {
+    const ttlSeconds = Math.ceil(IDEMPOTENCY_TTL_MS / 1000)
+    await fetch(`${url}/set/idempotency:${key}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([JSON.stringify(entry), 'EX', String(ttlSeconds)]),
+    })
+  } catch {
+    // Redis write failure is non-critical; in-memory cache will serve as fallback
+  }
+}
+
 export function idempotencyGuard() {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
     const method = c.req.method.toUpperCase()
@@ -54,6 +90,16 @@ export function idempotencyGuard() {
       return c.json({ success: false, message: 'Idempotency key too long', errors: ['IDEMPOTENCY_KEY_TOO_LONG'] }, 400)
     }
 
+    // Check Redis first (production), then memory fallback
+    const env = c.env
+    const redisEntry = await getFromRedis(key, env)
+    if (redisEntry) {
+      return new Response(JSON.stringify(redisEntry.body), {
+        status: redisEntry.status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
     const cached = idempotencyCache.get(key)
     if (cached) {
       return new Response(JSON.stringify(cached.body), {
@@ -70,11 +116,9 @@ export function idempotencyGuard() {
         try {
           const cloned = response.clone()
           const body = await cloned.json()
-          idempotencyCache.set(key, {
-            status: response.status,
-            body,
-            createdAt: Date.now(),
-          })
+          const entry: CacheEntry = { status: response.status, body, createdAt: Date.now() }
+          idempotencyCache.set(key, entry)
+          await setToRedis(key, entry, env)
         } catch {
           // Response body not JSON, skip caching
         }

@@ -48,10 +48,14 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
   }, [slug, sort]);
 
   const products = useMemo(() => {
-    const source = initialProducts && initialProducts.length > 0 ? [...initialProducts] : PRODUCTS.filter(p => p.category === slug);
-    const filtered = activeSub ? source.filter(p => p.subCategory === activeSub) : source;
+    const base = liveProducts && liveProducts.length > 0
+      ? liveProducts
+      : initialProducts && initialProducts.length > 0
+        ? initialProducts
+        : PRODUCTS.filter(p => p.category === slug);
+    const filtered = activeSub ? base.filter(p => p.subCategory === activeSub) : base;
     return sortProducts(filtered, sort);
-  }, [slug, activeSub, sort, liveProducts]);
+  }, [liveProducts, initialProducts, slug, activeSub, sort]);
 
   if (!category) {
     return (

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 import { InstagramIcon, FacebookIcon } from "@/components/ui/illustrations/SocialIcons";
 
 const shopLinks = [
@@ -48,6 +48,8 @@ export function Footer() {
         headers: { "Content-Type": "application/json", ...csrfHeaders() },
         body: JSON.stringify({ email }),
       });
+      const csrfToken = res.headers.get("x-csrf-token");
+      if (csrfToken) setCsrfToken(csrfToken);
       if (res.ok) {
         setNewsletterState("success");
         form.reset();

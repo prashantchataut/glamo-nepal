@@ -10,7 +10,7 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 
 interface AuthContextValue {
   user: User | null;
@@ -51,6 +51,8 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
       },
       body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
     });
+    const csrfToken = res.headers.get("x-csrf-token");
+    if (csrfToken) setCsrfToken(csrfToken);
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.data) {

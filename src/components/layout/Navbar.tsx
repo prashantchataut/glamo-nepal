@@ -370,12 +370,17 @@ export function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "flex min-h-14 items-center justify-between border-b border-neutral-200 font-body text-sm font-medium uppercase tracking-[0.08em]",
-                  active ? "text-primary" : "text-neutral-800",
+                  "flex min-h-14 items-center justify-between border-b font-body text-sm font-medium uppercase tracking-[0.08em] transition-colors",
+                  active
+                    ? "border-primary/20 bg-primary/5 text-primary"
+                    : "border-neutral-200 text-neutral-800 hover:text-primary",
                 )}
               >
-                {link.name}
-                <ChevronRight size={16} strokeWidth={1.7} />
+                <span className="flex items-center gap-2.5">
+                  {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />}
+                  {link.name}
+                </span>
+                <ChevronRight size={16} strokeWidth={1.7} className={active ? "text-primary" : "text-neutral-400"} />
               </Link>
             );
           })}
@@ -386,15 +391,23 @@ export function Navbar() {
             Shop by category
           </p>
           <div className="grid grid-cols-2 gap-2">
-            {CATEGORY_LINKS.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 transition hover:border-primary/40 hover:text-primary"
-              >
-                {link.name}
-              </Link>
-            ))}
+            {CATEGORY_LINKS.map((link) => {
+              const active = isActivePath(pathname, link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={cn(
+                    "rounded-2xl border px-4 py-3 text-sm font-semibold transition",
+                    active
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-neutral-200 bg-white text-neutral-800 hover:border-primary/40 hover:text-primary",
+                  )}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -442,11 +455,14 @@ export function Navbar() {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-            {SUPPORT_LINKS.map((link) => (
-              <Link key={link.name} href={link.href} className="py-1.5 text-sm text-neutral-600 hover:text-primary">
-                {link.name}
-              </Link>
-            ))}
+            {SUPPORT_LINKS.map((link) => {
+              const active = isActivePath(pathname, link.href);
+              return (
+                <Link key={link.name} href={link.href} className={cn("py-1.5 text-sm transition-colors", active ? "text-primary font-medium" : "text-neutral-600 hover:text-primary")}>
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </aside>

@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButton";
 import { BackToTopButton } from "@/components/common/BackToTopButton";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { SkipToContent } from "@/components/common/SkipToContent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, webSiteJsonLd } from "@/lib/seo";
@@ -64,6 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <CartDrawer />
       <SearchModal />
       <CompareTray />
+      <MobileBottomNav />
       <WhatsAppFloatingButton />
       <BackToTopButton />
       <Toaster position="top-center" toastOptions={{ duration: 3500, style: { borderRadius: '1rem', padding: '0.75rem 1.25rem', fontSize: '0.875rem', fontWeight: 500, boxShadow: 'var(--shadow-toast)', maxWidth: '420px', width: 'auto' } }} />

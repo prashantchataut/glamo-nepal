@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
           <Suspense fallback={
             <div className="flex flex-col items-center justify-center py-16" aria-label="Loading admin login form">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              <p className="mt-4 text-sm text-neutral-400">Loading admin login...</p>
+              <p className="mt-4 text-sm text-neutral-500">Loading admin login...</p>
             </div>
           }>
             <AdminLoginForm />

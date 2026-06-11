@@ -132,7 +132,7 @@ export default function TrackOrderClient() {
     <div className="min-h-screen bg-neutral-50">
       <section className="relative overflow-hidden bg-rose-50 py-12 md:py-20">
         <div className="container mx-auto px-4 md:px-6">
-          <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-400">
+          <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-500">
             <Link href="/" className="cursor-pointer transition-colors hover:text-primary">Home</Link>
             <span>/</span>
             <span className="text-neutral-900">Track Order</span>
@@ -186,11 +186,11 @@ export default function TrackOrderClient() {
               <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400">Order Number</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Order Number</p>
                     <p className="mt-1 font-display text-2xl font-semibold text-neutral-900">{order.orderNumber}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400">Date</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Date</p>
                     <p className="mt-1 text-sm font-medium text-neutral-700">{formatDate(order.createdAt)}</p>
                   </div>
                 </div>
@@ -236,12 +236,12 @@ export default function TrackOrderClient() {
                             <Icon size={16} />
                           </div>
                           <div className="pt-0.5">
-                            <p className={`text-sm font-semibold ${isCompleted ? "text-neutral-900" : "text-neutral-400"}`}>
+                            <p className={`text-sm font-semibold ${isCompleted ? "text-neutral-900" : "text-neutral-500"}`}>
                               {step.label}
                               {isCurrent && <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-primary">Current</span>}
                             </p>
                             {historyEntry && (
-                              <p className="mt-0.5 text-xs text-neutral-400">{formatDate(historyEntry.createdAt)}</p>
+                              <p className="mt-0.5 text-xs text-neutral-500">{formatDate(historyEntry.createdAt)}</p>
                             )}
                           </div>
                         </div>
@@ -262,7 +262,7 @@ export default function TrackOrderClient() {
                         }`} />
                         <div>
                           <p className="font-medium text-neutral-900">{STATUS_LABELS[entry.status.toUpperCase()] || entry.status}</p>
-                          <p className="text-neutral-400">{formatDate(entry.createdAt)}{entry.comment ? ` — ${entry.comment}` : ""}</p>
+                          <p className="text-neutral-500">{formatDate(entry.createdAt)}{entry.comment ? ` — ${entry.comment}` : ""}</p>
                         </div>
                       </div>
                     ))}
@@ -284,8 +284,8 @@ export default function TrackOrderClient() {
                       )}
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-neutral-900 truncate">{item.productName}</p>
-                        {item.variantName && <p className="text-xs text-neutral-400">{item.variantName}</p>}
-                        <p className="mt-0.5 text-xs text-neutral-400">Qty: {item.quantity}</p>
+                        {item.variantName && <p className="text-xs text-neutral-500">{item.variantName}</p>}
+                        <p className="mt-0.5 text-xs text-neutral-500">Qty: {item.quantity}</p>
                       </div>
                       <p className="shrink-0 text-sm font-semibold text-neutral-900">{formatNPR(item.totalPrice)}</p>
                     </li>

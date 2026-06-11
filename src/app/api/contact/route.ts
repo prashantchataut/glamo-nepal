@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, message: "Validation failed", errors: result.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const csrfResult = validateCsrf(request);
+  const csrfResult = await validateCsrf(request);
   if (!csrfResult.valid) return NextResponse.json({ success: false, message: csrfResult.reason }, { status: 403 });
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";

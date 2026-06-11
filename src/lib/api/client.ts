@@ -1,7 +1,16 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+function captureCsrfFromResponse(response: Response): void {
+  try {
+    const token = response.headers?.get("x-csrf-token");
+    if (token) setCsrfToken(token);
+  } catch {
+    // Headers may not be available in test mocks
+  }
+}
 
 export class GlamoApiError extends Error {
   code?: string;
@@ -71,11 +80,13 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   let response: Response;
   try {
     response = await sendRequest(apiBaseUrl, path, init, token);
+    captureCsrfFromResponse(response);
     if (response.status === 401 && token) {
       const refreshed = await getAuthToken(true);
       if (refreshed && refreshed !== token) {
         token = refreshed;
         response = await sendRequest(apiBaseUrl, path, init, token);
+        captureCsrfFromResponse(response);
       }
     }
   } catch (error) {

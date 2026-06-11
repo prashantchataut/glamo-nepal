@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Clock, Loader2, Mail, MapPin, Phone } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +19,8 @@ export default function ContactClient() {
     setIsSending(true);
     try {
       const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify(data) });
+      const token = res.headers.get("x-csrf-token");
+      if (token) setCsrfToken(token);
       if (!res.ok) {
         if (res.status === 503) toast.error("Contact form is not yet available. Please message us on WhatsApp or email hello@glamonepal.com.");
         else throw new Error("Failed to send message");
