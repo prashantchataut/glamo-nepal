@@ -747,6 +747,12 @@ export function CheckoutPageClient() {
                   <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
                     Delivery method
                   </h2>
+                  {deliveryRule.serviceLevel === "pending" ? (
+                    <div className="rounded-[1.25rem] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 md:rounded-[1.5rem] md:p-5">
+                      <p className="font-semibold">Outside delivery area</p>
+                      <p className="mt-1 text-amber-800">We currently deliver within Kathmandu Valley only. Outside-Valley delivery will be available soon.</p>
+                    </div>
+                  ) : (
                   <label className="flex cursor-pointer items-center gap-4 rounded-[1.25rem] border border-primary bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
                     <input
                       type="radio"
@@ -767,6 +773,7 @@ export function CheckoutPageClient() {
                       {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
                     </span>
                   </label>
+                  )}
                   <CodAvailabilityChecker
                     district={form.district}
                     province={form.province}

@@ -88,8 +88,7 @@ function generateNonce(): string {
 function addSecurityHeaders(response: NextResponse, nonce?: string) {
   const scriptSrc = [
     "'self'",
-    nonce ? `'nonce-${nonce}'` : "'unsafe-inline'",
-    "'strict-dynamic'",
+    "'unsafe-inline'",
     "https://cdn.vercel-insights.com",
     "https://va.vercel-scripts.com",
     "https://www.gstatic.com",
