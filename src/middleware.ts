@@ -86,14 +86,18 @@ function generateNonce(): string {
 }
 
 function addSecurityHeaders(response: NextResponse, nonce?: string) {
+  const nonceAttr = nonce ? `'nonce-${nonce}'` : "";
   const scriptSrc = [
     "'self'",
     "'unsafe-inline'",
+    "'unsafe-eval'",
+    nonceAttr,
     "https://cdn.vercel-insights.com",
     "https://va.vercel-scripts.com",
     "https://www.gstatic.com",
     "https://apis.google.com",
-  ].join(" ");
+    "https://www.googletagmanager.com",
+  ].filter(Boolean).join(" ");
 
   const cspDirectives = [
     "default-src 'self'",
