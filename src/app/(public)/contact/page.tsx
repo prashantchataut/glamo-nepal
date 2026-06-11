@@ -11,8 +11,7 @@ export default function ContactPage() {
       <section className="border-b border-neutral-200 bg-neutral-100">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8">
           <div>
-            <p className="type-label text-primary">Customer care</p>
-            <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">We are here for the details.</h1>
+            <h1 className="max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">We are here for the details.</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600">Ask about an order, get help choosing a product, confirm delivery coverage or plan a store visit in Kathmandu.</p>
           </div>
           <div className="relative min-h-[360px] overflow-hidden border border-neutral-200 bg-white shadow-editorial md:min-h-[460px]">

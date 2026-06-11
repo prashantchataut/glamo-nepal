@@ -16,7 +16,6 @@ import {
   getMunicipalitiesForDistrict as _getMunicipalitiesForDistrict,
   getDeliveryRule as _getDeliveryRule,
   calculateDeliveryFee as _calculateDeliveryFee,
-  getFreeDeliveryProgress as _getFreeDeliveryProgress,
   isValidProvinceDistrictCombo,
   isCodAvailable,
 } from "./nepal-locations";
@@ -29,7 +28,6 @@ export type DistrictInfo = DistrictInfoType;
 export { PROVINCES, DISTRICTS, DISTRICTS_BY_PROVINCE, ALL_DISTRICTS, MUNICIPALITIES_BY_DISTRICT };
 export { _getMunicipalitiesForDistrict as getMunicipalitiesForDistrict, isValidProvinceDistrictCombo, isCodAvailable };
 
-export const FREE_DELIVERY_THRESHOLD = 2500;
 export const COD_FEE = 50;
 
 export interface DistrictDeliveryRule {
@@ -39,7 +37,6 @@ export interface DistrictDeliveryRule {
   prepaidAvailable: boolean;
   estimate: string;
   fee: number;
-  freeDeliveryThreshold: number;
   serviceLevel: ServiceLevel | "pending";
   ownerNote: string;
 }
@@ -52,7 +49,6 @@ function adaptRule(rule: NewDistrictDeliveryRule | ProvinceDeliveryDefault): Dis
     prepaidAvailable: true,
     estimate: rule.estimatedDays,
     fee: rule.fee,
-    freeDeliveryThreshold: rule.freeDeliveryThreshold,
     serviceLevel: rule.serviceLevel,
     ownerNote: "",
   };
@@ -78,8 +74,4 @@ export function getDeliveryRule(district: string, province: string = "Bagmati"):
 
 export function calculateDeliveryFee(subtotal: number, district: string, province = "Bagmati"): number {
   return _calculateDeliveryFee(subtotal, normalizeDistrict(district), normalizeProvince(province));
-}
-
-export function getFreeDeliveryProgress(subtotal: number, district: string, province = "Bagmati"): { threshold: number; remaining: number; percent: number } {
-  return _getFreeDeliveryProgress(subtotal, normalizeDistrict(district), normalizeProvince(province));
 }

@@ -18,15 +18,13 @@ import { useFirebaseAuth } from "./FirebaseAuthProvider";
 
 export type AuthMode = "login" | "register";
 
-const labels: Record<AuthMode, { eyebrow: string; title: string; description: string; button: string }> = {
+const labels: Record<AuthMode, { title: string; description: string; button: string }> = {
   login: {
-    eyebrow: "Welcome back",
     title: "Sign in to GLAMO",
     description: "Enter your email and password to access your account.",
     button: "Sign in",
   },
   register: {
-    eyebrow: "Join GLAMO",
     title: "Create your beauty account",
     description: "Sign up with your email and a password. You can add your phone number at checkout.",
     button: "Create account",

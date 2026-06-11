@@ -203,7 +203,7 @@ export function Navbar() {
               ref={menuButtonRef}
               type="button"
               className={cn(
-                "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden",
+                "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-950 transition hover:bg-white/70 lg:hidden z-10",
                 isHome && "bg-white/75 ring-1 ring-primary/15 hover:bg-neutral-50",
               )}
               onClick={() => setMobileMenuOpen(true)}

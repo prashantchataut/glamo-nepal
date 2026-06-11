@@ -12,7 +12,7 @@ export default function BrandsPage() {
   const brands = getBrandProfiles();
   return (
     <main className="bg-neutral-50">
-      <EditorialHero eyebrow="Brand directory" title="Curated brands, not endless shelves." description="Browse global favourites, practical routine staples and Nepal-made beauty stories selected for authenticity, performance and everyday use." image={IMAGES.categories.fragrance} imageAlt="Perfume bottles on a premium beauty counter" />
+      <EditorialHero title="Curated brands, not endless shelves." description="Browse global favourites, practical routine staples and Nepal-made beauty stories selected for authenticity, performance and everyday use." image={IMAGES.categories.fragrance} imageAlt="Perfume bottles on a premium beauty counter" />
       <EditorialSection title="Explore brands" description={`${brands.length} brand edits organized for faster product discovery.`}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {brands.map((brand) => (

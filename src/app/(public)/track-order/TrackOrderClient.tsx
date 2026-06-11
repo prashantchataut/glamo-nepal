@@ -137,8 +137,7 @@ export default function TrackOrderClient() {
             <span>/</span>
             <span className="text-neutral-900">Track Order</span>
           </nav>
-          <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Order status</p>
-          <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.98] text-neutral-900 md:text-7xl">
+          <h1 className="font-display text-5xl font-semibold leading-[0.98] text-neutral-900 md:text-7xl">
             Track your <span className="italic text-primary">order</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">

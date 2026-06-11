@@ -56,8 +56,7 @@ export default function SearchPageContent() {
               <span>/</span>
               <span className="text-neutral-900">Search</span>
             </nav>
-            <p className="type-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Find your glow</p>
-            <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.98] text-neutral-900 md:text-7xl">
+            <h1 className="font-display text-5xl font-semibold leading-[0.98] text-neutral-900 md:text-7xl">
               {q ? <>Results for <span className="italic text-primary">&ldquo;{q}&rdquo;</span></> : "Search GLAMO"}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">

@@ -4,14 +4,12 @@ import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 
 export function EditorialHero({
-  eyebrow,
   title,
   description,
   image,
   imageAlt,
   cta,
 }: {
-  eyebrow: string;
   title: string;
   description: string;
   image?: string;
@@ -22,8 +20,7 @@ export function EditorialHero({
     <section className="border-b border-neutral-200 bg-neutral-100">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
         <div>
-          <p className="type-label text-primary-text">{eyebrow}</p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">
+          <h1 className="max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">
             {title}
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600 md:text-lg">
@@ -49,13 +46,11 @@ export function EditorialHero({
 }
 
 export function EditorialSection({
-  eyebrow,
   title,
   description,
   children,
   className = "",
 }: {
-  eyebrow?: string;
   title: string;
   description?: string;
   children?: ReactNode;
@@ -65,8 +60,7 @@ export function EditorialSection({
     <section className={`bg-neutral-50 py-12 md:py-16 ${className}`}>
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div className="mb-8 max-w-3xl">
-          {eyebrow ? <p className="type-label text-primary-text">{eyebrow}</p> : null}
-          <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-neutral-900 md:text-5xl">{title}</h2>
+          <h2 className="font-display text-4xl font-medium leading-tight text-neutral-900 md:text-5xl">{title}</h2>
           {description ? <p className="mt-4 text-base leading-7 text-neutral-600">{description}</p> : null}
         </div>
         {children}

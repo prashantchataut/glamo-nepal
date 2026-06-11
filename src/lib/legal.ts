@@ -23,7 +23,7 @@ export const termsSections: LegalSection[] = [
 export const shippingSections: LegalSection[] = [
   { id: "coverage", title: "Delivery coverage", body: ["GLAMO NEPAL currently delivers within Kathmandu Valley.", "Some addresses may require phone confirmation before dispatch."] },
   { id: "timelines", title: "Estimated timelines", body: ["Kathmandu Valley orders are usually delivered within 1 to 2 business days after confirmation."] },
-  { id: "fees", title: "Delivery fees", body: ["Delivery within Kathmandu Valley is available on all orders. Delivery fees depend on order size and payment method."] },
+  { id: "fees", title: "Delivery fees", body: ["Delivery fees depend on order size and payment method."] },
   { id: "pickup", title: "Store pickup", body: [`Store pickup may be arranged from ${SITE_CONFIG.address} after order confirmation.`] },
 ];
 

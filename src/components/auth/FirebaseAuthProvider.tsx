@@ -33,6 +33,15 @@ function setAuthCookie(token: string | null) {
   }
 }
 
+function normalizeRole(role?: string): "customer" | "admin" {
+  if (!role) return "customer";
+  const lower = role.toLowerCase();
+  if (lower === "admin") return "admin";
+  return "customer";
+}
+
+const _globalCompletedSyncs = new Set<string>();
+
 async function syncUserWithBackend(token: string, displayName?: string | null) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
@@ -44,6 +53,7 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
     }
     const res = await fetch(`${apiUrl}/auth/sync`, {
       method: "POST",
+      credentials: "include",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -73,7 +83,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [syncComplete, setSyncComplete] = useState(false);
   const { login, logout } = useAuthStore();
   const syncingRef = useRef<string | null>(null);
-  const completedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -83,12 +92,20 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error("[Global] Unhandled promise rejection:", event.reason);
+      if (event.reason instanceof Error && event.reason.message?.includes("Connection closed")) {
+        return;
+      }
+    };
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+
     const unsubscribe = onAuthStateChanged(auth(), async (user) => {
       setFirebaseUser(user);
 
       if (user) {
         const syncKey = user.uid;
-        if (completedRef.current.has(syncKey)) {
+        if (_globalCompletedSyncs.has(syncKey)) {
           setLoading(false);
           setSyncComplete(true);
           return;
@@ -116,7 +133,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
                   ? `${backendUser.firstName}${backendUser.lastName ? " " + backendUser.lastName : ""}`
                   : user.displayName || user.email?.split("@")[0] || "User",
                 phone: backendUser.phone || "",
-                role: backendUser.role || "customer",
+                role: normalizeRole(backendUser.role),
               });
             } else {
               console.warn("[Auth] Backend sync failed, using Firebase-only user data");
@@ -141,7 +158,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
           useCartStore.getState().syncFromServer().catch((err) => console.error("[Auth] Cart sync failed:", err));
           useWishlistStore.getState().syncFromServer().catch((err) => console.error("[Auth] Wishlist sync failed:", err));
-          completedRef.current.add(syncKey);
+          _globalCompletedSyncs.add(syncKey);
         } catch (error) {
           console.error("Auth sync failed:", error);
           login({
@@ -151,7 +168,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             phone: user.phoneNumber || "",
             role: "customer",
           });
-          completedRef.current.add(syncKey);
+          _globalCompletedSyncs.add(syncKey);
         } finally {
           setSyncComplete(true);
           setLoading(false);
@@ -162,11 +179,14 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         setSyncComplete(true);
         setLoading(false);
         syncingRef.current = null;
-        completedRef.current.clear();
+        _globalCompletedSyncs.clear();
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
+      unsubscribe();
+    };
   }, [login, logout]);
 
   return (

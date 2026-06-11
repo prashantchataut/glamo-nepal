@@ -39,8 +39,7 @@ export default function ContactClient() {
     <section className="bg-neutral-50 py-12 md:py-16">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 md:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div className="border border-neutral-200 bg-white p-6 shadow-card md:p-8">
-          <p className="type-label text-primary">Send a message</p>
-          <h2 className="mt-3 font-display text-4xl font-medium text-neutral-900">Product help, orders and partnerships.</h2>
+          <h2 className="font-display text-4xl font-medium text-neutral-900">Product help, orders and partnerships.</h2>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-8 space-y-5">
             <div className="grid gap-5 sm:grid-cols-2"><Input label="Name" type="text" placeholder="Your name" {...register("name")} error={errors.name?.message} /><Input label="Email" type="email" placeholder="you@example.com" {...register("email")} error={errors.email?.message} /></div>
             <div className="grid gap-5 sm:grid-cols-2"><Input label="Phone" type="tel" placeholder="+977 98XXXXXXXX" {...register("phone")} error={errors.phone?.message} /><div><label htmlFor="contact-subject" className="type-label mb-2 block text-neutral-500">Subject</label><select id="contact-subject" {...register("subject")} className="min-h-11 w-full border-b border-neutral-300 bg-transparent py-3 text-sm text-neutral-900 outline-none focus:border-primary"><option value="">Select a subject</option><option value="order">Order inquiry</option><option value="product">Product question</option><option value="return">Returns and refunds</option><option value="collaboration">Collaboration</option><option value="other">Other</option></select>{errors.subject && <p role="alert" className="mt-1 text-xs text-error">{errors.subject.message}</p>}</div></div>
@@ -49,8 +48,7 @@ export default function ContactClient() {
           </form>
         </div>
         <aside className="border border-neutral-200 bg-neutral-100 p-6 md:p-8">
-          <p className="type-label text-primary">Store information</p>
-          <h2 className="mt-3 font-display text-4xl font-medium text-neutral-900">Kathmandu care desk.</h2>
+          <h2 className="font-display text-4xl font-medium text-neutral-900">Kathmandu care desk.</h2>
           <div className="mt-8 space-y-5 text-sm leading-7 text-neutral-600">
             <div className="flex gap-4"><MapPin className="mt-1 text-primary" size={18} /><p>{SITE_CONFIG.address}</p></div>
             <div className="flex gap-4"><Phone className="mt-1 text-primary" size={18} /><a href={SITE_CONFIG.whatsapp} className="hover:text-primary">{SITE_CONFIG.phone}</a></div>

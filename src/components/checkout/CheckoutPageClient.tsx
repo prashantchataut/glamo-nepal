@@ -498,25 +498,30 @@ export function CheckoutPageClient() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
             Secure checkout
           </p>
-          <h1 className="mt-2 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
-            Confirm your beauty bag.
-          </h1>
+          <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-7xl">
+              Confirm your beauty bag.
+            </h1>
+            <p className="max-w-sm text-sm leading-7 text-neutral-600">
+              Delivery within Kathmandu Valley. Cash on delivery available.
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-7">
-            <nav aria-label="Checkout progress">
-              <ol role="list" className="mb-6 flex items-center justify-between gap-2 md:mb-8">
+<nav aria-label="Checkout progress">
+              <ol role="list" className="mb-6 flex items-center gap-0 md:mb-8">
               {steps.map((step, i) => {
                 const Icon = step.icon;
                 const isActive = currentStep === i;
                 const isCompleted = i < currentStep;
                 return (
-                  <li key={step.label}>
+                  <li key={step.label} className="flex items-center">
                     <button
                       type="button"
                       onClick={() => setCurrentStep(i)}
-                      className="flex flex-col items-center gap-1.5"
+                      className="flex flex-col items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       aria-current={isActive ? "step" : undefined}
                       aria-label={`${step.label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
                     >
@@ -535,6 +540,9 @@ export function CheckoutPageClient() {
                       {step.label}
                     </span>
                     </button>
+                    {i < steps.length - 1 && (
+                      <div className={`mx-2 hidden h-px flex-1 md:block ${isCompleted ? "bg-primary" : "bg-neutral-200"}`} />
+                    )}
                   </li>
                 );
               })}
@@ -1071,6 +1079,10 @@ export function CheckoutPageClient() {
               <div className="flex items-center gap-2">
                 <ShieldCheck size={14} className="shrink-0 text-primary" />
                 <span>Authentic products, verified before dispatch</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Truck size={14} className="shrink-0 text-primary" />
+                <span>Delivery within Kathmandu Valley</span>
               </div>
               <div className="flex items-center gap-2">
                 <Gift size={14} className="shrink-0 text-primary" />
