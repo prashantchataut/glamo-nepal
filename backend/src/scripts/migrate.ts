@@ -56,6 +56,7 @@ async function migrate() {
     'ALTER TABLE product_variants ADD COLUMN deleted_at TEXT',
     'ALTER TABLE orders ADD COLUMN deleted_at TEXT',
     'ALTER TABLE reviews ADD COLUMN deleted_at TEXT',
+    'ALTER TABLE users ADD COLUMN phone_verified INTEGER NOT NULL DEFAULT 0',
   ]
   for (const statement of columnUpgrades) {
     try {
