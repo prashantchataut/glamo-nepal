@@ -126,7 +126,7 @@ export function SearchModal() {
     const product = results[index];
     if (!product) return;
     saveRecent(debouncedQuery || product.name);
-    router.push(`/products/${product.slug}`);
+    router.push(`/product/${product.slug}`);
     closeSearchModal();
   }, [closeSearchModal, debouncedQuery, results, router, saveRecent]);
 

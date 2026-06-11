@@ -37,7 +37,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
         ]),
         itemListJsonLd(products.map((product) => ({
           name: product.name,
-          url: `/products/${product.slug}`,
+          url: `/product/${product.slug}`,
           image: product.image,
         }))),
       ]} />

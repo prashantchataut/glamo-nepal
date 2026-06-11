@@ -17,7 +17,7 @@ export type District =
   | "Bajura" | "Bajhang" | "Darchula" | "Kailali" | "Kanchanpur"
   | "Achham" | "Doti" | "Dadeldhura" | "Baitadi";
 
-export type ServiceLevel = "valley" | "metro" | "standard" | "remote";
+export type ServiceLevel = "valley" | "metro" | "standard" | "remote" | "pending";
 
 export interface Municipality {
   name: string;
@@ -936,28 +936,19 @@ export const ALL_DISTRICTS: DistrictInfo[] = Object.entries(DISTRICTS_BY_PROVINC
 );
 
 export const DISTRICT_DELIVERY_RULES: DistrictDeliveryRule[] = [
-  { district: "Kathmandu", province: "Bagmati", codAvailable: true, fee: 100, freeDeliveryThreshold: 2500, serviceLevel: "valley", estimatedDays: "1-2 business days" },
-  { district: "Lalitpur", province: "Bagmati", codAvailable: true, fee: 100, freeDeliveryThreshold: 2500, serviceLevel: "valley", estimatedDays: "1-2 business days" },
-  { district: "Bhaktapur", province: "Bagmati", codAvailable: true, fee: 120, freeDeliveryThreshold: 2500, serviceLevel: "valley", estimatedDays: "1-2 business days" },
-  { district: "Chitwan", province: "Bagmati", codAvailable: true, fee: 190, freeDeliveryThreshold: 2500, serviceLevel: "metro", estimatedDays: "2-4 business days" },
-  { district: "Kaski", province: "Gandaki", codAvailable: true, fee: 180, freeDeliveryThreshold: 2500, serviceLevel: "metro", estimatedDays: "2-4 business days" },
-  { district: "Rupandehi", province: "Lumbini", codAvailable: true, fee: 200, freeDeliveryThreshold: 2500, serviceLevel: "metro", estimatedDays: "2-4 business days" },
-  { district: "Morang", province: "Koshi", codAvailable: false, fee: 240, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { district: "Parsa", province: "Madhesh", codAvailable: false, fee: 230, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { district: "Banke", province: "Lumbini", codAvailable: false, fee: 220, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { district: "Kailali", province: "Sudurpashchim", codAvailable: false, fee: 280, freeDeliveryThreshold: 3000, serviceLevel: "standard", estimatedDays: "4-6 business days" },
-  { district: "Surkhet", province: "Karnali", codAvailable: false, fee: 320, freeDeliveryThreshold: 3500, serviceLevel: "remote", estimatedDays: "5-8 business days" },
-  { district: "Dang", province: "Lumbini", codAvailable: false, fee: 240, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
+  { district: "Kathmandu", province: "Bagmati", codAvailable: true, fee: 100, freeDeliveryThreshold: 0, serviceLevel: "valley", estimatedDays: "1-2 business days" },
+  { district: "Lalitpur", province: "Bagmati", codAvailable: true, fee: 100, freeDeliveryThreshold: 0, serviceLevel: "valley", estimatedDays: "1-2 business days" },
+  { district: "Bhaktapur", province: "Bagmati", codAvailable: true, fee: 120, freeDeliveryThreshold: 0, serviceLevel: "valley", estimatedDays: "1-2 business days" },
 ];
 
 export const PROVINCE_DELIVERY_DEFAULTS: ProvinceDeliveryDefault[] = [
-  { province: "Bagmati", codAvailable: true, fee: 150, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "2-4 business days" },
-  { province: "Gandaki", codAvailable: true, fee: 200, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { province: "Lumbini", codAvailable: false, fee: 230, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { province: "Koshi", codAvailable: false, fee: 250, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { province: "Madhesh", codAvailable: false, fee: 230, freeDeliveryThreshold: 2500, serviceLevel: "standard", estimatedDays: "3-5 business days" },
-  { province: "Karnali", codAvailable: false, fee: 350, freeDeliveryThreshold: 4000, serviceLevel: "remote", estimatedDays: "5-10 business days" },
-  { province: "Sudurpashchim", codAvailable: false, fee: 300, freeDeliveryThreshold: 3000, serviceLevel: "standard", estimatedDays: "4-7 business days" },
+  { province: "Bagmati", codAvailable: true, fee: 150, freeDeliveryThreshold: 0, serviceLevel: "valley", estimatedDays: "1-2 business days" },
+  { province: "Gandaki", codAvailable: false, fee: 0, freeDeliveryThreshold: 0, serviceLevel: "pending", estimatedDays: "Outside delivery area" },
+  { province: "Lumbini", codAvailable: false, fee: 0, freeDeliveryThreshold: 0, serviceLevel: "pending", estimatedDays: "Outside delivery area" },
+  { province: "Koshi", codAvailable: false, fee: 0, freeDeliveryThreshold: 0, serviceLevel: "pending", estimatedDays: "Outside delivery area" },
+  { province: "Madhesh", codAvailable: false, fee: 0, freeDeliveryThreshold: 0, serviceLevel: "pending", estimatedDays: "Outside delivery area" },
+  { province: "Karnali", codAvailable: false, fee: 0, freeDeliveryThreshold: 0, serviceLevel: "pending", estimatedDays: "Outside delivery area" },
+  { province: "Sudurpashchim", codAvailable: false, fee: 0, freeDeliveryThreshold: 0, serviceLevel: "pending", estimatedDays: "Outside delivery area" },
 ];
 
 export function getDistrictsForProvince(province: Province): District[] {
@@ -976,7 +967,8 @@ export function getDeliveryRule(district: District, province: Province): Distric
 
 export function calculateDeliveryFee(subtotal: number, district: District, province: Province): number {
   const rule = getDeliveryRule(district, province);
-  return subtotal >= rule.freeDeliveryThreshold ? 0 : rule.fee;
+  if (rule.serviceLevel === "pending") return 0;
+  return rule.fee;
 }
 
 export function getFreeDeliveryProgress(subtotal: number, district: District, province: Province): { threshold: number; remaining: number; percent: number } {

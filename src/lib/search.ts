@@ -64,7 +64,7 @@ export function getSearchSuggestions(query: string, limit = 8): SearchSuggestion
       .sort((a, b) => (b.isExact ? 1 : 0) - (a.isExact ? 1 : 0))
       .slice(0, 4);
 
-    fuzzyMatchProducts.forEach((item) => add({ label: item.product.name, href: `/products/${item.product.slug}`, type: "product" }));
+    fuzzyMatchProducts.forEach((item) => add({ label: item.product.name, href: `/product/${item.product.slug}`, type: "product" }));
 
     const fuzzyMatchBrands = Array.from(new Set(PRODUCTS.map((product) => product.brand)))
       .map((brand) => {

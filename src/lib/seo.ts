@@ -90,7 +90,7 @@ export function productJsonLd(product: Product) {
     description: product.description,
     offers: {
       "@type": "Offer",
-      url: absoluteUrl(`/products/${product.slug}`),
+      url: absoluteUrl(`/product/${product.slug}`),
       priceCurrency: "NPR",
       price: product.price,
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),

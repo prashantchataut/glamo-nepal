@@ -6,7 +6,7 @@ import { SITE_CONFIG } from "@/lib/config";
 export function WhatsAppFloatingButton() {
   const pathname = usePathname();
   if (pathname?.startsWith("/checkout")) return null;
-  const isProductPage = pathname?.startsWith("/products/");
+  const isProductPage = pathname?.startsWith("/product/");
   const label = isProductPage ? "Ask about this product" : "Chat with us";
   const href = isProductPage ? `${SITE_CONFIG.whatsapp}?text=${encodeURIComponent("Hi GLAMO, I have a question about this product.")}` : SITE_CONFIG.whatsapp;
 

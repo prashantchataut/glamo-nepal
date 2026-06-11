@@ -86,6 +86,24 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (mode === "register") {
+      if (password.length < 8) {
+        setError("Password must be at least 8 characters.");
+        return;
+      }
+      if (!/[a-zA-Z]/.test(password)) {
+        setError("Password must include at least one letter.");
+        return;
+      }
+      if (!/[0-9]/.test(password)) {
+        setError("Password must include at least one number.");
+        return;
+      }
+      if (!/[^a-zA-Z0-9]/.test(password)) {
+        setError("Password must include at least one special character (e.g. !@#$%).");
+        return;
+      }
+    }
     setIsLoading(true);
     try {
       if (mode === "register") {
@@ -265,7 +283,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             </div>
             {mode === "register" && (
               <p id="auth-password-hint" className="text-[11px] tracking-wide text-neutral-500">
-                Minimum 8 characters, including a letter and a number
+                Minimum 8 characters, including a letter, a number, and a special character
               </p>
             )}
           </div>

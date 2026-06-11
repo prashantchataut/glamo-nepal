@@ -88,7 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       <div className="relative block aspect-[4/5] overflow-hidden bg-neutral-100">
         <Link
-          href={`/products/${product.slug}`}
+          href={`/product/${product.slug}`}
           className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <Image
@@ -144,7 +144,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute inset-x-3 bottom-3 z-10 hidden translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
             {product.shadeOptions && product.shadeOptions.length > 0 ? (
               <Link
-                href={`/products/${product.slug}`}
+                href={`/product/${product.slug}`}
                 className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary"
               >
                 View options
@@ -187,7 +187,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <Link href={`/products/${product.slug}`} className="mt-2 block">
+        <Link href={`/product/${product.slug}`} className="mt-2 block">
           <h3 className="min-h-[2.8rem] font-display text-[1.35rem] font-semibold leading-[1.02] tracking-[-0.025em] text-neutral-950 transition-colors group-hover:text-primary">
             {product.name}
           </h3>
@@ -233,13 +233,13 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           {showNotify && !product.inStock && (
             <p className="mt-3 text-xs text-neutral-500">
-              <Link href={`/products/${product.slug}`} className="underline hover:text-primary">View details</Link>
+              <Link href={`/product/${product.slug}`} className="underline hover:text-primary">View details</Link>
             </p>
           )}
           {product.inStock && (
             <div className="mt-3 md:hidden">
               {product.shadeOptions && product.shadeOptions.length > 0 ? (
-                <Link href={`/products/${product.slug}`} className="flex h-10 w-full items-center justify-center rounded-full border border-neutral-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition-colors hover:border-primary hover:text-primary">
+                <Link href={`/product/${product.slug}`} className="flex h-10 w-full items-center justify-center rounded-full border border-neutral-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition-colors hover:border-primary hover:text-primary">
                   View options
                 </Link>
               ) : (

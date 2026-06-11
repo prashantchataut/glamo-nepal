@@ -138,7 +138,7 @@ export function CartPageClient() {
                   className="grid grid-cols-[80px_minmax(0,1fr)] gap-3 rounded-[1.5rem] border border-neutral-200 bg-white p-3 shadow-card-sm sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:rounded-[2rem] sm:p-5 sm:shadow-card-default"
                 >
                   <Link
-                    href={`/products/${item.product.slug}`}
+                    href={`/product/${item.product.slug}`}
                     className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-neutral-100 sm:rounded-[1.5rem]"
                   >
                     <Image
@@ -156,7 +156,7 @@ export function CartPageClient() {
                           {item.product.brand}
                         </p>
                         <Link
-                          href={`/products/${item.product.slug}`}
+                          href={`/product/${item.product.slug}`}
                           className="mt-1 block font-display text-xl font-semibold leading-none tracking-[-0.03em] text-neutral-950 transition hover:text-primary sm:text-2xl"
                         >
                           {item.product.name}
