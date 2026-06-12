@@ -257,15 +257,17 @@ className={cn(
                 <Link
                   href="/account"
                   className={cn(
-                    "hidden min-h-11 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
-                    isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
+                    "group hidden min-h-11 items-center gap-2.5 rounded-full transition md:flex",
+                    isHome
+                      ? "border border-secondary/30 bg-white/80 px-2 py-1.5 shadow-navbar-menu hover:bg-white/90"
+                      : "px-2 py-1.5 hover:bg-white/75"
                   )}
                   aria-label={`Account, signed in as ${firstName}`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-body text-[11px] font-semibold uppercase tracking-wide text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-rose-400 font-body text-[11px] font-bold uppercase tracking-wider text-white shadow-sm transition-transform group-hover:scale-105">
                     {initialsOf(user.name, user.email || user.phone)}
                   </span>
-                  <span className="font-body hidden max-w-[7rem] truncate text-[12px] font-medium tracking-[0.04em] lg:inline">
+                  <span className="font-body hidden max-w-[7rem] truncate text-[12px] font-semibold tracking-[0.02em] text-neutral-800 lg:inline">
                     {firstName}
                   </span>
                 </Link>
@@ -273,12 +275,14 @@ className={cn(
                 <Link
                   href="/login"
                   className={cn(
-                    "font-body hidden min-h-11 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
-                    isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
+                    "group hidden min-h-11 items-center gap-2 rounded-full px-3 py-1.5 font-body text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-700 transition md:flex",
+                    isHome
+                      ? "border border-secondary/30 bg-white/80 shadow-navbar-menu hover:bg-white/90 hover:text-primary"
+                      : "hover:bg-white/75 hover:text-primary"
                   )}
                   aria-label="Sign in"
                 >
-                  <User size={18} strokeWidth={1.7} />
+                  <User size={17} strokeWidth={1.8} className="transition-transform group-hover:scale-105" />
                   <span className="hidden lg:inline">Sign in</span>
                 </Link>
               )}
@@ -303,10 +307,10 @@ className={cn(
               className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-600 shadow-search ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Search skincare, makeup, brands"
             >
-              <span className="flex min-w-0 items-center gap-2">
-                <Search size={15} strokeWidth={1.7} />
-                <span className="truncate">Search skincare, makeup, SPF, brands...</span>
-              </span>
+<span className="flex min-w-0 items-center gap-2">
+                 <Search size={15} strokeWidth={1.7} />
+                 <span className="truncate text-neutral-600">Search skincare, makeup, SPF, brands...</span>
+               </span>
               <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500 sm:block">
                 Search
               </span>

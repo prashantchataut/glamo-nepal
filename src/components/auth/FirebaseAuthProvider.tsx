@@ -5,6 +5,7 @@ import {
   auth,
   onAuthStateChanged,
   isFirebaseConfigured,
+  handleGoogleRedirectResult,
   type User,
 } from "@/lib/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -99,6 +100,8 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       }
     };
     window.addEventListener("unhandledrejection", onUnhandledRejection);
+
+    handleGoogleRedirectResult().catch(() => { /* no redirect result, normal flow */ });
 
     const unsubscribe = onAuthStateChanged(auth(), async (user) => {
       setFirebaseUser(user);

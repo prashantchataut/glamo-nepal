@@ -212,7 +212,7 @@ export function SearchModal() {
                   value={query}
                   onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }}
                   placeholder="Search skincare, lipstick, sunscreen..."
-                  className="min-h-11 flex-1 bg-transparent text-base text-neutral-900 outline-none placeholder:text-neutral-400 md:text-lg"
+                  className="min-h-11 flex-1 bg-transparent text-base text-neutral-900 outline-none placeholder:text-neutral-500 md:text-lg"
                   aria-controls="glamo-search-results"
                 />
                 {query ? (
@@ -253,7 +253,7 @@ export function SearchModal() {
               ) : isLoading ? (
                 <div className="py-12 text-center">
                   <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-neutral-200 border-t-primary" />
-                  <p className="mt-3 text-sm text-neutral-400">Searching...</p>
+                  <p className="mt-3 text-sm text-neutral-500">Searching...</p>
                 </div>
               ) : debouncedQuery.trim().length >= 2 && results.length > 0 ? (
                 <div>
@@ -307,7 +307,7 @@ export function SearchModal() {
                   <p className="mt-4 text-sm text-neutral-500">
                     No products found for &ldquo;{debouncedQuery}&rdquo;
                   </p>
-                  <p className="mt-1 text-xs text-neutral-400">Try a different search term.</p>
+                  <p className="mt-1 text-xs text-neutral-500">Try a different search term.</p>
                 </div>
               ) : (
                 <div>
@@ -315,7 +315,7 @@ export function SearchModal() {
                     <div className="mb-6">
                       <div className="flex items-center justify-between mb-3">
                         <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Recent searches</p>
-                        <button type="button" onClick={clearRecent} className="text-xs text-neutral-400 hover:text-neutral-600 transition">Clear</button>
+                        <button type="button" onClick={clearRecent} className="text-xs text-neutral-500 hover:text-neutral-700 transition">Clear</button>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {recentSearches.map((term) => (

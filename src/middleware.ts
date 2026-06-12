@@ -86,34 +86,6 @@ async function signCsrfToken(token: string): Promise<string> {
   return `${token}.${sigB64}`;
 }
 
-async function validateCsrfToken(request: NextRequest): Promise<boolean> {
-  if (!CSRF_SECRET) return true;
-  if (request.method === "GET" || request.method === "HEAD" || request.method === "OPTIONS") return true;
-
-  const cookieValue = request.cookies.get(CSRF_TOKEN_COOKIE)?.value;
-  if (!cookieValue) return false;
-
-  const [rawToken, signature] = cookieValue.split(".");
-  if (!rawToken || !signature) return false;
-
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", encoder.encode(CSRF_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const expectedSig = await crypto.subtle.sign("HMAC", key, encoder.encode(rawToken));
-  const expectedB64 = btoa(String.fromCharCode(...new Uint8Array(expectedSig))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
-
-  if (signature !== expectedB64) return false;
-
-  const headerToken = request.headers.get("x-csrf-token");
-  if (headerToken && headerToken === rawToken) return true;
-
-  const contentType = request.headers.get("content-type") || "";
-  if (contentType.includes("application/json")) {
-    return !!cookieValue;
-  }
-
-  return headerToken === rawToken;
-}
-
 function addSecurityHeaders(response: NextResponse) {
   const scriptSrc = [
     "'self'",
@@ -161,8 +133,10 @@ async function setCsrfCookie(response: NextResponse, csrfToken: string, request:
       path: "/",
       maxAge: 60 * 60 * 24,
     });
-    response.headers.set("x-csrf-token", csrfToken);
   }
+  // Always expose the raw token so client-side bootstrap can capture it.
+  // The signed cookie (httpOnly) is still required for server-side verification.
+  response.headers.set("x-csrf-token", csrfToken);
 }
 
 const CANONICAL_REDIRECTS: Record<string, string> = {
@@ -229,13 +203,6 @@ export async function middleware(request: NextRequest) {
     const hasAuth = await hasFirebaseAuthToken(request);
     if (hasAuth) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
-    }
-  }
-
-  if (!isHtml && request.method !== "GET" && request.method !== "HEAD") {
-    const valid = await validateCsrfToken(request);
-    if (!valid) {
-      return NextResponse.json({ success: false, message: "CSRF validation failed", errors: [] }, { status: 403 });
     }
   }
 

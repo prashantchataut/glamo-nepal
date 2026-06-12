@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, Heart, Loader2, ShoppingBag, Star } from "lucide-react";
@@ -10,6 +10,7 @@ import { trackEvent } from "@/lib/analytics";
 import { cn, formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import type { Product } from "@/types/product";
 
 type AddState = "idle" | "loading" | "added";
@@ -22,6 +23,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [mounted, setMounted] = useState(false);
   const [addState, setAddState] = useState<AddState>("idle");
   const [showNotify, setShowNotify] = useState(false);
+  const wishlistLoginToastShown = useRef(false);
   const addToCart = useCartStore((s) => s.addItem);
   const toggleWishlistItem = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist);
@@ -72,13 +74,27 @@ export function ProductCard({ product }: ProductCardProps) {
   function onWishlist(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    const wasWishlisted = isWishlisted;
     toggleWishlistItem(product);
     trackEvent("wishlist_toggle", {
       productId: product.id,
       productSlug: product.slug,
       sku: product.sku,
-      action: isWishlisted ? "remove" : "add",
+      action: wasWishlisted ? "remove" : "add",
     });
+    if (!wasWishlisted && !wishlistLoginToastShown.current) {
+      const { isConfigured, user } = useAuthStore.getState();
+      if (isConfigured && !user) {
+        wishlistLoginToastShown.current = true;
+        toast("Sign in to save items to your wishlist", {
+          id: "wishlist-login-toast",
+          action: {
+            label: "Sign in",
+            onClick: () => { window.location.href = "/auth"; },
+          },
+        });
+      }
+    }
   }
 
   return (
@@ -227,7 +243,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {formatNPR(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="text-xs text-neutral-400 line-through">
+                <span className="text-xs text-neutral-500 line-through">
                   {formatNPR(product.originalPrice)}
                 </span>
               )}

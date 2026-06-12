@@ -7,6 +7,7 @@ import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
 import { FirebaseAuthProvider } from "@/components/auth/FirebaseAuthProvider";
+import { CsrfBootstrap } from "@/components/auth/CsrfBootstrap";
 import { getNonce } from "@/components/providers/NonceProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
@@ -69,6 +70,7 @@ export default async function RootLayout({
       className={`${outfit.variable} ${playfair.variable}`}
     >
       <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
+        <CsrfBootstrap />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-white focus:rounded-lg focus:top-4 focus:left-4">
           Skip to content
         </a>

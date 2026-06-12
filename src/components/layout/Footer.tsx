@@ -34,12 +34,20 @@ const helpLinks = [
 
 export function Footer() {
   const [newsletterState, setNewsletterState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [validationError, setValidationError] = useState("");
 
   const handleNewsletterSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
     if (!email) return;
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setValidationError("Please enter a valid email address.");
+      setTimeout(() => setValidationError(""), 5000);
+      return;
+    }
+    setValidationError("");
 
     setNewsletterState("loading");
     try {
@@ -95,13 +103,13 @@ export function Footer() {
               </button>
             </div>
             <div aria-live="polite">
-            {newsletterState === "success" && (
+            {validationError ? (
+              <p className="text-xs leading-5 text-red-400">{validationError}</p>
+            ) : newsletterState === "success" ? (
               <p className="text-xs leading-5 text-green-400">You&apos;re on the list! Check your inbox for a welcome note.</p>
-            )}
-            {newsletterState === "error" && (
+            ) : newsletterState === "error" ? (
               <p className="text-xs leading-5 text-red-400">Something went wrong. Please try again.</p>
-            )}
-            {newsletterState === "idle" && (
+            ) : (
               <p className="text-xs leading-5 text-white/80">No spam — only launches, routines and practical beauty notes.</p>
             )}
             </div>

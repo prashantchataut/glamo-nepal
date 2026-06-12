@@ -18,7 +18,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
       - name: Frontend audit
         run: pnpm audit --audit-level=moderate || true
       - name: Backend audit
@@ -42,8 +41,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: npx tsc --noEmit
-      - run: pnpm test --if-present
-      - run: pnpm run build --if-present
+      - run: pnpm test
+      - run: pnpm run build
 
   backend:
     name: Backend - Typecheck, Test
@@ -63,7 +62,7 @@ jobs:
           cache-dependency-path: backend/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: npx tsc --noEmit
-      - run: pnpm test --if-present
+      - run: pnpm test
 
   e2e-auth:
     name: E2E - Auth Flow

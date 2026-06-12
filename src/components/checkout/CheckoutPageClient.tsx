@@ -249,9 +249,9 @@ export function CheckoutPageClient() {
   );
 
   const inputClass =
-    "w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm";
+    "w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-500 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm";
   const labelClass =
-    "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500 md:mb-2";
+    "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 md:mb-2";
   const errorClass = "mt-1 text-xs text-error";
 
   function updateProvince(province: string) {
@@ -1030,7 +1030,7 @@ export function CheckoutPageClient() {
                   <div className="flex items-center justify-between rounded-[1.15rem] border border-primary/30 bg-primary/5 px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Tag size={16} className="text-primary" />
-                      <span className="text-sm font-semibold text-neutral-950">{couponCode}</span>
+                      <span className="text-sm font-semibold text-neutral-950">{couponCode.slice(0, 2)}{'•'.repeat(Math.max(0, couponCode.length - 2))}</span>
                       {discountAmount > 0 && (
                         <span className="text-xs text-primary">-{formatNPR(discountAmount)}</span>
                       )}

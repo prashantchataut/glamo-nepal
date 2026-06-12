@@ -8,6 +8,8 @@ import {
   confirmPasswordReset as _confirmPasswordReset,
   GoogleAuthProvider,
   signInWithPopup as _signInWithPopup,
+  signInWithRedirect as _signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   updateProfile,
   type Auth,
@@ -54,6 +56,9 @@ function getAuthInstance(): Auth {
 function getGoogleProvider(): GoogleAuthProvider {
   if (_googleProvider) return _googleProvider;
   _googleProvider = new GoogleAuthProvider();
+  _googleProvider.addScope("profile");
+  _googleProvider.addScope("email");
+  _googleProvider.setCustomParameters({ prompt: "select_account" });
   return _googleProvider;
 }
 
@@ -88,6 +93,16 @@ export const confirmPasswordReset = (oobCode: string, newPassword: string) => {
 export const signInWithPopup = () => {
   if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
   return _signInWithPopup(getAuthInstance(), getGoogleProvider());
+};
+
+export const signInWithGoogleRedirect = () => {
+  if (!isFirebaseConfigured) throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.");
+  return _signInWithRedirect(getAuthInstance(), getGoogleProvider());
+};
+
+export const handleGoogleRedirectResult = () => {
+  if (!isFirebaseConfigured) return Promise.resolve(null);
+  return getRedirectResult(getAuthInstance());
 };
 
 export const updateUserProfile = (user: User, profile: { displayName?: string; photoURL?: string }) =>

@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithGoogleRedirect,
   updateUserProfile,
 } from "@/lib/firebase";
 import { toast } from "sonner";
@@ -159,16 +160,29 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           return;
         }
         if (code === "auth/unauthorized-domain") {
-          setError("This domain is not authorized for Google sign-in. Add it in Firebase Console.");
-        } else if (code === "auth/operation-not-allowed") {
-          setError("Google sign-in is not enabled. Enable it in Firebase Console.");
-        } else {
-          setError(err.message || "Google sign-in failed. Please try again.");
+          setError("This domain is not authorized for Google sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.");
+          setIsLoading(false);
+          return;
         }
+        if (code === "auth/operation-not-allowed") {
+          setError("Google sign-in is not enabled. Enable it in Firebase Console.");
+          setIsLoading(false);
+          return;
+        }
+        if (code === "auth/popup-blocked" || code === "auth/web-popup-blocked") {
+          try {
+            signInWithGoogleRedirect();
+            return;
+          } catch {
+            setError("Popup blocked and redirect failed. Please allow popups or try email sign-in.");
+          }
+          setIsLoading(false);
+          return;
+        }
+        setError(err.message || "Google sign-in failed. Please try again.");
       } else {
         setError("Google sign-in failed. Please try again.");
       }
-    } finally {
       setIsLoading(false);
     }
   };
@@ -180,9 +194,9 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-neutral-950/10" />
         <div className="relative z-10">
           <h1 className="font-display text-4xl font-light leading-[0.95] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
-          <p className="mt-4 max-w-sm text-sm leading-7 text-white/70 md:mt-5">{copy.description}</p>
-          <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/65 md:mt-8">
-            <strong className="block text-white/90">Need help signing in?</strong>
+          <p className="mt-4 max-w-sm text-sm leading-7 text-white/85 md:mt-5">{copy.description}</p>
+          <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/85 md:mt-8">
+            <strong className="block text-white">Need help signing in?</strong>
             Contact GLAMO customer care at {SITE_CONFIG.phone}, or use the forgot password link below.
           </div>
         </div>
@@ -209,7 +223,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-neutral-100" />
-          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">or</span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">or</span>
           <div className="h-px flex-1 bg-neutral-100" />
         </div>
 

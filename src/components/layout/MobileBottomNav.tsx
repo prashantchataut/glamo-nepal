@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, Home, Search, ShoppingBag, User } from "lucide-react";
+import { Heart, Home, Search, ShoppingBag, UserCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/useUIStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
@@ -14,7 +14,7 @@ const navItems = [
   { icon: ShoppingBag, label: "Cart", href: "/cart", action: undefined as string | undefined },
   { icon: Search, label: "Search", href: "#", action: "search" as const },
   { icon: Heart, label: "Wishlist", href: "/wishlist", action: undefined as string | undefined },
-  { icon: User, label: "Account", href: "/account", action: undefined as string | undefined },
+  { icon: UserCircle, label: "Account", href: "/account", action: undefined as string | undefined },
 ];
 
 export function MobileBottomNav() {
@@ -29,8 +29,11 @@ export function MobileBottomNav() {
   }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-neutral-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-mobile-nav md:hidden" aria-label="Mobile navigation">
-      <div className="flex h-full items-center justify-around">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-100 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_20px_rgba(0,0,0,0.04)] backdrop-blur-xl md:hidden"
+      aria-label="Mobile navigation"
+    >
+      <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive = item.href !== "#" && (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)));
           const Icon = item.icon;
@@ -44,19 +47,63 @@ export function MobileBottomNav() {
 
           if (item.action === "search") {
             return (
-              <button key={item.label} type="button" onClick={openSearchModal} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", isActive ? "bg-primary/10 text-primary" : "text-neutral-500 hover:text-primary")} aria-label="Open search">
-                <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-                <span className="text-[11px] font-medium">{item.label}</span>
+              <button
+                key={item.label}
+                type="button"
+                onClick={openSearchModal}
+                className={cn(
+                  "group relative flex flex-col items-center justify-center gap-0.5 rounded-2xl px-4 py-2 transition-all duration-200",
+                  isActive
+                    ? "text-primary"
+                    : "text-neutral-400 active:scale-95 active:bg-neutral-50"
+                )}
+                aria-label="Search products"
+              >
+                <div className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200",
+                  isActive ? "bg-primary/10" : "group-hover:bg-neutral-100"
+                )}>
+                  <Icon size={19} strokeWidth={isActive ? 2.2 : 1.6} />
+                </div>
+                <span className={cn(
+                  "text-[10px] font-semibold tracking-wide transition-colors",
+                  isActive ? "text-primary" : "text-neutral-400 group-hover:text-neutral-600"
+                )}>
+                  {item.label}
+                </span>
               </button>
             );
           }
 
           return (
-            <Link key={item.label} href={item.href} className={cn("relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 rounded-xl transition-colors", isActive ? "bg-primary/10 text-primary" : "text-neutral-500 hover:text-primary")} aria-label={item.label}>
-              <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-              <span className={cn("text-[11px]", isActive ? "font-semibold" : "font-medium")}>{item.label}</span>
+            <Link
+              key={item.label}
+              href={item.href}
+              className={cn(
+                "group relative flex flex-col items-center justify-center gap-0.5 rounded-2xl px-4 py-2 transition-all duration-200",
+                isActive
+                  ? "text-primary"
+                  : "text-neutral-400 active:scale-95 active:bg-neutral-50"
+              )}
+              aria-label={item.label}
+            >
+              <div className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200",
+                isActive ? "bg-primary/10" : "group-hover:bg-neutral-100"
+              )}>
+                <Icon size={19} strokeWidth={isActive ? 2.2 : 1.6} />
+              </div>
+              <span className={cn(
+                "text-[10px] font-semibold tracking-wide transition-colors",
+                isActive ? "text-primary" : "text-neutral-400 group-hover:text-neutral-600"
+              )}>
+                {item.label}
+              </span>
               {count > 0 && (
-                <span aria-live="polite" className="absolute -top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white">
+                <span
+                  aria-live="polite"
+                  className="absolute -right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-white shadow-[0_1px_4px_rgba(219,39,119,0.3)]"
+                >
                   {count}
                 </span>
               )}

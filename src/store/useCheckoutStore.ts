@@ -83,10 +83,14 @@ export const useCheckoutStore = create<CheckoutState>()(
         try {
           const { validateCoupon } = await import("@/lib/api/checkout");
           const result = await validateCoupon(code, cartTotal);
+          if (!result.discountAmount || result.discountAmount <= 0) {
+            set({ couponCode: null, discountAmount: 0, couponError: "This coupon does not provide a discount for your cart total.", couponLoading: false });
+            return;
+          }
           set({ couponCode: result.code, discountAmount: result.discountAmount, couponError: null, couponLoading: false });
         } catch (err) {
           const message = err instanceof Error ? err.message : "Invalid coupon code";
-          set({ couponError: message, couponLoading: false });
+          set({ couponCode: null, discountAmount: 0, couponError: message, couponLoading: false });
         }
       },
       removeCoupon: () => set({ couponCode: null, discountAmount: 0, couponError: null }),
@@ -141,6 +145,12 @@ export const useCheckoutStore = create<CheckoutState>()(
     {
       name: "glamo-checkout-storage",
       version: 1,
+      partialize: (state) => ({
+        status: state.status,
+        error: state.error,
+        lastOrder: state.lastOrder,
+        orders: state.orders,
+      }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
         if (state.status === "pending") {
