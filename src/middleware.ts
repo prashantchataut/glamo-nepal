@@ -123,22 +123,30 @@ function addSecurityHeaders(response: NextResponse) {
 
 async function setCsrfCookie(response: NextResponse, request: NextRequest) {
   const existingCookie = request.cookies.get(CSRF_TOKEN_COOKIE)?.value;
+  let rawToken: string;
+
   if (existingCookie) {
-    // Reuse existing signed cookie — don't regenerate
-    // The client already has the matching raw token in sessionStorage
-    return;
+    const dotIndex = existingCookie.lastIndexOf(".");
+    rawToken = dotIndex === -1 ? existingCookie : existingCookie.slice(0, dotIndex);
+  } else {
+    rawToken = generateCsrfToken();
+    const signedToken = await signCsrfToken(rawToken);
+    response.cookies.set(CSRF_TOKEN_COOKIE, signedToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: IS_PRODUCTION,
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
   }
-  // No existing cookie — generate and set a new one
-  const rawToken = generateCsrfToken();
-  const signedToken = await signCsrfToken(rawToken);
-  response.cookies.set(CSRF_TOKEN_COOKIE, signedToken, {
-    httpOnly: true,
+
+  response.cookies.set("glamo-csrf-raw", rawToken, {
+    httpOnly: false,
     sameSite: "strict",
     secure: IS_PRODUCTION,
     path: "/",
     maxAge: 60 * 60 * 24,
   });
-  // Also expose the raw token via header for the initial page load
   response.headers.set("x-csrf-token", rawToken);
 }
 
