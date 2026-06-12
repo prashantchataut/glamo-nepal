@@ -31,13 +31,15 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
   const router = useRouter();
   const [activeSub, setActiveSub] = useState<string>("");
   const [liveProducts, setLiveProducts] = useState<Product[] | null>(null);
-  const [sort, setSort] = useState("featured");
+  const [sort, setSort] = useState(searchParams.get("sort") || "featured");
 
   const category = CATEGORIES.find(c => c.slug === slug);
 
+  // Sync local sort from URL on back/forward navigation
   useEffect(() => {
-    setSort(searchParams.get("sort") || "featured");
-  }, [searchParams]);
+    const urlSort = searchParams.get("sort") || "featured";
+    if (urlSort !== sort) setSort(urlSort);
+  }, [searchParams, sort]);
 
   // Prefer live catalog data; fall back to the static catalog on error/empty.
   useEffect(() => {

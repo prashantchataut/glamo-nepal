@@ -121,25 +121,25 @@ function addSecurityHeaders(response: NextResponse) {
   return response;
 }
 
-async function setCsrfCookie(response: NextResponse, csrfToken: string, request: NextRequest) {
-  if (!request.cookies.get(CSRF_TOKEN_COOKIE)?.value) {
-    const signedToken = await signCsrfToken(csrfToken);
-    response.cookies.set(CSRF_TOKEN_COOKIE, signedToken, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: IS_PRODUCTION,
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+async function setCsrfCookie(response: NextResponse, request: NextRequest) {
+  const existingCookie = request.cookies.get(CSRF_TOKEN_COOKIE)?.value;
+  if (existingCookie) {
+    // Reuse existing signed cookie — don't regenerate
+    // The client already has the matching raw token in sessionStorage
+    return;
   }
-  response.cookies.set("glamo-csrf-raw", csrfToken, {
-    httpOnly: false,
+  // No existing cookie — generate and set a new one
+  const rawToken = generateCsrfToken();
+  const signedToken = await signCsrfToken(rawToken);
+  response.cookies.set(CSRF_TOKEN_COOKIE, signedToken, {
+    httpOnly: true,
     sameSite: "strict",
     secure: IS_PRODUCTION,
     path: "/",
     maxAge: 60 * 60 * 24,
   });
-  response.headers.set("x-csrf-token", csrfToken);
+  // Also expose the raw token via header for the initial page load
+  response.headers.set("x-csrf-token", rawToken);
 }
 
 const CANONICAL_REDIRECTS: Record<string, string> = {
@@ -173,11 +173,11 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
-      if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
+      if (isHtml) await setCsrfCookie(response, request);
       return response;
     }
     const response = addSecurityHeaders(NextResponse.next());
-    if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
+    if (isHtml) await setCsrfCookie(response, request);
     return response;
   }
 
@@ -187,7 +187,7 @@ export async function middleware(request: NextRequest) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
     const response = addSecurityHeaders(NextResponse.next());
-    if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
+    if (isHtml) await setCsrfCookie(response, request);
     return response;
   }
 
@@ -197,7 +197,7 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
-      if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
+      if (isHtml) await setCsrfCookie(response, request);
       return response;
     }
   }
@@ -210,7 +210,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = addSecurityHeaders(NextResponse.next());
-  if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
+  if (isHtml) await setCsrfCookie(response, request);
   return response;
 }
 

@@ -31,6 +31,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import type { Product } from "@/types/product";
+import { RecentlyViewedStrip } from "@/components/product/RecentlyViewedStrip";
 import { ReviewSection } from "@/components/reviews/ReviewSection";
 
 const reassurance = [
@@ -554,6 +555,7 @@ export default function ProductDetailClient({
         </section>
       )}
 
+      <RecentlyViewedStrip excludeSlug={product.slug} />
       <ReviewSection productId={product.id} />
     </main>
   );

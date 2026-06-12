@@ -87,7 +87,7 @@ export function Footer() {
             className="flex flex-col justify-end gap-3"
           >
             <label htmlFor="footer-email" className="sr-only">Email address</label>
-            <div className="flex min-h-14 items-center gap-3 rounded-full border border-white/12 bg-white px-4 text-neutral-950">
+            <div className="flex min-h-14 items-center gap-3 rounded-full border border-white/10 bg-white px-4 text-neutral-950">
               <Mail size={17} strokeWidth={1.7} className="shrink-0 text-neutral-500" />
               <input
                 id="footer-email"
