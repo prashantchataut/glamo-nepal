@@ -6,11 +6,81 @@ import { SlidersHorizontal, X, AlertCircle, RefreshCw } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MobileFilterSheet } from "@/components/shop/MobileFilterSheet";
 import { ShopFilterSidebar, type FilterState } from "@/components/shop/ShopFilterSidebar";
-import { CATEGORIES, SORT_OPTIONS } from "@/lib/data/products";
+import { CATEGORIES, PRODUCTS, SORT_OPTIONS } from "@/lib/data/products";
 import { listProducts, type ProductListParams } from "@/lib/api/catalog";
 import type { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 import { trackCategoryView } from "@/lib/tracking";
+
+function filterLocalProducts(filters: FilterState): Product[] {
+  let result = [...PRODUCTS];
+
+  if (filters.category) {
+    result = result.filter((p) => p.category === filters.category);
+  }
+  if (filters.subCategory) {
+    result = result.filter((p) => p.subCategory === filters.subCategory);
+  }
+  if (filters.brands.length > 0) {
+    result = result.filter((p) => filters.brands.includes(p.brand));
+  }
+  if (filters.skinType.length > 0) {
+    result = result.filter((p) =>
+      filters.skinType.some((st) => p.skinType.includes(st))
+    );
+  }
+  if (filters.concerns.length > 0) {
+    result = result.filter((p) =>
+      filters.concerns.some((c) => p.concernTags.includes(c))
+    );
+  }
+  if (filters.madeInNepal) {
+    result = result.filter((p) => p.madeInNepal);
+  }
+  if (filters.inStock) {
+    result = result.filter((p) => p.inStock);
+  }
+  if (filters.minPrice > PRICE_RANGE.min) {
+    result = result.filter((p) => p.price >= filters.minPrice);
+  }
+  if (filters.maxPrice < PRICE_RANGE.max) {
+    result = result.filter((p) => p.price <= filters.maxPrice);
+  }
+  if (filters.search.trim()) {
+    const q = filters.search.trim().toLowerCase();
+    result = result.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.concernTags.some((t) => t.toLowerCase().includes(q))
+    );
+  }
+
+  switch (filters.sort) {
+    case "price-asc":
+      result.sort((a, b) => a.price - b.price);
+      break;
+    case "price-desc":
+      result.sort((a, b) => b.price - a.price);
+      break;
+    case "newest":
+      result.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0));
+      break;
+    case "best-sellers":
+      result.sort((a, b) => (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0));
+      break;
+    case "most-reviewed":
+      result.sort((a, b) => b.reviewsCount - a.reviewsCount);
+      break;
+    case "featured":
+    default:
+      result.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+      break;
+  }
+
+  return result;
+}
 
 const PRICE_RANGE = { min: 0, max: 50000 };
 const DEFAULT_FILTERS: FilterState = {
@@ -129,13 +199,14 @@ export default function ShopPageContent() {
         if (result.status === "success" && result.data && result.data.length > 0) {
           setProducts(result.data);
         } else {
-          setProducts([]);
+          const local = filterLocalProducts(filters);
+          setProducts(local);
         }
       })
       .catch(() => {
         if (cancelled) return;
-        setApiError("Unable to load products. Please try again.");
-        setProducts([]);
+        const local = filterLocalProducts(filters);
+        setProducts(local);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);

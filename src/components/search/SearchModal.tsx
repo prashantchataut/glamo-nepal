@@ -173,30 +173,23 @@ export function SearchModal() {
     } catch { /* noop */ }
   }
 
+  if (!isSearchModalOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isSearchModalOpen ? (
-        <>
-          <motion.div
-            key="search-backdrop"
-            onClick={closeSearchModal}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-modal-backdrop bg-black/50"
-          />
-          <motion.div
-            ref={modalRef}
-            key="search-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Search products"
-            initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.95, y: reduceMotion ? 0 : -12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.95, y: reduceMotion ? 0 : -12 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="fixed left-3 right-3 top-3 z-modal overflow-hidden rounded-3xl bg-white shadow-2xl md:left-1/2 md:right-auto md:top-6 md:w-[min(940px,calc(100vw-48px))] md:-translate-x-1/2"
-          >
+    <>
+      <div
+        key="search-backdrop"
+        onClick={closeSearchModal}
+        className="fixed inset-0 z-modal-backdrop bg-black/50"
+      />
+      <div
+        ref={modalRef}
+        key="search-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search products"
+        className="fixed left-3 right-3 top-3 z-modal overflow-hidden rounded-3xl bg-white shadow-2xl md:left-1/2 md:right-auto md:top-6 md:w-[min(940px,calc(100vw-48px))] md:-translate-x-1/2"
+      >
             {/* Search input */}
             <div className="border-b border-neutral-200/80 px-4 md:px-6">
               <div className="flex items-center gap-3 py-4">

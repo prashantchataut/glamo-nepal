@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/firebase-auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody } from '../../middleware/validate'
+import { publicReadRateLimit } from '../../middleware/rateLimit'
 import { createCategorySchema, updateCategorySchema } from './category.schema'
 import {
   getCategories,
@@ -15,8 +16,8 @@ import {
 
 const categoryRoutes = new Hono<AppEnv>()
 
-categoryRoutes.get('/', getCategories)
-categoryRoutes.get('/:slug', getCategoryBySlug)
+categoryRoutes.get('/', publicReadRateLimit, getCategories)
+categoryRoutes.get('/:slug', publicReadRateLimit, getCategoryBySlug)
 
 categoryRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createCategorySchema), createCategory)
 categoryRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateCategorySchema), updateCategory)

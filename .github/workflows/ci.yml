@@ -42,6 +42,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: npx tsc --noEmit
+      - run: pnpm test --if-present
       - run: pnpm run build --if-present
 
   backend:
@@ -122,5 +123,31 @@ jobs:
         run: pnpm run build
       - name: Run E2E guest checkout tests
         run: npx playwright test e2e/guest-checkout.spec.ts --reporter=list
+        env:
+          NEXT_PUBLIC_API_BASE_URL: /api/v1
+
+  e2e-security:
+    name: E2E - Security Headers & Forms
+    runs-on: ubuntu-latest
+    needs: frontend
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Build app
+        run: pnpm run build
+      - name: Run E2E security tests
+        run: npx playwright test e2e/security.spec.ts --reporter=list
         env:
           NEXT_PUBLIC_API_BASE_URL: /api/v1

@@ -60,6 +60,15 @@ export function CartDrawer() {
   );
 
   useEffect(() => {
+    function onCartPulse() {
+      const openCart = useUIStore.getState().openCart;
+      openCart();
+    }
+    window.addEventListener("glamo:cart-pulse", onCartPulse);
+    return () => window.removeEventListener("glamo:cart-pulse", onCartPulse);
+  }, []);
+
+  useEffect(() => {
     if (isCartOpen) document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isCartOpen, handleKeyDown]);

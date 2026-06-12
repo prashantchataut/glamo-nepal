@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const stockReportFilterSchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
   search: z.string().trim().optional(),
   lowStockOnly: z
@@ -19,7 +19,7 @@ export const inventoryLogFilterSchema = z.object({
   changeType: z.enum(['RESTOCK', 'SALE', 'ADJUSTMENT', 'RETURN', 'CANCEL_RESTORE']).optional(),
   startDate: z.string().datetime({ offset: true }).optional(),
   endDate: z.string().datetime({ offset: true }).optional(),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 

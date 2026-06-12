@@ -24,7 +24,7 @@ export const productFilterSchema = z.object({
     .transform((v) => v === 'true' || v === '1'),
   perPage: z.coerce.number().int().positive().max(100).optional(),
   sort: z.enum(['newest', 'featured', 'price-asc', 'price-desc', 'best-seller', 'best-sellers', 'most-reviewed', 'rating']).default('newest'),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(24),
 })
 

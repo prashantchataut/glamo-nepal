@@ -17,6 +17,8 @@ export function ComingSoonTooltip({ children }: { children: ReactNode }) {
         tabIndex={0}
         onFocus={() => setShow(true)}
         onBlur={() => setShow(false)}
+        role="button"
+        aria-label="Coming soon"
         aria-describedby="coming-soon-tooltip"
       >
         {children}

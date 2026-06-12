@@ -32,7 +32,7 @@ export const reorderSchema = z.object({
 
 export const bannerFilterSchema = z.object({
   position: z.enum(['HERO', 'MID_PAGE', 'SIDEBAR', 'POPUP']).optional(),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 

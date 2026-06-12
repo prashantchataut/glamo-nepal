@@ -156,8 +156,30 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             });
           }
 
-          useCartStore.getState().syncFromServer().catch((err) => console.error("[Auth] Cart sync failed:", err));
-          useWishlistStore.getState().syncFromServer().catch((err) => console.error("[Auth] Wishlist sync failed:", err));
+          const syncCart = async (retries = 1) => {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+              try {
+                await useCartStore.getState().syncFromServer();
+                return;
+              } catch (err) {
+                if (attempt === retries) console.error("[Auth] Cart sync failed:", err);
+                else await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+              }
+            }
+          };
+          const syncWishlist = async (retries = 1) => {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+              try {
+                await useWishlistStore.getState().syncFromServer();
+                return;
+              } catch (err) {
+                if (attempt === retries) console.error("[Auth] Wishlist sync failed:", err);
+                else await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+              }
+            }
+          };
+          syncCart();
+          syncWishlist();
           _globalCompletedSyncs.add(syncKey);
         } catch (error) {
           console.error("Auth sync failed:", error);

@@ -63,6 +63,11 @@ In Netlify Dashboard → Site → Settings → Environment variables, set:
 - `ESEWA_SECRET_KEY`
 - `ESEWA_MERCHANT_CODE`
 
+**For rate limiting & idempotency (Redis):**
+- `UPSTASH_REDIS_REST_URL` — from Upstash Console → Redis Database → REST URL
+- `UPSTASH_REDIS_REST_TOKEN` — from Upstash Console → Redis Database → REST Token
+- Without these, rate limiting falls back to per-invocation memory (ineffective on serverless)
+
 **For CORS:**
 - `FRONTEND_URL` — your production frontend URL (e.g., `https://glamonepal.com`)
 

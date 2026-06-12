@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/firebase-auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody, validateQuery } from '../../middleware/validate'
+import { publicReadRateLimit } from '../../middleware/rateLimit'
 import { createBlogPostSchema, updateBlogPostSchema, blogFilterSchema } from './blog.schema'
 import {
   getBlogPosts,
@@ -18,9 +19,9 @@ import {
 
 const blogRoutes = new Hono<AppEnv>()
 
-blogRoutes.get('/', validateQuery(blogFilterSchema), getBlogPosts)
-blogRoutes.get('/categories', getBlogCategories)
-blogRoutes.get('/:slug', getBlogPostBySlug)
+blogRoutes.get('/', publicReadRateLimit, validateQuery(blogFilterSchema), getBlogPosts)
+blogRoutes.get('/categories', publicReadRateLimit, getBlogCategories)
+blogRoutes.get('/:slug', publicReadRateLimit, getBlogPostBySlug)
 blogRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createBlogPostSchema), createBlogPost)
 blogRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateBlogPostSchema), updateBlogPost)
 blogRoutes.patch('/:id/publish', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), publishBlogPost)

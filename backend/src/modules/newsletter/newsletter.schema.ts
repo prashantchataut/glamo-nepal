@@ -6,7 +6,7 @@ export const subscribeSchema = z.object({
 
 export const subscriberFilterSchema = z.object({
   isActive: z.string().optional().transform(v => v === 'true' ? true : v === 'false' ? false : undefined),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 

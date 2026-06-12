@@ -98,6 +98,12 @@ export default function TrackOrderClient() {
     const trimmed = orderNumber.trim();
     if (!trimmed) return;
 
+    const orderPattern = /^GL-\d{8}-[A-Za-z0-9]+$/;
+    if (!orderPattern.test(trimmed)) {
+      setError("Invalid format. Your order number should look like GL-20250101-ABCD (check your confirmation email).");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setOrder(null);
@@ -156,6 +162,8 @@ export default function TrackOrderClient() {
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
                 placeholder="Enter order number (e.g. GL-20250101-ABCD)"
+                pattern="GL-\d{8}-[A-Za-z0-9]+"
+                title="Order number format: GL-YYYYMMDD-XXXX (e.g. GL-20250101-ABCD)"
                 className="min-h-14 w-full rounded-full border border-neutral-200 bg-white pl-12 pr-4 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10"
                 aria-label="Order number"
               />
@@ -168,6 +176,7 @@ export default function TrackOrderClient() {
               {loading ? <Loader2 size={20} className="animate-spin" /> : "Track"}
             </button>
           </form>
+          <p className="mt-3 text-xs text-neutral-400">Format: GL-YYYYMMDD-XXXX (from your order confirmation email)</p>
 
           {error && (
             <div className="mt-6 rounded-[1.5rem] border border-red-200 bg-red-50 p-6 text-center">

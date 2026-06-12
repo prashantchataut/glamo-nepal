@@ -2,6 +2,15 @@ import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { ApiResponse } from '../../utils/response'
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 export async function submitContactForm(c: Context<AppEnv>) {
   const data = c.get('validatedBody') as {
     name: string
@@ -30,8 +39,8 @@ export async function submitContactForm(c: Context<AppEnv>) {
       const contactEmail = (env as any).CONTACT_EMAIL || (env as any).FROM_EMAIL || 'admin@glamonepal.com'
       await sendEmail(
         contactEmail,
-        `[Contact Form] ${data.subject}`,
-        `<p><strong>Name:</strong> ${data.name}</p><p><strong>Email:</strong> ${data.email}</p>${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}<p><strong>Message:</strong></p><p>${data.message}</p>`,
+        `[Contact Form] ${escapeHtml(data.subject)}`,
+        `<p><strong>Name:</strong> ${escapeHtml(data.name)}</p><p><strong>Email:</strong> ${escapeHtml(data.email)}</p>${data.phone ? `<p><strong>Phone:</strong> ${escapeHtml(data.phone)}</p>` : ''}<p><strong>Message:</strong></p><p>${escapeHtml(data.message)}</p>`,
         env,
       )
     }

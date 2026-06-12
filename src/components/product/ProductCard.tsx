@@ -89,6 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="relative block aspect-[4/5] overflow-hidden bg-neutral-100">
         <Link
           href={`/product/${product.slug}`}
+          aria-label={`View ${product.name}`}
           className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <Image

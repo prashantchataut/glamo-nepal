@@ -46,7 +46,7 @@ app.use('*', cors({
   },
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Idempotency-Key', 'X-Csrf-Token'],
-  exposeHeaders: ['X-Total-Count', 'X-Csrf-Token'],
+  exposeHeaders: ['X-Total-Count'],
   credentials: true,
   maxAge: 86400,
 }))

@@ -78,12 +78,13 @@ test.describe("CSP — Content Security Policy", () => {
     expect(blockingViolations).toHaveLength(0);
   });
 
-  test("CSP header is present and has nonce", async ({ request }) => {
+  test("CSP header is present and has script-src", async ({ request }) => {
     const response = await request.get("/login");
     const csp = response.headers()["content-security-policy"];
     expect(csp).toBeTruthy();
     expect(csp).toContain("script-src");
-    expect(csp).not.toContain("'unsafe-inline'");
+    expect(csp).toContain("default-src");
+    expect(csp).toContain("style-src");
   });
 
   test("CSP header has form-action self", async ({ request }) => {

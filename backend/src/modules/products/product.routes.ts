@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { authMiddleware } from '../../middleware/firebase-auth'
 import { requireRole } from '../../middleware/requireRole'
 import { validateBody, validateQuery } from '../../middleware/validate'
+import { publicReadRateLimit } from '../../middleware/rateLimit'
 import { productFilterSchema, createProductSchema, updateProductSchema, variantSchema, updateVariantSchema, stockAdjustSchema } from './product.schema'
 import {
   getProducts,
@@ -24,9 +25,9 @@ import {
 
 const productRoutes = new Hono<AppEnv>()
 
-productRoutes.get('/', validateQuery(productFilterSchema), getProducts)
-productRoutes.get('/search', searchProducts)
-productRoutes.get('/:slug', getProductBySlug)
+productRoutes.get('/', publicReadRateLimit, validateQuery(productFilterSchema), getProducts)
+productRoutes.get('/search', publicReadRateLimit, searchProducts)
+productRoutes.get('/:slug', publicReadRateLimit, getProductBySlug)
 
 productRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createProductSchema), createProduct)
 productRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateProductSchema), updateProduct)

@@ -18,7 +18,7 @@ export const updateReviewSchema = z.object({
 export const reviewFilterSchema = z.object({
   productId: entityId.optional(),
   isApproved: z.string().optional().transform(v => v === 'true'),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 

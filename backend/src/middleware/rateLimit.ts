@@ -191,3 +191,12 @@ export const orderTrackingRateLimit = rateLimit({
     return `ratelimit:${ip}:order-tracking`
   },
 })
+
+export const publicReadRateLimit = rateLimit({
+  max: 30,
+  window: 60,
+  keyGenerator: (c) => {
+    const ip = getClientIp(c)
+    return `ratelimit:${ip}:public-read`
+  },
+})

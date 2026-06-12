@@ -18,7 +18,7 @@ export const auditLogFilterSchema = z.object({
   entity: z.string().optional(),
   entityId: z.string().optional(),
   userId: z.string().optional(),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
 })
 
@@ -26,13 +26,13 @@ export const userFilterSchema = z.object({
   search: z.string().optional(),
   role: z.enum(['CUSTOMER', 'STAFF', 'ADMIN', 'SUPER_ADMIN']).optional(),
   isActive: z.string().optional().transform(v => v === 'true' ? true : v === 'false' ? false : undefined),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 
 export const notificationFilterSchema = z.object({
   isRead: z.string().optional().transform(v => v === 'true' ? true : v === 'false' ? false : undefined),
-  page: z.coerce.number().int().positive().default(1),
+  page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
 
