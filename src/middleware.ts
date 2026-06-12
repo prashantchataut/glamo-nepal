@@ -79,25 +79,17 @@ async function signCsrfToken(token: string): Promise<string> {
   return `${token}.${sigB64}`;
 }
 
-function generateNonce(): string {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array));
-}
-
-function addSecurityHeaders(response: NextResponse, nonce?: string) {
-  const nonceAttr = nonce ? `'nonce-${nonce}'` : "";
+function addSecurityHeaders(response: NextResponse) {
   const scriptSrc = [
     "'self'",
     "'unsafe-inline'",
     "'unsafe-eval'",
-    nonceAttr,
     "https://cdn.vercel-insights.com",
     "https://va.vercel-scripts.com",
     "https://www.gstatic.com",
     "https://apis.google.com",
     "https://www.googletagmanager.com",
-  ].filter(Boolean).join(" ");
+  ].join(" ");
 
   const cspDirectives = [
     "default-src 'self'",
@@ -111,10 +103,12 @@ function addSecurityHeaders(response: NextResponse, nonce?: string) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
+    "report-uri /api/csp-report",
   ];
   response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
@@ -141,6 +135,8 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
   "/terms-and-conditions": "/terms",
   "/shipping": "/shipping-policy",
   "/returns": "/return-policy",
+  "/sign-up": "/register",
+  "/signup": "/register",
 };
 
 export async function middleware(request: NextRequest) {
@@ -160,20 +156,17 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
 
   const csrfToken = generateCsrfToken();
-  const nonce = generateNonce();
 
   if (isAdminPath && !isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
     if (!isValid) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
-      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
-      response.headers.set("x-nonce", nonce);
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
       setCsrfCookie(response, csrfToken, request);
       return response;
     }
-    const response = addSecurityHeaders(NextResponse.next(), nonce);
-    response.headers.set("x-nonce", nonce);
+    const response = addSecurityHeaders(NextResponse.next());
     setCsrfCookie(response, csrfToken, request);
     return response;
   }
@@ -181,10 +174,9 @@ export async function middleware(request: NextRequest) {
   if (isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
     if (isValid) {
-      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)), nonce);
+      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
-    const response = addSecurityHeaders(NextResponse.next(), nonce);
-    response.headers.set("x-nonce", nonce);
+    const response = addSecurityHeaders(NextResponse.next());
     setCsrfCookie(response, csrfToken, request);
     return response;
   }
@@ -194,8 +186,7 @@ export async function middleware(request: NextRequest) {
     if (!hasAuth) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
-      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
-      response.headers.set("x-nonce", nonce);
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
       return response;
     }
   }
@@ -203,12 +194,11 @@ export async function middleware(request: NextRequest) {
   if (isAuthPage) {
     const hasAuth = await hasFirebaseAuthToken(request);
     if (hasAuth) {
-      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)), nonce);
+      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
     }
   }
 
-  const response = addSecurityHeaders(NextResponse.next(), nonce);
-  response.headers.set("x-nonce", nonce);
+  const response = addSecurityHeaders(NextResponse.next());
   setCsrfCookie(response, csrfToken, request);
   return response;
 }

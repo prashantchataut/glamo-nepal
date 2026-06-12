@@ -1,0 +1,54 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const MAX_REPORT_SIZE = 4096;
+
+export async function POST(request: NextRequest) {
+  try {
+    const contentType = request.headers.get("content-type") || "";
+    let report: Record<string, unknown>;
+
+    if (contentType.includes("application/csp-report")) {
+      const text = await request.text();
+      if (text.length > MAX_REPORT_SIZE) {
+        return NextResponse.json({ success: false }, { status: 413 });
+      }
+      try {
+        report = JSON.parse(text);
+      } catch {
+        return NextResponse.json({ success: false }, { status: 400 });
+      }
+    } else if (contentType.includes("application/json")) {
+      const body = await request.json().catch(() => null);
+      if (!body || typeof body !== "object") {
+        return NextResponse.json({ success: false }, { status: 400 });
+      }
+      report = body as Record<string, unknown>;
+    } else {
+      return NextResponse.json({ success: false }, { status: 400 });
+    }
+
+    const cspReport = report["csp-report"] as Record<string, unknown> | undefined;
+    const violation = cspReport || report;
+
+    const documentUri = String(violation["document-uri"] || "").slice(0, 500);
+    const violatedDirective = String(violation["violated-directive"] || "").slice(0, 200);
+    const blockedUri = String(violation["blocked-uri"] || "").slice(0, 500);
+    const sourceFile = String(violation["source-file"] || "").slice(0, 500);
+    const lineNumber = violation["line-number"];
+    const statusCode = violation["status-code"];
+
+    console.warn("[CSP-Violation]", JSON.stringify({
+      documentUri,
+      violatedDirective,
+      blockedUri,
+      sourceFile,
+      lineNumber,
+      statusCode,
+      timestamp: new Date().toISOString(),
+    }));
+
+    return NextResponse.json({ success: true, status: "received" });
+  } catch {
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
+}

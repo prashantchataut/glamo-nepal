@@ -7,6 +7,7 @@ import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
 import { FirebaseAuthProvider } from "@/components/auth/FirebaseAuthProvider";
+import { getNonce } from "@/components/providers/NonceProvider";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
@@ -55,11 +56,12 @@ export const metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const nonce = await getNonce();
   return (
     <html
       lang="en"
@@ -76,7 +78,7 @@ export default function RootLayout({
             </ComponentErrorBoundary>
           </FirebaseAuthProvider>
         <ConditionalAnalytics />
-        <GoogleAnalytics />
+        <GoogleAnalytics nonce={nonce} />
       </body>
     </html>
   );

@@ -45,7 +45,7 @@ export function NewsletterSignup() {
               <p className="mt-2 text-sm leading-6 text-white/50">We&apos;ll send the next GLAMO edit to your inbox.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3 sm:flex-row sm:gap-3">
+            <form onSubmit={handleSubmit} method="POST" action="/api/newsletter" noValidate className="flex flex-col gap-3 sm:flex-row sm:gap-3">
               <label htmlFor="newsletter-email" className="sr-only">Email address</label>
               <input id="newsletter-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} placeholder="Your email address" required aria-invalid={error ? "true" : undefined} aria-describedby={error ? "newsletter-email-error" : undefined} disabled={submitting} className="min-h-[52px] flex-1 rounded-full border border-white/15 bg-white/10 px-6 text-sm text-white placeholder:text-white/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
               <button type="submit" disabled={submitting} className="min-h-[52px] rounded-full bg-primary px-8 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary-dark disabled:opacity-40">{submitting ? "Joining..." : "Join"}</button>

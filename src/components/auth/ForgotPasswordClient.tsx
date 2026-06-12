@@ -19,16 +19,18 @@ const [email, setEmail] = useState("");
     if (cooldown) return;
     setError("");
     setIsLoading(true);
-    setCooldown(true);
-    setTimeout(() => setCooldown(false), 60000);
     try {
       await authApi.forgotPassword(email);
       setSent(true);
+      setCooldown(true);
+      setTimeout(() => setCooldown(false), 60000);
       toast.success("If an account with that email exists, a reset link has been sent.");
     } catch (err: unknown) {
       if (err instanceof GlamoApiError) {
         if (err.status === 429) {
           setError("Too many attempts. Please wait a few minutes and try again.");
+          setCooldown(true);
+          setTimeout(() => setCooldown(false), 60000);
         } else {
           setError(err.message || "Failed to send reset email. Please try again.");
         }
