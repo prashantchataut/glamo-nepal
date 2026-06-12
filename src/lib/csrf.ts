@@ -1,5 +1,4 @@
 const CSRF_COOKIE_NAME = "glamo-csrf-token";
-const CSRF_RAW_COOKIE = "glamo-csrf-raw";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const CSRF_STORAGE_KEY = "glamo-csrf-raw-token";
 
@@ -34,34 +33,20 @@ async function verifySignedToken(signedToken: string): Promise<string | null> {
   return token;
 }
 
-function readCookieRawToken(): string {
-  if (typeof document === "undefined") return "";
-  const match = document.cookie.split(";").map((c) => c.trim()).find((c) => c.startsWith(`${CSRF_RAW_COOKIE}=`));
-  if (!match) return "";
-  return decodeURIComponent(match.slice(CSRF_RAW_COOKIE.length + 1));
-}
-
 export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME };
 
 let csrfPromise: Promise<string> | null = null;
 
 function getCsrfToken(): string {
   if (typeof window === "undefined") return "";
-  const fromCookie = readCookieRawToken();
-  if (fromCookie) {
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem(CSRF_STORAGE_KEY, fromCookie);
-    return fromCookie;
-  }
-  const stored = sessionStorage.getItem(CSRF_STORAGE_KEY);
-  if (stored) return stored;
-  return "";
+  const stored = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CSRF_STORAGE_KEY) : null;
+  return stored || "";
 }
 
 export function setCsrfToken(token: string): void {
   if (typeof window === "undefined") return;
   if (token) {
     sessionStorage.setItem(CSRF_STORAGE_KEY, token);
-    document.cookie = `${CSRF_RAW_COOKIE}=${encodeURIComponent(token)}; path=/; samesite=strict${window.location.protocol === "https:" ? "; secure" : ""}; max-age=86400`;
   }
 }
 
