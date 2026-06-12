@@ -375,11 +375,13 @@ export default function ShopPageContent() {
                       perPage: ITEMS_PER_PAGE,
                     })
                       .then((result) => {
-                        if (result.status === "success" && result.data) {
+                        if (result.status === "success" && result.data && result.data.length > 0) {
                           setProducts(result.data);
+                        } else {
+                          setProducts(filterLocalProducts(filters));
                         }
                       })
-                      .catch(() => setApiError("Unable to load products. Please try again."))
+                      .catch(() => setProducts(filterLocalProducts(filters)))
                       .finally(() => setIsLoading(false));
                   }}
                   className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary cursor-pointer"

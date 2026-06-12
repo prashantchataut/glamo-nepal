@@ -189,7 +189,7 @@ export function Navbar() {
                           )
                         : cn(
                             "after:-bottom-1.5 after:left-0",
-                            active ? "text-neutral-950 after:w-full" : "text-neutral-600 after:w-0 hover:after:w-full",
+                            active ? "text-neutral-950 after:w-full" : "text-neutral-700 after:w-0 hover:after:w-full",
                           ),
                     )}
                   >
@@ -227,25 +227,25 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={openSearchModal}
-                className={cn(
-                  "flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
-                  isHome && "border border-secondary/30 bg-white/80 px-3 shadow-navbar-menu lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
-                )}
+className={cn(
+                   "flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
+                   isHome && "border border-secondary/30 bg-white/80 px-3 shadow-navbar-menu lg:min-w-[9.5rem] lg:justify-start lg:gap-2.5",
+                 )}
                 aria-label="Search products"
               >
                 <Search size={18} strokeWidth={1.7} />
                 {isHome ? (
-                  <span className="hidden font-body text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 lg:inline">
+                  <span className="hidden font-body text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-700 lg:inline">
                     Find your glow
                   </span>
                 ) : null}
               </button>
               <Link
                 href="/wishlist"
-                className={cn(
-                  "relative hidden min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex",
-                  isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
-                )}
+className={cn(
+                   "relative hidden min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary sm:flex",
+                   isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
+                 )}
                 aria-label="Wishlist"
               >
                 <Heart size={18} strokeWidth={1.7} />
@@ -257,7 +257,7 @@ export function Navbar() {
                 <Link
                   href="/account"
                   className={cn(
-                    "hidden min-h-10 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
+                    "hidden min-h-11 items-center gap-2 rounded-full pl-1 pr-2.5 text-neutral-700 transition hover:bg-white/75 md:flex",
                     isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                   )}
                   aria-label={`Account, signed in as ${firstName}`}
@@ -273,7 +273,7 @@ export function Navbar() {
                 <Link
                   href="/login"
                   className={cn(
-                    "font-body hidden min-h-10 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
+                    "font-body hidden min-h-11 items-center gap-2 rounded-full px-3 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-700 transition hover:bg-white/75 hover:text-primary md:flex",
                     isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                   )}
                   aria-label="Sign in"
@@ -285,7 +285,7 @@ export function Navbar() {
               <Link
                 href="/cart"
                 className={cn(
-                  "relative flex min-h-10 min-w-10 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
+                  "relative flex min-h-11 min-w-11 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/75 hover:text-primary",
                   isHome && "border border-secondary/30 bg-white/80 shadow-navbar-menu",
                 )}
                 aria-label={`Shopping cart${mounted ? `, ${cartCount} items` : ""}`}
@@ -300,7 +300,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={openSearchModal}
-              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-500 shadow-search ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="mx-auto flex min-h-11 w-full max-w-[980px] items-center justify-between rounded-full bg-white px-4 text-left text-[13px] text-neutral-600 shadow-search ring-1 ring-white/80 transition hover:ring-primary/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Search skincare, makeup, brands"
             >
               <span className="flex min-w-0 items-center gap-2">
@@ -458,7 +458,7 @@ export function Navbar() {
             {SUPPORT_LINKS.map((link) => {
               const active = isActivePath(pathname, link.href);
               return (
-                <Link key={link.name} href={link.href} className={cn("py-1.5 text-sm transition-colors", active ? "text-primary font-medium" : "text-neutral-600 hover:text-primary")}>
+                <Link key={link.name} href={link.href} className={cn("py-1.5 text-sm transition-colors", active ? "text-primary font-medium" : "text-neutral-700 hover:text-primary")}>
                   {link.name}
                 </Link>
               );

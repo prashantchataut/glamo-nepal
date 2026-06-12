@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Clock, RefreshCw, Search, Sparkles, TrendingUp, X } from "lucide-react";
 import { searchProducts } from "@/lib/api/catalog";
-import { TRENDING_SEARCHES } from "@/lib/data/products";
+import { PRODUCTS, TRENDING_SEARCHES } from "@/lib/data/products";
 import { getSearchSuggestions } from "@/lib/search";
 import { trackEvent } from "@/lib/analytics";
 import { formatNPR } from "@/lib/utils";
@@ -25,7 +24,6 @@ export function SearchModal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const router = useRouter();
-  const reduceMotion = useReducedMotion();
   const suggestions = getSearchSuggestions(debouncedQuery, 7);
 
   useEffect(() => {
@@ -67,19 +65,30 @@ export function SearchModal() {
     setIsLoading(true);
     setSearchError(null);
 
+    const localFallback = (q: string): Product[] => {
+      const lower = q.toLowerCase();
+      return PRODUCTS.filter(
+        (p) =>
+          p.name.toLowerCase().includes(lower) ||
+          p.brand.toLowerCase().includes(lower) ||
+          p.category.toLowerCase().includes(lower) ||
+          p.concernTags.some((t) => t.toLowerCase().includes(lower))
+      ).slice(0, 8);
+    };
+
     searchProducts(debouncedQuery, 8)
       .then((result) => {
         if (cancelled) return;
-        if (result.status === "success" && result.data) {
+        if (result.status === "success" && result.data && result.data.length > 0) {
           setResults(result.data.slice(0, 8));
         } else {
-          setResults([]);
+          setResults(localFallback(debouncedQuery));
         }
       })
       .catch(() => {
         if (cancelled) return;
-        setResults([]);
-        setSearchError("Search unavailable. Please try again.");
+        setResults(localFallback(debouncedQuery));
+        setSearchError(null);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -342,9 +351,7 @@ export function SearchModal() {
                 </div>
               )}
             </div>
-          </motion.div>
-        </>
-      ) : null}
-    </AnimatePresence>
+          </div>
+    </>
   );
 }

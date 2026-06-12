@@ -58,6 +58,14 @@ async function hasFirebaseAuthToken(request: NextRequest): Promise<boolean> {
 
 const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const CSRF_SECRET = process.env.CSRF_SECRET || process.env.AUTH_SECRET || "";
+
+function isHtmlPageRequest(pathname: string): boolean {
+  if (pathname.startsWith("/api/")) return false;
+  if (pathname.startsWith("/_next/")) return false;
+  if (pathname.match(/\.\w+$/)) return false;
+  return true;
+}
 
 function generateCsrfToken(): string {
   const array = new Uint8Array(32);
@@ -70,13 +78,40 @@ function generateCsrfToken(): string {
 }
 
 async function signCsrfToken(token: string): Promise<string> {
-  const secret = process.env.CSRF_SECRET || process.env.AUTH_SECRET || "";
-  if (!secret) return token;
+  if (!CSRF_SECRET) return token;
   const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const key = await crypto.subtle.importKey("raw", encoder.encode(CSRF_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(token));
   const sigB64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
   return `${token}.${sigB64}`;
+}
+
+async function validateCsrfToken(request: NextRequest): Promise<boolean> {
+  if (!CSRF_SECRET) return true;
+  if (request.method === "GET" || request.method === "HEAD" || request.method === "OPTIONS") return true;
+
+  const cookieValue = request.cookies.get(CSRF_TOKEN_COOKIE)?.value;
+  if (!cookieValue) return false;
+
+  const [rawToken, signature] = cookieValue.split(".");
+  if (!rawToken || !signature) return false;
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", encoder.encode(CSRF_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const expectedSig = await crypto.subtle.sign("HMAC", key, encoder.encode(rawToken));
+  const expectedB64 = btoa(String.fromCharCode(...new Uint8Array(expectedSig))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+
+  if (signature !== expectedB64) return false;
+
+  const headerToken = request.headers.get("x-csrf-token");
+  if (headerToken && headerToken === rawToken) return true;
+
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return !!cookieValue;
+  }
+
+  return headerToken === rawToken;
 }
 
 function addSecurityHeaders(response: NextResponse) {
@@ -142,7 +177,6 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // 301 redirect duplicate pages to canonical URLs
   const canonicalTarget = CANONICAL_REDIRECTS[pathname];
   if (canonicalTarget) {
     const url = new URL(canonicalTarget, request.url);
@@ -154,8 +188,7 @@ export async function middleware(request: NextRequest) {
   const isAdminLogin = isPathOrChild(pathname, "/admin/login");
   const isProtected = protectedPrefixes.some((prefix) => isPathOrChild(pathname, prefix));
   const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
-
-  const csrfToken = generateCsrfToken();
+  const isHtml = isHtmlPageRequest(pathname);
 
   if (isAdminPath && !isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
@@ -163,11 +196,11 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
-      setCsrfCookie(response, csrfToken, request);
+      if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
       return response;
     }
     const response = addSecurityHeaders(NextResponse.next());
-    setCsrfCookie(response, csrfToken, request);
+    if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
     return response;
   }
 
@@ -177,7 +210,7 @@ export async function middleware(request: NextRequest) {
       return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
     const response = addSecurityHeaders(NextResponse.next());
-    setCsrfCookie(response, csrfToken, request);
+    if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
     return response;
   }
 
@@ -187,6 +220,7 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
       const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
+      if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
       return response;
     }
   }
@@ -198,8 +232,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (!isHtml && request.method !== "GET" && request.method !== "HEAD") {
+    const valid = await validateCsrfToken(request);
+    if (!valid) {
+      return NextResponse.json({ success: false, message: "CSRF validation failed", errors: [] }, { status: 403 });
+    }
+  }
+
   const response = addSecurityHeaders(NextResponse.next());
-  setCsrfCookie(response, csrfToken, request);
+  if (isHtml) await setCsrfCookie(response, generateCsrfToken(), request);
   return response;
 }
 

@@ -41,7 +41,7 @@ function FilterSection({
 }) {
   return (
     <div className="border-b border-neutral-200 pb-5 mb-5 last:border-b-0 last:pb-0 last:mb-0">
-      <p className="type-label text-[11px] text-neutral-400 mb-3">{title}</p>
+      <p className="type-label text-[11px] text-neutral-500 mb-3">{title}</p>
       {children}
     </div>
   );
@@ -150,21 +150,23 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
       <FilterSection title="Brand">
         <div className="max-h-48 space-y-1 overflow-auto">
           {BRANDS.map((brand) => (
-            <label
-              key={brand}
-              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
-            >
-              <input
-                type="checkbox"
-                checked={filters.brands.includes(brand)}
-                onChange={() =>
-                  onFilterChange({
-                    ...filters,
-                    brands: toggle(filters.brands, brand),
-                  })
-                }
-                className="h-4 w-4 accent-primary"
-              />
+<label
+               key={brand}
+               htmlFor={`brand-${brand}`}
+               className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
+             >
+               <input
+                 type="checkbox"
+                 id={`brand-${brand}`}
+                 checked={filters.brands.includes(brand)}
+                 onChange={() =>
+                   onFilterChange({
+                     ...filters,
+                     brands: toggle(filters.brands, brand),
+                   })
+                 }
+                 className="h-4 w-4 accent-primary"
+               />
               {brand}
             </label>
           ))}
@@ -174,21 +176,23 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
       <FilterSection title="Skin Type">
         <div className="space-y-1">
           {SKIN_TYPES.map((skinType) => (
-            <label
-              key={skinType}
-              className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
-            >
-              <input
-                type="checkbox"
-                checked={filters.skinType.includes(skinType)}
-                onChange={() =>
-                  onFilterChange({
-                    ...filters,
-                    skinType: toggle(filters.skinType, skinType),
-                  })
-                }
-                className="h-4 w-4 accent-primary"
-              />
+<label
+               key={skinType}
+               htmlFor={`skin-type-${skinType}`}
+               className="flex cursor-pointer items-center gap-3 px-2 py-2 text-sm text-neutral-700 transition-colors hover:text-primary"
+             >
+               <input
+                 type="checkbox"
+                 id={`skin-type-${skinType}`}
+                 checked={filters.skinType.includes(skinType)}
+                 onChange={() =>
+                   onFilterChange({
+                     ...filters,
+                     skinType: toggle(filters.skinType, skinType),
+                   })
+                 }
+                 className="h-4 w-4 accent-primary"
+               />
               {skinType}
             </label>
           ))}
@@ -222,9 +226,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
 
       <FilterSection title="Availability">
         <div className="space-y-3">
-          <label className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
+          <label htmlFor="filter-made-in-nepal" className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
             <input
               type="checkbox"
+              id="filter-made-in-nepal"
               checked={filters.madeInNepal}
               onChange={(event) =>
                 onFilterChange({ ...filters, madeInNepal: event.target.checked })
@@ -233,9 +238,10 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
             />
             Made in Nepal only
           </label>
-          <label className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
+          <label htmlFor="filter-in-stock" className="flex cursor-pointer items-center gap-3 text-sm text-neutral-700">
             <input
               type="checkbox"
+              id="filter-in-stock"
               checked={filters.inStock}
               onChange={(event) =>
                 onFilterChange({ ...filters, inStock: event.target.checked })
@@ -250,10 +256,12 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
       <FilterSection title="Price Range">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <label className="space-y-1">
-              <span className="type-label text-[10px] text-neutral-400">Min</span>
+            <label htmlFor="filter-min-price" className="space-y-1">
+              <span className="type-label text-[10px] text-neutral-500">Min</span>
               <input
                 type="number"
+                id="filter-min-price"
+                aria-label="Minimum price"
                 min={priceRange.min}
                 max={filters.maxPrice}
                 value={filters.minPrice}
@@ -266,10 +274,12 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 className="w-full rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-primary focus:outline-none"
               />
             </label>
-            <label className="space-y-1">
-              <span className="type-label text-[10px] text-neutral-400">Max</span>
+            <label htmlFor="filter-max-price" className="space-y-1">
+              <span className="type-label text-[10px] text-neutral-500">Max</span>
               <input
                 type="number"
+                id="filter-max-price"
+                aria-label="Maximum price"
                 min={filters.minPrice}
                 max={priceRange.max}
                 value={filters.maxPrice}
@@ -283,7 +293,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
               />
             </label>
           </div>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-neutral-500">
             Showing ?? {filters.minPrice.toLocaleString()} � ??{" "}
             {filters.maxPrice.toLocaleString()}
           </p>
