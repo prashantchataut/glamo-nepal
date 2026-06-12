@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken, ensureCsrfToken } from "@/lib/csrf";
 import { useAdminStore } from "@/store/useAdminStore";
 
 export function AdminLoginForm() {
@@ -23,6 +23,7 @@ export function AdminLoginForm() {
     setIsSubmitting(true);
 
     try {
+      await ensureCsrfToken();
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...csrfHeaders() },

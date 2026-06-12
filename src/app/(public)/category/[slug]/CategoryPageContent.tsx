@@ -31,9 +31,13 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
   const router = useRouter();
   const [activeSub, setActiveSub] = useState<string>("");
   const [liveProducts, setLiveProducts] = useState<Product[] | null>(null);
+  const [sort, setSort] = useState("featured");
 
   const category = CATEGORIES.find(c => c.slug === slug);
-  const sort = searchParams.get("sort") || "featured";
+
+  useEffect(() => {
+    setSort(searchParams.get("sort") || "featured");
+  }, [searchParams]);
 
   // Prefer live catalog data; fall back to the static catalog on error/empty.
   useEffect(() => {
@@ -114,7 +118,11 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
           <span className="text-sm text-neutral-500">{products.length} product{products.length !== 1 ? "s" : ""}</span>
           <select
             value={sort}
-            onChange={(e) => router.push(`/category/${slug}?sort=${e.target.value}`, { scroll: false })}
+            onChange={(e) => {
+              const next = e.target.value;
+              setSort(next);
+              router.push(`/category/${slug}?sort=${next}`, { scroll: false });
+            }}
             className="text-sm border border-border rounded-full px-4 py-2.5 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary/10 cursor-pointer"
           >
             {SORT_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}

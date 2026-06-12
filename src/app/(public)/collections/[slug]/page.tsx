@@ -27,7 +27,7 @@ export default function CollectionPage({ params }: { params: { slug: string } })
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
             <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-primary">{collection.eyebrow}</p>
-            <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-neutral-900 md:text-7xl">{collection.title}</h1>
+            <h1 className="mt-3 font-display text-5xl font-semibold leading-[1.05] text-neutral-900 md:text-7xl">{collection.title}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">{collection.description}</p>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-neutral-200 bg-white shadow-page-hero">

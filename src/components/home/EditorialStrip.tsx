@@ -13,7 +13,7 @@ export function EditorialStrip() {
     <section className="bg-white py-16 md:py-24" aria-labelledby="editorial-strip-heading">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="mb-12 max-w-2xl">
-          <h2 id="editorial-strip-heading" className="font-display text-4xl font-semibold leading-[0.95] tracking-[-0.035em] text-neutral-950 md:text-5xl">Beauty stories worth shopping.</h2>
+          <h2 id="editorial-strip-heading" className="font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-neutral-950 md:text-5xl">Beauty stories worth shopping.</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {EDITORIAL_ITEMS.map((item) => (

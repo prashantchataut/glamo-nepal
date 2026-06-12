@@ -21,7 +21,7 @@ export default function RoutinesPage() {
       <section className="relative overflow-hidden border-b border-neutral-200 bg-hero-gradient py-10 md:py-14">
         <div className="container mx-auto px-4 md:px-6">
           <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Curated routines</p>
-          <h1 className="mt-3 font-display text-5xl font-semibold leading-[0.96] text-neutral-900 md:text-7xl">Beauty Routines</h1>
+          <h1 className="mt-3 font-display text-5xl font-semibold leading-[1.05] text-neutral-900 md:text-7xl">Beauty Routines</h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-500">Step-by-step beauty routines curated for Nepal&rsquo;s climate. Each bundle saves you more than buying individually.</p>
         </div>
       </section>

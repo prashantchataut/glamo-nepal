@@ -143,19 +143,19 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={onWishlist}
-          className={cn(
-            "absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-neutral-700 shadow-soft transition-all duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-            "opacity-100 md:opacity-0 md:group-hover:opacity-100",
-            isWishlisted &&
-              "bg-primary text-white opacity-100 hover:text-white",
-          )}
-          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
-        </button>
+        <div className="absolute right-3 top-3 z-10 flex gap-2">
+          <button
+            type="button"
+            onClick={onWishlist}
+            className={cn(
+              "flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-neutral-700 shadow-soft transition-all duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+              isWishlisted && "bg-primary text-white hover:text-white",
+            )}
+            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
+          </button>
+        </div>
 
         {product.inStock && (
           <div className="absolute inset-x-3 bottom-3 z-10 hidden translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
@@ -205,7 +205,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <Link href={`/product/${product.slug}`} className="mt-2 block">
-          <h3 className="min-h-[2.8rem] font-display text-[1.35rem] font-semibold leading-[1.02] tracking-[-0.025em] text-neutral-950 transition-colors group-hover:text-primary">
+          <h3 className="line-clamp-2 min-h-[2.8rem] break-words font-display text-[1.35rem] font-semibold leading-[1.1] tracking-[-0.025em] text-neutral-950 transition-colors group-hover:text-primary">
             {product.name}
           </h3>
         </Link>

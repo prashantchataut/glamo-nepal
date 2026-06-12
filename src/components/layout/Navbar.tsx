@@ -64,8 +64,8 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
-  const cartTotal = useCartStore((state) => state.getTotalItems);
-  const wishlistTotal = useWishlistStore((state) => state.getTotalItems);
+  const cartItems = useCartStore((state) => state.items);
+  const wishlistItems = useWishlistStore((state) => state.items);
   const openSearchModal = useUIStore((state) => state.openSearchModal);
   const user = useAuthStore((state) => state.user);
   const authLoading = useAuthStore((state) => state.isLoading);
@@ -130,8 +130,8 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
 
-  const cartCount = mounted ? cartTotal() : 0;
-  const wishlistCount = mounted ? wishlistTotal() : 0;
+  const cartCount = mounted ? cartItems.reduce((total, item) => total + item.quantity, 0) : 0;
+  const wishlistCount = mounted ? wishlistItems.length : 0;
   const authReady = mounted && !authLoading;
   const firstName = user?.name?.trim().split(/\s+/)[0] || "Account";
 

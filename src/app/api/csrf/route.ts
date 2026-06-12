@@ -53,5 +53,13 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  response.cookies.set("glamo-csrf-raw", rawToken, {
+    httpOnly: false,
+    sameSite: "strict",
+    secure: IS_PRODUCTION,
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  });
+
   return response;
 }

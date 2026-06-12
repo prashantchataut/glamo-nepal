@@ -86,21 +86,19 @@ async function signCsrfToken(token: string): Promise<string> {
   return `${token}.${sigB64}`;
 }
 
+function generateNonce(): string {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
+}
+
 function addSecurityHeaders(response: NextResponse) {
-  const scriptSrc = [
-    "'self'",
-    "'unsafe-inline'",
-    "'unsafe-eval'",
-    "https://cdn.vercel-insights.com",
-    "https://va.vercel-scripts.com",
-    "https://www.gstatic.com",
-    "https://apis.google.com",
-    "https://www.googletagmanager.com",
-  ].join(" ");
+  const nonce = generateNonce();
+  response.headers.set("x-nonce", nonce);
 
   const cspDirectives = [
     "default-src 'self'",
-    `script-src ${scriptSrc}`,
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
@@ -134,8 +132,13 @@ async function setCsrfCookie(response: NextResponse, csrfToken: string, request:
       maxAge: 60 * 60 * 24,
     });
   }
-  // Always expose the raw token so client-side bootstrap can capture it.
-  // The signed cookie (httpOnly) is still required for server-side verification.
+  response.cookies.set("glamo-csrf-raw", csrfToken, {
+    httpOnly: false,
+    sameSite: "strict",
+    secure: IS_PRODUCTION,
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  });
   response.headers.set("x-csrf-token", csrfToken);
 }
 

@@ -78,7 +78,7 @@ export function Footer() {
         <div className="grid gap-8 rounded-[34px] border border-white/10 bg-white/[0.035] p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">Join the GLAMO beauty list</p>
-            <h2 className="mt-3 max-w-xl font-display text-3xl font-medium leading-[0.98] tracking-[-0.02em] text-white md:text-5xl">
+            <h2 className="mt-3 max-w-xl font-display text-3xl font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-5xl">
               Softer routines, new drops and Kathmandu Valley delivery notes.
             </h2>
           </div>

@@ -10,7 +10,7 @@ export function BrandPhilosophyBanner() {
           <Image src={IMAGES.editorial.brandMission} alt="Woman applying skincare in an editorial beauty ritual" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />
         </div>
         <div className="lg:pl-8">
-          <h2 className="font-display text-4xl font-medium leading-[0.98] tracking-[-0.02em] text-neutral-900 md:text-6xl">
+          <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] text-neutral-900 md:text-6xl">
             Premium should feel personal.
           </h2>
           <p className="mt-6 max-w-xl text-base leading-8 text-neutral-600 md:text-lg">

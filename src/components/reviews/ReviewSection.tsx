@@ -88,6 +88,14 @@ function ReviewForm({
         toast.error("Please select a rating");
         return;
       }
+      if (title.trim().length > 200) {
+        toast.error("Title must be under 200 characters");
+        return;
+      }
+      if (comment.trim().length > 2000) {
+        toast.error("Review must be under 2000 characters");
+        return;
+      }
       setIsSubmitting(true);
       try {
         await reviewApi.createReview(productId, {

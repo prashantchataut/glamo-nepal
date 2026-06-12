@@ -34,7 +34,7 @@ export function Section({
           )}
         >
           <div className={cn(align === "center" && "max-w-2xl mx-auto")}>
-            <h2 className="font-display text-4xl font-semibold leading-[0.95] tracking-[-0.035em] text-neutral-950 md:text-5xl">{heading}</h2>
+            <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-neutral-950 md:text-5xl">{heading}</h2>
             {subheading && (
               <p className={cn("mt-4 max-w-xl text-[0.9375rem] leading-[1.7] text-neutral-500", align === "center" && "mx-auto")}>
                 {subheading}

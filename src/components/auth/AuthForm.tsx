@@ -165,7 +165,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           return;
         }
         if (code === "auth/operation-not-allowed") {
-          setError("Google sign-in is not enabled. Enable it in Firebase Console.");
+          setError("Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.");
           setIsLoading(false);
           return;
         }
@@ -179,7 +179,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           setIsLoading(false);
           return;
         }
-        setError(err.message || "Google sign-in failed. Please try again.");
+        setError(err.message || `Google sign-in failed (${code || "unknown"}). Please try again.`);
       } else {
         setError("Google sign-in failed. Please try again.");
       }
@@ -193,7 +193,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         <Image src={IMAGES.auth.loginSplit} alt="" fill className="object-cover opacity-50" sizes="(max-width: 768px) 100vw, 45vw" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-neutral-950/10" />
         <div className="relative z-10">
-          <h1 className="font-display text-4xl font-light leading-[0.95] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
+          <h1 className="font-display text-4xl font-light leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
           <p className="mt-4 max-w-sm text-sm leading-7 text-white/85 md:mt-5">{copy.description}</p>
           <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/85 md:mt-8">
             <strong className="block text-white">Need help signing in?</strong>

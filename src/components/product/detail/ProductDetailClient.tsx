@@ -249,7 +249,7 @@ export default function ProductDetailClient({
                 >
                   {product.brand}
                 </Link>
-                <h1 className="mt-2 font-display text-5xl font-semibold leading-[0.92] tracking-[-0.04em] text-neutral-950 md:text-6xl">
+                <h1 className="mt-2 break-words font-display text-5xl font-semibold leading-[1.05] tracking-[-0.04em] text-neutral-950 md:text-6xl">
                   {product.name}
                 </h1>
               </div>

@@ -12,7 +12,7 @@ export function Testimonials() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
           <div>
-            <h2 id="testimonials-heading" className="font-display text-4xl font-medium leading-[0.95] tracking-[-0.02em] md:text-5xl">Beauty shopping that feels easier.</h2>
+            <h2 id="testimonials-heading" className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] md:text-5xl">Beauty shopping that feels easier.</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {TESTIMONIALS.map((item) => (

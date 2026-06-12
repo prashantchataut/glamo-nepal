@@ -167,6 +167,7 @@ export function SearchModal() {
         setActiveIndex((i) => Math.max(i - 1, 0));
       }
       if (event.key === "Enter") {
+        if (!query.trim() && !results.length) return;
         event.preventDefault();
         if (results.length) { goToProduct(activeIndex); } else { goToSearch(query); }
       }
@@ -197,6 +198,7 @@ export function SearchModal() {
         role="dialog"
         aria-modal="true"
         aria-label="Search products"
+        onClick={(e) => e.stopPropagation()}
         className="fixed left-3 right-3 top-3 z-modal overflow-hidden rounded-3xl bg-white shadow-2xl md:left-1/2 md:right-auto md:top-6 md:w-[min(940px,calc(100vw-48px))] md:-translate-x-1/2"
       >
             {/* Search input */}

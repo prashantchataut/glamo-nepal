@@ -20,7 +20,7 @@ export function EditorialHero({
     <section className="border-b border-neutral-200 bg-neutral-100">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:px-6 md:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
         <div>
-          <h1 className="max-w-3xl font-display text-5xl font-medium leading-[0.95] tracking-[-0.02em] text-neutral-900 md:text-7xl">
+          <h1 className="max-w-3xl font-display text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-neutral-900 md:text-7xl">
             {title}
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600 md:text-lg">

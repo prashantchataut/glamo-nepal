@@ -27,7 +27,7 @@ export default function BrandDetailPage({ params }: { params: { slug: string } }
           </div>
           <div>
             <Link href="/brands" className="text-sm font-semibold text-primary">← All brands</Link>
-            <h1 className="mt-4 font-display text-5xl font-medium leading-[0.95] text-neutral-900 md:text-7xl">{brand.name}</h1>
+            <h1 className="mt-4 font-display text-5xl font-medium leading-[1.05] text-neutral-900 md:text-7xl">{brand.name}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600">{brand.description}</p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.productCount}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Products</p></div>

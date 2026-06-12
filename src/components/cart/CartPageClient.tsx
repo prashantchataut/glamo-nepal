@@ -83,7 +83,7 @@ export function CartPageClient() {
           <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-rose-50 text-primary">
             <ShoppingBag size={28} />
           </div>
-          <h1 className="mt-8 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.03em] text-neutral-950 md:text-5xl">
+          <h1 className="mt-8 font-display text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-neutral-950 md:text-5xl">
             Your bag is ready for its first glow pick.
           </h1>
           <p className="mx-auto mt-5 max-w-md text-sm leading-7 text-neutral-500">
