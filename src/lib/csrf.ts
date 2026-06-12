@@ -20,17 +20,25 @@ async function signToken(token: string): Promise<string> {
 }
 
 async function verifySignedToken(signedToken: string): Promise<string | null> {
+  if (!CSRF_SECRET) {
+    return signedToken.length >= 32 ? signedToken : null;
+  }
+
   const dotIndex = signedToken.lastIndexOf(".");
   if (dotIndex === -1) return null;
   const token = signedToken.slice(0, dotIndex);
   const providedSig = signedToken.slice(dotIndex + 1);
 
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", encoder.encode(getSecret()), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
-  const sigBytes = Uint8Array.from(atob(providedSig.replaceAll("-", "+").replaceAll("_", "/")), (c) => c.charCodeAt(0));
-  const valid = await crypto.subtle.verify("HMAC", key, sigBytes, encoder.encode(token));
-  if (!valid) return null;
-  return token;
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey("raw", encoder.encode(getSecret()), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    const sigBytes = Uint8Array.from(atob(providedSig.replaceAll("-", "+").replaceAll("_", "/")), (c) => c.charCodeAt(0));
+    const valid = await crypto.subtle.verify("HMAC", key, sigBytes, encoder.encode(token));
+    if (!valid) return null;
+    return token;
+  } catch {
+    return null;
+  }
 }
 
 export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME };
@@ -50,20 +58,30 @@ export function setCsrfToken(token: string): void {
   }
 }
 
+function clearCsrfToken(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(CSRF_STORAGE_KEY);
+  csrfPromise = null;
+}
+
 export function csrfHeaders(): Record<string, string> {
   const token = getCsrfToken();
   return token ? { [CSRF_HEADER_NAME]: token } : {};
 }
 
-export async function ensureCsrfToken(): Promise<string> {
-  const existing = getCsrfToken();
-  if (existing) return existing;
+export async function ensureCsrfToken(forceRefresh?: boolean): Promise<string> {
+  if (!forceRefresh) {
+    const existing = getCsrfToken();
+    if (existing) return existing;
 
-  if (csrfPromise) return csrfPromise;
+    if (csrfPromise) return csrfPromise;
+  } else {
+    csrfPromise = null;
+  }
 
   csrfPromise = fetch("/api/csrf", { credentials: "include" })
     .then(async (res) => {
-      if (!res.ok) throw new Error("CSRF fetch failed");
+      if (!res.ok) throw new Error(`CSRF fetch failed: ${res.status}`);
       const token = res.headers.get(CSRF_HEADER_NAME);
       if (token) { setCsrfToken(token); return token; }
       const data = await res.json();
@@ -78,6 +96,8 @@ export async function ensureCsrfToken(): Promise<string> {
 
   return csrfPromise;
 }
+
+export { clearCsrfToken };
 
 export async function validateCsrf(request: Request): Promise<{ valid: boolean; reason?: string }> {
   if (request.method !== "POST" && request.method !== "PUT" && request.method !== "PATCH" && request.method !== "DELETE") {

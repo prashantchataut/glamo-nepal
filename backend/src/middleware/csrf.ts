@@ -6,6 +6,17 @@ const CSRF_COOKIE_NAME = 'glamo-csrf-token'
 const CSRF_HEADER_NAME = 'x-csrf-token'
 const CSRF_SECRET = process.env.CSRF_SECRET || process.env.AUTH_SECRET || ''
 
+const CSRF_EXEMPT_PATHS = [
+  '/api/v1/auth/sync',
+  '/api/v1/auth/register',
+  '/api/v1/auth/logout',
+  '/api/v1/auth/forgot-password',
+  '/api/v1/auth/reset-password',
+  '/api/v1/auth/send-verification',
+  '/api/v1/auth/verify-email',
+  '/api/v1/auth/me',
+]
+
 function getHmacKey(): Buffer | null {
   if (!CSRF_SECRET) return null
   return Buffer.from(CSRF_SECRET, 'utf-8')
@@ -25,6 +36,12 @@ export function csrfProtection() {
     const method = c.req.method.toUpperCase()
 
     if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+      await next()
+      return
+    }
+
+    const path = c.req.path
+    if (CSRF_EXEMPT_PATHS.some((exempt) => path === exempt || path.startsWith(exempt + '/'))) {
       await next()
       return
     }

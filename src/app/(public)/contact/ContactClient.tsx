@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Clock, Loader2, Mail, MapPin, Phone } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +18,7 @@ export default function ContactClient() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSending(true);
     try {
+      await ensureCsrfToken();
       const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify(data) });
       const token = res.headers.get("x-csrf-token");
       if (token) setCsrfToken(token);

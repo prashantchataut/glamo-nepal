@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-import { csrfHeaders, setCsrfToken, ensureCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, setCsrfToken, ensureCsrfToken, clearCsrfToken } from "@/lib/csrf";
 import { useAdminStore } from "@/store/useAdminStore";
 
 export function AdminLoginForm() {
@@ -23,7 +23,16 @@ export function AdminLoginForm() {
     setIsSubmitting(true);
 
     try {
-      await ensureCsrfToken();
+      let token = await ensureCsrfToken();
+      if (!token) {
+        clearCsrfToken();
+        token = await ensureCsrfToken(true);
+      }
+      if (!token) {
+        setError("Could not load security token. Please refresh the page and try again.");
+        return;
+      }
+
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...csrfHeaders() },
@@ -34,6 +43,28 @@ export function AdminLoginForm() {
       if (csrfToken) setCsrfToken(csrfToken);
 
       const data = await res.json().catch(() => null);
+
+      if (res.status === 403 && data?.code === "CSRF_ERROR") {
+        clearCsrfToken();
+        const retryToken = await ensureCsrfToken(true);
+        if (retryToken) {
+          const retryRes = await fetch("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...csrfHeaders() },
+            body: JSON.stringify({ email, password }),
+          });
+          const retryData = await retryRes.json().catch(() => null);
+          if (retryRes.ok && retryData?.success) {
+            if (retryData?.data?.user) setAdminUser(retryData.data.user);
+            const safeRedirect = redirectTo.startsWith("/admin") ? redirectTo : "/admin";
+            router.push(safeRedirect);
+            router.refresh();
+            return;
+          }
+          setError(retryData?.message || "Invalid admin email or password.");
+          return;
+        }
+      }
 
       if (!res.ok || !data?.success) {
         setError(data?.message || "Invalid admin email or password.");

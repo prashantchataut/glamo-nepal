@@ -11,7 +11,7 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, setCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 
 interface AuthContextValue {
   user: User | null;
@@ -45,6 +45,7 @@ const _globalCompletedSyncs = new Set<string>();
 
 async function syncUserWithBackend(token: string, displayName?: string | null) {
   try {
+    const storedCsrfToken = await ensureCsrfToken();
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
     const body: Record<string, string> = {};
     if (displayName) {
@@ -52,18 +53,21 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
       body.firstName = parts[0] || "";
       body.lastName = parts.slice(1).join(" ") || "";
     }
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+    if (storedCsrfToken) {
+      headers[CSRF_HEADER_NAME] = storedCsrfToken;
+    }
     const res = await fetch(`${apiUrl}/auth/sync`, {
       method: "POST",
       credentials: "include",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        ...csrfHeaders(),
-      },
+      headers,
       body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
     });
-    const csrfToken = res.headers.get("x-csrf-token");
-    if (csrfToken) setCsrfToken(csrfToken);
+    const responseCsrf = res.headers.get("x-csrf-token");
+    if (responseCsrf) setCsrfToken(responseCsrf);
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.data) {

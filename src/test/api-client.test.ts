@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GlamoApiError, apiRequest, normalizeApiPayload } from "@/lib/api/client";
 import { isApiErrorResponse } from "@/lib/api/contracts";
 
+vi.mock("@/lib/csrf", () => ({
+  csrfHeaders: () => ({}),
+  ensureCsrfToken: () => Promise.resolve(""),
+  setCsrfToken: () => {},
+  CSRF_COOKIE_NAME: "glamo-csrf-token",
+  CSRF_HEADER_NAME: "x-csrf-token",
+}));
+
 function createMockResponse(data: unknown, ok = true, status = 200): Response {
   return {
     ok,

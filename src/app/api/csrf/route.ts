@@ -25,17 +25,21 @@ async function signCsrfToken(rawToken: string): Promise<string> {
   return `${rawToken}.${sigB64}`;
 }
 
+function extractRawToken(cookieValue: string): string {
+  if (!CSRF_SECRET) return cookieValue;
+  const dotIndex = cookieValue.lastIndexOf(".");
+  return dotIndex === -1 ? cookieValue : cookieValue.slice(0, dotIndex);
+}
+
 export async function GET(request: NextRequest) {
   const IS_PRODUCTION = process.env.NODE_ENV === "production";
   let rawToken: string;
-  let signedCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value;
+  const existingCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value;
 
-  if (signedCookie) {
-    const dotIndex = signedCookie.lastIndexOf(".");
-    rawToken = dotIndex === -1 ? signedCookie : signedCookie.slice(0, dotIndex);
+  if (existingCookie) {
+    rawToken = extractRawToken(existingCookie);
   } else {
     rawToken = generateCsrfToken();
-    signedCookie = await signCsrfToken(rawToken);
   }
 
   const response = NextResponse.json(
@@ -43,7 +47,8 @@ export async function GET(request: NextRequest) {
     { headers: { "x-csrf-token": rawToken } },
   );
 
-  if (!request.cookies.get(CSRF_COOKIE_NAME)?.value && signedCookie) {
+  if (!existingCookie) {
+    const signedCookie = await signCsrfToken(rawToken);
     response.cookies.set(CSRF_COOKIE_NAME, signedCookie, {
       httpOnly: true,
       sameSite: "strict",

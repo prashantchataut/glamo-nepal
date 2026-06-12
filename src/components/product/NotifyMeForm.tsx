@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Bell, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
 
 export function NotifyMeForm({ productName }: { productName: string }) {
   const [contact, setContact] = useState("");
@@ -22,6 +22,7 @@ export function NotifyMeForm({ productName }: { productName: string }) {
     }
     setSending(true);
     try {
+      await ensureCsrfToken();
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...csrfHeaders() },

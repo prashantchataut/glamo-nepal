@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
 import { InstagramIcon, FacebookIcon } from "@/components/ui/illustrations/SocialIcons";
 
 const shopLinks = [
@@ -51,6 +51,7 @@ export function Footer() {
 
     setNewsletterState("loading");
     try {
+      await ensureCsrfToken();
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...csrfHeaders() },

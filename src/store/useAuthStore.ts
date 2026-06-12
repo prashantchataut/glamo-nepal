@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { firebaseSignOut } from "@/lib/firebase";
 import { customerApi, type ProfileUpdatePayload } from "@/lib/api/customer";
-import { csrfHeaders } from "@/lib/csrf";
+import { csrfHeaders, ensureCsrfToken } from "@/lib/csrf";
 
 export interface AuthUser {
   id: string;
@@ -48,6 +48,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         ? document.cookie.split("; ").find((c) => c.startsWith("glamo-access-token="))?.split("=")[1]
         : undefined;
       if (token) {
+        await ensureCsrfToken().catch(() => {});
         await fetch(`/api/v1/auth/logout`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...csrfHeaders() },

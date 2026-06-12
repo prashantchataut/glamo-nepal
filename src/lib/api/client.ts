@@ -1,5 +1,5 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -74,6 +74,11 @@ async function sendRequest(apiBaseUrl: string, path: string, init: RequestInit |
 
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
   const apiBaseUrl = getApiBaseUrl();
+
+  const method = (init?.method || "GET").toUpperCase();
+  if (MUTATING_METHODS.has(method)) {
+    try { await ensureCsrfToken(); } catch { /* proceed with whatever token is available */ }
+  }
 
   let token = await getAuthToken();
 

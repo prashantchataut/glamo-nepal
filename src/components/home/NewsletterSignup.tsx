@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { csrfHeaders, setCsrfToken } from "@/lib/csrf";
+import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("");
@@ -18,6 +18,7 @@ export function NewsletterSignup() {
     }
     setSubmitting(true);
     try {
+      await ensureCsrfToken();
       const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({ email }) });
       const csrfToken = res.headers.get("x-csrf-token");
       if (csrfToken) setCsrfToken(csrfToken);

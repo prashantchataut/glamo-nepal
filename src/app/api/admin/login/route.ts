@@ -3,8 +3,8 @@ import { createAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth"
 import { validateCsrf } from "@/lib/csrf";
 import { compare } from "bcryptjs";
 
-const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW = 60;
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW = 300;
 
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -58,6 +58,11 @@ async function checkRateLimit(ip: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
+  const csrf = await validateCsrf(request);
+  if (!csrf.valid) {
+    return NextResponse.json({ success: false, message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
+  }
+
   const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     ?? request.headers.get("x-real-ip")
     ?? "unknown";
@@ -67,11 +72,6 @@ export async function POST(request: NextRequest) {
       { success: false, message: "Too many login attempts. Please try again later.", code: "RATE_LIMITED" },
       { status: 429, headers: { "Retry-After": String(RATE_LIMIT_WINDOW) } },
     );
-  }
-
-  const csrf = await validateCsrf(request);
-  if (!csrf.valid) {
-    return NextResponse.json({ success: false, message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
   }
 
   try {
