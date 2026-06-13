@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
-import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 import { InstagramIcon, FacebookIcon } from "@/components/ui/illustrations/SocialIcons";
 
 const shopLinks = [
@@ -51,14 +51,17 @@ export function Footer() {
 
     setNewsletterState("loading");
     try {
-      await ensureCsrfToken();
+      const csrfToken = await ensureCsrfToken();
+      if (!csrfToken) {
+        setNewsletterState("error");
+        setTimeout(() => setNewsletterState("idle"), 5000);
+        return;
+      }
       const res = await fetch("/api/newsletter", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken },
         body: JSON.stringify({ email }),
       });
-      const csrfToken = res.headers.get("x-csrf-token");
-      if (csrfToken) setCsrfToken(csrfToken);
       if (res.ok) {
         setNewsletterState("success");
         form.reset();

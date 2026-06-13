@@ -1,6 +1,5 @@
 import type { Order } from "@/lib/api/contracts";
 import { apiRequest } from "@/lib/api/client";
-import { csrfHeaders } from "@/lib/csrf";
 
 export interface OrderListParams {
   status?: string;
@@ -55,7 +54,7 @@ export const ordersApi = {
     return { data: normalizeOrder(result.data as Record<string, unknown>) };
   },
   cancel: async (id: string): Promise<{ data: Order }> => {
-    const result = await apiRequest<Record<string, unknown>>(`/orders/${id}/cancel`, { method: "POST", headers: csrfHeaders() });
+    const result = await apiRequest<Record<string, unknown>>(`/orders/${id}/cancel`, { method: "POST" });
     return { data: normalizeOrder(result.data as Record<string, unknown>) };
   },
   trackByOrderNumber: async (orderNumber: string): Promise<{ data: Order }> => {

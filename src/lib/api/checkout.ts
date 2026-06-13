@@ -1,12 +1,10 @@
 import type { ApiResponse, CheckoutPayload, Order } from "@/lib/api/contracts";
 import { apiRequest } from "@/lib/api/client";
-import { csrfHeaders } from "@/lib/csrf";
 
 export async function createCheckoutOrder(payload: CheckoutPayload): Promise<ApiResponse<Order>> {
   return apiRequest<Order>("/checkout/orders", {
     method: "POST",
     body: JSON.stringify(payload),
-    headers: csrfHeaders(),
   });
 }
 

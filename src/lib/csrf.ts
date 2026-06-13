@@ -1,6 +1,5 @@
 const CSRF_COOKIE_NAME = "glamo-csrf-token";
 const CSRF_HEADER_NAME = "x-csrf-token";
-const CSRF_STORAGE_KEY = "glamo-csrf-raw-token";
 
 const CSRF_SECRET = process.env.CSRF_SECRET || process.env.AUTH_SECRET || "";
 
@@ -45,44 +44,20 @@ export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME };
 
 let csrfPromise: Promise<string> | null = null;
 
-function getCsrfToken(): string {
-  if (typeof window === "undefined") return "";
-  const stored = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(CSRF_STORAGE_KEY) : null;
-  return stored || "";
-}
-
-export function setCsrfToken(token: string): void {
-  if (typeof window === "undefined") return;
-  if (token) {
-    sessionStorage.setItem(CSRF_STORAGE_KEY, token);
-  }
-}
-
-function clearCsrfToken(): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.removeItem(CSRF_STORAGE_KEY);
+export function resetCsrfCache(): void {
   csrfPromise = null;
 }
 
-export function csrfHeaders(): Record<string, string> {
-  const token = getCsrfToken();
-  return token ? { [CSRF_HEADER_NAME]: token } : {};
-}
-
-export async function ensureCsrfToken(forceRefresh?: boolean): Promise<string> {
-  if (!forceRefresh) {
-    if (csrfPromise) return csrfPromise;
-  } else {
-    csrfPromise = null;
-  }
+export async function ensureCsrfToken(): Promise<string> {
+  if (csrfPromise) return csrfPromise;
 
   csrfPromise = fetch("/api/csrf", { credentials: "include" })
     .then(async (res) => {
       if (!res.ok) throw new Error(`CSRF fetch failed: ${res.status}`);
       const token = res.headers.get(CSRF_HEADER_NAME);
-      if (token) { setCsrfToken(token); return token; }
+      if (token) return token;
       const data = await res.json();
-      if (data?.csrfToken) { setCsrfToken(data.csrfToken); return data.csrfToken; }
+      if (data?.csrfToken) return data.csrfToken;
       throw new Error("No CSRF token in response");
     })
     .catch((err) => {
@@ -93,8 +68,6 @@ export async function ensureCsrfToken(forceRefresh?: boolean): Promise<string> {
 
   return csrfPromise;
 }
-
-export { clearCsrfToken };
 
 export async function validateCsrf(request: Request): Promise<{ valid: boolean; reason?: string }> {
   if (request.method !== "POST" && request.method !== "PUT" && request.method !== "PATCH" && request.method !== "DELETE") {

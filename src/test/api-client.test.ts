@@ -3,9 +3,7 @@ import { GlamoApiError, apiRequest, normalizeApiPayload } from "@/lib/api/client
 import { isApiErrorResponse } from "@/lib/api/contracts";
 
 vi.mock("@/lib/csrf", () => ({
-  csrfHeaders: () => ({}),
   ensureCsrfToken: () => Promise.resolve(""),
-  setCsrfToken: () => {},
   CSRF_COOKIE_NAME: "glamo-csrf-token",
   CSRF_HEADER_NAME: "x-csrf-token",
 }));

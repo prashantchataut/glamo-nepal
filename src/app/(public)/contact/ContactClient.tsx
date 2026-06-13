@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Clock, Loader2, Mail, MapPin, Phone } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/config";
 import { contactSchema, type ContactFormData } from "@/lib/validations/contact";
-import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -18,10 +18,12 @@ export default function ContactClient() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSending(true);
     try {
-      await ensureCsrfToken();
-      const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify(data) });
-      const token = res.headers.get("x-csrf-token");
-      if (token) setCsrfToken(token);
+      const csrfToken = await ensureCsrfToken();
+      if (!csrfToken) {
+        toast.error("Could not load security token. Please refresh and try again.");
+        return;
+      }
+      const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken }, body: JSON.stringify(data) });
       if (!res.ok) {
         if (res.status === 503) toast.error("Contact form is not yet available. Please message us on WhatsApp or email hello@glamonepal.com.");
         else throw new Error("Failed to send message");

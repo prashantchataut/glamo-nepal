@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("");
@@ -18,10 +18,12 @@ export function NewsletterSignup() {
     }
     setSubmitting(true);
     try {
-      await ensureCsrfToken();
-      const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json", ...csrfHeaders() }, body: JSON.stringify({ email }) });
-      const csrfToken = res.headers.get("x-csrf-token");
-      if (csrfToken) setCsrfToken(csrfToken);
+      const csrfToken = await ensureCsrfToken();
+      if (!csrfToken) {
+        setError("Could not load security token. Please refresh and try again.");
+        return;
+      }
+      const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken }, body: JSON.stringify({ email }) });
       const data = await res.json();
       if (data.success || data.status === "success") setSubmitted(true);
       else setError(data.message || "Something went wrong. Please try again.");

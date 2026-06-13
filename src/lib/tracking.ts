@@ -3,7 +3,7 @@ const MAX_BATCH_SIZE = 50;
 const MAX_RETRIES = 3;
 const STORAGE_KEY = "glamo_session_id";
 const API_ENDPOINT = "/api/v1/events";
-import { csrfHeaders, ensureCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 
 export type TrackingEventType =
   | "product_view"
@@ -98,10 +98,10 @@ export async function flush(): Promise<void> {
     }
     const url = `${apiBase.replace(/\/$/, "")}/${API_ENDPOINT.replace(/^\//, "")}`;
 
-    await ensureCsrfToken().catch(() => {});
+    const csrfToken = await ensureCsrfToken().catch(() => "");
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...csrfHeaders() },
+      headers: { "Content-Type": "application/json", ...(csrfToken ? { [CSRF_HEADER_NAME]: csrfToken } : {}) },
       body: JSON.stringify(batch),
       keepalive: true,
     });

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Bell, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 
 export function NotifyMeForm({ productName }: { productName: string }) {
   const [contact, setContact] = useState("");
@@ -22,14 +22,16 @@ export function NotifyMeForm({ productName }: { productName: string }) {
     }
     setSending(true);
     try {
-      await ensureCsrfToken();
+      const csrfToken = await ensureCsrfToken();
+      if (!csrfToken) {
+        toast.error("Could not load security token. Please refresh and try again.");
+        return;
+      }
       const res = await fetch("/api/newsletter", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken },
         body: JSON.stringify({ email }),
       });
-      const csrfToken = res.headers.get("x-csrf-token");
-      if (csrfToken) setCsrfToken(csrfToken);
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         toast.error(data?.message || "We could not save your request. Please try again.");

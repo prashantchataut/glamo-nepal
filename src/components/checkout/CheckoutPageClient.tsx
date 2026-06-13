@@ -43,7 +43,7 @@ import {
 } from "@/lib/validations/checkout";
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { ensureCsrfToken } from "@/lib/csrf";
+
 import { useAuthStore } from "@/store/useAuthStore";
 import { initiateKhaltiPayment, initiateEsewaPayment } from "@/lib/api/checkout";
 
@@ -278,7 +278,7 @@ export function CheckoutPageClient() {
   async function onSubmit(data: CheckoutFormData) {
     setIsSubmitting(true);
     setSubmitError(null);
-    try { await ensureCsrfToken(); } catch { /* will use whatever token is available */ }
+    
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
     trackEvent("order_placed", {
       value: total,

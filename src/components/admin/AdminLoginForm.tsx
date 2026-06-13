@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-import { csrfHeaders, setCsrfToken, ensureCsrfToken, clearCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME, resetCsrfCache } from "@/lib/csrf";
 import { useAdminStore } from "@/store/useAdminStore";
 
 export function AdminLoginForm() {
@@ -25,8 +25,8 @@ export function AdminLoginForm() {
     try {
       let token = await ensureCsrfToken();
       if (!token) {
-        clearCsrfToken();
-        token = await ensureCsrfToken(true);
+        resetCsrfCache();
+        token = await ensureCsrfToken();
       }
       if (!token) {
         setError("Could not load security token. Please refresh the page and try again.");
@@ -35,22 +35,19 @@ export function AdminLoginForm() {
 
       const res = await fetch("/api/admin/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: token },
         body: JSON.stringify({ email, password }),
       });
-
-      const csrfToken = res.headers.get("x-csrf-token");
-      if (csrfToken) setCsrfToken(csrfToken);
 
       const data = await res.json().catch(() => null);
 
       if (res.status === 403 && data?.code === "CSRF_ERROR") {
-        clearCsrfToken();
-        const retryToken = await ensureCsrfToken(true);
+        resetCsrfCache();
+        const retryToken = await ensureCsrfToken();
         if (retryToken) {
           const retryRes = await fetch("/api/admin/login", {
             method: "POST",
-            headers: { "Content-Type": "application/json", ...csrfHeaders() },
+            headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: retryToken },
             body: JSON.stringify({ email, password }),
           });
           const retryData = await retryRes.json().catch(() => null);

@@ -1,16 +1,7 @@
 import type { ApiErrorResponse, ApiResponse } from "@/lib/api/contracts";
-import { csrfHeaders, ensureCsrfToken, setCsrfToken } from "@/lib/csrf";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-
-function captureCsrfFromResponse(response: Response): void {
-  try {
-    const token = response.headers?.get("x-csrf-token");
-    if (token) setCsrfToken(token);
-  } catch {
-    // Headers may not be available in test mocks
-  }
-}
 
 export class GlamoApiError extends Error {
   code?: string;
@@ -52,18 +43,12 @@ const STATUS_FALLBACKS: Record<number, { code: string; message: string }> = {
   500: { code: "SERVER_ERROR", message: "Something went wrong on our end. Please try again shortly." },
 };
 
-async function sendRequest(apiBaseUrl: string, path: string, init: RequestInit | undefined, token: string | null): Promise<Response> {
+async function sendRequest(apiBaseUrl: string, path: string, init: RequestInit | undefined, token: string | null, csrfToken: string): Promise<Response> {
   const headers = new Headers(init?.headers);
   const isFormData = init?.body instanceof FormData;
   if (!headers.has("Content-Type") && !isFormData) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
-
-  const method = (init?.method || "GET").toUpperCase();
-  if (MUTATING_METHODS.has(method)) {
-    for (const [key, value] of Object.entries(csrfHeaders())) {
-      if (!headers.has(key)) headers.set(key, value);
-    }
-  }
+  if (csrfToken) headers.set(CSRF_HEADER_NAME, csrfToken);
 
   return fetch(`${apiBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
     ...init,
@@ -76,22 +61,21 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
   const apiBaseUrl = getApiBaseUrl();
 
   const method = (init?.method || "GET").toUpperCase();
+  let csrfToken = "";
   if (MUTATING_METHODS.has(method)) {
-    try { await ensureCsrfToken(); } catch { /* proceed with whatever token is available */ }
+    csrfToken = await ensureCsrfToken();
   }
 
   let token = await getAuthToken();
 
   let response: Response;
   try {
-    response = await sendRequest(apiBaseUrl, path, init, token);
-    captureCsrfFromResponse(response);
+    response = await sendRequest(apiBaseUrl, path, init, token, csrfToken);
     if (response.status === 401 && token) {
       const refreshed = await getAuthToken(true);
       if (refreshed && refreshed !== token) {
         token = refreshed;
-        response = await sendRequest(apiBaseUrl, path, init, token);
-        captureCsrfFromResponse(response);
+        response = await sendRequest(apiBaseUrl, path, init, token, csrfToken);
       }
     }
   } catch (error) {
