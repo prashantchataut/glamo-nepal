@@ -83,30 +83,21 @@ export async function POST(request: NextRequest) {
     }
 
     const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const adminName = process.env.ADMIN_NAME || "GLAMO Admin";
     const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || adminEmail || "").split(",").map((e: string) => e.trim().toLowerCase()).filter(Boolean);
 
-    if (!adminEmail || !adminPassword) {
+    if (!adminEmail || !adminPasswordHash) {
+      console.error("[SECURITY] ADMIN_EMAIL and ADMIN_PASSWORD_HASH are required. Run: npx tsx scripts/hash-password.ts <password>");
       return NextResponse.json({ success: false, message: "Admin login is not configured." }, { status: 500 });
     }
 
-    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const isEmailMatch = email.toLowerCase() === adminEmail.toLowerCase();
     if (!isEmailMatch) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 
-    let isPasswordValid = false;
-    if (adminPasswordHash) {
-      isPasswordValid = await compare(password, adminPasswordHash);
-    } else {
-      if (adminPassword.length < 12) {
-        console.warn("[SECURITY] ADMIN_PASSWORD is less than 12 characters. Use a stronger password. Set ADMIN_PASSWORD_HASH instead for proper security.");
-      }
-      isPasswordValid = password === adminPassword;
-    }
-
+    const isPasswordValid = await compare(password, adminPasswordHash);
     if (!isPasswordValid) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
