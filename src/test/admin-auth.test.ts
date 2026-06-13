@@ -123,16 +123,13 @@ describe("admin-auth", () => {
   describe("getAdminCredentials", () => {
     it("returns credentials when env vars are set", () => {
       process.env.ADMIN_EMAIL = "test@example.com";
-      process.env.ADMIN_PASSWORD = "password123";
       const creds = getAdminCredentials();
       expect(creds.email).toBe("test@example.com");
-      expect(creds.password).toBe("password123");
       expect(creds.name).toBe("GLAMO Admin");
     });
 
     it("uses custom name when ADMIN_NAME is set", () => {
       process.env.ADMIN_EMAIL = "test@example.com";
-      process.env.ADMIN_PASSWORD = "password123";
       process.env.ADMIN_NAME = "Custom Admin";
       const creds = getAdminCredentials();
       expect(creds.name).toBe("Custom Admin");
@@ -140,14 +137,7 @@ describe("admin-auth", () => {
 
     it("throws when ADMIN_EMAIL is missing", () => {
       delete process.env.ADMIN_EMAIL;
-      process.env.ADMIN_PASSWORD = "password123";
-      expect(() => getAdminCredentials()).toThrow("ADMIN_EMAIL and ADMIN_PASSWORD");
-    });
-
-    it("throws when ADMIN_PASSWORD is missing", () => {
-      process.env.ADMIN_EMAIL = "test@example.com";
-      delete process.env.ADMIN_PASSWORD;
-      expect(() => getAdminCredentials()).toThrow("ADMIN_EMAIL and ADMIN_PASSWORD");
+      expect(() => getAdminCredentials()).toThrow("ADMIN_EMAIL");
     });
   });
 
