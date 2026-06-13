@@ -71,9 +71,6 @@ export function csrfHeaders(): Record<string, string> {
 
 export async function ensureCsrfToken(forceRefresh?: boolean): Promise<string> {
   if (!forceRefresh) {
-    const existing = getCsrfToken();
-    if (existing) return existing;
-
     if (csrfPromise) return csrfPromise;
   } else {
     csrfPromise = null;
