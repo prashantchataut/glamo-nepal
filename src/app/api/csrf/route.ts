@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     const signedCookie = await signCsrfToken(rawToken);
     response.cookies.set(CSRF_COOKIE_NAME, signedCookie, {
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "lax",
       secure: IS_PRODUCTION,
       path: "/",
       maxAge: 60 * 60 * 24,

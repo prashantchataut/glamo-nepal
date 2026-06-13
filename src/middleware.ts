@@ -133,7 +133,7 @@ async function setCsrfCookie(response: NextResponse, request: NextRequest) {
     const signedToken = await signCsrfToken(rawToken);
     response.cookies.set(CSRF_TOKEN_COOKIE, signedToken, {
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "lax",
       secure: IS_PRODUCTION,
       path: "/",
       maxAge: 60 * 60 * 24,
