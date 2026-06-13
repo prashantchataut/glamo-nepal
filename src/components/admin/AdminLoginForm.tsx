@@ -64,7 +64,12 @@ export function AdminLoginForm() {
       }
 
       if (!res.ok || !data?.success) {
-        setError(data?.message || "Invalid admin email or password.");
+        const message = data?.message || "Invalid admin email or password.";
+        if (res.status === 500 && data?.message?.includes("not configured")) {
+          setError("Admin login is not yet configured. Please set ADMIN_EMAIL and ADMIN_PASSWORD_HASH environment variables.");
+        } else {
+          setError(message);
+        }
         return;
       }
 

@@ -71,8 +71,13 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
       if (data.success && data.data) {
         return data.data;
       }
+      console.error("[Auth] Sync response missing data:", JSON.stringify(data));
     } else {
-      console.error("[Auth] Account sync failed:", res.status, await res.text().catch(() => ""));
+      const errorBody = await res.text().catch(() => "");
+      console.error("[Auth] Account sync failed:", res.status, errorBody);
+      if (res.status === 401) {
+        console.error("[Auth] Token rejected by backend. The Firebase ID token may be expired or the FIREBASE_PROJECT_ID may not match. Try signing out and signing in again.");
+      }
     }
   } catch (error) {
     console.error("[Auth] Failed to sync user account:", error);

@@ -11,15 +11,13 @@ function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
   throw new Error('FIREBASE_PROJECT_ID environment variable is not set')
 }
 
-function buildJwksUri(projectId: string): string {
-  return `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`
-}
+const FIREBASE_JWKS_URI = 'https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com'
 
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>()
 
 function getJWKS(projectId: string) {
   if (!jwksCache.has(projectId)) {
-    jwksCache.set(projectId, createRemoteJWKSet(new URL(buildJwksUri(projectId))))
+    jwksCache.set(projectId, createRemoteJWKSet(new URL(FIREBASE_JWKS_URI)))
   }
   return jwksCache.get(projectId)!
 }
@@ -279,6 +277,9 @@ const adminUser = await verifyAdminSession(adminSession)
     }
   } catch (error) {
     console.error('[Auth] Token verification failed:', error instanceof Error ? `${error.name}: ${error.message}` : String(error))
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[Auth] Token payload hint: ensure FIREBASE_PROJECT_ID matches your Firebase project')
+    }
     return c.json({ success: false, message: 'Unauthorized: invalid token', errors: [] }, 401)
   }
 

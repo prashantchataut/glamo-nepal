@@ -9,7 +9,7 @@ const ROLE_HIERARCHY: Record<string, string[]> = {
 
 function hasRequiredRole(userRole: string, requiredRoles: string[]): boolean {
   const allowedRoles = ROLE_HIERARCHY[userRole] || [userRole]
-  return requiredRoles.some((role) => allowedRoles.includes(role))
+  return allowedRoles.some((role) => requiredRoles.includes(role))
 }
 
 export const requireRole = (roles: string[]) => {

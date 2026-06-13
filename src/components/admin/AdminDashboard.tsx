@@ -6,6 +6,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { DashboardView } from "@/components/admin/dashboard/DashboardView";
 import { ComponentErrorBoundary } from "@/components/common/ComponentErrorBoundary";
+import { ensureCsrfToken, CSRF_HEADER_NAME } from "@/lib/csrf";
 
 const ProductsView = lazy(() => import("@/components/admin/products/ProductsView").then(m => ({ default: m.ProductsView })));
 const OrdersView = lazy(() => import("@/components/admin/orders/OrdersView").then(m => ({ default: m.OrdersView })));
@@ -117,7 +118,10 @@ export function AdminDashboard() {
   async function handleLogout() {
     setIsLoggingOut(true);
     try {
-      await fetch("/api/admin/login", { method: "DELETE" });
+      const csrfToken = await ensureCsrfToken();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (csrfToken) headers[CSRF_HEADER_NAME] = csrfToken;
+      await fetch("/api/admin/login", { method: "DELETE", headers, credentials: "include" });
     } catch {}
     useAdminStore.getState().setAdminUser(null);
     window.location.href = "/admin/login";
