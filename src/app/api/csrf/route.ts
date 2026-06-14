@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,38 +25,23 @@ async function signCsrfToken(rawToken: string): Promise<string> {
   return `${rawToken}.${sigB64}`;
 }
 
-function extractRawToken(cookieValue: string): string {
-  if (!CSRF_SECRET) return cookieValue;
-  const dotIndex = cookieValue.lastIndexOf(".");
-  return dotIndex === -1 ? cookieValue : cookieValue.slice(0, dotIndex);
-}
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   const IS_PRODUCTION = process.env.NODE_ENV === "production";
-  let rawToken: string;
-  const existingCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value;
-
-  if (existingCookie) {
-    rawToken = extractRawToken(existingCookie);
-  } else {
-    rawToken = generateCsrfToken();
-  }
+  const rawToken = generateCsrfToken();
 
   const response = NextResponse.json(
     { success: true, csrfToken: rawToken },
     { headers: { "x-csrf-token": rawToken } },
   );
 
-  if (!existingCookie) {
-    const signedCookie = await signCsrfToken(rawToken);
-    response.cookies.set(CSRF_COOKIE_NAME, signedCookie, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: IS_PRODUCTION,
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
-  }
+  const signedCookie = await signCsrfToken(rawToken);
+  response.cookies.set(CSRF_COOKIE_NAME, signedCookie, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: IS_PRODUCTION,
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  });
 
   return response;
 }

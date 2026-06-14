@@ -23,7 +23,7 @@ export function NewsletterSignup() {
         setError("Could not load security token. Please refresh and try again.");
         return;
       }
-      const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken }, body: JSON.stringify({ email }) });
+      const res = await fetch("/api/newsletter", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken }, body: JSON.stringify({ email }) });
       const data = await res.json();
       if (data.success || data.status === "success") setSubmitted(true);
       else setError(data.message || "Something went wrong. Please try again.");

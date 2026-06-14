@@ -106,7 +106,7 @@ function addSecurityHeaders(response: NextResponse) {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
     "connect-src 'self' https://api.glamonepal.com https://khalti.com https://pay.khalti.com https://esewa.com.np https://www.esewa.com.np https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.googletagmanager.com",
-    `frame-src https://accounts.google.com https://accounts.google.gg${firebaseFrameSrc} https://esewa.com.np https://www.esewa.com.np https://khalti.com https://pay.khalti.com`,
+    `frame-src https://accounts.google.com https://accounts.google.gg${firebaseFrameSrc} https://esewa.com.np https://www.esewa.com.np https://khalti.com https://pay.khalti.com https://*.firebaseapp.com`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

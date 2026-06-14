@@ -35,6 +35,7 @@ export function AdminLoginForm() {
 
       const res = await fetch("/api/admin/login", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: token },
         body: JSON.stringify({ email, password }),
       });
@@ -47,6 +48,7 @@ export function AdminLoginForm() {
         if (retryToken) {
           const retryRes = await fetch("/api/admin/login", {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: retryToken },
             body: JSON.stringify({ email, password }),
           });

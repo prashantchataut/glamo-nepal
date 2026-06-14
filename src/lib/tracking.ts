@@ -101,6 +101,7 @@ export async function flush(): Promise<void> {
     const csrfToken = await ensureCsrfToken().catch(() => "");
     const res = await fetch(url, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json", ...(csrfToken ? { [CSRF_HEADER_NAME]: csrfToken } : {}) },
       body: JSON.stringify(batch),
       keepalive: true,

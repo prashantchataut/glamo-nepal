@@ -51,6 +51,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         const csrfToken = await ensureCsrfToken().catch(() => "");
         await fetch(`/api/v1/auth/logout`, {
           method: "POST",
+          credentials: "include",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(csrfToken ? { [CSRF_HEADER_NAME]: csrfToken } : {}) },
         }).catch((err) => console.error("[Auth] Logout request failed:", err));
       }

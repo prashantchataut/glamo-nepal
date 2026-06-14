@@ -29,6 +29,7 @@ export function NotifyMeForm({ productName }: { productName: string }) {
       }
       const res = await fetch("/api/newsletter", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken },
         body: JSON.stringify({ email }),
       });
