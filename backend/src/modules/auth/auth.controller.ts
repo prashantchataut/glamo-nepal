@@ -209,6 +209,8 @@ export async function forgotPassword(c: Context<AppEnv>) {
     if (env.RESEND_API_KEY) {
       const { sendPasswordReset } = await import('../../utils/email')
       await sendPasswordReset((user as any).email, resetToken, env)
+    } else {
+      console.warn('[Auth] RESEND_API_KEY is not set. Password reset email was NOT sent. Set RESEND_API_KEY in backend/.env to enable email delivery.')
     }
 
     return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)

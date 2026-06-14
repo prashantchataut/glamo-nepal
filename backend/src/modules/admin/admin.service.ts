@@ -448,7 +448,7 @@ export async function getUsers(db: Client, filters: { search?: string; role?: st
 
 export async function getUser(db: Client, id: string) {
   const result = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ?`,
+    sql: `SELECT id, first_name, last_name, email, phone, role, is_active, email_verified, phone_verified, created_at, updated_at FROM users WHERE id = ?`,
     args: [id],
   })
 

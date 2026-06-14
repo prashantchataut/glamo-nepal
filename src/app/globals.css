@@ -183,7 +183,7 @@ body.scroll-locked {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .type-display-xl { font-size: 3rem; }
   .type-display-lg { font-size: 2.25rem; }
   .type-display-md { font-size: 1.75rem; }

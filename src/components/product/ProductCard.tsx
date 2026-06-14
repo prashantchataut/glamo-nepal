@@ -190,9 +190,9 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col px-4 pb-5 pt-4 sm:px-5">
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+      <div className="flex flex-1 flex-col px-3 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
+          <p className="type-label text-neutral-500">
             {product.brand}
           </p>
           <div
@@ -204,21 +204,21 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <Link href={`/product/${product.slug}`} className="mt-2 block">
-          <h3 className="line-clamp-2 min-h-[2.8rem] break-words font-display text-[1.35rem] font-semibold leading-[1.1] tracking-[-0.025em] text-neutral-950 transition-colors group-hover:text-primary">
+        <Link href={`/product/${product.slug}`} className="mt-1.5 block sm:mt-2">
+          <h3 className="line-clamp-2 min-h-[2.4rem] break-words font-display text-base font-semibold leading-[1.2] tracking-[-0.025em] text-neutral-950 transition-colors group-hover:text-primary sm:min-h-[2.8rem] sm:text-[1.35rem] sm:leading-[1.1]">
             {product.name}
           </h3>
         </Link>
 
         {product.concernTags.length > 0 && (
-          <p className="mt-2 line-clamp-1 text-xs text-neutral-500">
+          <p className="mt-1 line-clamp-1 text-xs text-neutral-500 sm:mt-2">
             {product.concernTags.slice(0, 3).join(" · ")}
           </p>
         )}
 
         {product.shadeOptions && product.shadeOptions.length > 0 && (
           <div
-            className="mt-3 flex items-center gap-1.5"
+            className="mt-2 flex items-center gap-1.5 sm:mt-3"
             aria-label="Available shades"
           >
             {product.shadeOptions.slice(0, 6).map((shade) => (
@@ -237,9 +237,9 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-3 sm:pt-4">
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-2xl font-semibold leading-none text-neutral-950">
+              <span className="type-price text-neutral-950">
                 {formatNPR(product.price)}
               </span>
               {product.originalPrice && (

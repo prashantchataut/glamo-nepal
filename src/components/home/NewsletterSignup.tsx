@@ -35,10 +35,10 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className="bg-neutral-950 py-16 md:py-24" aria-labelledby="newsletter-heading">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16">
+    <section className="bg-neutral-950 section-padding" aria-labelledby="newsletter-heading">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16 lg:px-8">
         <div>
-          <h2 id="newsletter-heading" className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-5xl">New drops, better routines.</h2>
+          <h2 id="newsletter-heading" className="type-display-md font-medium tracking-[-0.02em] text-white md:type-display-lg">New drops, better routines.</h2>
           <p className="mt-4 max-w-md text-[0.9375rem] leading-[1.7] text-white/80">Curated product edits, restock notes and Kathmandu Valley delivery updates. No spam, no noisy beauty myths.</p>
         </div>
         <div aria-live="polite" aria-atomic="true">

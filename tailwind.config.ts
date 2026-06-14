@@ -37,7 +37,7 @@ const config: Config = {
           200: '#F7D3DD',
           300: '#EFB4C5',
           400: '#E496AF',
-          500: '#D97898',
+          500: '#C06282',
           600: '#C9607A',
           700: '#AD4B64',
           800: '#8C3B51',
@@ -45,7 +45,7 @@ const config: Config = {
           950: '#35131D',
         },
         primary: {
-          DEFAULT: '#D97898',
+          DEFAULT: '#C06282',
           light: '#EFB4C5',
           dark: '#AD4B64',
           text: '#B05474',
@@ -70,7 +70,7 @@ const config: Config = {
         error: '#C0392B',
         success: '#27AE60',
         brand: {
-          primary: '#D97898',
+          primary: '#C06282',
           'primary-hover': '#AD4B64',
           'primary-light': '#FDECEF',
           secondary: '#B88967',

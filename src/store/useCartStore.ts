@@ -10,7 +10,7 @@ export type { Product, CartItem, CartActionResult, ProductBadge, ProductReviewSu
 interface CartState {
   items: CartItem[];
   _syncing: boolean;
-  _serverItemIds: Map<string, string>;
+  _serverItemIds: Record<string, string>;
   addItem: (product: Product, quantity?: number, selectedShade?: string) => CartActionResult;
   removeItem: (productId: string, selectedShade?: string) => void;
   updateQuantity: (productId: string, quantity: number, selectedShade?: string) => CartActionResult;
@@ -79,7 +79,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       _syncing: false,
-      _serverItemIds: new Map<string, string>(),
+      _serverItemIds: {},
 
       addItem: (product, quantity = 1, selectedShade) => {
         const available = availableFor(product, selectedShade);
@@ -133,7 +133,7 @@ export const useCartStore = create<CartState>()(
         }));
 
         if (isLoggedIn()) {
-          const serverId = get()._serverItemIds.get(itemKey(productId, selectedShade));
+          const serverId = get()._serverItemIds[itemKey(productId, selectedShade)];
           if (serverId) {
             cartApi.remove(serverId).catch((err) => console.error("[Cart] Failed to sync remove:", err));
           }
@@ -170,7 +170,7 @@ export const useCartStore = create<CartState>()(
         });
 
         if (result.ok && isLoggedIn()) {
-          const serverId = get()._serverItemIds.get(itemKey(productId, selectedShade));
+          const serverId = get()._serverItemIds[itemKey(productId, selectedShade)];
           if (serverId) {
             cartApi.update(serverId, quantity).catch((err) => console.error("[Cart] Failed to sync update:", err));
           }
@@ -198,14 +198,14 @@ export const useCartStore = create<CartState>()(
           const serverItems = response.data ?? [];
           const localItems = get().items;
 
-          const serverIds = new Map<string, string>();
+          const serverIds: Record<string, string> = {};
           const merged: CartItem[] = [];
 
           for (const serverItem of serverItems) {
             const local = serverItemToLocal(serverItem);
             if (!local) continue;
 
-            serverIds.set(itemKey(local.product.id, local.selectedShade), serverItem.id);
+            serverIds[itemKey(local.product.id, local.selectedShade)] = serverItem.id;
 
             const existingIdx = localItems.findIndex(
               (item) =>
@@ -225,7 +225,7 @@ export const useCartStore = create<CartState>()(
 
           for (const localItem of localItems) {
             const key = itemKey(localItem.product.id, localItem.selectedShade);
-            if (!serverIds.has(key)) {
+            if (!(key in serverIds)) {
               merged.push(localItem);
             }
           }
@@ -236,6 +236,16 @@ export const useCartStore = create<CartState>()(
         }
       },
     }),
-    { name: "glamo-cart-storage", version: 1 },
+    { name: "glamo-cart-storage", version: 2, migrate: (persistedState: unknown, version: number) => {
+        const persisted = persistedState as Record<string, unknown>;
+        if (version < 2) {
+          const state = { ...persisted };
+          if (state._serverItemIds instanceof Map || typeof state._serverItemIds === "object") {
+            state._serverItemIds = {};
+          }
+          return state;
+        }
+        return persisted;
+      } },
   ),
 );

@@ -83,7 +83,7 @@ export function Footer() {
         <div className="grid gap-8 rounded-[34px] border border-white/10 bg-white/[0.035] p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">Join the GLAMO beauty list</p>
-            <h2 className="mt-3 max-w-xl font-display text-3xl font-medium leading-[1.05] tracking-[-0.02em] text-white md:text-5xl">
+            <h2 className="mt-3 max-w-xl font-display text-2xl font-medium leading-[1.1] tracking-[-0.02em] text-white md:text-5xl">
               Softer routines, new drops and Kathmandu Valley delivery notes.
             </h2>
           </div>
@@ -92,7 +92,7 @@ export function Footer() {
             className="flex flex-col justify-end gap-3"
           >
             <label htmlFor="footer-email" className="sr-only">Email address</label>
-            <div className="flex min-h-14 items-center gap-3 rounded-full border border-white/10 bg-white px-4 text-neutral-950">
+            <div className="flex min-h-12 items-center gap-2 rounded-full border border-white/10 bg-white px-3 text-neutral-950 sm:min-h-14 sm:gap-3 sm:px-4">
               <Mail size={17} strokeWidth={1.7} className="shrink-0 text-neutral-500" />
               <input
                 id="footer-email"
@@ -121,7 +121,7 @@ export function Footer() {
           </form>
         </div>
 
-        <div className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
+        <div className="mt-12 grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
           <div>
             <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-white transition hover:text-brand-surfacePink touch-target">
               GLAMO

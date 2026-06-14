@@ -17,6 +17,10 @@ import { IMAGES } from "@/lib/image-library";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFirebaseAuth } from "./FirebaseAuthProvider";
 
+function sanitizeInput(value: string): string {
+  return value.replace(/<[^>]*>/g, "").trim();
+}
+
 export type AuthMode = "login" | "register";
 
 const labels: Record<AuthMode, { title: string; description: string; button: string }> = {
@@ -87,7 +91,14 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    let sanitizedName = "";
     if (mode === "register") {
+      sanitizedName = sanitizeInput(name);
+      if (!sanitizedName) {
+        setError("Please enter a valid name.");
+        setIsLoading(false);
+        return;
+      }
       if (password.length < 8) {
         setError("Password must be at least 8 characters.");
         return;
@@ -109,8 +120,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     try {
       if (mode === "register") {
         const cred = await createUserWithEmailAndPassword(email, password);
-        if (cred.user && name) {
-          try { await updateUserProfile(cred.user, { displayName: name }); } catch {}
+        if (cred.user && sanitizedName) {
+          try { await updateUserProfile(cred.user, { displayName: sanitizedName }); } catch {}
         }
         toast.success("Account created successfully!");
       } else {
@@ -231,23 +242,26 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         <form
           onSubmit={handleSubmit}
           className="space-y-4 md:space-y-5"
+          aria-label={mode === "login" ? "Sign in form" : "Create account form"}
         >
           {mode === "register" && (
             <div className="space-y-2">
               <label htmlFor="auth-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
                 Full name
               </label>
-              <input
-id="auth-name"
-                 type="text"
-                 placeholder="Your full name"
-                 value={name}
-                 onChange={(e) => setName(e.target.value)}
-                 className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-                 required={mode === "register"}
-                 autoComplete="name"
-                 maxLength={100}
-               />
+<input
+ id="auth-name"
+                  type="text"
+                  placeholder="Your full name"
+                  value={name}
+                  onChange={(e) => setName(sanitizeInput(e.target.value))}
+                  className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+                  required={mode === "register"}
+                  autoComplete="name"
+                  maxLength={100}
+                  aria-label="Full name"
+                  aria-invalid={!!error}
+                />
             </div>
           )}
 
@@ -255,17 +269,19 @@ id="auth-name"
             <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
               Email address
             </label>
-            <input
-id="auth-email"
-               type="email"
-               placeholder="you@example.com"
-               value={email}
-               onChange={(e) => setEmail(e.target.value)}
-               className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-               required
-               autoComplete="email"
-               maxLength={255}
-             />
+<input
+ id="auth-email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+                required
+                autoComplete="email"
+                maxLength={255}
+                aria-label="Email address"
+                aria-invalid={!!error}
+              />
           </div>
 
           <div className="space-y-2">
@@ -273,19 +289,21 @@ id="auth-email"
               Password
             </label>
             <div className="relative">
-              <input
-id="auth-password"
-                 type={showPassword ? "text" : "password"}
-                 placeholder="Enter your password"
-                 value={password}
-                 onChange={(e) => setPassword(e.target.value)}
-                 className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 pr-10 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-                 required
-                 minLength={8}
-                 maxLength={128}
-                 autoComplete={mode === "login" ? "current-password" : "new-password"}
-                aria-describedby={mode === "register" ? "auth-password-hint" : undefined}
-              />
+<input
+ id="auth-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 pr-10 text-[15px] text-neutral-950 transition-all duration-200 placeholder:text-neutral-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+                  required
+                  minLength={8}
+                  maxLength={128}
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                 aria-describedby={mode === "register" ? "auth-password-hint" : undefined}
+                  aria-label="Password"
+                  aria-invalid={!!error}
+               />
               <button
                 type="button"
 onClick={() => setShowPassword((v) => !v)}

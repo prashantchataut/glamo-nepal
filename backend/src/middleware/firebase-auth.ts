@@ -254,72 +254,20 @@ const adminUser = await verifyAdminSession(adminSession)
 
       const profile = result.rows[0]
       if (!profile) {
-        const emailLocal = email?.split('@')[0] || ''
-        const nameParts = emailLocal.split(/[._-]/)
-        const firstName = nameParts[0]?.charAt(0).toUpperCase() + nameParts[0]?.slice(1) || ''
-        const lastName = nameParts.slice(1).join(' ') || null
-        try {
-          await db.execute({
-            sql: `INSERT INTO users (id, email, first_name, last_name, role, is_active, email_verified, created_at, updated_at)
-                  VALUES (?, ?, ?, ?, 'CUSTOMER', 1, 1, datetime('now'), datetime('now'))`,
-            args: [uid, email || null, firstName, lastName],
-          })
-        } catch (insertError: any) {
-          if (insertError?.message?.includes('UNIQUE constraint')) {
-            const retryResult = await db.execute({
-              sql: 'SELECT id, role, is_active FROM users WHERE id = ? AND deleted_at IS NULL',
-              args: [uid],
-            })
-            if (retryResult.rows.length > 0) {
-              const retryProfile = retryResult.rows[0]
-              const retryActive = retryProfile.is_active
-              c.set('user', {
-                id: retryProfile.id as string,
-                email,
-                role: retryProfile.role as string,
-                isActive: typeof retryActive === 'number' ? retryActive === 1 : !!retryActive,
-              })
-              await next()
-              return
-            }
-            const byEmail = await db.execute({
-              sql: 'SELECT id, role, is_active FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1',
-              args: [email],
-            })
-            if (byEmail.rows.length > 0) {
-              const existing = byEmail.rows[0]
-              c.set('user', {
-                id: existing.id as string,
-                email,
-                role: existing.role as string,
-                isActive: typeof existing.is_active === 'number' ? existing.is_active === 1 : !!existing.is_active,
-              })
-              await next()
-              return
-            }
-          }
-          console.error('[Auth] Failed to auto-create user:', insertError instanceof Error ? `${insertError.name}: ${insertError.message}` : String(insertError))
-          return c.json({ success: false, message: 'Unauthorized: user not found', errors: [] }, 401)
-        }
-        c.set('user', {
-          id: uid,
-          email,
-          role: 'CUSTOMER',
-          isActive: true,
-        })
-      } else {
-        const isActive = profile.is_active
-        if (typeof isActive === 'number' ? isActive !== 1 : !isActive) {
-          return c.json({ success: false, message: 'Unauthorized: user inactive', errors: [] }, 401)
-        }
-
-        c.set('user', {
-          id: profile.id as string,
-          email,
-          role: profile.role as string,
-          isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
-        })
+        return c.json({ success: false, message: 'User not found. Please sync your account first.', errors: [] }, 401)
       }
+
+      const isActive = profile.is_active
+      if (typeof isActive === 'number' ? isActive !== 1 : !isActive) {
+        return c.json({ success: false, message: 'Unauthorized: user inactive', errors: [] }, 401)
+      }
+
+      c.set('user', {
+        id: profile.id as string,
+        email,
+        role: profile.role as string,
+        isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+      })
     }
   } catch (error) {
     console.error('[Auth] Token verification failed:', error instanceof Error ? `${error.name}: ${error.message}` : String(error))

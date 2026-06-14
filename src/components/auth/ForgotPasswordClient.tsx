@@ -14,6 +14,8 @@ const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(false);
 
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (cooldown) return;
@@ -60,15 +62,18 @@ const [email, setEmail] = useState("");
               <label htmlFor="forgot-email" className="type-label mb-2 block text-neutral-500">
                 Email address
               </label>
-              <input
-                id="forgot-email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClasses}
-                required
-              />
+<input
+                 id="forgot-email"
+                 type="email"
+                 placeholder="you@example.com"
+                 value={email}
+                 onChange={(e) => setEmail(e.target.value)}
+                 className={inputClasses}
+                 required
+                 maxLength={255}
+                 aria-label="Email address"
+                 aria-invalid={!isValidEmail && email.length > 0}
+               />
             </div>
 
             {error && (
@@ -79,7 +84,7 @@ const [email, setEmail] = useState("");
 
             <button
               type="submit"
-              disabled={isLoading || cooldown || !email}
+              disabled={isLoading || cooldown || !email || !isValidEmail}
               className={primaryButtonClasses}
             >
               {isLoading ? "Sending..." : cooldown ? "Please wait..." : "Send reset link"}

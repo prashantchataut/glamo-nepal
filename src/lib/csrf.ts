@@ -43,13 +43,18 @@ async function verifySignedToken(signedToken: string): Promise<string | null> {
 export { CSRF_COOKIE_NAME, CSRF_HEADER_NAME };
 
 let csrfPromise: Promise<string> | null = null;
+let csrfTimestamp: number = 0;
+const CSRF_CACHE_DURATION = 5 * 60 * 1000;
 
 export function resetCsrfCache(): void {
   csrfPromise = null;
+  csrfTimestamp = 0;
 }
 
 export async function ensureCsrfToken(): Promise<string> {
-  if (csrfPromise) return csrfPromise;
+  if (csrfPromise && Date.now() - csrfTimestamp < CSRF_CACHE_DURATION) {
+    return csrfPromise;
+  }
 
   csrfPromise = fetch("/api/csrf", { credentials: "include" })
     .then(async (res) => {
@@ -60,13 +65,44 @@ export async function ensureCsrfToken(): Promise<string> {
       if (data?.csrfToken) return data.csrfToken;
       throw new Error("No CSRF token in response");
     })
+    .then((token) => {
+      csrfTimestamp = Date.now();
+      return token;
+    })
     .catch((err) => {
       csrfPromise = null;
+      csrfTimestamp = 0;
       console.error("[CSRF] Failed to fetch token:", err);
       return "";
     });
 
   return csrfPromise;
+}
+
+export async function fetchWithCsrfRetry(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const csrfToken = await ensureCsrfToken();
+  const headers = new Headers(options.headers);
+  headers.set(CSRF_HEADER_NAME, csrfToken);
+
+  let response = await fetch(url, { ...options, headers, credentials: "include" });
+
+  if (response.status === 403) {
+    try {
+      const data = await response.clone().json().catch(() => ({}));
+      const reason = data.reason || data.error || "";
+      if (typeof reason === "string" && reason.toLowerCase().includes("csrf")) {
+        resetCsrfCache();
+        const newToken = await ensureCsrfToken();
+        headers.set(CSRF_HEADER_NAME, newToken);
+        response = await fetch(url, { ...options, headers, credentials: "include" });
+      }
+    } catch {}
+  }
+
+  return response;
 }
 
 export async function validateCsrf(request: Request): Promise<{ valid: boolean; reason?: string }> {

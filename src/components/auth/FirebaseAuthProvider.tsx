@@ -37,11 +37,9 @@ function setAuthCookie(token: string | null) {
 function normalizeRole(role?: string): "customer" | "admin" {
   if (!role) return "customer";
   const lower = role.toLowerCase();
-  if (lower === "admin") return "admin";
+  if (lower === "admin" || lower === "super_admin" || lower === "owner") return "admin";
   return "customer";
 }
-
-const _globalCompletedSyncs = new Set<string>();
 
 async function syncUserWithBackend(token: string, displayName?: string | null) {
   try {
@@ -114,16 +112,10 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       setFirebaseUser(user);
 
       if (user) {
-        const syncKey = user.uid;
-        if (_globalCompletedSyncs.has(syncKey)) {
-          setLoading(false);
-          setSyncComplete(true);
+        if (syncingRef.current === user.uid) {
           return;
         }
-        if (syncingRef.current === syncKey) {
-          return;
-        }
-        syncingRef.current = syncKey;
+        syncingRef.current = user.uid;
 
         try {
           const token = await user.getIdToken().catch((err) => {
@@ -166,6 +158,9 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             });
           }
 
+          setSyncComplete(true);
+          setLoading(false);
+
           const syncCart = async (retries = 1) => {
             for (let attempt = 0; attempt <= retries; attempt++) {
               try {
@@ -190,7 +185,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
           };
           syncCart();
           syncWishlist();
-          _globalCompletedSyncs.add(syncKey);
         } catch (error) {
           console.error("Auth sync failed:", error);
           login({
@@ -200,8 +194,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             phone: user.phoneNumber || "",
             role: "customer",
           });
-          _globalCompletedSyncs.add(syncKey);
-        } finally {
           setSyncComplete(true);
           setLoading(false);
         }
@@ -211,7 +203,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         setSyncComplete(true);
         setLoading(false);
         syncingRef.current = null;
-        _globalCompletedSyncs.clear();
       }
     });
 

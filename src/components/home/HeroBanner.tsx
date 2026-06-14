@@ -9,7 +9,7 @@ export function HeroBanner() {
       <div className="relative z-10 mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
           <div className="max-w-xl lg:max-w-none">
-            <h1 className="font-display text-[2.75rem] font-medium leading-[1.05] tracking-[-0.03em] text-neutral-900 sm:text-6xl lg:text-[5.5rem]">
+            <h1 className="type-display-lg font-medium tracking-[-0.03em] text-neutral-900 lg:type-display-xl">
               Your beauty ritual, delivered.
             </h1>
             <p className="mt-6 max-w-md text-[1.0625rem] leading-[1.7] text-neutral-500 lg:mt-8 lg:max-w-lg">

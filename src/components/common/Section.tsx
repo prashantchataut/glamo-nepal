@@ -28,13 +28,13 @@ export function Section({
       <div className="mx-auto max-w-7xl">
         <div
           className={cn(
-            "mb-10",
+            "mb-8 md:mb-10",
             align === "center" && "text-center",
             align === "left" && "flex flex-col md:flex-row md:items-end md:justify-between gap-4"
           )}
         >
           <div className={cn(align === "center" && "max-w-2xl mx-auto")}>
-            <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-neutral-950 md:text-5xl">{heading}</h2>
+            <h2 className="type-display-md font-semibold tracking-[-0.035em] text-neutral-950 md:type-display-lg">{heading}</h2>
             {subheading && (
               <p className={cn("mt-4 max-w-xl text-[0.9375rem] leading-[1.7] text-neutral-500", align === "center" && "mx-auto")}>
                 {subheading}

@@ -1,23 +1,6 @@
 import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertSingle, fromSqliteBool } from '../../utils/turso-helpers'
 
-interface UserRow {
-  id: string
-  email: string | null
-  phone: string | null
-  first_name: string | null
-  last_name: string | null
-  avatar_url: string | null
-  role: string
-  is_active: number
-  email_verified: number
-  phone_verified: number
-  google_id: string | null
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-}
-
 function formatUser(row: Record<string, unknown>) {
   return {
     id: row.id as string,
@@ -59,7 +42,7 @@ export async function register(
     })
 
     const result = await db.execute({
-      sql: 'SELECT * FROM users WHERE id = ?',
+      sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ?`,
       args: [data.uid],
     })
 
@@ -75,7 +58,7 @@ export async function register(
 
 export async function getMe(userId: string, db: Client) {
   const result = await db.execute({
-    sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+    sql: 'SELECT id, email, phone, first_name, last_name, avatar_url, role, is_active, email_verified, phone_verified, created_at, updated_at FROM users WHERE id = ? AND deleted_at IS NULL',
     args: [userId],
   })
 
@@ -87,12 +70,14 @@ export async function getMe(userId: string, db: Client) {
   return formatUser(user)
 }
 
+const USER_COLUMNS = 'id, email, phone, first_name, last_name, avatar_url, role, is_active, email_verified, phone_verified, created_at, updated_at'
+
 export async function findOrCreateUser(
   params: { uid: string; email: string; firstName?: string; lastName?: string },
   db: Client
 ) {
   const existingById = await db.execute({
-    sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+    sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
     args: [params.uid],
   })
 
@@ -101,7 +86,7 @@ export async function findOrCreateUser(
   }
 
   const existingByEmail = await db.execute({
-    sql: 'SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1',
+    sql: `SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
     args: [params.email],
   })
 
@@ -116,7 +101,7 @@ export async function findOrCreateUser(
       args: [params.uid, (user as any).id],
     })
     const updated = await db.execute({
-      sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+      sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
       args: [params.uid],
     })
     return formatUser(updated.rows[0])
@@ -131,14 +116,14 @@ export async function findOrCreateUser(
   } catch (error: any) {
     if (error?.message?.includes('UNIQUE constraint')) {
       const retry = await db.execute({
-        sql: 'SELECT * FROM users WHERE id = ? AND deleted_at IS NULL',
+        sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
         args: [params.uid],
       })
       if (retry.rows.length > 0) {
         return formatUser(retry.rows[0])
       }
       const byEmail = await db.execute({
-        sql: 'SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1',
+        sql: `SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
         args: [params.email],
       })
       if (byEmail.rows.length > 0) {
@@ -149,7 +134,7 @@ export async function findOrCreateUser(
   }
 
   const created = await db.execute({
-    sql: 'SELECT * FROM users WHERE id = ?',
+    sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ?`,
     args: [params.uid],
   })
 

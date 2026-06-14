@@ -10,10 +10,10 @@ const EDITORIAL_ITEMS = [
 
 export function EditorialStrip() {
   return (
-    <section className="bg-white py-16 md:py-24" aria-labelledby="editorial-strip-heading">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mb-12 max-w-2xl">
-          <h2 id="editorial-strip-heading" className="font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-neutral-950 md:text-5xl">Beauty stories worth shopping.</h2>
+    <section className="bg-white section-padding" aria-labelledby="editorial-strip-heading">
+      <div className="mx-auto max-w-7xl page-padding">
+        <div className="mb-8 md:mb-12 max-w-2xl">
+          <h2 id="editorial-strip-heading" className="type-display-md font-semibold tracking-[-0.035em] text-neutral-950 md:type-display-lg">Beauty stories worth shopping.</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {EDITORIAL_ITEMS.map((item) => (
@@ -22,9 +22,9 @@ export function EditorialStrip() {
                 <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 33vw" />
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-950/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
               </div>
-              <div className="px-5 pb-5 pt-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">{item.kicker}</p>
-                <h3 className="mt-2 font-display text-2xl font-semibold leading-tight tracking-[-0.01em] text-neutral-900 transition-colors group-hover:text-primary">{item.title}</h3>
+              <div className="px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
+                <p className="type-label text-primary">{item.kicker}</p>
+                <h3 className="mt-1.5 font-display text-lg font-semibold leading-tight tracking-[-0.01em] text-neutral-900 transition-colors group-hover:text-primary sm:text-2xl">{item.title}</h3>
               </div>
             </Link>
           ))}

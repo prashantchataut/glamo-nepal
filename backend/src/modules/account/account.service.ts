@@ -6,6 +6,8 @@ import type { NetlifyBindings } from '../../types/bindings'
 
 const deletedAtCache = new Map<string, boolean>()
 
+const USER_SAFE_COLUMNS = 'id, email, phone, first_name, last_name, avatar_url, role, is_active, email_verified, phone_verified, created_at, updated_at'
+
 async function hasAccountDeletedAtColumn(db: Client): Promise<boolean> {
   const cached = deletedAtCache.get('orders')
   if (cached !== undefined) return cached
@@ -64,7 +66,7 @@ function formatAddress(row: any) {
 
 export async function getProfile(db: Client, userId: string) {
   const result = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ?`,
+    sql: `SELECT ${USER_SAFE_COLUMNS} FROM users WHERE id = ?`,
     args: [userId],
   })
 
@@ -88,7 +90,7 @@ export async function getProfile(db: Client, userId: string) {
 
 export async function updateProfile(db: Client, userId: string, data: { firstName?: string; lastName?: string; phone?: string }, auditUserId: string) {
   const existingResult = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ?`,
+    sql: `SELECT ${USER_SAFE_COLUMNS} FROM users WHERE id = ?`,
     args: [userId],
   })
 
@@ -139,7 +141,7 @@ export async function updateProfile(db: Client, userId: string, data: { firstNam
   })
 
   const updatedResult = await db.execute({
-    sql: `SELECT * FROM users WHERE id = ?`,
+    sql: `SELECT ${USER_SAFE_COLUMNS} FROM users WHERE id = ?`,
     args: [userId],
   })
 
