@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify, createRemoteJWKSet } from "jose";
 import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 
-const protectedPrefixes = ["/account", "/checkout"];
+const protectedPrefixes = ["/account"];
 const authPages = ["/login", "/register"];
 
 const FIREBASE_AUTH_DOMAIN = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "";

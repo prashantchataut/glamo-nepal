@@ -1,6 +1,4 @@
-﻿import { ProductCardSkeleton } from "@/components/ui/illustrations/LoadingSkeletons";
-
-export default function ProductDetailLoading() {
+﻿export default function ProductDetailLoading() {
   return (
     <main className="bg-neutral-50 section-padding page-padding">
       <div className="mx-auto max-w-7xl">

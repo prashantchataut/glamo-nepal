@@ -1,65 +1,29 @@
 ﻿"use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  CheckCircle2,
-  ChevronRight,
-  ClipboardCheck,
-  CreditCard,
-  Gift,
-  Loader2,
-  LockKeyhole,
-  MapPin,
-  ShieldCheck,
-  ShoppingBag,
-  Tag,
-  Truck,
-  X,
-} from "lucide-react";
-import { CodAvailabilityChecker } from "@/components/checkout/CodAvailabilityChecker";
-import type { Address, PaymentMethodCode } from "@/lib/api/contracts";
+import { LockKeyhole, ShoppingBag, ChevronRight } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useCartStore } from "@/store/useCartStore";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
+import { useCheckoutForm, clearCheckoutDraft } from "@/hooks/useCheckoutForm";
 import { customerApi } from "@/lib/api/customer";
 import { GlamoApiError } from "@/lib/api/client";
 import { getUserMessage } from "@/lib/api/error-handler";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import { calculateDeliveryFee, getDeliveryRule, COD_FEE } from "@/lib/delivery";
-import {
-  PROVINCES,
-  getDistrictsForProvince,
-  getMunicipalitiesForDistrict,
-  type District,
-  type Province,
-} from "@/lib/nepal-locations";
-import { formatNPR } from "@/lib/utils";
-import {
-  checkoutSchema,
-  type CheckoutFormData,
-} from "@/lib/validations/checkout";
-import { useCartStore } from "@/store/useCartStore";
-import { useCheckoutStore } from "@/store/useCheckoutStore";
-
-import { useAuthStore } from "@/store/useAuthStore";
 import { initiateKhaltiPayment, initiateEsewaPayment } from "@/lib/api/checkout";
+import type { Address, PaymentMethodCode } from "@/lib/api/contracts";
+import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type District } from "@/lib/nepal-locations";
+import { ShippingStep } from "./steps/ShippingStep";
+import { DeliveryStep } from "./steps/DeliveryStep";
+import { PaymentStep } from "./steps/PaymentStep";
+import { ReviewStep } from "./steps/ReviewStep";
+import { OrderSummarySidebar } from "./OrderSummarySidebar";
+import { CheckoutStepper } from "./CheckoutStepper";
 
-const paymentMethods = [
-  "Cash on Delivery",
-  "Khalti",
-  "eSewa",
-] as const;
-
-const hasKhaltiKey = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY;
-const hasEsewaKey = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_ESEWA_MERCHANT_ID;
-const comingSoonMethods = new Set<string>([
-  ...(!hasKhaltiKey ? ["Khalti"] : []),
-  ...(!hasEsewaKey ? ["eSewa"] : []),
-  "Cards",
-]);
 const paymentCodeMap: Record<string, PaymentMethodCode> = {
   "Cash on Delivery": "cod",
   Khalti: "khalti",
@@ -67,114 +31,30 @@ const paymentCodeMap: Record<string, PaymentMethodCode> = {
   Cards: "card",
 };
 
-const steps = [
-  { label: "Address", icon: MapPin },
-  { label: "Delivery", icon: Truck },
-  { label: "Payment", icon: CreditCard },
-  { label: "Review", icon: ClipboardCheck },
-];
-
-function OrderSummary({
-  subtotal,
-  deliveryFee,
-  giftWrapFee,
-  codFee,
-  discountAmount,
-  total,
-}: {
-  subtotal: number;
-  deliveryFee: number;
-  giftWrapFee: number;
-  codFee: number;
-  discountAmount: number;
-  total: number;
-}) {
-  return (
-    <div className="space-y-3 text-sm">
-      <div className="flex justify-between text-neutral-500">
-        <span>Subtotal</span>
-        <span className="text-neutral-950">{formatNPR(subtotal)}</span>
-      </div>
-      <div className="flex justify-between text-neutral-500">
-        <span>Delivery</span>
-        <span className="text-neutral-950">
-          {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
-        </span>
-      </div>
-      {codFee > 0 && (
-        <div className="flex justify-between text-neutral-500">
-          <span>COD fee</span>
-          <span className="text-neutral-950">{formatNPR(codFee)}</span>
-        </div>
-      )}
-      {giftWrapFee > 0 && (
-        <div className="flex justify-between text-neutral-500">
-          <span>Gift wrap</span>
-          <span className="text-neutral-950">{formatNPR(giftWrapFee)}</span>
-        </div>
-      )}
-      {discountAmount > 0 && (
-        <div className="flex justify-between text-primary">
-          <span>Discount</span>
-          <span>-{formatNPR(discountAmount)}</span>
-        </div>
-      )}
-      <div className="flex justify-between border-t border-neutral-200 pt-4 text-neutral-950">
-        <span className="font-semibold">Total</span>
-        <span className="font-display text-3xl font-semibold leading-none">
-          {formatNPR(total)}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export function CheckoutPageClient() {
   const router = useRouter();
   const { items, getSubtotal, clearCart } = useCartStore();
   const { placeOrder, couponCode, discountAmount, couponError, couponLoading, applyCoupon, removeCoupon } = useCheckoutStore();
-  const user = useAuthStore((state) => state.user);
-  const authLoading = useAuthStore((state) => state.isLoading);
+  const user = useAuthStore((s) => s.user);
+  const authLoading = useAuthStore((s) => s.isLoading);
+
   const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [couponInput, setCouponInput] = useState("");
-
   const [guestMode, setGuestMode] = useState(false);
-  const showAuthChoice = !authLoading && user === null && !guestMode;
   const formHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  const { form: formMethods } = useCheckoutForm();
+  const { handleSubmit, setValue, watch, formState: { isValid } } = formMethods;
 
   useEffect(() => {
     if (guestMode && formHeadingRef.current) {
       formHeadingRef.current.focus();
     }
   }, [guestMode]);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    trigger,
-    formState: { errors, isValid },
-  } = useForm<CheckoutFormData>({
-    resolver: zodResolver(checkoutSchema),
-    mode: "onChange",
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      province: "Bagmati",
-      district: "Kathmandu",
-      city: "Kathmandu",
-      ward: "",
-      address: "",
-      giftWrap: false,
-      notes: "",
-      payment: "Cash on Delivery",
-    },
-  });
 
   useEffect(() => {
     if (!user) return;
@@ -188,15 +68,9 @@ export function CheckoutPageClient() {
     let cancelled = false;
     customerApi
       .addresses()
-      .then((res) => {
-        if (!cancelled) setSavedAddresses((res.data || []).filter((a) => a.id));
-      })
-      .catch(() => {
-        if (!cancelled) setSavedAddresses([]);
-      });
-    return () => {
-      cancelled = true;
-    };
+      .then((res) => { if (!cancelled) setSavedAddresses((res.data || []).filter((a) => a.id)); })
+      .catch(() => { if (!cancelled) setSavedAddresses([]); });
+    return () => { cancelled = true; };
   }, [user]);
 
   function applySavedAddress(addressId: string) {
@@ -218,76 +92,39 @@ export function CheckoutPageClient() {
     }
   }
 
-  const form = watch();
+  const watched = watch();
   const subtotal = getSubtotal();
-  const deliveryRule = getDeliveryRule(form.district, form.province);
-  const deliveryFee = calculateDeliveryFee(
-    subtotal,
-    form.district,
-    form.province,
-  );
-  const giftWrapFee = form.giftWrap ? 100 : 0;
-  const isCOD = form.payment === "Cash on Delivery";
+  const deliveryFee = calculateDeliveryFee(subtotal, watched.district, watched.province);
+  const giftWrapFee = watched.giftWrap ? 100 : 0;
+  const isCOD = watched.payment === "Cash on Delivery";
   const codFee = isCOD ? COD_FEE : 0;
   const total = subtotal + deliveryFee + giftWrapFee + codFee - discountAmount;
-  const districtOptions = useMemo(
-    () => getDistrictsForProvince(form.province as Province),
-    [form.province],
-  );
-  const municipalityNames = useMemo(
-    () =>
-      getMunicipalitiesForDistrict(form.district as District).map(
-        (m) => m.name,
-      ),
-    [form.district],
-  );
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const deliveryRule = getDeliveryRule(watched.district, watched.province);
 
   const canSubmit = Boolean(
     isValid &&
     items.length > 0 &&
-    (form.payment !== "Cash on Delivery" || deliveryRule.codAvailable),
+    (watched.payment !== "Cash on Delivery" || deliveryRule.codAvailable),
   );
 
-  const inputClass =
-    "w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-500 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm";
-  const labelClass =
-    "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 md:mb-2";
-  const errorClass = "mt-1 text-xs text-error";
-
-  function updateProvince(province: string) {
-    const districts = getDistrictsForProvince(province as Province);
-    setValue("province", province, { shouldValidate: true });
-    setValue("district", districts[0] || "Kathmandu", { shouldValidate: true });
-    setValue("city", "", { shouldValidate: true });
+  function goToStep(step: number) {
+    if (step <= currentStep || completedSteps.has(step - 1) || step === 0) {
+      setCurrentStep(step);
+    }
   }
 
-  function updateDistrict(district: string) {
-    setValue("district", district, { shouldValidate: true });
-    setValue("city", "", { shouldValidate: true });
+  function advanceStep(from: number) {
+    setCompletedSteps((prev) => new Set(prev).add(from));
+    setCurrentStep(from + 1);
   }
 
-  function stepButton(step: number) {
-    return currentStep === step
-      ? "bg-neutral-950 text-white"
-      : currentStep > step
-        ? "bg-primary text-white"
-        : "bg-white text-neutral-500";
-  }
-
-  async function onSubmit(data: CheckoutFormData) {
+  async function onSubmit() {
     setIsSubmitting(true);
     setSubmitError(null);
-    
+
+    const data = watched;
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
-    trackEvent("order_placed", {
-      value: total,
-      method: data.payment,
-      district: data.district,
-      province: data.province,
-      deliveryFee,
-      giftWrap: data.giftWrap,
-    });
+    trackEvent("order_placed", { value: total, method: data.payment, district: data.district, province: data.province, deliveryFee, giftWrap: data.giftWrap });
 
     let order: Awaited<ReturnType<typeof placeOrder>>;
     try {
@@ -300,37 +137,16 @@ export function CheckoutPageClient() {
           customerName: data.name,
           customerPhone: data.phone,
           items: items.map((item) => ({
-            name: item.product.name,
-            brand: item.product.brand,
-            image: item.product.image,
-            price: item.product.price,
-            quantity: item.quantity,
-            selectedShade: item.selectedShade,
+            name: item.product.name, brand: item.product.brand, image: item.product.image,
+            price: item.product.price, quantity: item.quantity, selectedShade: item.selectedShade,
           })),
         },
         {
-          customer: {
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-          },
-          shippingAddress: {
-            fullName: data.name,
-            phone: data.phone,
-            province: data.province,
-            district: data.district,
-            city: data.city,
-            ward: data.ward,
-            addressLine1: data.address,
-          },
+          customer: { name: data.name, email: data.email, phone: data.phone },
+          shippingAddress: { fullName: data.name, phone: data.phone, province: data.province, district: data.district, city: data.city, ward: data.ward, addressLine1: data.address },
           items: items.map((item) => ({
-            productId: item.product.id,
-            name: item.product.name,
-            price: item.product.price,
-            quantity: item.quantity,
-            selectedShade: item.selectedShade,
-            image: item.product.image,
-            brand: item.product.brand,
+            productId: item.product.id, name: item.product.name, price: item.product.price,
+            quantity: item.quantity, selectedShade: item.selectedShade, image: item.product.image, brand: item.product.brand,
           })),
           paymentMethod: paymentCodeMap[data.payment] || "cod",
           giftWrap: data.giftWrap,
@@ -362,6 +178,7 @@ export function CheckoutPageClient() {
         const khaltiResult = await initiateKhaltiPayment(order.id);
         if (khaltiResult.data?.paymentUrl) {
           clearCart();
+          clearCheckoutDraft();
           window.location.href = khaltiResult.data.paymentUrl;
           return;
         }
@@ -380,13 +197,14 @@ export function CheckoutPageClient() {
         const esewaResult = await initiateEsewaPayment(order.id);
         if (esewaResult.data?.url && esewaResult.data?.payload) {
           clearCart();
+          clearCheckoutDraft();
           const form = document.createElement("form");
           form.method = "POST";
           form.action = String(esewaResult.data.url);
           const allowedKeys = new Set(["amt", "pid", "scd", "suUrl", "fuUrl", "tAmt", "txAmt", "pAmt", "sAmt", "taxAmt"]);
           for (const [key, value] of Object.entries(esewaResult.data.payload)) {
             if (!allowedKeys.has(key)) continue;
-            if (typeof key !== "string" || typeof value !== "string" && typeof value !== "number") continue;
+            if (typeof key !== "string" || (typeof value !== "string" && typeof value !== "number")) continue;
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
@@ -409,10 +227,10 @@ export function CheckoutPageClient() {
     }
 
     router.push(`/order-confirmation/${order.orderNumber}`);
-    setTimeout(() => {
-      clearCart();
-    }, 100);
+    setTimeout(() => { clearCart(); clearCheckoutDraft(); }, 100);
   }
+
+  const showAuthChoice = !authLoading && user === null && !guestMode;
 
   if (authLoading) {
     return (
@@ -486,20 +304,15 @@ export function CheckoutPageClient() {
     <main className="bg-neutral-50 px-4 py-6 pb-24 md:px-6 md:py-12 md:pb-12 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <nav className="mb-4 flex items-center gap-2 text-sm text-neutral-500 md:mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="transition hover:text-primary">
-            Home
-          </Link>
+          <Link href="/" className="transition hover:text-primary">Home</Link>
           <ChevronRight size={14} aria-hidden="true" />
-          <Link href="/cart" className="transition hover:text-primary">
-            Cart
-          </Link>
+          <Link href="/cart" className="transition hover:text-primary">Cart</Link>
           <ChevronRight size={14} aria-hidden="true" />
           <span className="font-medium text-neutral-950">Checkout</span>
         </nav>
+
         <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2rem] md:px-8 md:py-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
-            Secure checkout
-          </p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">Secure checkout</p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-7xl">
               Confirm your beauty bag.
@@ -512,593 +325,71 @@ export function CheckoutPageClient() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-7">
-<nav aria-label="Checkout progress">
-              <ol role="list" className="mb-6 flex items-center gap-0 md:mb-8">
-              {steps.map((step, i) => {
-                const Icon = step.icon;
-                const isActive = currentStep === i;
-                const isCompleted = i < currentStep;
-                return (
-                  <li key={step.label} className="flex items-center">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(i)}
-                      className="flex flex-col items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                      aria-current={isActive ? "step" : undefined}
-                      aria-label={`${step.label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
-                    >
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full transition md:h-10 md:w-10 ${stepButton(i)}`}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle2 size={17} />
-                      ) : (
-                        <Icon size={17} />
-                      )}
-                    </div>
-                    <span
-                      className={`text-[10px] font-semibold uppercase tracking-[0.08em] md:text-xs md:tracking-[0.12em] ${isActive || isCompleted ? "text-neutral-950" : "text-neutral-500"}`}
-                    >
-                      {step.label}
-                    </span>
-                    </button>
-                    {i < steps.length - 1 && (
-                      <div className={`mx-2 hidden h-px flex-1 md:block ${isCompleted ? "bg-primary" : "bg-neutral-200"}`} />
-                    )}
-                  </li>
-                );
-              })}
-            </ol></nav>
+            <CheckoutStepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
 
             <form onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting}>
               {currentStep === 0 && (
-                <div className="space-y-4 md:space-y-5">
-                  <h2 ref={formHeadingRef} tabIndex={-1} className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl" onFocus={(e) => e.target.blur()}>
-                    Contact & shipping
-                  </h2>
-                  {savedAddresses.length > 0 && (
-                    <div>
-                      <label htmlFor="savedAddress" className={labelClass}>
-                        Use a saved address
-                      </label>
-                      <select
-                        id="savedAddress"
-                        defaultValue=""
-                        onChange={(e) => {
-                          if (e.target.value) applySavedAddress(e.target.value);
-                        }}
-                        className={inputClass}
-                      >
-                        <option value="">Enter a new address</option>
-                        {savedAddresses.map((addr) => (
-                          <option key={addr.id} value={addr.id ?? ""}>
-                            {addr.fullName} — {addr.addressLine1}, {addr.city}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-                    <div>
-                      <label htmlFor="name" className={labelClass}>
-                        Full name
-                      </label>
-                      <input
-                        id="name"
-                        aria-invalid={!!errors.name}
-                        aria-describedby={errors.name ? "name-error" : undefined}
-                        {...register("name")}
-                        className={inputClass}
-                        placeholder="Your full name"
-                        autoComplete="name"
-                      />
-                      {errors.name && (
-                        <p id="name-error" className={errorClass} role="alert">{errors.name.message}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className={labelClass}>
-                        Phone number
-                      </label>
-                      <input
-                        id="phone"
-                        aria-invalid={!!errors.phone}
-                        aria-describedby={errors.phone ? "phone-error" : undefined}
-                        {...register("phone")}
-                        className={inputClass}
-                        placeholder="98XXXXXXXX"
-                        autoComplete="tel"
-                      />
-                      {errors.phone && (
-                        <p id="phone-error" className={errorClass} role="alert">{errors.phone.message}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="email" className={labelClass}>
-                      Email
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      aria-invalid={!!errors.email}
-                      aria-describedby={errors.email ? "email-error" : undefined}
-                      {...register("email")}
-                      className={inputClass}
-                      placeholder="your@email.com"
-                      autoComplete="email"
-                    />
-                    {errors.email && (
-                      <p id="email-error" className={errorClass} role="alert">{errors.email.message}</p>
-                    )}
-                    <p className="mt-1 text-[11px] text-neutral-500">For order confirmation and delivery updates.</p>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-                    <div>
-                      <label htmlFor="province" className={labelClass}>
-                        Province
-                      </label>
-                      <select
-                        id="province"
-                        {...register("province")}
-                        onChange={(e) => updateProvince(e.target.value)}
-                        className={inputClass}
-                      >
-                        {PROVINCES.map((p) => (
-                          <option key={p} value={p}>
-                            {p}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="district" className={labelClass}>
-                        District
-                      </label>
-                      <select
-                        id="district"
-                        aria-invalid={!!errors.district}
-                        aria-describedby={errors.district ? "district-error" : undefined}
-                        {...register("district")}
-                        onChange={(e) => updateDistrict(e.target.value)}
-                        className={inputClass}
-                      >
-                        {districtOptions.map((d) => (
-                          <option key={d} value={d}>
-                            {d}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.district && (
-                        <p id="district-error" className={errorClass} role="alert">{errors.district.message}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-                    <div>
-                      <label htmlFor="city" className={labelClass}>
-                        City / municipality
-                      </label>
-                      <select
-                        id="city"
-                        aria-invalid={!!errors.city}
-                        aria-describedby={errors.city ? "city-error" : undefined}
-                        {...register("city")}
-                        className={inputClass}
-                      >
-                        {municipalityNames.map((m) => (
-                          <option key={m} value={m}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.city && (
-                        <p id="city-error" className={errorClass} role="alert">{errors.city.message}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label htmlFor="ward" className={labelClass}>
-                        Ward
-                      </label>
-                      <input
-                        id="ward"
-                        aria-invalid={!!errors.ward}
-                        aria-describedby={errors.ward ? "ward-error" : undefined}
-                        {...register("ward")}
-                        className={inputClass}
-                        placeholder="Ward number"
-                        autoComplete="address-line2"
-                      />
-                      {errors.ward && (
-                        <p id="ward-error" className={errorClass} role="alert">{errors.ward.message}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="address" className={labelClass}>
-                      Street address
-                    </label>
-                    <input
-                      id="address"
-                      aria-invalid={!!errors.address}
-                      aria-describedby={errors.address ? "address-error" : undefined}
-                      {...register("address")}
-                      className={inputClass}
-                      placeholder="House no., street, locality"
-                      autoComplete="street-address"
-                    />
-                    {errors.address && (
-                      <p id="address-error" className={errorClass} role="alert">{errors.address.message}</p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const valid = await trigger(["name", "phone", "province", "district", "city", "ward", "address"]);
-                      if (valid) setCurrentStep(1);
-                    }}
-                    className="w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300 md:w-auto"
-                  >
-                    Continue to delivery
-                  </button>
-                </div>
+                <ShippingStep
+                  form={formMethods}
+                  savedAddresses={savedAddresses}
+                  onApplySavedAddress={applySavedAddress}
+                  onContinue={() => advanceStep(0)}
+                  headingRef={formHeadingRef}
+                />
               )}
-
               {currentStep === 1 && (
-                <div className="space-y-4 md:space-y-5">
-                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
-                    Delivery method
-                  </h2>
-                  {deliveryRule.serviceLevel === "pending" ? (
-                    <div className="rounded-[1.25rem] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 md:rounded-[1.5rem] md:p-5">
-                      <p className="font-semibold">Outside delivery area</p>
-                      <p className="mt-1 text-amber-800">We currently deliver within Kathmandu Valley only. Outside-Valley delivery will be available soon.</p>
-                    </div>
-                  ) : (
-                  <label className="flex cursor-pointer items-center gap-4 rounded-[1.25rem] border border-primary bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
-                    <input
-                      type="radio"
-                      name="delivery"
-                      defaultChecked
-                      className="h-5 w-5 cursor-pointer rounded-full border-2 border-neutral-300 text-primary accent-primary focus:ring-2 focus:ring-primary/20"
-                    />
-                    <Truck className="text-primary" size={20} />
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-neutral-950">
-                        Standard delivery
-                      </p>
-                      <p className="mt-1 text-xs text-neutral-500">
-                        {deliveryRule.estimate}
-                      </p>
-                    </div>
-                    <span className="text-sm font-semibold text-neutral-950">
-                      {deliveryFee === 0 ? "Free" : formatNPR(deliveryFee)}
-                    </span>
-                  </label>
-                  )}
-                  <CodAvailabilityChecker
-                    district={form.district}
-                    province={form.province}
-                  />
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(0)}
-                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(2)}
-                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
-                    >
-                      Continue to payment
-                    </button>
-                  </div>
-                </div>
+                <DeliveryStep
+                  district={watched.district}
+                  province={watched.province}
+                  subtotal={subtotal}
+                  onBack={() => setCurrentStep(0)}
+                  onContinue={() => advanceStep(1)}
+                />
               )}
-
               {currentStep === 2 && (
-                <div className="space-y-4 md:space-y-5">
-                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
-                    Payment method
-                  </h2>
-                  <div className="grid gap-3">
-                    {paymentMethods.map((method) => {
-                      const isComingSoon = comingSoonMethods.has(method);
-                      return (
-                        <label
-                          key={method}
-                          className={`flex cursor-pointer items-center gap-4 rounded-[1.25rem] border p-4 transition md:rounded-[1.5rem] md:p-5 ${form.payment === method ? "border-primary bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
-                        >
-                          <input
-                            type="radio"
-                            {...register("payment")}
-                            value={method}
-                            disabled={isComingSoon}
-                            className="h-5 w-5 cursor-pointer rounded-full border-2 border-neutral-300 text-primary accent-primary focus:ring-2 focus:ring-primary/20"
-                          />
-                          <CreditCard size={19} className="text-primary" />
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-neutral-950">
-                              {method}
-                            </p>
-                            {isComingSoon && (
-                              <p className="mt-1 text-xs text-neutral-500">
-                                Coming soon
-                              </p>
-                            )}
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <label className="flex items-center gap-3 rounded-[1.25rem] border border-neutral-200 p-4 text-sm text-neutral-700 md:rounded-[1.5rem] md:p-5">
-                    <input
-                      type="checkbox"
-                      {...register("giftWrap")}
-                      className="h-5 w-5 cursor-pointer rounded-full border-2 border-neutral-300 text-primary accent-primary focus:ring-2 focus:ring-primary/20"
-                    />
-                    <Gift size={18} className="text-primary" /> Add gift wrap
-                    for {formatNPR(100)}
-                  </label>
-                  <div>
-                    <label htmlFor="notes" className={labelClass}>
-                      Order notes
-                    </label>
-                    <textarea
-                      id="notes"
-                      {...register("notes")}
-                      className={`${inputClass} min-h-24 md:min-h-28`}
-                      placeholder="Delivery note, gift message or preferred call time"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(1)}
-                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const valid = await trigger(["payment"]);
-                        if (valid) setCurrentStep(3);
-                      }}
-                      className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
-                    >
-                      Review order
-                    </button>
-                  </div>
-                </div>
+                <PaymentStep
+                  form={formMethods}
+                  onBack={() => setCurrentStep(1)}
+                  onContinue={() => advanceStep(2)}
+                />
               )}
-
               {currentStep === 3 && (
-                <div className="space-y-4 md:space-y-5">
-                  <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-neutral-950 md:text-3xl">
-                    Review order
-                  </h2>
-                  <div className="divide-y divide-neutral-200 rounded-[1.25rem] border border-neutral-200 md:rounded-[1.5rem]">
-                    {items.map((item) => (
-                      <div
-                        key={`${item.product.id}-${item.selectedShade || "base"}`}
-                        className="flex gap-3 p-3 md:gap-4 md:p-4"
-                      >
-                        <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-20 md:w-16 md:rounded-[1rem]">
-                          <Image
-                            src={item.product.image}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 56px, 64px"
-                          />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                            {item.product.brand}
-                          </p>
-                          <p className="truncate text-sm font-semibold text-neutral-950">
-                            {item.product.name}
-                          </p>
-                          {item.selectedShade && (
-                            <p className="text-xs text-neutral-500">
-                              Shade: {item.selectedShade}
-                            </p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-neutral-950">
-                            {formatNPR(item.product.price * item.quantity)}
-                          </p>
-                          <p className="text-xs text-neutral-500">
-                            Qty {item.quantity}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="rounded-[1.25rem] border border-neutral-200 bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
-                    <OrderSummary
-                      subtotal={subtotal}
-                      deliveryFee={deliveryFee}
-                      giftWrapFee={giftWrapFee}
-                      codFee={codFee}
-                      discountAmount={discountAmount}
-                      total={total}
-                    />
-                  </div>
-                  <div className="rounded-[1.25rem] border border-neutral-200 p-4 text-sm leading-7 text-neutral-600 md:rounded-[1.5rem] md:p-5">
-                    <p className="font-semibold text-neutral-950">
-                      Shipping to
-                    </p>
-                    <p>{form.name}</p>
-                    <p>
-                      {form.address}, Ward {form.ward}, {form.city},{" "}
-                      {form.district}, {form.province}
-                    </p>
-                    <p>{form.phone}</p>
-                    <p className="mt-2 font-semibold text-neutral-950">
-                      Payment: {form.payment}
-                    </p>
-                  </div>
-                  {submitError && (
-                    <div role="alert" className="flex items-start justify-between gap-3 rounded-[1rem] border border-error/30 bg-error/5 px-4 py-3 md:rounded-[1.25rem]">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm text-error">{submitError}</p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSubmitError(null);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-error underline-offset-4 hover:underline"
-                        >
-                          Try again
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setSubmitError(null)}
-                        className="shrink-0 text-error/70 transition hover:text-error"
-                        aria-label="Dismiss error"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(2)}
-                      className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={!canSubmit || isSubmitting}
-                      className="flex-1 rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
-                    >
-                      {isSubmitting ? "Placing order..." : "Place order"}
-                    </button>
-                  </div>
-                </div>
+                <ReviewStep
+                  form={watched}
+                  items={items}
+                  subtotal={subtotal}
+                  deliveryFee={deliveryFee}
+                  giftWrapFee={giftWrapFee}
+                  codFee={codFee}
+                  discountAmount={discountAmount}
+                  total={total}
+                  isSubmitting={isSubmitting}
+                  canSubmit={canSubmit}
+                  submitError={submitError}
+                  onBack={() => setCurrentStep(2)}
+                  onSubmit={onSubmit}
+                  onDismissError={() => setSubmitError(null)}
+                />
               )}
             </form>
           </section>
 
-          <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-editorial md:rounded-[2.25rem] md:p-6 lg:sticky lg:top-24">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
-              Bag summary
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-neutral-950 md:text-4xl">
-              {itemCount} item{itemCount === 1 ? "" : "s"}
-            </h2>
-            <div className="mt-4 max-h-[280px] space-y-2.5 overflow-auto pr-1 md:mt-5 md:max-h-[360px] md:space-y-3">
-              {items.map((item) => (
-                <div
-                  key={`${item.product.id}-${item.selectedShade || "base"}-summary`}
-                  className="flex gap-3 rounded-[1rem] bg-neutral-50 p-2.5 md:rounded-[1.25rem] md:p-3"
-                >
-                  <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-16 md:w-14 md:rounded-[1rem]">
-                    <Image
-                      src={item.product.image}
-                      alt={item.product.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 48px, 56px"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-neutral-950">
-                      {item.product.name}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      Qty {item.quantity}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 border-t border-neutral-200 pt-4 md:mt-6 md:pt-5">
-              <div className="mb-4">
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                  Promo code
-                </p>
-                {couponCode ? (
-                  <div className="flex items-center justify-between rounded-[1.15rem] border border-primary/30 bg-primary/5 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Tag size={16} className="text-primary" />
-                      <span className="text-sm font-semibold text-neutral-950">{couponCode.slice(0, 2)}{'•'.repeat(Math.max(0, couponCode.length - 2))}</span>
-                      {discountAmount > 0 && (
-                        <span className="text-xs text-primary">-{formatNPR(discountAmount)}</span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { removeCoupon(); setCouponInput(""); }}
-                      className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500 transition hover:text-error"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={couponInput}
-                      onChange={(e) => { setCouponInput(e.target.value); if (couponError) useCheckoutStore.setState({ couponError: null }); }}
-                      placeholder="Enter code"
-                      className="flex-1 rounded-[1.15rem] border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-400 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (couponInput.trim()) applyCoupon(couponInput.trim(), subtotal); } }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => { if (couponInput.trim()) applyCoupon(couponInput.trim(), subtotal); }}
-                      disabled={!couponInput.trim() || couponLoading}
-                      className="rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
-                    >
-                      {couponLoading ? <Loader2 size={16} className="animate-spin" /> : "Apply"}
-                    </button>
-                  </div>
-                )}
-                {couponError && (
-                  <p className="mt-1.5 text-xs text-error">{couponError}</p>
-                )}
-              </div>
-              <OrderSummary
-                subtotal={subtotal}
-                deliveryFee={deliveryFee}
-                giftWrapFee={giftWrapFee}
-                codFee={codFee}
-                discountAmount={discountAmount}
-                total={total}
-              />
-            </div>
-            <div className="mt-4 flex gap-3 rounded-[1rem] bg-neutral-950 p-3.5 text-white md:rounded-[1.25rem] md:p-4">
-              <LockKeyhole size={18} className="mt-0.5 shrink-0 text-secondary" />
-              <p className="text-xs leading-5 text-white/75">
-                Secure checkout. Your details are encrypted and never shared.
-              </p>
-            </div>
-            <div className="mt-3 space-y-2 text-xs leading-5 text-neutral-500">
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={14} className="shrink-0 text-primary" />
-                <span>Authentic products, verified before dispatch</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Truck size={14} className="shrink-0 text-primary" />
-                <span>Delivery within Kathmandu Valley</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Gift size={14} className="shrink-0 text-primary" />
-                <span>Gift wrap available at checkout</span>
-              </div>
-            </div>
-          </aside>
+          <OrderSummarySidebar
+            items={items}
+            subtotal={subtotal}
+            deliveryFee={deliveryFee}
+            giftWrapFee={giftWrapFee}
+            codFee={codFee}
+            discountAmount={discountAmount}
+            total={total}
+            couponCode={couponCode}
+            couponError={couponError}
+            couponLoading={couponLoading}
+            couponInput={couponInput}
+            onCouponInputChange={(v) => { setCouponInput(v); if (couponError) useCheckoutStore.setState({ couponError: null }); }}
+            onApplyCoupon={() => { if (couponInput.trim()) applyCoupon(couponInput.trim(), subtotal); }}
+            onRemoveCoupon={() => { removeCoupon(); setCouponInput(""); }}
+          />
         </div>
       </div>
     </main>
