@@ -2,9 +2,9 @@ import { createMiddleware } from 'hono/factory'
 import type { AppEnv } from '../types/bindings'
 
 const ROLE_HIERARCHY: Record<string, string[]> = {
-  OWNER: ['OWNER'],
-  SUPER_ADMIN: ['OWNER', 'SUPER_ADMIN'],
-  ADMIN: ['OWNER', 'SUPER_ADMIN', 'ADMIN'],
+  OWNER: ['OWNER', 'SUPER_ADMIN', 'ADMIN'],
+  SUPER_ADMIN: ['SUPER_ADMIN', 'ADMIN'],
+  ADMIN: ['ADMIN'],
 }
 
 function hasRequiredRole(userRole: string, requiredRoles: string[]): boolean {
