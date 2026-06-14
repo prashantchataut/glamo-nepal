@@ -111,6 +111,7 @@ export function AdminLoginForm() {
             onChange={(event) => setEmail(event.target.value)}
             placeholder="Enter email"
             autoComplete="username"
+            maxLength={255}
             className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-500 focus:border-primary focus:outline-none"
             required
           />
@@ -125,6 +126,7 @@ export function AdminLoginForm() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
+              maxLength={128}
               className="w-full border-0 border-b border-neutral-300 bg-transparent px-0 py-3 pr-10 font-sans text-body-md text-neutral-900 transition-colors duration-200 placeholder:text-neutral-500 focus:border-primary focus:outline-none"
               required
             />
@@ -133,6 +135,7 @@ export function AdminLoginForm() {
               onClick={() => setShowPassword((v) => !v)}
               className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-neutral-500 transition-colors hover:text-primary"
               aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -144,7 +147,7 @@ export function AdminLoginForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="btn-press w-full min-h-[44px] bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-press w-full min-h-[44px] bg-primary-dark px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "Signing in..." : "Sign in"}
         </button>

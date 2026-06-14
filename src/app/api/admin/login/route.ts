@@ -82,6 +82,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Email and password are required." }, { status: 400 });
     }
 
+    if (typeof email !== "string" || email.length > 255 || typeof password !== "string" || password.length > 128) {
+      return NextResponse.json({ success: false, message: "Invalid input." }, { status: 400 });
+    }
+
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const adminName = process.env.ADMIN_NAME || "GLAMO Admin";

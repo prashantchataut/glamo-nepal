@@ -1,10 +1,14 @@
 import { z } from 'zod'
 
+function stripHtml(v: string): string {
+  return v.replace(/<[^>]*>/g, '')
+}
+
 export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  firstName: z.string().min(1).max(100).optional(),
-  lastName: z.string().min(1).max(100).optional(),
+  firstName: z.string().min(1).max(100).transform(stripHtml).optional(),
+  lastName: z.string().min(1).max(100).transform(stripHtml).optional(),
   phone: z.string().optional(),
 })
 
@@ -35,8 +39,8 @@ export const verifyEmailSchema = z.object({
 })
 
 export const updateProfileSchema = z.object({
-  firstName: z.string().min(1).max(100).optional(),
-  lastName: z.string().min(1).max(100).optional(),
+  firstName: z.string().min(1).max(100).transform(stripHtml).optional(),
+  lastName: z.string().min(1).max(100).transform(stripHtml).optional(),
   phone: z.string().optional(),
 })
 
