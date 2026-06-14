@@ -6,6 +6,7 @@ import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth"
 const protectedPrefixes = ["/account", "/checkout"];
 const authPages = ["/login", "/register"];
 
+const FIREBASE_AUTH_DOMAIN = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "";
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
 const FIREBASE_JWKS_URL = `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`;
 
@@ -96,6 +97,8 @@ function addSecurityHeaders(response: NextResponse) {
   const nonce = generateNonce();
   response.headers.set("x-nonce", nonce);
 
+  const firebaseFrameSrc = FIREBASE_AUTH_DOMAIN ? ` https://${FIREBASE_AUTH_DOMAIN}` : "";
+
   const cspDirectives = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com",
@@ -103,7 +106,7 @@ function addSecurityHeaders(response: NextResponse) {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
     "connect-src 'self' https://api.glamonepal.com https://khalti.com https://pay.khalti.com https://esewa.com.np https://www.esewa.com.np https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.googletagmanager.com",
-    "frame-src https://accounts.google.com https://accounts.google.gg https://esewa.com.np https://www.esewa.com.np https://khalti.com https://pay.khalti.com",
+    `frame-src https://accounts.google.com https://accounts.google.gg${firebaseFrameSrc} https://esewa.com.np https://www.esewa.com.np https://khalti.com https://pay.khalti.com`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
