@@ -3,6 +3,39 @@ import { jwtVerify, createRemoteJWKSet } from 'jose'
 import { getEnv } from '../utils/env'
 import type { AppEnv } from '../types/bindings'
 
+const ADMIN_COOKIE_NAME = process.env.NODE_ENV === 'production'
+  ? '__Host-glamo-admin-session'
+  : 'glamo-admin-session'
+
+async function verifyAdminCookie(cookieHeader: string): Promise<{ email: string; name: string; role: string } | null> {
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${ADMIN_COOKIE_NAME.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
+  if (!match?.[1]) return null
+
+  const token = match[1]
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET
+  if (!secret) return null
+
+  const parts = token.split('.')
+  if (parts.length !== 2) return null
+  const [encodedPayload, signature] = parts
+
+  try {
+    const encoder = new TextEncoder()
+    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify'])
+    const sigBytes = Uint8Array.from(atob(signature.replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(signature.length / 4) * 4, '=')), (c) => c.charCodeAt(0))
+    const valid = await crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(encodedPayload))
+    if (!valid) return null
+
+    const payload = JSON.parse(atob(encodedPayload.replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=')))
+    if (payload.role !== 'admin' && payload.role !== 'ADMIN' && payload.role !== 'OWNER' && payload.role !== 'SUPER_ADMIN') return null
+    if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null
+
+    return { email: payload.email, name: payload.name || 'Admin', role: payload.role }
+  } catch {
+    return null
+  }
+}
+
 function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
   const envProjectId = getEnv(c, 'FIREBASE_PROJECT_ID')
   if (envProjectId) return envProjectId
@@ -158,10 +191,23 @@ const adminUser = await verifyAdminSession(adminSession)
   const rawToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : (authHeader || undefined)
   const token = rawToken || cookieToken
 
-  if (!token) {
-    if (c.req.path.startsWith('/api/v1/admin')) {
-      return c.json({ success: false, message: 'Route not found', errors: [] }, 404)
+  if (!token && c.req.path.startsWith('/api/v1/admin')) {
+    const cookieHeader = c.req.header('Cookie') || ''
+    const adminSession = await verifyAdminCookie(cookieHeader)
+    if (adminSession) {
+      c.set('user', {
+        id: `admin:${adminSession.email}`,
+        email: adminSession.email,
+        role: adminSession.role,
+        isActive: true,
+      })
+      await next()
+      return
     }
+    return c.json({ success: false, message: 'Route not found', errors: [] }, 404)
+  }
+
+  if (!token) {
     return c.json({ success: false, message: 'Unauthorized: no token provided', errors: [] }, 401)
   }
 
