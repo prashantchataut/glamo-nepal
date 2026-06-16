@@ -24,12 +24,20 @@ interface RateLimitEntry {
 
 const memoryStore = new Map<string, RateLimitEntry>()
 
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of Array.from(memoryStore.entries())) {
-    if (entry.expires < now) memoryStore.delete(key)
+let cleanupTimer: ReturnType<typeof setInterval> | null = null
+function startCleanup() {
+  if (cleanupTimer) return
+  try {
+    cleanupTimer = setInterval(() => {
+      const now = Date.now()
+      for (const [key, entry] of Array.from(memoryStore.entries())) {
+        if (entry.expires < now) memoryStore.delete(key)
+      }
+    }, 60_000)
+  } catch {
+    // setInterval not available in Workers global scope — rely on Redis
   }
-}, 60_000)
+}
 
 async function redisIncrement(key: string, window: number, max: number, env: AppEnv['Bindings']): Promise<{ allowed: boolean; remaining: number }> {
   const url = env.UPSTASH_REDIS_REST_URL
@@ -84,6 +92,7 @@ function getClientIp(c: Context<AppEnv>): string {
 
 export function rateLimit(config: RateLimitConfig) {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
+    startCleanup()
     try {
       const keyGenerator = config.keyGenerator ?? (() => {
         const ip = getClientIp(c)

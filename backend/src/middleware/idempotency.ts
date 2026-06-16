@@ -35,7 +35,15 @@ function evictExpiredEntries(): void {
   }
 }
 
-setInterval(evictExpiredEntries, 60 * 60 * 1000)
+let idempotencyCleanupTimer: ReturnType<typeof setInterval> | null = null
+function startIdempotencyCleanup() {
+  if (idempotencyCleanupTimer) return
+  try {
+    idempotencyCleanupTimer = setInterval(evictExpiredEntries, 60 * 60 * 1000)
+  } catch {
+    // setInterval not available in Workers global scope
+  }
+}
 
 async function getFromRedis(key: string, env: AppEnv['Bindings']): Promise<CacheEntry | null> {
   const url = env?.UPSTASH_REDIS_REST_URL
@@ -74,6 +82,7 @@ async function setToRedis(key: string, entry: CacheEntry, env: AppEnv['Bindings'
 
 export function idempotencyGuard() {
   return async (c: Context<AppEnv>, next: () => Promise<void>) => {
+    startIdempotencyCleanup()
     const method = c.req.method.toUpperCase()
     if (method !== 'POST' && method !== 'PUT' && method !== 'PATCH') {
       await next()
