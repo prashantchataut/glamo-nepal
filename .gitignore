@@ -59,3 +59,5 @@ docs/superpowers/
 
 # graphify generated output
 graphify-out/
+
+.open-next/
