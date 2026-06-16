@@ -97,7 +97,7 @@ export function AnalyticsView() {
   const salesError = salesIsError ? "Failed to load sales data" : null;
 
   const revenueChartData = useMemo(() => {
-    if (!sales) return [];
+    if (!sales?.revenueByPeriod) return [];
     return Object.entries(sales.revenueByPeriod)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, data]) => ({ date: date.slice(5), revenue: data.revenue, orders: data.orders }));
@@ -164,9 +164,9 @@ export function AnalyticsView() {
         </div>
       ) : stats ? (
         <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
-          <StatCard icon={TrendingUp} label="Revenue (30d)" value={formatNPR(stats.thisMonth.revenue)} note="Current period" />
-          <StatCard icon={ShoppingCart} label="Orders (30d)" value={stats.thisMonth.orders} note="Current period" />
-          <StatCard icon={Package} label="Active products" value={stats.allTime.activeProducts} note="Total catalog" />
+          <StatCard icon={TrendingUp} label="Revenue (30d)" value={formatNPR(stats.thisMonth?.revenue ?? 0)} note="Current period" />
+          <StatCard icon={ShoppingCart} label="Orders (30d)" value={stats.thisMonth?.orders ?? 0} note="Current period" />
+          <StatCard icon={Package} label="Active products" value={stats.allTime?.activeProducts ?? 0} note="Total catalog" />
         </div>
       ) : null}
 

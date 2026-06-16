@@ -2,7 +2,7 @@ import type { Client } from '@libsql/client'
 import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
-import type { NetlifyBindings } from '../../types/bindings'
+import type { CloudflareBindings } from '../../types/bindings'
 
 const deletedAtCache = new Map<string, boolean>()
 
@@ -148,7 +148,7 @@ export async function updateProfile(db: Client, userId: string, data: { firstNam
   return formatProfile(updatedResult.rows[0], { orderCount: 0, wishlistCount: 0, addressCount: 0 })
 }
 
-export async function uploadAvatar(db: Client, userId: string, file: File, env: NetlifyBindings) {
+export async function uploadAvatar(db: Client, userId: string, file: File, env: CloudflareBindings) {
   const result = await db.execute({
     sql: `SELECT id, avatar_url FROM users WHERE id = ?`,
     args: [userId],

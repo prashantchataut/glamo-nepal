@@ -3,7 +3,7 @@ import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../uti
 import { CACHE_TTL, getFromCache, setCache, deleteCacheByPrefix } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
 import { uploadImageToCloudinary } from '../../utils/upload'
-import type { NetlifyBindings } from '../../types/bindings'
+import type { CloudflareBindings } from '../../types/bindings'
 
 function formatBanner(row: any) {
   return {
@@ -245,7 +245,7 @@ export async function reorderBanners(
   return result.rows.map(formatBanner)
 }
 
-export async function uploadBannerImage(file: File, env: NetlifyBindings): Promise<{ url: string; publicId: string }> {
+export async function uploadBannerImage(file: File, env: CloudflareBindings): Promise<{ url: string; publicId: string }> {
   const result = await uploadImageToCloudinary(file, 'banners', env)
   return { url: result.url, publicId: result.publicId }
 }

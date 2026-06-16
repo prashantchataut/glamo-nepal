@@ -33,15 +33,23 @@ import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
 
-const PRODUCTION_ORIGINS = [process.env.FRONTEND_URL || 'https://glamonepal.com', `www.${process.env.FRONTEND_URL?.replace(/^https?:\/\//, '') || 'www.glamonepal.com'}`]
-const DEVELOPMENT_ORIGINS = ['http://localhost:3000', 'http://localhost:3001']
-const IS_PRODUCTION = process.env.NODE_ENV === 'production'
-const ALLOWED_ORIGINS = IS_PRODUCTION ? PRODUCTION_ORIGINS : [...PRODUCTION_ORIGINS, ...DEVELOPMENT_ORIGINS]
+function getOrigins(c: any): { allowed: string[]; isProduction: boolean } {
+  const frontendUrl = c.env?.FRONTEND_URL || (typeof process !== 'undefined' ? process.env.FRONTEND_URL : undefined) || 'https://glamonepal.com'
+  const host = frontendUrl.replace(/^https?:\/\//, '')
+  const isProduction = c.env?.ENVIRONMENT === 'production' || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production')
+  const productionOrigins = [frontendUrl, `www.${host}`]
+  const developmentOrigins = ['http://localhost:3000', 'http://localhost:3001']
+  return {
+    allowed: isProduction ? productionOrigins : [...productionOrigins, ...developmentOrigins],
+    isProduction,
+  }
+}
 
 app.use('*', cors({
-  origin: (origin) => {
+  origin: (origin, c) => {
+    const { allowed } = getOrigins(c)
     if (!origin) return ''
-    if (ALLOWED_ORIGINS.includes(origin)) return origin
+    if (allowed.includes(origin)) return origin
     return ''
   },
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -60,7 +68,8 @@ app.use('*', idempotencyGuard())
 
 app.onError((err, c) => {
   console.error('Unhandled error:', err)
-  const message = process.env.NODE_ENV === 'production'
+  const isProduction = c.env?.ENVIRONMENT === 'production' || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production')
+  const message = isProduction
     ? 'Internal server error'
     : (err.message || 'Internal server error')
   return c.json({
@@ -103,7 +112,8 @@ app.route('/api/v1/events', eventRoutes)
 app.route('/api/v1/recommendations', recommendationRoutes)
 app.route('/api/v1/contact', contactRoutes)
 
-if (!IS_PRODUCTION) {
+const isProduction = typeof process !== 'undefined' && process.env.NODE_ENV === 'production'
+if (!isProduction) {
   app.get('/api/docs.json', (c) => c.json(openApiSpec))
   app.get('/api/docs', (c) => {
     return c.html(`<!DOCTYPE html>

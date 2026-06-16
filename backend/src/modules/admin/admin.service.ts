@@ -35,7 +35,7 @@ export async function getDashboardStats(db: Client) {
     db.execute({ sql: `SELECT COUNT(*) as count FROM products WHERE is_active = 1 AND deleted_at IS NULL`, args: [] }),
     db.execute({ sql: `SELECT id, name, sku, stock_quantity, low_stock_threshold FROM products WHERE is_active = 1 AND deleted_at IS NULL AND stock_quantity <= 5 AND stock_quantity > 0`, args: [] }),
     db.execute({ sql: `SELECT id, name, sku, stock_quantity FROM products WHERE is_active = 1 AND deleted_at IS NULL AND stock_quantity = 0`, args: [] }),
-    db.execute({ sql: `SELECT id, order_number, total_amount, status, created_at, user_id FROM orders ORDER BY created_at DESC LIMIT 10`, args: [] }),
+    db.execute({ sql: `SELECT id, order_number, total_amount, status, payment_method, created_at, user_id FROM orders ORDER BY created_at DESC LIMIT 10`, args: [] }),
     db.execute({ sql: `SELECT id, first_name, last_name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 5`, args: [] }),
     db.execute({ sql: `SELECT product_id, product_name, SUM(quantity) as total_sold FROM order_items GROUP BY product_id ORDER BY total_sold DESC LIMIT 10`, args: [] }),
   ])

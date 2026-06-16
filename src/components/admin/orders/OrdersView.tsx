@@ -52,7 +52,7 @@ export function OrdersView() {
     return ((ordersData as unknown as Record<string, unknown>).orders ?? []) as unknown as OrderRow[];
   })();
 
-  const total = ordersMeta?.total ?? (Array.isArray(ordersData) ? ordersData.length : (ordersData as unknown as Record<string, unknown>).total as number ?? 0);
+  const total = ordersMeta?.total ?? (Array.isArray(ordersData) ? ordersData.length : (ordersData ? (ordersData as unknown as Record<string, unknown>).total as number : 0) ?? 0);
   const totalPages = ordersMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
   const error = hasError ? "Failed to load orders" : null;
 

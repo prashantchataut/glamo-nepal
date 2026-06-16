@@ -1,10 +1,9 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
-import { createHmac } from 'crypto'
+import { getEnv } from '../utils/env'
 
 const CSRF_COOKIE_NAME = 'glamo-csrf-token'
 const CSRF_HEADER_NAME = 'x-csrf-token'
-const CSRF_SECRET = process.env.CSRF_SECRET || process.env.AUTH_SECRET || ''
 
 const CSRF_EXEMPT_PATHS = [
   '/api/v1/auth/sync',
@@ -17,18 +16,14 @@ const CSRF_EXEMPT_PATHS = [
   '/api/v1/auth/me',
 ]
 
-function getHmacKey(): Buffer | null {
-  if (!CSRF_SECRET) return null
-  return Buffer.from(CSRF_SECRET, 'utf-8')
-}
-
-function signToken(rawToken: string): string | null {
-  const key = getHmacKey()
-  if (!key) return rawToken
-  const hmac = createHmac('sha256', key)
-  hmac.update(rawToken)
-  const sig = hmac.digest('base64').replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
-  return `${rawToken}.${sig}`
+async function signToken(c: Context<AppEnv>, rawToken: string): Promise<string | null> {
+  const secret = getEnv(c, 'CSRF_SECRET') || getEnv(c, 'AUTH_SECRET')
+  if (!secret) return rawToken
+  const encoder = new TextEncoder()
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(rawToken))
+  const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig))).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
+  return `${rawToken}.${sigB64}`
 }
 
 export function csrfProtection() {
@@ -75,7 +70,7 @@ export function csrfProtection() {
     if (dotIndex === -1) {
       cookieRawToken = signedCookieToken
     } else {
-      const expectedSigned = signToken(signedCookieToken.slice(0, dotIndex))
+      const expectedSigned = await signToken(c, signedCookieToken.slice(0, dotIndex))
       if (expectedSigned && expectedSigned === signedCookieToken) {
         cookieRawToken = signedCookieToken.slice(0, dotIndex)
       }

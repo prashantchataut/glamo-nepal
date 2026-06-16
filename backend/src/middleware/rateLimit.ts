@@ -74,7 +74,7 @@ function getClientIp(c: Context<AppEnv>): string {
   const forwarded = c.req.header('x-forwarded-for')
   if (forwarded) {
     const ips = forwarded.split(',').map(ip => ip.trim())
-    const trustedProxyCount = parseInt(process.env.TRUSTED_PROXY_COUNT || '1', 10)
+    const trustedProxyCount = parseInt((typeof process !== 'undefined' && process.env?.TRUSTED_PROXY_COUNT) || '1', 10)
     const clientIndex = Math.max(0, ips.length - trustedProxyCount)
     const clientIp = ips[clientIndex]
     if (clientIp) return clientIp

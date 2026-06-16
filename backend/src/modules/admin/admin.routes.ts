@@ -34,13 +34,13 @@ adminRoutes.patch('/users/:id/status', authMiddleware, requireRole(['SUPER_ADMIN
 adminRoutes.post('/logout', authMiddleware, requireRole(['ADMIN']), async (c) => {
   const user = c.get('user')
   const cookieHeader = c.req.header('Cookie') || ''
-  const cookieName = process.env.NODE_ENV === 'production' ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+  const cookieName = '__Host-glamo-admin-session'
   const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
   const token = match?.[1]
 
   if (token) {
     const { verifyAdminSession } = await import('../../middleware/firebase-auth')
-    const adminUser = await verifyAdminSession(token)
+    const adminUser = await verifyAdminSession(c, token)
     if (adminUser?.jti) {
       const db = c.get('db')
       try {
@@ -55,7 +55,7 @@ adminRoutes.post('/logout', authMiddleware, requireRole(['ADMIN']), async (c) =>
   }
 
   const response = c.json({ success: true, message: 'Logged out' })
-  response.headers.append('Set-Cookie', `${cookieName}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`)
+  response.headers.append('Set-Cookie', `${cookieName}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict; Secure`)
   return response
 })
 

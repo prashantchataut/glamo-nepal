@@ -6,7 +6,7 @@ import { slugify, generateUniqueSlug } from '../../utils/slug'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
 import { toDisplayPrice, toStoredPrice } from '../../utils/price'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
-import type { NetlifyBindings } from '../../types/bindings'
+import type { CloudflareBindings } from '../../types/bindings'
 
 interface ProductRow {
   id: string
@@ -773,7 +773,7 @@ export async function uploadProductImages(
   files: File[],
   adminId: string,
   db: Client,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ) {
   const productResult = await db.execute({
     sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
@@ -839,7 +839,7 @@ export async function deleteProductImage(
   imageId: string,
   adminId: string,
   db: Client,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ) {
   const imageResult = await db.execute({
     sql: 'SELECT * FROM product_images WHERE id = ? AND product_id = ?',

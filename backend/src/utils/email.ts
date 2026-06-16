@@ -1,10 +1,10 @@
-import type { NetlifyBindings } from '../types/bindings'
+import type { CloudflareBindings } from '../types/bindings'
 
 async function sendEmail(
   to: string,
   subject: string,
   html: string,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ): Promise<void> {
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -191,7 +191,7 @@ export function lowStockAlert(
   `)
 }
 
-export async function sendPasswordReset(email: string, token: string, env: NetlifyBindings): Promise<void> {
+export async function sendPasswordReset(email: string, token: string, env: CloudflareBindings): Promise<void> {
   const resetUrl = `${env.FRONTEND_URL || 'https://glamonepal.com'}/reset-password?token=${token}`
   const html = baseTemplate(`
     <h2 style="margin:0 0 16px;color:#333;font-size:22px;">Reset Your Password</h2>
@@ -204,7 +204,7 @@ export async function sendPasswordReset(email: string, token: string, env: Netli
   await sendEmail(email, 'Reset Your GLAMO Nepal Password', html, env)
 }
 
-export async function sendVerificationEmail(email: string, name: string, token: string, env: NetlifyBindings): Promise<void> {
+export async function sendVerificationEmail(email: string, name: string, token: string, env: CloudflareBindings): Promise<void> {
   const verifyUrl = `${env.FRONTEND_URL || 'https://glamonepal.com'}/verify-email?token=${token}`
   const html = verifyEmail(name || 'there', verifyUrl)
   await sendEmail(email, 'Verify Your GLAMO Nepal Email', html, env)

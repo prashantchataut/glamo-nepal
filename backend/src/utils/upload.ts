@@ -1,4 +1,4 @@
-import type { NetlifyBindings } from '../types/bindings'
+import type { CloudflareBindings } from '../types/bindings'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_SIZE = 5 * 1024 * 1024
@@ -25,7 +25,7 @@ async function createCloudinarySignature(
 export async function uploadImageToCloudinary(
   file: File | { data: ArrayBuffer; name: string; type: string },
   folder: string,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ): Promise<{ url: string; publicId: string }> {
   let arrayBuffer: ArrayBuffer
   let fileName: string
@@ -89,7 +89,7 @@ export async function uploadImageToCloudinary(
 
 export async function deleteFromCloudinary(
   publicId: string,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ): Promise<void> {
   const timestamp = Math.floor(Date.now() / 1000).toString()
   const signatureParams: Record<string, string> = {

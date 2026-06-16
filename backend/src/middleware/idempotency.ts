@@ -5,7 +5,7 @@ const IDEMPOTENCY_KEY_HEADER = 'x-idempotency-key'
 const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000
 const MAX_CACHE_SIZE = 10000
 const MAX_KEY_LENGTH = 128
-const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const IS_PRODUCTION = typeof process !== 'undefined' && process.env.NODE_ENV === 'production'
 
 interface CacheEntry {
   status: number

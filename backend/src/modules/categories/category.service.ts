@@ -4,7 +4,7 @@ import { createAuditLog } from '../../utils/audit'
 import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
 import { slugify, generateUniqueSlug } from '../../utils/slug'
 import { uploadImageToCloudinary, deleteFromCloudinary } from '../../utils/upload'
-import type { NetlifyBindings } from '../../types/bindings'
+import type { CloudflareBindings } from '../../types/bindings'
 
 interface CategoryTreeNode {
   id: string
@@ -291,7 +291,7 @@ export async function updateCategory(
     isActive?: boolean
   },
   adminUserId: string,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ) {
   const existingResult = await db.execute({
     sql: `SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL`,
@@ -396,7 +396,7 @@ export async function deleteCategory(
   db: Client,
   id: string,
   adminUserId: string,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ) {
   const catResult = await db.execute({
     sql: `SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL`,
@@ -456,7 +456,7 @@ export async function uploadCategoryImage(
   id: string,
   file: File,
   adminUserId: string,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ) {
   const catResult = await db.execute({
     sql: `SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL`,

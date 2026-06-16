@@ -167,7 +167,7 @@ export async function initiateKhaltiPaymentController(c: Context<AppEnv>) {
     }
 
     const secretKey = getEnv(c, 'KHALTI_SECRET_KEY')
-    const publicKey = getEnv(c, 'KHALTI_PUBLIC_KEY') || process.env.KHALTI_PUBLIC_KEY || ''
+    const publicKey = getEnv(c, 'KHALTI_PUBLIC_KEY')
     const origin = new URL(c.req.url).origin
     const returnUrl = `${origin}/payment/khalti/callback`
 
@@ -203,7 +203,7 @@ export async function initiateEsewaPaymentController(c: Context<AppEnv>) {
 
     const merchantCode = getEnv(c, 'ESEWA_MERCHANT_CODE')
     const secretKey = getEnv(c, 'ESEWA_SECRET_KEY')
-    const isLive = (getEnv(c, 'ESEWA_IS_LIVE') || process.env.ESEWA_IS_LIVE || 'false') === 'true'
+    const isLive = getEnv(c, 'ESEWA_IS_LIVE') === 'true'
 
     const totalAmount = order.totalAmount / 100
     const transactionUuid = order.orderNumber

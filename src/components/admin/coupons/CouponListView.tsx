@@ -41,7 +41,7 @@ const { data: couponsData, meta: couponsMeta, isLoading, refetch } = useAdminDat
     return Array.isArray(raw) ? raw : [];
   }, [couponsData]);
 
-  const total: number = couponsMeta?.total ?? ((couponsData as unknown as Record<string, unknown>).total as number ?? coupons.length);
+  const total: number = couponsMeta?.total ?? (couponsData ? (couponsData as unknown as Record<string, unknown>).total as number ?? coupons.length : coupons.length);
 
   const totalPages = couponsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 

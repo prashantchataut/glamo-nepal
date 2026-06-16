@@ -61,7 +61,7 @@ export function CustomersView() {
     return ((usersData as unknown as Record<string, unknown>).users ?? []) as unknown as UserRow[];
   })();
 
-  const total = usersMeta?.total ?? (Array.isArray(usersData) ? usersData.length : (usersData as unknown as Record<string, unknown>).total as number ?? 0);
+  const total = usersMeta?.total ?? (Array.isArray(usersData) ? usersData.length : (usersData ? (usersData as unknown as Record<string, unknown>).total as number : 0) ?? 0);
   const totalPages = usersMeta?.totalPages ?? (() => {
     if (!usersData) return 1;
     if (Array.isArray(usersData)) return Math.max(1, Math.ceil(usersData.length / PAGE_SIZE));

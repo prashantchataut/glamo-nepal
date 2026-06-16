@@ -73,7 +73,7 @@ export function InventoryView() {
     return ((stockReport as unknown as Record<string, unknown>).products ?? []) as unknown as InventoryRow[];
   }, [stockReport]);
 
-  const total = stockMeta?.total ?? (Array.isArray(stockReport) ? stockReport.length : (stockReport as unknown as Record<string, unknown>).total as number ?? 0);
+  const total = stockMeta?.total ?? (Array.isArray(stockReport) ? stockReport.length : (stockReport ? (stockReport as unknown as Record<string, unknown>).total as number : 0) ?? 0);
 
   const lowStockAlerts = useMemo(() => {
     if (!lowStockData) return [];

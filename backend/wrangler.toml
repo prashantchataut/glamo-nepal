@@ -1,0 +1,29 @@
+name = "glamo-nepal-api"
+main = "src/worker.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+FIREBASE_PROJECT_ID = "ankura-studio"
+FRONTEND_URL = "https://glamonepal.com"
+FREE_SHIPPING_THRESHOLD = "2500"
+COD_FEE = "50"
+CLOUDINARY_CLOUD_NAME = "dxy90vpw5"
+CLOUDINARY_API_KEY = "839582812544965"
+SUPER_ADMIN_EMAILS = "admin@glamonepal.com"
+ESEWA_IS_LIVE = "false"
+ENVIRONMENT = "production"
+
+# Secrets — set via: npx wrangler secret put <KEY>
+# TURSO_DB_URL
+# TURSO_AUTH_TOKEN
+# AUTH_SECRET
+# ADMIN_SESSION_SECRET
+# CSRF_SECRET
+# KHALTI_SECRET_KEY
+# ESEWA_SECRET_KEY
+# ESEWA_MERCHANT_CODE
+# CLOUDINARY_API_SECRET
+# RESEND_API_KEY
+# UPSTASH_REDIS_REST_URL
+# UPSTASH_REDIS_REST_TOKEN

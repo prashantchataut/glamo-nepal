@@ -3,16 +3,18 @@ import { jwtVerify, createRemoteJWKSet } from 'jose'
 import { getEnv } from '../utils/env'
 import type { AppEnv } from '../types/bindings'
 
-const ADMIN_COOKIE_NAME = process.env.NODE_ENV === 'production'
-  ? '__Host-glamo-admin-session'
-  : 'glamo-admin-session'
+async function getAdminCookieName(c: Parameters<typeof authMiddleware>[0]): Promise<string> {
+  const env = getEnv(c, 'AUTH_SECRET')
+  return env ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+}
 
-async function verifyAdminCookie(cookieHeader: string): Promise<{ email: string; name: string; role: string } | null> {
-  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${ADMIN_COOKIE_NAME.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
+async function verifyAdminCookie(c: Parameters<typeof authMiddleware>[0], cookieHeader: string): Promise<{ email: string; name: string; role: string } | null> {
+  const cookieName = await getAdminCookieName(c)
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
   if (!match?.[1]) return null
 
   const token = match[1]
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET
+  const secret = getEnv(c, 'ADMIN_SESSION_SECRET') || getEnv(c, 'AUTH_SECRET')
   if (!secret) return null
 
   const parts = token.split('.')
@@ -39,8 +41,6 @@ async function verifyAdminCookie(cookieHeader: string): Promise<{ email: string;
 function getFirebaseProjectId(c: Parameters<typeof authMiddleware>[0]): string {
   const envProjectId = getEnv(c, 'FIREBASE_PROJECT_ID')
   if (envProjectId) return envProjectId
-  const publicProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
-  if (publicProjectId) return publicProjectId
   throw new Error('FIREBASE_PROJECT_ID environment variable is not set')
 }
 
@@ -68,8 +68,8 @@ export async function verifyFirebaseToken(token: string, projectId: string): Pro
   }
 }
 
-function getSuperAdminEmails(): { owner: string; admins: string[] } {
-  const raw = process.env.SUPER_ADMIN_EMAILS || process.env.ADMIN_EMAIL || ''
+function getSuperAdminEmails(c: Parameters<typeof authMiddleware>[0]): { owner: string; admins: string[] } {
+  const raw = getEnv(c, 'SUPER_ADMIN_EMAILS') || getEnv(c, 'ADMIN_EMAIL') || ''
   const emails = raw.split(',').map((e: string) => e.trim().toLowerCase()).filter(Boolean)
   return {
     owner: emails[0] || '',
@@ -77,34 +77,34 @@ function getSuperAdminEmails(): { owner: string; admins: string[] } {
   }
 }
 
-function isSuperAdmin(email: string): boolean {
-  return getSuperAdminEmails().admins.includes(email.toLowerCase())
+function isSuperAdmin(c: Parameters<typeof authMiddleware>[0], email: string): boolean {
+  return getSuperAdminEmails(c).admins.includes(email.toLowerCase())
 }
 
-function isOwner(email: string): boolean {
-  return getSuperAdminEmails().owner === email.toLowerCase()
+function isOwner(c: Parameters<typeof authMiddleware>[0], email: string): boolean {
+  return getSuperAdminEmails(c).owner === email.toLowerCase()
 }
 
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   const adminSession = getAdminSessionToken(c)
   if (adminSession) {
-const adminUser = await verifyAdminSession(adminSession)
-      if (adminUser) {
-        if (adminUser.jti) {
-          try {
-            const db = c.get('db')
-            const revoked = await db.execute({
-              sql: "SELECT id FROM admin_session_revocations WHERE jti = ? LIMIT 1",
-              args: [adminUser.jti],
-            })
-            if (revoked.rows.length > 0) {
-              return c.json({ success: false, message: 'Session revoked', errors: [] }, 401)
-            }
-          } catch {
-            // Revocation table may not exist yet; allow through if check fails
+    const adminUser = await verifyAdminSession(c, adminSession)
+    if (adminUser) {
+      if (adminUser.jti) {
+        try {
+          const db = c.get('db')
+          const revoked = await db.execute({
+            sql: "SELECT id FROM admin_session_revocations WHERE jti = ? LIMIT 1",
+            args: [adminUser.jti],
+          })
+          if (revoked.rows.length > 0) {
+            return c.json({ success: false, message: 'Session revoked', errors: [] }, 401)
           }
+        } catch {
+          // Revocation table may not exist yet; allow through if check fails
         }
-        const db = c.get('db')
+      }
+      const db = c.get('db')
       const result = await db.execute({
         sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL AND role IN ('ADMIN', 'SUPER_ADMIN')",
         args: [adminUser.email],
@@ -112,7 +112,7 @@ const adminUser = await verifyAdminSession(adminSession)
       if (result.rows.length > 0) {
         const profile = result.rows[0]
         const isActive = profile.is_active
-        const role = isOwner(adminUser.email) ? 'OWNER' : (profile.role as string)
+        const role = isOwner(c, adminUser.email) ? 'OWNER' : (profile.role as string)
         c.set('user', {
           id: profile.id as string,
           email: adminUser.email,
@@ -123,16 +123,16 @@ const adminUser = await verifyAdminSession(adminSession)
         return
       }
 
-      if (isSuperAdmin(adminUser.email)) {
-        const db = c.get('db')
-        const existingAdmin = await db.execute({
+      if (isSuperAdmin(c, adminUser.email)) {
+        const db2 = c.get('db')
+        const existingAdmin = await db2.execute({
           sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
           args: [adminUser.email],
         })
         if (existingAdmin.rows.length > 0) {
           const profile = existingAdmin.rows[0]
           const isActive = profile.is_active
-          const role = isOwner(adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
+          const role = isOwner(c, adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
           c.set('user', {
             id: profile.id as string,
             email: adminUser.email,
@@ -141,9 +141,9 @@ const adminUser = await verifyAdminSession(adminSession)
           })
         } else {
           const adminId = crypto.randomUUID()
-          const role = isOwner(adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
+          const role = isOwner(c, adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
           try {
-            await db.execute({
+            await db2.execute({
               sql: `INSERT INTO users (id, email, first_name, role, is_active, email_verified, created_at, updated_at)
                     VALUES (?, ?, 'GLAMO Admin', ?, 1, 1, datetime('now'), datetime('now'))`,
               args: [adminId, adminUser.email, role],
@@ -156,18 +156,18 @@ const adminUser = await verifyAdminSession(adminSession)
             })
           } catch (error: any) {
             if (error?.message?.includes('UNIQUE constraint')) {
-              const retryResult = await db.execute({
+              const retryResult = await db2.execute({
                 sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1",
                 args: [adminUser.email],
               })
               if (retryResult.rows.length > 0) {
                 const profile = retryResult.rows[0]
                 const isActive = profile.is_active
-                const role = isOwner(adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
+                const role2 = isOwner(c, adminUser.email) ? 'OWNER' : 'SUPER_ADMIN'
                 c.set('user', {
                   id: profile.id as string,
                   email: adminUser.email,
-                  role,
+                  role: role2,
                   isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
                 })
               } else {
@@ -193,12 +193,12 @@ const adminUser = await verifyAdminSession(adminSession)
 
   if (!token && c.req.path.startsWith('/api/v1/admin')) {
     const cookieHeader = c.req.header('Cookie') || ''
-    const adminSession = await verifyAdminCookie(cookieHeader)
-    if (adminSession) {
+    const adminCookieUser = await verifyAdminCookie(c, cookieHeader)
+    if (adminCookieUser) {
       c.set('user', {
-        id: `admin:${adminSession.email}`,
-        email: adminSession.email,
-        role: adminSession.role,
+        id: `admin:${adminCookieUser.email}`,
+        email: adminCookieUser.email,
+        role: adminCookieUser.role,
         isActive: true,
       })
       await next()
@@ -271,9 +271,6 @@ const adminUser = await verifyAdminSession(adminSession)
     }
   } catch (error) {
     console.error('[Auth] Token verification failed:', error instanceof Error ? `${error.name}: ${error.message}` : String(error))
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('[Auth] Token payload hint: ensure FIREBASE_PROJECT_ID matches your Firebase project')
-    }
     return c.json({ success: false, message: 'Unauthorized: invalid token', errors: [] }, 401)
   }
 
@@ -290,13 +287,13 @@ function getCookieToken(c: Parameters<typeof authMiddleware>[0]): string | undef
 function getAdminSessionToken(c: Parameters<typeof authMiddleware>[0]): string | undefined {
   const cookieHeader = c.req.header('Cookie')
   if (!cookieHeader) return undefined
-  const cookieName = process.env.NODE_ENV === 'production' ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+  const cookieName = '__Host-glamo-admin-session'
   const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
   return match?.[1]
 }
 
-export async function verifyAdminSession(token: string): Promise<{ email: string; name: string; role: string; jti?: string } | null> {
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET
+export async function verifyAdminSession(c: Parameters<typeof authMiddleware>[0], token: string): Promise<{ email: string; name: string; role: string; jti?: string } | null> {
+  const secret = getEnv(c, 'ADMIN_SESSION_SECRET') || getEnv(c, 'AUTH_SECRET')
   if (!secret || secret.length === 0) return null
 
   try {

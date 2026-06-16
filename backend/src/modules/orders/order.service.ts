@@ -1,5 +1,5 @@
 import type { Client, InValue } from '@libsql/client'
-import type { NetlifyBindings } from '../../types/bindings'
+import type { CloudflareBindings } from '../../types/bindings'
 import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, fromSqliteBool, toSqliteBool, withTransaction } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
 import { generateOrderNumber } from '../../utils/orderNumber'
@@ -384,7 +384,7 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     }
   }
   const isCOD = data.paymentMethod ? ['CASH_ON_DELIVERY', 'COD', 'cod', 'Cash on Delivery'].includes(data.paymentMethod) : false
-  const codFeeEnv = c ? getEnv(c, 'COD_FEE') : (process.env.COD_FEE || '50')
+  const codFeeEnv = c ? getEnv(c, 'COD_FEE') : '50'
   const codFee = isCOD ? toStoredPrice(parseInt(codFeeEnv, 10)) : 0
   const giftWrapFee = data.giftWrap ? toStoredPrice(100) : 0
   let discountAmount = 0
@@ -665,7 +665,7 @@ export async function updateOrderStatus(orderId: string, data: UpdateOrderStatus
   return updatedOrder
 }
 
-export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation', env?: NetlifyBindings) {
+export async function cancelOrder(orderId: string, db: Client, user: { id: string; role: string }, reason = 'Customer requested cancellation', env?: CloudflareBindings) {
   const softDelete = await hasDeletedAtColumn(db, 'orders')
   const fetchResult = await db.execute({
     sql: `SELECT * FROM orders WHERE (id = ? OR order_number = ?)${softDelete ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,

@@ -3,7 +3,7 @@ import { z } from 'zod'
 const envSchema = z.object({
   TURSO_DB_URL: z.string().min(1),
   TURSO_AUTH_TOKEN: z.string().min(1),
-  FIREBASE_PROJECT_ID: z.string().default(process.env.FIREBASE_PROJECT_ID || 'your-firebase-project-id'),
+  FIREBASE_PROJECT_ID: z.string().min(1, 'FIREBASE_PROJECT_ID is required'),
   RESEND_API_KEY: z.string().optional().default(''),
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(''),
   CLOUDINARY_API_KEY: z.string().optional().default(''),
@@ -19,6 +19,9 @@ const envSchema = z.object({
   FREE_SHIPPING_THRESHOLD: z.string().default('2500'),
   COD_FEE: z.string().default('50'),
   AUTH_SECRET: z.string().min(1, 'AUTH_SECRET is required'),
+  ADMIN_SESSION_SECRET: z.string().optional().default(''),
+  SUPER_ADMIN_EMAILS: z.string().optional().default(''),
+  CSRF_SECRET: z.string().optional().default(''),
 })
 
 export type Env = z.infer<typeof envSchema>

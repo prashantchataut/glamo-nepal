@@ -1,5 +1,5 @@
 import type { Client } from '@libsql/client'
-import type { NetlifyBindings } from '../../types/bindings'
+import type { CloudflareBindings } from '../../types/bindings'
 import { AppError, handleDbError, fromSqliteBool, toSqliteBool, safeJsonParse, safeJsonStringify } from '../../utils/turso-helpers'
 import { CACHE_TTL, getFromCache, setCache } from '../../utils/cache'
 import { createAuditLog } from '../../utils/audit'
@@ -285,7 +285,7 @@ export async function uploadCoverImage(
   db: Client,
   id: string,
   file: File,
-  env: NetlifyBindings
+  env: CloudflareBindings
 ) {
   const existingResult = await db.execute({
     sql: `SELECT id, cover_image_url FROM blogs WHERE id = ?`,

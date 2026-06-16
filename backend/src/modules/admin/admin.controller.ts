@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { ApiResponse } from '../../utils/response'
 import { AppError } from '../../utils/turso-helpers'
+import { getEnv } from '../../utils/env'
 import * as AdminService from './admin.service'
 
 export async function getMe(c: Context<AppEnv>) {
@@ -9,8 +10,8 @@ export async function getMe(c: Context<AppEnv>) {
   if (!user) {
     return ApiResponse.error(c, 'Not authenticated', 401)
   }
-  const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || process.env.ADMIN_EMAIL || '').split(',').map((e: string) => e.trim().toLowerCase()).filter(Boolean)
-  const name = superAdminEmails.includes(user.email?.toLowerCase() ?? '') ? (process.env.ADMIN_NAME || 'GLAMO Admin') : (user.email?.split('@')[0] || 'Admin')
+  const superAdminEmails = getEnv(c, 'SUPER_ADMIN_EMAILS').split(',').map((e: string) => e.trim().toLowerCase()).filter(Boolean)
+  const name = superAdminEmails.includes(user.email?.toLowerCase() ?? '') ? 'GLAMO Admin' : (user.email?.split('@')[0] || 'Admin')
   return ApiResponse.success(c, 'Current admin user', {
     id: user.id,
     email: user.email,

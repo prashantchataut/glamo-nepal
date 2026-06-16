@@ -1,6 +1,6 @@
 import type { Client } from '@libsql/client'
 
-export interface NetlifyBindings {
+export interface CloudflareBindings {
   TURSO_DB_URL: string
   TURSO_AUTH_TOKEN: string
   FIREBASE_PROJECT_ID: string
@@ -19,12 +19,18 @@ export interface NetlifyBindings {
   FREE_SHIPPING_THRESHOLD: string
   COD_FEE: string
   AUTH_SECRET: string
+  ADMIN_SESSION_SECRET: string
+  ADMIN_EMAIL: string
+  ADMIN_NAME: string
+  SUPER_ADMIN_EMAILS: string
+  CSRF_SECRET: string
+  ENVIRONMENT: string
   CONTACT_EMAIL?: string
   FROM_EMAIL?: string
 }
 
 export type AppEnv = {
-  Bindings: NetlifyBindings
+  Bindings: CloudflareBindings
   Variables: {
     user: {
       id: string

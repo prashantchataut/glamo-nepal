@@ -1,14 +1,15 @@
 import { createMiddleware } from 'hono/factory'
 import type { AppEnv } from '../types/bindings'
+import { getEnv } from '../utils/env'
 
 export const optionalAuthMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   const cookieHeader = c.req.header('Cookie')
   if (cookieHeader) {
-    const cookieName = process.env.NODE_ENV === 'production' ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+    const cookieName = '__Host-glamo-admin-session'
     const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
     if (match?.[1]) {
       const { verifyAdminSession } = await import('../middleware/firebase-auth')
-      const adminUser = await verifyAdminSession(match[1])
+      const adminUser = await verifyAdminSession(c, match[1])
       if (adminUser) {
         const db = c.get('db')
         const result = await db.execute({
@@ -32,7 +33,7 @@ export const optionalAuthMiddleware = createMiddleware<AppEnv>(async (c, next) =
   if (token && !c.get('user')) {
     try {
       const { verifyFirebaseToken } = await import('../middleware/firebase-auth')
-      const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || ''
+      const projectId = getEnv(c, 'FIREBASE_PROJECT_ID')
       if (!projectId) {
         console.warn('[OptionalAuth] FIREBASE_PROJECT_ID not configured, skipping auth')
         await next()

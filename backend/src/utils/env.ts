@@ -2,7 +2,13 @@ import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
 
 export function getEnv(c: Context<AppEnv>, key: keyof AppEnv['Bindings']): string {
-  return c.env?.[key] || process.env[key] || ''
+  if (c.env && key in c.env) {
+    return c.env[key] as string
+  }
+  if (typeof process !== 'undefined' && process.env && key in process.env) {
+    return process.env[key] as string
+  }
+  return ''
 }
 
 export function getFullEnv(c: Context<AppEnv>): AppEnv['Bindings'] {
@@ -25,5 +31,11 @@ export function getFullEnv(c: Context<AppEnv>): AppEnv['Bindings'] {
     FREE_SHIPPING_THRESHOLD: getEnv(c, 'FREE_SHIPPING_THRESHOLD') || '2500',
     COD_FEE: getEnv(c, 'COD_FEE') || '50',
     AUTH_SECRET: getEnv(c, 'AUTH_SECRET') || (() => { throw new Error('AUTH_SECRET is required') })(),
+    ADMIN_SESSION_SECRET: getEnv(c, 'ADMIN_SESSION_SECRET'),
+    ADMIN_EMAIL: getEnv(c, 'ADMIN_EMAIL'),
+    ADMIN_NAME: getEnv(c, 'ADMIN_NAME'),
+    SUPER_ADMIN_EMAILS: getEnv(c, 'SUPER_ADMIN_EMAILS'),
+    CSRF_SECRET: getEnv(c, 'CSRF_SECRET'),
+    ENVIRONMENT: getEnv(c, 'ENVIRONMENT') || 'development',
   }
 }

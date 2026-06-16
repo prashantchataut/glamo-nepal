@@ -105,7 +105,7 @@ export function ProductsView() {
     return ((productsData as unknown as Record<string, unknown>).products ?? []) as unknown as ProductRow[];
   }, [productsData]);
 
-  const total = productsMeta?.total ?? (Array.isArray(productsData) ? productsData.length : (productsData as unknown as Record<string, unknown>).total as number ?? 0);
+  const total = productsMeta?.total ?? (Array.isArray(productsData) ? productsData.length : (productsData ? (productsData as unknown as Record<string, unknown>).total as number : 0) ?? 0);
 
   const totalPages = productsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 
