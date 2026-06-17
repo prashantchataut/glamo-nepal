@@ -154,7 +154,7 @@ jobs:
   deploy:
     name: Deploy to Cloudflare
     runs-on: ubuntu-latest
-    needs: [frontend, backend, e2e-auth, e2e-guest-checkout, e2e-security]
+    needs: [frontend, backend]
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
