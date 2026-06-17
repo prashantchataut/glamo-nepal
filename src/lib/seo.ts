@@ -15,9 +15,12 @@ interface SeoInput {
   type?: "website" | "article";
 }
 
-export function createMetadata({ title, description, path = "/", image = "/images/editorial/hero-editorial.svg", noIndex = false, keywords = [], type = "website" }: SeoInput): Metadata {
+export function createMetadata({ title, description, path = "/", image, noIndex = false, keywords = [], type = "website" }: SeoInput): Metadata {
   const url = absoluteUrl(path);
-  const imageUrl = absoluteUrl(image);
+
+  const ogImages = image
+    ? [{ url: absoluteUrl(image), width: 1200, height: 630, alt: `${title} - ${siteName}` }]
+    : undefined;
 
   return {
     title,
@@ -37,13 +40,13 @@ export function createMetadata({ title, description, path = "/", image = "/image
       siteName,
       locale: "en_NP",
       type,
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: `${title} - ${siteName}` }],
+      ...(ogImages ? { images: ogImages } : {}),
     },
     twitter: {
       card: "summary_large_image" as const,
       title: `${title} | ${siteName}`,
       description,
-      images: [imageUrl],
+      ...(image ? { images: [absoluteUrl(image)] } : {}),
       site: "@glamo_nepal",
       creator: "@glamo_nepal",
     },

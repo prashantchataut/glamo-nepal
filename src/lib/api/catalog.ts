@@ -81,5 +81,5 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
   { code: "khalti", label: "Khalti", enabled: true, requiresRedirect: true, publicKeyEnv: "NEXT_PUBLIC_KHALTI_PUBLIC_KEY" },
   { code: "esewa", label: "eSewa", enabled: true, requiresRedirect: true, publicKeyEnv: "NEXT_PUBLIC_ESEWA_MERCHANT_ID" },
   { code: "cod", label: "Cash on Delivery", enabled: true },
-  { code: "card", label: "Cards", enabled: true, requiresRedirect: true },
+  { code: "card", label: "Cards", enabled: false, requiresRedirect: true },
 ];
