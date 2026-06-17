@@ -16,7 +16,6 @@ function toISO8601(date: Date): string {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.website).replace(/\/$/, "");
-  const now = new Date();
 
   // Prefer the live catalog; fall back to the bundled static catalog when the
   // data service is unreachable (e.g. during a build before provisioning).
@@ -40,42 +39,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/return-policy", priority: 0.5, changefreq: "yearly" as const },
   ].map(({ path, priority, changefreq }) => ({
     url: `${base}${path}`,
-    lastModified: toISO8601(now),
     changeFrequency: changefreq,
     priority,
   }));
 
   const categoryRoutes = categorySlugs.map((slug) => ({
     url: `${base}/category/${slug}`,
-    lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.75,
   }));
 
   const productRoutes = productSlugs.map((slug) => ({
     url: `${base}/product/${slug}`,
-    lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
 
   const collectionRoutes = PRODUCT_COLLECTIONS.filter((collection) => collection.slug !== "low-stock").map((collection) => ({
     url: `${base}/collections/${collection.slug}`,
-    lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.72,
   }));
 
   const brandRoutes = getBrandProfiles().map((brand) => ({
     url: `${base}/brands/${brand.slug}`,
-    lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.62,
   }));
 
   const routineRoutes = PRODUCT_BUNDLES.map((bundle) => ({
     url: `${base}/routines/${bundle.slug}`,
-    lastModified: toISO8601(now),
     changeFrequency: "weekly" as const,
     priority: 0.68,
   }));

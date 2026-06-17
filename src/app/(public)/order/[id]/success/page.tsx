@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
-export default function LegacyOrderSuccessPage({ params }: { params: { id: string } }) {
-  redirect(`/order-confirmation/${encodeURIComponent(params.id)}`);
+export default async function LegacyOrderSuccessPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  redirect(`/order-confirmation/${encodeURIComponent(id)}`);
 }

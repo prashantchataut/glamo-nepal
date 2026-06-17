@@ -29,6 +29,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://glamonepal.com"),
   title: "GLAMO Nepal — Premium Beauty & Cosmetics",
   description:
     "Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu Valley.",

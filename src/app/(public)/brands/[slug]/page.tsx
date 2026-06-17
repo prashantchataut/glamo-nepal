@@ -9,15 +9,17 @@ import { createMetadata } from "@/lib/seo";
 
 export function generateStaticParams() { return getBrandProfiles().map((brand) => ({ slug: brand.slug })); }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const brand = getBrandProfile(params.slug);
-  return createMetadata({ title: brand ? `${brand.name} at GLAMO Nepal` : "Brand Not Found", description: brand?.description || "Explore GLAMO Nepal brand edits.", path: `/brands/${params.slug}`, image: brand?.image });
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const brand = getBrandProfile(slug);
+  return createMetadata({ title: brand ? `${brand.name} at GLAMO Nepal` : "Brand Not Found", description: brand?.description || "Explore GLAMO Nepal brand edits.", path: `/brands/${slug}`, image: brand?.image });
 }
 
-export default function BrandDetailPage({ params }: { params: { slug: string } }) {
-  const brand = getBrandProfile(params.slug);
+export default async function BrandDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const brand = getBrandProfile(slug);
   if (!brand) notFound();
-  const products = getBrandProducts(params.slug);
+  const products = getBrandProducts(slug);
   return (
     <main className="bg-neutral-50">
       <section className="border-b border-neutral-200 bg-neutral-100">

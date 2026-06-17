@@ -25,7 +25,7 @@ export default function ContactClient() {
       }
       const res = await fetch("/api/contact", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json", [CSRF_HEADER_NAME]: csrfToken }, body: JSON.stringify(data) });
       if (!res.ok) {
-        if (res.status === 503) toast.error("Contact form is not yet available. Please message us on WhatsApp or email hello@glamonepal.com.");
+        if (res.status === 503) toast.error("Contact form is not yet available. Please message us on WhatsApp or email info@glamonepal.com.");
         else throw new Error("Failed to send message");
         return;
       }

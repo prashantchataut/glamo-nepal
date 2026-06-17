@@ -12,21 +12,23 @@ export function generateStaticParams() {
   return CATEGORIES.map((category) => ({ slug: category.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const category = CATEGORIES.find((item) => item.slug === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const category = CATEGORIES.find((item) => item.slug === slug);
   return createMetadata({
     title: category?.seoTitle || (category ? `${category.name} Products` : "Category"),
     description: category?.seoDescription || category?.description || "Explore GLAMO NEPAL beauty category products.",
-    path: `/category/${params.slug}`,
+    path: `/category/${slug}`,
     image: category?.image,
     keywords: category ? [category.name, `${category.name} Nepal`, "beauty Nepal", "GLAMO NEPAL"] : ["GLAMO NEPAL"],
   });
 }
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const category = CATEGORIES.find((item) => item.slug === params.slug);
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const category = CATEGORIES.find((item) => item.slug === slug);
   if (!category) notFound();
-  const products = await getServerProductsByCategory(params.slug);
+  const products = await getServerProductsByCategory(slug);
   return (
     <Suspense fallback={<div className="min-h-screen bg-neutral-50" />}>
       <JsonLd data={[

@@ -9,14 +9,16 @@ export function generateStaticParams() {
   return PRODUCT_COLLECTIONS.map((collection) => ({ slug: collection.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const collection = getCollection(params.slug);
-  if (!collection) return createMetadata({ title: "Collection", description: "GLAMO NEPAL beauty collection.", path: `/collections/${params.slug}` });
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const collection = getCollection(slug);
+  if (!collection) return createMetadata({ title: "Collection", description: "GLAMO NEPAL beauty collection.", path: `/collections/${slug}` });
   return createMetadata({ title: collection.title, description: collection.seoDescription, path: `/collections/${collection.slug}`, image: collection.image, keywords: [collection.title, "GLAMO NEPAL collection", "beauty Nepal"] });
 }
 
-export default function CollectionPage({ params }: { params: { slug: string } }) {
-  const collection = getCollection(params.slug);
+export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const collection = getCollection(slug);
   if (!collection) notFound();
   const products = getCollectionProducts(collection.slug);
 

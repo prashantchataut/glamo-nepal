@@ -16,19 +16,21 @@ async function resolveProduct(slug: string): Promise<Product | null> {
   return (await getProductServer(slug)) ?? getProductBySlug(slug) ?? null;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const product = await resolveProduct(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await resolveProduct(slug);
   return createMetadata({
     title: product?.name || "Product Not Found",
     description: product?.description || "GLAMO NEPAL product detail page.",
-    path: `/product/${params.slug}`,
+    path: `/product/${slug}`,
     image: product?.image,
     keywords: product ? [product.brand, product.category, product.sku, ...product.concernTags] : [],
   });
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const product = await resolveProduct(params.slug);
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await resolveProduct(slug);
   if (!product) notFound();
 
   const liveRelated = await getRelatedProductsServer(product.slug, 4);

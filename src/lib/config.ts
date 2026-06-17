@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   description: "Premium Nepali beauty, cosmetics and personal care curated from Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal.",
   phone: "+977 9818212188",
   whatsapp: "https://wa.me/9779818212188",
-  email: "hello@glamonepal.com",
+  email: "info@glamonepal.com",
   website: SITE_URL,
   address: "Naya Baneshwor, Mantra In & Out Square, Kathmandu, Nepal",
   currency: "NPR",

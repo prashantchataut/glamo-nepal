@@ -10,6 +10,7 @@ export const metadata = createMetadata({
   noIndex: true,
 });
 
-export default function OrderConfirmationPage({ params }: { params: { orderId: string } }) {
-  return <CheckoutSuccessClient orderId={params.orderId} />;
+export default async function OrderConfirmationPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params;
+  return <CheckoutSuccessClient orderId={orderId} />;
 }

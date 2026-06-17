@@ -25,7 +25,7 @@ async function seed() {
     { key: 'currency', value: 'NPR', group: 'general' },
     { key: 'free_shipping_threshold', value: '2500', group: 'shipping' },
     { key: 'cod_fee', value: '50', group: 'shipping' },
-    { key: 'contact_email', value: 'hello@glamonepal.com', group: 'contact' },
+    { key: 'contact_email', value: 'info@glamonepal.com', group: 'contact' },
     { key: 'contact_phone', value: '+977-01-4567890', group: 'contact' },
     { key: 'social_instagram', value: 'https://www.instagram.com/glamo_nepal/', group: 'social' },
     { key: 'social_facebook', value: 'https://www.facebook.com/glamonepal', group: 'social' },

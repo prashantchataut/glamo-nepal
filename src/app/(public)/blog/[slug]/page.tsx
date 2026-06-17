@@ -13,19 +13,21 @@ export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = await getServerBlogPost(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getServerBlogPost(slug);
   return createMetadata({
     title: post?.title ?? "Blog — GLAMO NEPAL",
     description: post?.excerpt ?? "Beauty tips, skincare routines and Nepal beauty advice from GLAMO NEPAL.",
-    path: `/blog/${params.slug}`,
+    path: `/blog/${slug}`,
     image: post?.image,
     type: "article",
   });
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getServerBlogPost(params.slug);
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getServerBlogPost(slug);
   if (!post) notFound();
   const related = await getServerRelatedPosts(post.slug, 3);
 

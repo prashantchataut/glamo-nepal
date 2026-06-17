@@ -13,19 +13,21 @@ export function generateStaticParams() {
   return PRODUCT_BUNDLES.map((bundle) => ({ slug: bundle.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const bundle = getBundle(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const bundle = getBundle(slug);
   return createMetadata({
     title: bundle?.title || "Routine",
     description: bundle?.description || "GLAMO NEPAL beauty routine bundle.",
-    path: `/routines/${params.slug}`,
+    path: `/routines/${slug}`,
     image: bundle?.image,
     keywords: bundle ? [bundle.title, ...bundle.concerns, ...bundle.skinTypes] : ["GLAMO routine"],
   });
 }
 
-export default function RoutineDetailPage({ params }: { params: { slug: string } }) {
-  const bundle = getBundle(params.slug);
+export default async function RoutineDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const bundle = getBundle(slug);
   if (!bundle) notFound();
   const otherBundles = getBundles().filter((item) => item.slug !== bundle.slug).slice(0, 2);
 

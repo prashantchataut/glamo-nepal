@@ -13,7 +13,7 @@ async function sendEmail(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'GLAMO Nepal <noreply@glamonepal.com>',
+      from: 'GLAMO Nepal <info@glamonepal.com>',
       to: [to],
       subject,
       html,
