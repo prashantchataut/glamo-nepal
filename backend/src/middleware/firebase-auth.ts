@@ -210,7 +210,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
       await next()
       return
     }
-    return c.json({ success: false, message: 'Route not found', errors: [] }, 404)
+    return c.json({ success: false, message: 'Unauthorized: admin session required', errors: [] }, 401)
   }
 
   if (!token) {

@@ -6,9 +6,13 @@ export interface AdminSessionPayload {
   jti: string;
 }
 
-export const ADMIN_SESSION_COOKIE = process.env.NODE_ENV === "production"
-  ? "__Host-glamo-admin-session"
-  : "glamo-admin-session";
+// Domain-scoped cookie (NOT __Host- prefixed): the apex glamonepal.com redirects
+// to www.glamonepal.com, and __Host- cookies are host-locked — they die across
+// that redirect. A .glamonepal.com-domain cookie survives the redirect so the
+// admin session works on both apex and www. Kept httpOnly + Secure + SameSite.
+// Old sessions may still carry the __Host- name, so readers accept either.
+export const ADMIN_SESSION_COOKIE = "glamo-admin-session";
+export const LEGACY_ADMIN_SESSION_COOKIE = "__Host-glamo-admin-session";
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 function getSecret() {

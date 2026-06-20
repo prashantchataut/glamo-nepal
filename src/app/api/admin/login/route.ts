@@ -57,6 +57,34 @@ async function checkRateLimit(ip: string): Promise<boolean> {
   return checkRateLimitMemory(ip);
 }
 
+// Resolve the cookie domain. In production we scope to ".glamonepal.com" so the
+// session survives the apex→www redirect. Locally (no real domain) we omit it.
+function getCookieDomain(): string | undefined {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const host = siteUrl.replace(/^https?:\/\//, "").split("/")[0].split(":")[0];
+  // Only set a Domain attribute for a real multi-label host (not localhost / IPs).
+  if (host.includes(".") && host !== "localhost" && !/^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+    const labels = host.split(".");
+    // www.glamonepal.com → glamonepal.com ; glamonepal.com → glamonepal.com
+    const registrable = labels.length > 2 ? labels.slice(-2).join(".") : host;
+    return `.${registrable}`;
+  }
+  return undefined;
+}
+
+function adminCookieOptions(maxAge: number) {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    // lax (not strict): the apex→www redirect is a same-site top-level navigation,
+    // and strict would drop the cookie on that first hop.
+    sameSite: "lax" as const,
+    path: "/",
+    domain: getCookieDomain(),
+    maxAge,
+  };
+}
+
 export async function POST(request: NextRequest) {
   const csrf = await validateCsrf(request);
   if (!csrf.valid) {
@@ -129,13 +157,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    response.cookies.set(ADMIN_SESSION_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60 * 8,
-    });
+    response.cookies.set(ADMIN_SESSION_COOKIE, token, adminCookieOptions(60 * 60 * 8));
 
     return response;
   } catch (error: any) {
@@ -152,12 +174,6 @@ export async function DELETE(request: NextRequest) {
   }
 
   const response = NextResponse.json({ success: true });
-  response.cookies.set(ADMIN_SESSION_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    maxAge: 0,
-  });
+  response.cookies.set(ADMIN_SESSION_COOKIE, "", adminCookieOptions(0));
   return response;
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
+import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE, LEGACY_ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 
 const protectedPrefixes = ["/account"];
 const authPages = ["/login", "/register"];
@@ -13,7 +13,9 @@ function isPathOrChild(pathname: string, prefix: string) {
 }
 
 async function hasValidAdminToken(request: NextRequest): Promise<boolean> {
-  const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  const token =
+    request.cookies.get(ADMIN_SESSION_COOKIE)?.value ??
+    request.cookies.get(LEGACY_ADMIN_SESSION_COOKIE)?.value;
   if (!token) return false;
 
   const payload = await verifyAdminSessionToken(token);

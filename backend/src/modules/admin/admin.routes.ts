@@ -32,30 +32,37 @@ adminRoutes.get('/users/:id', authMiddleware, requireRole(['ADMIN']), getUserByI
 adminRoutes.patch('/users/:id/role', authMiddleware, requireRole(['OWNER']), validateBody(updateUserRoleSchema), updateUserRole)
 adminRoutes.patch('/users/:id/status', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateUserStatusSchema), updateUserStatus)
 adminRoutes.post('/logout', authMiddleware, requireRole(['ADMIN']), async (c) => {
-  const user = c.get('user')
   const cookieHeader = c.req.header('Cookie') || ''
-  const cookieName = '__Host-glamo-admin-session'
-  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
-  const token = match?.[1]
+  // Accept both the new domain-scoped name and the legacy __Host- name.
+  const cookieNames = ['glamo-admin-session', '__Host-glamo-admin-session']
 
-  if (token) {
-    const { verifyAdminSession } = await import('../../middleware/firebase-auth')
-    const adminUser = await verifyAdminSession(c, token)
-    if (adminUser?.jti) {
-      const db = c.get('db')
-      try {
-        await db.execute({
-          sql: "INSERT OR IGNORE INTO admin_session_revocations (id, jti, email, revoked_at) VALUES (?, ?, ?, datetime('now'))",
-          args: [crypto.randomUUID(), adminUser.jti, adminUser.email],
-        })
-      } catch {
-        // Revocation table may not exist yet
+  for (const name of cookieNames) {
+    const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
+    const token = match?.[1]
+    if (token) {
+      const { verifyAdminSession } = await import('../../middleware/firebase-auth')
+      const adminUser = await verifyAdminSession(c, token)
+      if (adminUser?.jti) {
+        const db = c.get('db')
+        try {
+          await db.execute({
+            sql: "INSERT OR IGNORE INTO admin_session_revocations (id, jti, email, revoked_at) VALUES (?, ?, ?, datetime('now'))",
+            args: [crypto.randomUUID(), adminUser.jti, adminUser.email],
+          })
+        } catch {
+          // Revocation table may not exist yet
+        }
       }
     }
   }
 
   const response = c.json({ success: true, message: 'Logged out' })
-  response.headers.append('Set-Cookie', `${cookieName}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict; Secure`)
+  // Clear both names so the browser drops whichever cookie variant exists.
+  // Scope the clear to the same domain the cookie was set with; the __Host-
+  // variant must not carry a Domain attribute (it would be rejected).
+  response.headers.append('Set-Cookie', `glamo-admin-session=; Path=/; Domain=.glamonepal.com; Max-Age=0; HttpOnly; SameSite=Lax; Secure`)
+  response.headers.append('Set-Cookie', `glamo-admin-session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure`)
+  response.headers.append('Set-Cookie', `__Host-glamo-admin-session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure`)
   return response
 })
 

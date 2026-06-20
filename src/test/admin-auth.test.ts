@@ -142,7 +142,7 @@ describe("admin-auth", () => {
   });
 
   describe("constants", () => {
-    it("uses __Host- prefix for admin session cookie in production", () => {
+    it("uses a domain-scoped (non-__Host-) admin session cookie name", () => {
       expect(ADMIN_SESSION_COOKIE).toBe("glamo-admin-session");
     });
 

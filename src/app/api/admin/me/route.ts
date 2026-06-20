@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyAdminSessionToken } from "@/lib/admin-auth";
+import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE, LEGACY_ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -14,10 +14,12 @@ function resolveRole(email: string): string {
 
 async function getSessionCookie(request: Request): Promise<string | undefined> {
   const cookieHeader = request.headers.get("cookie") || "";
-  const productionMatch = cookieHeader.match(/(?:^|;\s*)__Host-glamo-admin-session=([^;]+)/);
-  if (productionMatch?.[1]) return productionMatch[1];
-  const devMatch = cookieHeader.match(/(?:^|;\s*)glamo-admin-session=([^;]+)/);
-  return devMatch?.[1];
+  for (const name of [ADMIN_SESSION_COOKIE, LEGACY_ADMIN_SESSION_COOKIE]) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${escaped}=([^;]+)`));
+    if (match?.[1]) return match[1];
+  }
+  return undefined;
 }
 
 export async function GET(request: Request) {
