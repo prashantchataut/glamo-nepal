@@ -108,10 +108,10 @@ export async function POST(request: NextRequest) {
     }
 
     let isPasswordValid = false;
-    if (adminPasswordHash) {
-      isPasswordValid = await compare(password, adminPasswordHash);
-    } else if (adminPassword) {
+    if (adminPassword) {
       isPasswordValid = password === adminPassword;
+    } else if (adminPasswordHash) {
+      isPasswordValid = await compare(password, adminPasswordHash);
     }
     if (!isPasswordValid) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
