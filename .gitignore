@@ -37,6 +37,11 @@ backend/dist/
 # env files
 .env
 .env*.local
+.env.production
+.env.production.local
+
+# backend wrangler config is tracked but MUST NOT contain secrets.
+# Set all secrets via `wrangler secret put` (stored in Cloudflare dashboard).
 
 # vercel
 .vercel
@@ -61,3 +66,13 @@ docs/superpowers/
 graphify-out/
 
 .open-next/
+
+# Cloudflare Wrangler local state/build artifacts
+.wrangler/
+
+# Windows cmd.exe redirection accidents (on Windows `> nul` can create a real file)
+nul
+backend/nul
+
+# Stray scratch output (not source)
+tracked.txt
