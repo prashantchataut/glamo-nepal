@@ -88,12 +88,18 @@ export async function POST(request: NextRequest) {
 
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+    const adminPassword = process.env.ADMIN_PASSWORD;
     const adminName = process.env.ADMIN_NAME || "GLAMO Admin";
     const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || adminEmail || "").split(",").map((e: string) => e.trim().toLowerCase()).filter(Boolean);
 
-    if (!adminEmail || !adminPasswordHash) {
-      console.error("[SECURITY] ADMIN_EMAIL and ADMIN_PASSWORD_HASH are required. Run: node scripts/verify-hash.cjs to generate a hash.");
-      return NextResponse.json({ success: false, message: "Admin login is not configured. Please set ADMIN_EMAIL and ADMIN_PASSWORD_HASH in your environment." }, { status: 500 });
+    if (!adminEmail) {
+      console.error("[SECURITY] ADMIN_EMAIL environment variable is required.");
+      return NextResponse.json({ success: false, message: "Admin login is not configured. Please set ADMIN_EMAIL in your environment." }, { status: 500 });
+    }
+
+    if (!adminPasswordHash && !adminPassword) {
+      console.error("[SECURITY] ADMIN_PASSWORD_HASH or ADMIN_PASSWORD environment variable is required. Run: npx tsx scripts/hash-password.ts <password> to generate a hash.");
+      return NextResponse.json({ success: false, message: "Admin login is not configured. Please set ADMIN_PASSWORD_HASH or ADMIN_PASSWORD in your environment." }, { status: 500 });
     }
 
     const isEmailMatch = email.toLowerCase() === adminEmail.toLowerCase();
@@ -101,7 +107,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
 
-    const isPasswordValid = await compare(password, adminPasswordHash);
+    let isPasswordValid = false;
+    if (adminPasswordHash) {
+      isPasswordValid = await compare(password, adminPasswordHash);
+    } else if (adminPassword) {
+      isPasswordValid = password === adminPassword;
+    }
     if (!isPasswordValid) {
       return NextResponse.json({ success: false, message: "Invalid admin email or password." }, { status: 401 });
     }
