@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify, createRemoteJWKSet } from "jose";
 import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 
 const protectedPrefixes = ["/account"];
@@ -8,13 +7,6 @@ const authPages = ["/login", "/register"];
 
 const FIREBASE_AUTH_DOMAIN = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "";
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
-const FIREBASE_JWKS_URL = `https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com`;
-
-let jwksCache: ReturnType<typeof createRemoteJWKSet> | null = null;
-function getJWKS() {
-  if (!jwksCache) jwksCache = createRemoteJWKSet(new URL(FIREBASE_JWKS_URL));
-  return jwksCache;
-}
 
 function isPathOrChild(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
@@ -29,6 +21,55 @@ async function hasValidAdminToken(request: NextRequest): Promise<boolean> {
 }
 
 let firebaseTokenCache: { token: string; result: boolean; expires: number } | null = null;
+let jwksCache: { keys: JsonWebKey[]; fetched: number } | null = null;
+
+const JWKS_URL = "https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com";
+
+async function fetchJWKS(): Promise<JsonWebKey[]> {
+  const res = await fetch(JWKS_URL);
+  const data = await res.json() as { keys: JsonWebKey[] };
+  return data.keys;
+}
+
+function base64UrlToBase64(s: string): string {
+  return s.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(s.length / 4) * 4, "=");
+}
+
+function base64UrlDecode(s: string): string {
+  return atob(base64UrlToBase64(s));
+}
+
+async function verifyFirebaseJWT(token: string): Promise<boolean> {
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+
+  try {
+    const header = JSON.parse(base64UrlDecode(parts[0]));
+    const payload = JSON.parse(base64UrlDecode(parts[1]));
+
+    if (!payload.sub || !payload.exp) return false;
+    if (payload.exp < Math.floor(Date.now() / 1000)) return false;
+    if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) return false;
+    if (payload.aud !== FIREBASE_PROJECT_ID) return false;
+
+    if (!jwksCache || Date.now() - jwksCache.fetched > 3600000) {
+      jwksCache = { keys: await fetchJWKS(), fetched: Date.now() };
+    }
+
+    const jwk = jwksCache.keys.find((k: any) => k.kid === header.kid);
+    if (!jwk) return false;
+
+    const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`${parts[0]}.${parts[1]}`);
+    const signature = Uint8Array.from(atob(base64UrlToBase64(parts[2])), c => c.charCodeAt(0));
+
+    return await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, signature, data);
+  } catch {
+    return false;
+  }
+}
 
 async function hasFirebaseAuthToken(request: NextRequest): Promise<boolean> {
   const token = request.cookies.get("glamo-access-token")?.value;
@@ -38,23 +79,9 @@ async function hasFirebaseAuthToken(request: NextRequest): Promise<boolean> {
     return firebaseTokenCache.result;
   }
 
-  if (!FIREBASE_PROJECT_ID) {
-    return false;
-  }
-
-  try {
-    const jwks = getJWKS();
-    const { payload } = await jwtVerify(token, jwks, {
-      issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
-      audience: FIREBASE_PROJECT_ID,
-    });
-    const result = !!payload.sub && !!payload.exp;
-    firebaseTokenCache = { token, result, expires: Date.now() + 60 * 1000 };
-    return result;
-  } catch {
-    firebaseTokenCache = { token, result: false, expires: Date.now() + 60 * 1000 };
-    return false;
-  }
+  const result = await verifyFirebaseJWT(token);
+  firebaseTokenCache = { token, result, expires: Date.now() + 60 * 1000 };
+  return result;
 }
 
 const CSRF_TOKEN_COOKIE = "glamo-csrf-token";
