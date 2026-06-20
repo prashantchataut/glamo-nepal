@@ -12,7 +12,6 @@ const sectionLabels: Record<AdminSection, string> = {
   orders: "Orders",
   inventory: "Stocks",
   banners: "Banners",
-  blogs: "Blog",
   coupons: "Coupons",
   popups: "Popups",
   gallery: "Gallery",

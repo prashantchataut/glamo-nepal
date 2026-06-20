@@ -12,7 +12,6 @@ const ProductsView = lazy(() => import("@/components/admin/products/ProductsView
 const OrdersView = lazy(() => import("@/components/admin/orders/OrdersView").then(m => ({ default: m.OrdersView })));
 const InventoryView = lazy(() => import("@/components/admin/inventory/InventoryView").then(m => ({ default: m.InventoryView })));
 const BannersView = lazy(() => import("@/components/admin/banners/BannersView").then(m => ({ default: m.BannersView })));
-const BlogsView = lazy(() => import("@/components/admin/blog/BlogsView").then(m => ({ default: m.BlogsView })));
 const CouponsView = lazy(() => import("@/components/admin/coupons/CouponListView").then(m => ({ default: m.CouponsView })));
 const PopupsView = lazy(() => import("@/components/admin/popups/PopupsView").then(m => ({ default: m.PopupsView })));
 const GalleryView = lazy(() => import("@/components/admin/gallery/GalleryView").then(m => ({ default: m.GalleryView })));
@@ -132,7 +131,6 @@ export function AdminDashboard() {
     orders: <ComponentErrorBoundary name="orders"><Suspense fallback={<SectionLoader />}><OrdersView /></Suspense></ComponentErrorBoundary>,
     inventory: <ComponentErrorBoundary name="inventory"><Suspense fallback={<SectionLoader />}><InventoryView /></Suspense></ComponentErrorBoundary>,
     banners: <ComponentErrorBoundary name="banners"><Suspense fallback={<SectionLoader />}><BannersView /></Suspense></ComponentErrorBoundary>,
-    blogs: <ComponentErrorBoundary name="blogs"><Suspense fallback={<SectionLoader />}><BlogsView /></Suspense></ComponentErrorBoundary>,
     coupons: <ComponentErrorBoundary name="coupons"><Suspense fallback={<SectionLoader />}><CouponsView /></Suspense></ComponentErrorBoundary>,
     popups: <ComponentErrorBoundary name="popups"><Suspense fallback={<SectionLoader />}><PopupsView /></Suspense></ComponentErrorBoundary>,
     gallery: <ComponentErrorBoundary name="gallery"><Suspense fallback={<SectionLoader />}><GalleryView /></Suspense></ComponentErrorBoundary>,

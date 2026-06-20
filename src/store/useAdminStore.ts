@@ -6,7 +6,6 @@ export type AdminSection =
   | "orders"
   | "inventory"
   | "banners"
-  | "blogs"
   | "coupons"
   | "popups"
   | "gallery"
