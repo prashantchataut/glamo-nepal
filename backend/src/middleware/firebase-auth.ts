@@ -3,17 +3,23 @@ import { jwtVerify, createRemoteJWKSet } from 'jose'
 import { getEnv } from '../utils/env'
 import type { AppEnv } from '../types/bindings'
 
-async function getAdminCookieName(c: Parameters<typeof authMiddleware>[0]): Promise<string> {
-  const env = getEnv(c, 'AUTH_SECRET')
-  return env ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+function adminCookieNames(): string[] {
+  return ['__Host-glamo-admin-session', 'glamo-admin-session']
+}
+
+function extractCookieValue(cookieHeader: string, cookieName: string): string | undefined {
+  const escaped = cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${escaped}=([^;]+)`))
+  return match?.[1]
 }
 
 async function verifyAdminCookie(c: Parameters<typeof authMiddleware>[0], cookieHeader: string): Promise<{ email: string; name: string; role: string } | null> {
-  const cookieName = await getAdminCookieName(c)
-  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
-  if (!match?.[1]) return null
-
-  const token = match[1]
+  let token: string | undefined
+  for (const name of adminCookieNames()) {
+    token = extractCookieValue(cookieHeader, name)
+    if (token) break
+  }
+  if (!token) return null
   const secret = getEnv(c, 'ADMIN_SESSION_SECRET') || getEnv(c, 'AUTH_SECRET')
   if (!secret) return null
 
@@ -287,13 +293,11 @@ function getCookieToken(c: Parameters<typeof authMiddleware>[0]): string | undef
 function getAdminSessionToken(c: Parameters<typeof authMiddleware>[0]): string | undefined {
   const cookieHeader = c.req.header('Cookie')
   if (!cookieHeader) return undefined
-  // Cookie name differs by environment: the frontend uses "__Host-glamo-admin-session"
-  // in production and "glamo-admin-session" in dev (see src/lib/admin-auth.ts). Match
-  // the dynamic helper used by verifyAdminCookie() so both environments work.
-  const cookieName = getEnv(c, 'AUTH_SECRET') ? '__Host-glamo-admin-session' : 'glamo-admin-session'
-  const escaped = cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${escaped}=([^;]+)`))
-  return match?.[1]
+  for (const name of adminCookieNames()) {
+    const token = extractCookieValue(cookieHeader, name)
+    if (token) return token
+  }
+  return undefined
 }
 
 export async function verifyAdminSession(c: Parameters<typeof authMiddleware>[0], token: string): Promise<{ email: string; name: string; role: string; jti?: string } | null> {

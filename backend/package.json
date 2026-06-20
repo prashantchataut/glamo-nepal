@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
@@ -31,6 +32,7 @@
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.7",
+    "wrangler": "^4.100.0"
   }
 }

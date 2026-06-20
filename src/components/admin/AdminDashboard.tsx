@@ -45,23 +45,22 @@ export function AdminDashboard() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
-    fetch("/api/v1/admin/dashboard", { credentials: "include", signal: controller.signal })
+    fetch("/api/admin/me", { credentials: "include", signal: controller.signal })
       .then(async (res) => {
         clearTimeout(timeout);
-        setAuthed(res.ok);
         if (res.ok) {
+          const data = await res.json();
+          if (data?.data) {
+            setAdminUser(data.data);
+          }
+          setAuthed(true);
           setAuthError(null);
-          try {
-            const meRes = await fetch("/api/v1/admin/me", { credentials: "include" });
-            if (meRes.ok) {
-              const meData = await meRes.json();
-              if (meData?.data) {
-                setAdminUser(meData.data);
-              }
-            }
-          } catch {}
-        } else {
+        } else if (res.status === 401) {
+          setAuthed(false);
           setAuthError("Session expired. Please sign in again.");
+        } else {
+          setAuthed(false);
+          setAuthError("Could not verify session. Please try again.");
         }
       })
       .catch((err) => {
