@@ -77,6 +77,5 @@ backend/nul
 # Stray scratch output (not source)
 tracked.txt
 
-cookie.txt
-/coo*kies.txt
+cookie*.txt
 token.txt
