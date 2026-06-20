@@ -22,13 +22,16 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({ user: null, loading: true, syncComplete: false });
 
 const AUTH_COOKIE_NAME = "glamo-access-token";
+// Firebase ID tokens expire after 1 hour. Cookie max-age MUST match the token's
+// actual lifetime, otherwise the cookie outlives the token and the edge proxy
+// rejects the (expired) token on the next navigation — bouncing users to login.
+const AUTH_COOKIE_MAX_AGE_SECONDS = 60 * 60;
 
 function setAuthCookie(token: string | null) {
   if (typeof document === "undefined") return;
   if (token) {
-    const maxAge = 60 * 60 * 24 * 14;
     const secure = window.location.protocol === "https:" ? "; secure" : "";
-    document.cookie = `${AUTH_COOKIE_NAME}=${token}; path=/; max-age=${maxAge}; samesite=lax${secure}`;
+    document.cookie = `${AUTH_COOKIE_NAME}=${token}; path=/; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; samesite=lax${secure}`;
   } else {
     document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; samesite=lax`;
   }
@@ -89,6 +92,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [syncComplete, setSyncComplete] = useState(false);
   const { login, logout } = useAuthStore();
   const syncingRef = useRef<string | null>(null);
+  const tokenRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -197,6 +201,21 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
           setSyncComplete(true);
           setLoading(false);
         }
+
+        // Firebase ID tokens expire after 1 hour. Proactively refresh the token
+        // before it expires so the edge proxy never sees an expired token (which
+        // would bounce the user to the login page on the next navigation).
+        const refreshInterval = setInterval(async () => {
+          const current = auth().currentUser;
+          if (!current) return;
+          try {
+            const freshToken = await current.getIdToken(true);
+            setAuthCookie(freshToken);
+          } catch {
+            /* user signed out or session invalid; onAuthStateChanged handles logout */
+          }
+        }, 45 * 60 * 1000);
+        tokenRefreshRef.current = refreshInterval;
       } else {
         setAuthCookie(null);
         logout();
@@ -209,6 +228,10 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     return () => {
       window.removeEventListener("unhandledrejection", onUnhandledRejection);
       unsubscribe();
+      if (tokenRefreshRef.current) {
+        clearInterval(tokenRefreshRef.current);
+        tokenRefreshRef.current = null;
+      }
     };
   }, [login, logout]);
 

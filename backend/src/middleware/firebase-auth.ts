@@ -287,8 +287,12 @@ function getCookieToken(c: Parameters<typeof authMiddleware>[0]): string | undef
 function getAdminSessionToken(c: Parameters<typeof authMiddleware>[0]): string | undefined {
   const cookieHeader = c.req.header('Cookie')
   if (!cookieHeader) return undefined
-  const cookieName = '__Host-glamo-admin-session'
-  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]+)`))
+  // Cookie name differs by environment: the frontend uses "__Host-glamo-admin-session"
+  // in production and "glamo-admin-session" in dev (see src/lib/admin-auth.ts). Match
+  // the dynamic helper used by verifyAdminCookie() so both environments work.
+  const cookieName = getEnv(c, 'AUTH_SECRET') ? '__Host-glamo-admin-session' : 'glamo-admin-session'
+  const escaped = cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${escaped}=([^;]+)`))
   return match?.[1]
 }
 
@@ -300,23 +304,18 @@ export async function verifyAdminSession(c: Parameters<typeof authMiddleware>[0]
     const [encodedPayload, signature] = token.split('.')
     if (!encodedPayload || !signature) return null
 
+    // base64url -> base64 (with padding). HMAC-SHA256 signatures are 43 base64url
+    // chars (len % 4 === 3); atob() throws without padding, so pad explicitly.
+    const base64UrlToBase64 = (value: string) =>
+      value.replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(value.length / 4) * 4, '=')
+
     const encoder = new TextEncoder()
-    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
-    const expectedSignature = await crypto.subtle.sign('HMAC', key, encoder.encode(encodedPayload))
-    const expectedBase64 = btoa(String.fromCharCode(...new Uint8Array(expectedSignature))).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '')
+    const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify'])
+    const sigBytes = Uint8Array.from(atob(base64UrlToBase64(signature)), (c) => c.charCodeAt(0))
+    const valid = await crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(encodedPayload))
+    if (!valid) return null
 
-    const sigBytes = Uint8Array.from(atob(signature.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))
-    const expBytes = Uint8Array.from(atob(expectedBase64.replaceAll('-', '+').replaceAll('_', '/')), c => c.charCodeAt(0))
-    if (sigBytes.length !== expBytes.length) return null
-    let mismatch = 0
-    for (let i = 0; i < sigBytes.length; i++) {
-      mismatch |= sigBytes[i] ^ expBytes[i]
-    }
-    if (mismatch !== 0) return null
-
-    const padding = encodedPayload.length % 4
-    const padded = padding ? encodedPayload + '='.repeat(4 - padding) : encodedPayload
-    const payload = JSON.parse(atob(padded.replaceAll('-', '+').replaceAll('_', '/')))
+    const payload = JSON.parse(atob(base64UrlToBase64(encodedPayload)))
 
     if (payload.role !== 'admin') return null
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null
