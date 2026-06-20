@@ -20,15 +20,12 @@
 - [ ] Verify frontend sign-up creates user in Firebase Console → Authentication
 - [ ] Configure Firebase Auth authorized domains to include production URL
 
-## Netlify Deployment
+## Cloudflare Worker Deployment
 
-- [ ] Link site to Netlify: `netlify link` or via dashboard
-- [ ] Set all environment variables in Netlify Dashboard → Settings → Environment variables
-- [ ] Verify `netlify.toml` is correct (function directory, build settings)
-- [ ] Deploy via git push or `netlify deploy --prod`
-- [ ] Verify health endpoint: `curl https://your-site.netlify.app/.netlify/functions/api/health`
+- [ ] Deploy via `pnpm deploy` or `wrangler deploy`
+- [ ] Verify health endpoint: `curl https://glamo-nepal-api.prashant1327.workers.dev/health`
 
-## Environment Variables (Netlify)
+## Environment Variables (Cloudflare Worker)
 
 - [ ] `TURSO_DB_URL` — Turso database connection URL
 - [ ] `TURSO_AUTH_TOKEN` — Turso authentication token
@@ -56,8 +53,7 @@
 
 - [ ] All Supabase references removed from codebase
 - [ ] All Convex references removed from codebase
-- [ ] All Cloudflare/Wrangler references removed from codebase
-- [ ] All API routes served via Hono on Netlify Functions
+- [ ] All API routes served via Hono on Cloudflare Worker
 - [ ] Rate limiting working (in-memory Map)
 - [ ] CORS origins set to production domains
 - [ ] Firebase Auth JWT verification working on backend
@@ -207,7 +203,7 @@
 
 ## Post-Deployment
 
-- [ ] Monitor Netlify Function logs for errors
+- [ ] Monitor Cloudflare Worker logs for errors
 - [ ] Check Turso dashboard for query performance
 - [ ] Verify cache hit rate (in-memory, resets on redeploy)
 - [ ] Test full auth flow end-to-end

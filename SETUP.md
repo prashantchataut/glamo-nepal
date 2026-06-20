@@ -267,21 +267,21 @@ The backend allows `http://localhost:3000` by default. If using a different port
 
 ## Production Deployment
 
-### Frontend (Netlify)
+### Frontend (Vercel)
 ```bash
 pnpm build
-# Deploy to Netlify via git push or CLI
+# Deploys automatically via Vercel Git integration
 ```
-Set all environment variables in Netlify dashboard (Settings → Environment variables).
+Set environment variables in Vercel dashboard (Settings → Environment variables).
 
-### Backend (Netlify Functions)
+### Backend (Cloudflare Worker)
 ```bash
 cd backend
-# Deploy to Netlify via git push or CLI
+pnpm deploy
 ```
-Set all environment variables in Netlify dashboard. The `netlify.toml` handles the rest.
+Set environment variables in Cloudflare Dashboard → Workers → glamo-nepal-api → Variables.
 
 ### Production URLs
-- Frontend: `https://glamonepal.com`
-- Backend: `https://glamonepal.com/.netlify/functions/api`
-- Admin: `https://glamonepal.com/admin`
+- Frontend: `https://glamonepal.vercel.app` (or custom domain)
+- Backend: `https://glamo-nepal-api.prashant1327.workers.dev`
+- Admin: `https://glamonepal.vercel.app/admin`

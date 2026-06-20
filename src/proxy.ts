@@ -182,7 +182,7 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
   "/signup": "/register",
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   const canonicalTarget = CANONICAL_REDIRECTS[pathname];
