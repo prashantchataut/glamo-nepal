@@ -138,7 +138,9 @@ sameSite: "strict",
     });
 
     return response;
-  } catch {
+  } catch (error: any) {
+    console.error("[Admin Login Error]", error?.message || error?.toString() || "Unknown error");
+    console.error("[Admin Login Error Stack]", error?.stack || "No stack");
     return NextResponse.json({ success: false, message: "Internal server error." }, { status: 500 });
   }
 }
