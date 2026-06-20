@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyAdminSessionToken, getAdminCredentials } from "@/lib/admin-auth";
+import { verifyAdminSessionToken } from "@/lib/admin-auth";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -37,14 +37,16 @@ export async function GET(request: Request) {
     );
   }
 
-  const creds = getAdminCredentials();
+  // The signed session payload already carries email + name. Do NOT call
+  // getAdminCredentials() here — it throws when ADMIN_EMAIL is unset, which
+  // turns a valid session into a 500 and breaks the dashboard.
   const role = resolveRole(payload.email);
 
   return NextResponse.json({
     success: true,
     data: {
       email: payload.email,
-      name: payload.name,
+      name: payload.name || "GLAMO Admin",
       role,
     },
   });

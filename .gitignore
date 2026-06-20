@@ -39,6 +39,8 @@ backend/dist/
 .env*.local
 .env.production
 .env.production.local
+# Secret rotation runbook (contains live secrets)
+.env.rotation-pending.local.md
 
 # backend wrangler config is tracked but MUST NOT contain secrets.
 # Set all secrets via `wrangler secret put` (stored in Cloudflare dashboard).
