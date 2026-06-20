@@ -75,7 +75,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const bodyText = await request.text();
+    console.error("[Admin Login Raw Body]", bodyText, "| length:", bodyText.length, "| chars:", [...bodyText].map(c => c.charCodeAt(0).toString(16)).join(" "));
+    const body = JSON.parse(bodyText);
     const { email, password } = body;
 
     if (!email || !password) {
