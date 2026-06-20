@@ -78,4 +78,5 @@ backend/nul
 tracked.txt
 
 cookie*.txt
-token.txt
+cookie*.txt.signed
+token*.txt

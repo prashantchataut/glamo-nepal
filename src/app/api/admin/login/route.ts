@@ -75,9 +75,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const bodyText = await request.text();
-    console.error("[Admin Login Raw Body]", bodyText, "| length:", bodyText.length, "| chars:", [...bodyText].map(c => c.charCodeAt(0).toString(16)).join(" "));
-    const body = JSON.parse(bodyText);
+    const body = await request.json();
     const { email, password } = body;
 
     if (!email || !password) {
@@ -143,22 +141,7 @@ sameSite: "strict",
   } catch (error: any) {
     console.error("[Admin Login Error]", error?.message || error?.toString() || "Unknown error");
     console.error("[Admin Login Error Stack]", error?.stack || "No stack");
-    const msg = error?.message || error?.toString() || "Unknown error";
-    return NextResponse.json({ success: false, message: "Internal server error.", debug: msg }, { status: 500 });
-  }
-}
-
-export async function GET() {
-  const envCheck: Record<string, string> = {};
-  const vars = ["ADMIN_EMAIL", "ADMIN_PASSWORD", "ADMIN_PASSWORD_HASH", "ADMIN_NAME", "ADMIN_SESSION_SECRET", "AUTH_SECRET", "SUPER_ADMIN_EMAILS", "NODE_ENV"];
-  for (const v of vars) {
-    envCheck[v] = process.env[v] ? `SET (${process.env[v]!.length} chars)` : "NOT SET";
-  }
-  try {
-    const token = await createAdminSessionToken(process.env.ADMIN_EMAIL || "test@test.com", "Debug");
-    return NextResponse.json({ success: true, env: envCheck, tokenGenerated: true, tokenLength: token.length });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, env: envCheck, tokenError: e?.message || String(e) });
+    return NextResponse.json({ success: false, message: "Internal server error." }, { status: 500 });
   }
 }
 
