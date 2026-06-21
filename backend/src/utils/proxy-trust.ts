@@ -73,36 +73,33 @@ export async function verifyProxyTrust(
   headerValue: string | undefined | null,
   secret: string,
 ): Promise<VerifiedProxyTrust> {
-  if (!headerValue) return { ok: false, reason: "missing" };
-  if (!secret) return { ok: false, reason: "no_secret_configured" };
+  if (!headerValue) return { ok: false, payload: null, reason: "missing" };
+  if (!secret) return { ok: false, payload: null, reason: "no_secret_configured" };
 
   const dot = headerValue.lastIndexOf(".");
-  if (dot <= 0) return { ok: false, reason: "malformed" };
+  if (dot <= 0) return { ok: false, payload: null, reason: "malformed" };
 
   const encoded = headerValue.slice(0, dot);
   const signature = headerValue.slice(dot + 1);
-  if (!encoded || !signature) return { ok: false, reason: "malformed" };
+  if (!encoded || !signature) return { ok: false, payload: null, reason: "malformed" };
 
   try {
     const key = await importHmacKey(secret, ["verify"]);
     const sigBytes = base64UrlToBytes(signature);
     const valid = await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(encoded));
-    if (!valid) return { ok: false, reason: "bad_signature" };
+    if (!valid) return { ok: false, payload: null, reason: "bad_signature" };
 
     const payload = JSON.parse(base64UrlToString(encoded)) as ProxyTrustPayload;
-    if (payload.v !== 1) return { ok: false, reason: "bad_version" };
+    if (payload.v !== 1) return { ok: false, payload: null, reason: "bad_version" };
     if (typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) {
-      return { ok: false, reason: "expired" };
+      return { ok: false, payload: null, reason: "expired" };
     }
-    // email/role may be empty for CSRF-validated anonymous requests (customer
-    // checkout). The caller decides what privileges to grant; we only assert
-    // structural validity here.
     if (typeof payload.email !== "string" || typeof payload.role !== "string") {
-      return { ok: false, reason: "incomplete_payload" };
+      return { ok: false, payload: null, reason: "incomplete_payload" };
     }
 
     return { ok: true, payload };
   } catch {
-    return { ok: false, reason: "verify_failed" };
+    return { ok: false, payload: null, reason: "verify_failed" };
   }
 }
