@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import type { AppEnv } from '../types/bindings'
 import { getEnv } from '../utils/env'
+import { verifyProxyTrust, readProxyTrustSecret, PROXY_TRUST_HEADER } from '../utils/proxy-trust'
 
 const CSRF_COOKIE_NAME = 'glamo-csrf-token'
 const CSRF_HEADER_NAME = 'x-csrf-token'
@@ -39,6 +40,22 @@ export function csrfProtection() {
     if (CSRF_EXEMPT_PATHS.some((exempt) => path === exempt || path.startsWith(exempt + '/'))) {
       await next()
       return
+    }
+
+    // PROXY-TRUST BYPASS: when the Vercel edge proxy has validated CSRF
+    // locally and vouched for the identity via x-proxy-trust, the backend does
+    // not need to re-verify CSRF (which would require CSRF_SECRET to match
+    // across deployments — the exact drift that broke checkout). The trust
+    // header is HMAC-signed and short-lived, so a valid one proves the proxy
+    // already ran the CSRF check. Mutating admin/auth requests carrying it are
+    // safe to let through.
+    const trustSecret = readProxyTrustSecret({ env: c.env as unknown as Record<string, string | undefined> })
+    if (trustSecret) {
+      const trust = await verifyProxyTrust(c.req.header(PROXY_TRUST_HEADER), trustSecret)
+      if (trust.ok && trust.payload) {
+        await next()
+        return
+      }
     }
 
     const cookieHeader = c.req.header('cookie') || ''

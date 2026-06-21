@@ -2,6 +2,7 @@ import { createMiddleware } from 'hono/factory'
 import { jwtVerify, createRemoteJWKSet } from 'jose'
 import { getEnv } from '../utils/env'
 import type { AppEnv } from '../types/bindings'
+import { verifyProxyTrust, readProxyTrustSecret, PROXY_TRUST_HEADER } from '../utils/proxy-trust'
 
 function adminCookieNames(): string[] {
   return ['__Host-glamo-admin-session', 'glamo-admin-session']
@@ -92,6 +93,62 @@ function isOwner(c: Parameters<typeof authMiddleware>[0], email: string): boolea
 }
 
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
+  // PROXY-TRUST PATH (preferred): the Vercel edge proxy validates the admin
+  // cookie + CSRF locally with ITS OWN secrets, then vouches for the verified
+  // identity via a short-lived (30s) HMAC-signed header. This collapses the
+  // 3-synced-secrets requirement (ADMIN_SESSION_SECRET + CSRF_SECRET +
+  // AUTH_SECRET) to a single PROXY_TRUST_SECRET, and keeps admin auth working
+  // even when the cookie-signing secrets drift across deployments.
+  const trustSecret = readProxyTrustSecret({ env: c.env as unknown as Record<string, string | undefined> })
+  if (trustSecret) {
+    const trustHeader = c.req.header(PROXY_TRUST_HEADER)
+    const trust = await verifyProxyTrust(trustHeader, trustSecret)
+    if (trust.ok && trust.payload) {
+      // The proxy already verified the cookie, so the email is authenticated.
+      // Resolve the matching user row so admin_id audit logs point at a real
+      // user. If none exists yet (fresh admin before first login synced them),
+      // fall back to the super-admin bootstrap path below — never block a
+      // proxy-vouched admin solely because the row is missing.
+      const email = trust.payload.email
+      try {
+        const db = c.get('db')
+        const result = await db.execute({
+          sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL",
+          args: [email],
+        })
+        if (result.rows.length > 0) {
+          const profile = result.rows[0]
+          const isActive = profile.is_active
+          const role = trust.payload.role || (profile.role as string)
+          c.set('user', {
+            id: profile.id as string,
+            email,
+            role,
+            isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+          })
+          await next()
+          return
+        }
+      } catch {
+        // DB unavailable — fall through to super-admin check below.
+      }
+
+      // No user row, but the proxy vouched for a super-admin email → trust it.
+      // This mirrors the legacy cookie path's bootstrap behaviour.
+      if (isSuperAdmin(c, email)) {
+        const role = isOwner(c, email) ? 'OWNER' : 'SUPER_ADMIN'
+        c.set('user', {
+          id: `admin:${email}`,
+          email,
+          role,
+          isActive: true,
+        })
+        await next()
+        return
+      }
+    }
+  }
+
   const adminSession = getAdminSessionToken(c)
   if (adminSession) {
     const adminUser = await verifyAdminSession(c, adminSession)

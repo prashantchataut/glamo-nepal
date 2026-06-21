@@ -20,6 +20,11 @@ export interface CloudflareBindings {
   COD_FEE: string
   AUTH_SECRET: string
   ADMIN_SESSION_SECRET: string
+  // Single shared key for the Vercel proxy to vouch for admin identity. When
+  // set, the backend trusts a signed x-proxy-trust header instead of needing
+  // ADMIN_SESSION_SECRET/CSRF_SECRET to match across deployments. See
+  // src/utils/proxy-trust.ts.
+  PROXY_TRUST_SECRET?: string
   ADMIN_EMAIL: string
   ADMIN_NAME: string
   SUPER_ADMIN_EMAILS: string
