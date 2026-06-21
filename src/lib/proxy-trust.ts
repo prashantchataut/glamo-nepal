@@ -89,7 +89,12 @@ function bytesToBase64Url(bytes: Uint8Array): string {
 
 function base64UrlToBytes(value: string): Uint8Array {
   const padded = value.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
-  return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+  const binary = atob(padded);
+  // Allocate a fresh ArrayBuffer (not SharedArrayBuffer) so the result is
+  // assignable to BufferSource under TS 5.7+'s stricter lib types.
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 function base64UrlToString(value: string): string {
@@ -144,8 +149,10 @@ export async function verifyProxyTrust(headerValue: string | undefined | null, s
 
   try {
     const key = await importHmacKey(secret, ["verify"]);
+    // Pass the underlying ArrayBuffer directly (Uint8Array<ArrayBufferLike>
+    // is not assignable to BufferSource under TS 5.7+'s stricter lib types).
     const sigBytes = base64UrlToBytes(signature);
-    const valid = await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(encoded));
+    const valid = await crypto.subtle.verify("HMAC", key, sigBytes.buffer as ArrayBuffer, new TextEncoder().encode(encoded));
     if (!valid) return { ok: false, payload: null, reason: "bad_signature" };
 
     const payload = JSON.parse(base64UrlToString(encoded)) as ProxyTrustPayload;

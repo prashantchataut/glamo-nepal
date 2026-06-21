@@ -104,47 +104,55 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
     const trustHeader = c.req.header(PROXY_TRUST_HEADER)
     const trust = await verifyProxyTrust(trustHeader, trustSecret)
     if (trust.ok && trust.payload) {
-      // The proxy already verified the cookie, so the email is authenticated.
-      // Resolve the matching user row so admin_id audit logs point at a real
-      // user. If none exists yet (fresh admin before first login synced them),
-      // fall back to the super-admin bootstrap path below — never block a
-      // proxy-vouched admin solely because the row is missing.
       const email = trust.payload.email
-      try {
-        const db = c.get('db')
-        const result = await db.execute({
-          sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL",
-          args: [email],
-        })
-        if (result.rows.length > 0) {
-          const profile = result.rows[0]
-          const isActive = profile.is_active
-          const role = trust.payload.role || (profile.role as string)
+
+      // Anonymous vouch (empty email): the proxy validated CSRF but NOT
+      // identity. This is the customer-checkout case. Grant NO admin
+      // privileges — fall through to the legacy path below, which will
+      // require a Firebase token for customer endpoints and 401 otherwise.
+      // We must NEVER let an empty-email vouch satisfy an admin route.
+      if (email) {
+        // The proxy already verified the cookie, so the email is authenticated.
+        // Resolve the matching user row so admin_id audit logs point at a real
+        // user. If none exists yet (fresh admin before first login synced them),
+        // fall back to the super-admin bootstrap path below — never block a
+        // proxy-vouched admin solely because the row is missing.
+        try {
+          const db = c.get('db')
+          const result = await db.execute({
+            sql: "SELECT id, role, is_active FROM users WHERE email = ? AND deleted_at IS NULL",
+            args: [email],
+          })
+          if (result.rows.length > 0) {
+            const profile = result.rows[0]
+            const isActive = profile.is_active
+            const role = trust.payload.role || (profile.role as string)
+            c.set('user', {
+              id: profile.id as string,
+              email,
+              role,
+              isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+            })
+            await next()
+            return
+          }
+        } catch {
+          // DB unavailable — fall through to super-admin check below.
+        }
+
+        // No user row, but the proxy vouched for a super-admin email → trust it.
+        // This mirrors the legacy cookie path's bootstrap behaviour.
+        if (isSuperAdmin(c, email)) {
+          const role = isOwner(c, email) ? 'OWNER' : 'SUPER_ADMIN'
           c.set('user', {
-            id: profile.id as string,
+            id: `admin:${email}`,
             email,
             role,
-            isActive: typeof isActive === 'number' ? isActive === 1 : !!isActive,
+            isActive: true,
           })
           await next()
           return
         }
-      } catch {
-        // DB unavailable — fall through to super-admin check below.
-      }
-
-      // No user row, but the proxy vouched for a super-admin email → trust it.
-      // This mirrors the legacy cookie path's bootstrap behaviour.
-      if (isSuperAdmin(c, email)) {
-        const role = isOwner(c, email) ? 'OWNER' : 'SUPER_ADMIN'
-        c.set('user', {
-          id: `admin:${email}`,
-          email,
-          role,
-          isActive: true,
-        })
-        await next()
-        return
       }
     }
   }
