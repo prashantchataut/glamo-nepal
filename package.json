@@ -25,6 +25,7 @@
     "stores:check": "node scripts/check-store-contracts.mjs",
     "perf:source": "node scripts/check-performance-source.mjs",
     "test:smoke": "npm run smoke:routes && npm run stores:check",
+    "smoke:admin-secret": "node scripts/check-admin-session-secret.mjs",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:auth": "npx playwright test e2e/auth.spec.ts",

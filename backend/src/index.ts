@@ -88,6 +88,32 @@ app.get('/health', (c) => {
   })
 })
 
+// Diagnostic endpoint that reports whether the admin session signing secret is
+// configured — WITHOUT leaking the secret. The frontend (Vercel) signs the
+// glamo-admin-session cookie with ADMIN_SESSION_SECRET, the Worker verifies it
+// with the same key. If only one side sets it (or they hold different values),
+// every admin endpoint 401s and the panel shows "Failed to load X" everywhere.
+// `adminSecretReady: false` here is the smoking gun for that outage.
+// Intentionally non-public: only reports readiness, never the value.
+app.get('/health/admin-session', (c) => {
+  const adminSecret = (c.env?.ADMIN_SESSION_SECRET || (typeof process !== 'undefined' ? process.env.ADMIN_SESSION_SECRET : undefined) || '') as string
+  const authSecret = (c.env?.AUTH_SECRET || (typeof process !== 'undefined' ? process.env.AUTH_SECRET : undefined) || '') as string
+  const resolved = adminSecret || authSecret
+  return c.json({
+    success: true,
+    data: {
+      adminSecretSet: Boolean(adminSecret),
+      authSecretSet: Boolean(authSecret),
+      // True if the Worker can sign/verify admin cookies at all.
+      adminSecretReady: Boolean(resolved),
+      // Indicates which variable the Worker is actually using. If the frontend
+      // resolves a different one (e.g. frontend sets ADMIN_SESSION_SECRET but
+      // the Worker only has AUTH_SECRET), the HMAC will never match.
+      resolvedFrom: adminSecret ? 'ADMIN_SESSION_SECRET' : (authSecret ? 'AUTH_SECRET' : 'NONE'),
+    },
+  })
+})
+
 app.route('/api/v1/auth', authRoutes)
 app.route('/api/v1/account', accountRoutes)
 app.route('/api/v1/categories', categoryRoutes)

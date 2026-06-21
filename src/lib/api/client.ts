@@ -43,6 +43,37 @@ const STATUS_FALLBACKS: Record<number, { code: string; message: string }> = {
   500: { code: "SERVER_ERROR", message: "Something went wrong on our end. Please try again shortly." },
 };
 
+// Tracks whether we've already bounced the user to /admin/login for this
+// session. Without this guard, a dashboard firing 8 parallel admin requests
+// on a rejected cookie would trigger 8 redirects / race conditions.
+let adminSessionBounced = false;
+
+/**
+ * If an admin API call comes back 401, the admin session cookie is no longer
+ * valid (expired, or — the common root cause — ADMIN_SESSION_SECRET drifted
+ * between the frontend and the backend, so the backend cannot verify the
+ * cookie the frontend signed). Rather than leaving every section showing
+ * "Failed to load X", bounce to /admin/login once so the user can re-auth.
+ * Debounced via adminSessionBounced so 10 simultaneous 401s cause one redirect.
+ */
+function bounceAdminSessionIfAdminPath(path: string): void {
+  if (typeof window === "undefined") return;
+  if (adminSessionBounced) return;
+  // Admin paths are either /admin/* (dashboard, users, audit-logs...) or the
+  // admin-protected mutations on /products, /orders, /banners, /inventory,
+  // /team, /gallery, /popups, /coupons. Customer reads on those are public
+  // and never 401, so triggering on any of them is safe.
+  const isAdminPath = /^\/(admin|products|orders|banners|inventory|team|gallery|popups|coupons)\b/.test(path);
+  if (!isAdminPath) return;
+  adminSessionBounced = true;
+  // Allow the current error to surface its toast first, then redirect.
+  setTimeout(() => {
+    if (window.location.pathname.startsWith("/admin")) {
+      window.location.href = "/admin/login";
+    }
+  }, 400);
+}
+
 async function sendRequest(apiBaseUrl: string, path: string, init: RequestInit | undefined, token: string | null, csrfToken: string): Promise<Response> {
   const headers = new Headers(init?.headers);
   const isFormData = init?.body instanceof FormData;
@@ -95,6 +126,9 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<A
     if (fallback && (!rawPayload || error.code === "UNEXPECTED_API_RESPONSE")) {
       error.code = fallback.code;
       error.message = fallback.message;
+    }
+    if (response.status === 401) {
+      bounceAdminSessionIfAdminPath(path);
     }
     throw new GlamoApiError(error, response.status);
   }

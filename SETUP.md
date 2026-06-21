@@ -69,6 +69,36 @@ pnpm dev
 | `ESEWA_SECRET_KEY` | eSewa secret key | For payments |
 | `ESEWA_MERCHANT_CODE` | eSewa merchant code | For payments |
 
+> ### ⚠️ CRITICAL: `ADMIN_SESSION_SECRET` must be IDENTICAL on both sides
+>
+> The frontend (Vercel) signs the `glamo-admin-session` cookie with
+> `ADMIN_SESSION_SECRET`; the backend (Cloudflare Worker) verifies it with the
+> same key. If the two values differ — or one side only sets `AUTH_SECRET`
+> while the other sets `ADMIN_SESSION_SECRET` — **every admin endpoint returns
+> 401 and the entire admin panel shows "Failed to load X"** with no obvious
+> cause. Generate ONE value and set it on both:
+>
+> ```bash
+> # Generate once:
+> node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
+>
+> # Set the SAME value in both places:
+> cd backend && npx wrangler secret put ADMIN_SESSION_SECRET
+> vercel env add ADMIN_SESSION_SECRET production
+> ```
+>
+> After changing the secret, redeploy both and **re-login** at `/admin/login`
+> (the old cookie was signed with the previous key).
+>
+> Verify end-to-end after every deploy:
+> ```bash
+> ADMIN_SESSION_SECRET=<same-value> \
+> ADMIN_SMOKE_ORIGIN=https://www.glamonepal.com \
+> npm run smoke:admin-secret
+> ```
+> Or check the backend diagnostic: `GET /health/admin-session` returns
+> `adminSecretReady` and `resolvedFrom`.
+
 ### backend/.env
 
 | Variable | Purpose | Required? |
@@ -83,6 +113,10 @@ pnpm dev
 | `KHALTI_SECRET_KEY` | Khalti secret key | For payments |
 | `ESEWA_SECRET_KEY` | eSewa secret key | For payments |
 | `ESEWA_MERCHANT_CODE` | eSewa merchant code | For payments |
+| `ADMIN_SESSION_SECRET` | HMAC key to verify admin cookies — **must equal the frontend's value** | **Yes** |
+| `AUTH_SECRET` | Fallback if `ADMIN_SESSION_SECRET` unset — **must equal the frontend's value** | **Yes** |
+| `CSRF_SECRET` | HMAC key for CSRF tokens — must equal the frontend's value | **Yes** |
+| `ADMIN_EMAIL` / `ADMIN_NAME` / `SUPER_ADMIN_EMAILS` | Admin identity & role mapping | **Yes** |
 | `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:3000` |
 | `FREE_SHIPPING_THRESHOLD` | Free shipping threshold in paisa | `250000` (2500 NPR) |
 | `COD_FEE` | Cash on delivery fee in paisa | `5000` (50 NPR) |
