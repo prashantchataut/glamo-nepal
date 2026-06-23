@@ -10,6 +10,7 @@
     "start": "node --env-file=.env dist/server.js",
     "db:migrate": "tsx --env-file=.env src/scripts/migrate.ts",
     "db:seed": "tsx --env-file=.env src/scripts/seed.ts",
+    "db:seed-products": "tsx --env-file=.env src/scripts/seed-real-products.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "test": "vitest run",

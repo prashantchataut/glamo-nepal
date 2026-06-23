@@ -45,6 +45,16 @@ interface UserRow {
   created_at?: string;
 }
 
+// Customer "Name" column. Users created via Firebase sign-in frequently have
+// null first_name/last_name (the backend only captures email by default), so we
+// fall back to the email handle rather than rendering a broken empty cell.
+function displayCustomerName(row: Pick<UserRow, "first_name" | "last_name" | "email">): string {
+  const name = [row.first_name, row.last_name].map((s) => (s || "").trim()).filter(Boolean).join(" ");
+  if (name) return name;
+  if (row.email) return row.email.split("@")[0];
+  return "—";
+}
+
 export function CustomersView() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -96,7 +106,7 @@ export function CustomersView() {
       render: (row) => (
         <div>
           <p className="font-semibold text-brand-textPrimary">
-            {[row.first_name, row.last_name].filter(Boolean).join(" ") || "�"}
+            {displayCustomerName(row)}
           </p>
         </div>
       ),
@@ -175,7 +185,7 @@ export function CustomersView() {
           <h2 className="font-display text-2xl font-semibold">Customers</h2>
           <p className="mt-0.5 text-sm text-brand-textMuted">Manage user accounts, roles and status.</p>
         </div>
-        <SearchInput onSearch={setSearch} placeholder="Search by name or email�" className="w-full sm:max-w-xs" />
+        <SearchInput onSearch={setSearch} placeholder="Search by name or email…" className="w-full sm:max-w-xs" />
       </div>
 
       <div className="mt-5">

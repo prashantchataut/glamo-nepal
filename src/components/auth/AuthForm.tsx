@@ -137,6 +137,28 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           setError("An account with this email already exists.");
         } else if (code === "auth/weak-password") {
           setError("Password must be at least 8 characters with a letter, number, and special character.");
+        } else if (code === "auth/password-does-not-meet-requirements") {
+          // Firebase "Enhanced password policy" is enabled on this project. It
+          // can surface at BOTH registration (new password too weak) AND sign-in
+          // (a stored legacy password no longer meets the policy). Extract the
+          // human-readable missing requirement from the raw message instead of
+          // dumping "Firebase: Missing password requirements: [...] (auth/...)".
+          const raw = err.message || "";
+          const reqMatch = raw.match(/\[(.+?)\]/);
+          const requirement = reqMatch ? reqMatch[1].replace(/\.$/, "") : null;
+          if (mode === "register") {
+            setError(
+              requirement
+                ? `Password isn't strong enough — ${requirement}. Please update it and try again.`
+                : "Password doesn't meet the security requirements. Use 8+ characters with a letter, a number, and a special character."
+            );
+          } else {
+            setError(
+              requirement
+                ? `Your saved password no longer meets our security policy (${requirement}). Please reset it using "Forgot password?".`
+                : `Your saved password no longer meets our security policy. Please reset it using "Forgot password?".`
+            );
+          }
         } else if (code === "auth/invalid-email") {
           setError("Please enter a valid email address.");
         } else if (code === "auth/too-many-requests") {
@@ -146,7 +168,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         } else if (code === "auth/operation-not-allowed") {
           setError("Sign-in method is not enabled. Please contact support.");
         } else {
-          setError(`Sign-in failed: ${err.message || "Unknown error"}`);
+          // Strip the noisy "Firebase:" prefix and trailing "(auth/code)" so the
+          // user sees a clean sentence rather than an SDK error string.
+          const cleaned = (err.message || "Unknown error")
+            .replace(/^Firebase:\s*/i, "")
+            .replace(/\s*\(auth\/[^)]+\)\.?\s*$/i, "")
+            .trim();
+          setError(cleaned.charAt(0).toUpperCase() + cleaned.slice(1));
         }
       } else {
         setError("Something went wrong. Please try again.");
