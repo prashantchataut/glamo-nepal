@@ -64,7 +64,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
       await navigator.clipboard.writeText(order.orderNumber);
       toast.success("Order number copied");
     } catch {
-      toast.error("Could not copy • please select and copy manually");
+      toast.error("Could not copy � please select and copy manually");
     }
   }
 

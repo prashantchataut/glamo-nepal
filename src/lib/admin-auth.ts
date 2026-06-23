@@ -1,15 +1,6 @@
-/**
- * Canonical admin roles used across the whole stack (frontend cookie, proxy
- * trust header, backend requireRole gate, DB users.role). Everything normalizes
- * to these exact UPPERCASE strings — see normalizeAdminRole() below. The legacy
- * lowercase "admin" value is still accepted on read for backwards compatibility
- * with cookies minted before this normalization, but is never written anymore.
- */
-export type AdminRole = "OWNER" | "SUPER_ADMIN" | "ADMIN";
-
 export interface AdminSessionPayload {
   email: string;
-  role: AdminRole;
+  role: "admin";
   name: string;
   exp: number;
   jti: string;
@@ -23,25 +14,6 @@ export interface AdminSessionPayload {
 export const ADMIN_SESSION_COOKIE = "glamo-admin-session";
 export const LEGACY_ADMIN_SESSION_COOKIE = "__Host-glamo-admin-session";
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
-
-/**
- * Normalize any role spelling we have ever written (legacy lowercase "admin",
- * DB variants, env-derived values) into the canonical AdminRole set. Unknown
- * values default to "ADMIN" (least-privilege) rather than granting power.
- *
- * This is the single place that reconciles the role vocabulary mismatch that
- * previously caused SUPER_ADMIN-gated endpoints (coupons, banners, popups,
- * gallery, team) to 403 a logged-in admin: the cookie used to hardcode the
- * literal string "admin", which requireRole's ROLE_HIERARCHY did not recognize.
- */
-export function normalizeAdminRole(role: string | undefined | null): AdminRole {
-  const r = String(role ?? "").trim().toUpperCase();
-  if (r === "OWNER") return "OWNER";
-  if (r === "SUPER_ADMIN" || r === "SUPERADMIN") return "SUPER_ADMIN";
-  // "ADMIN" and the legacy lowercase "admin" both map to ADMIN.
-  if (r === "ADMIN") return "ADMIN";
-  return "ADMIN";
-}
 
 function getSecret() {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.AUTH_SECRET;
@@ -82,12 +54,12 @@ export function getAdminCredentials() {
   };
 }
 
-export async function createAdminSessionToken(email: string, name = "GLAMO Admin", role: AdminRole = "ADMIN") {
+export async function createAdminSessionToken(email: string, name = "GLAMO Admin") {
   const jti = crypto.randomUUID();
   const payload: AdminSessionPayload = {
     email,
     name,
-    role: normalizeAdminRole(role),
+    role: "admin",
     exp: Math.floor(Date.now() / 1000) + ADMIN_SESSION_MAX_AGE_SECONDS,
     jti,
   };
@@ -108,20 +80,10 @@ export async function verifyAdminSessionToken(token?: string | null): Promise<Ad
     const valid = await crypto.subtle.verify("HMAC", key, signatureBytes, encoder.encode(encodedPayload));
     if (!valid) return null;
 
-    const raw = JSON.parse(base64UrlToText(encodedPayload)) as Partial<AdminSessionPayload> & { role?: string };
-    // Reject tokens that don't look like admin sessions at all. Accept both the
-    // canonical UPPERCASE roles and the legacy lowercase "admin" value, then
-    // normalize so downstream code only ever sees the canonical set.
-    if (!raw.role) return null;
-    const role = normalizeAdminRole(raw.role);
-    if (!raw.exp || raw.exp < Math.floor(Date.now() / 1000)) return null;
-    return {
-      email: raw.email!,
-      name: raw.name ?? "GLAMO Admin",
-      role,
-      exp: raw.exp,
-      jti: raw.jti!,
-    };
+    const payload = JSON.parse(base64UrlToText(encodedPayload)) as AdminSessionPayload;
+    if (payload.role !== "admin") return null;
+    if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
   } catch {
     return null;
   }

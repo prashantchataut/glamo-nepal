@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminSessionToken, ADMIN_SESSION_COOKIE, normalizeAdminRole, type AdminRole } from "@/lib/admin-auth";
+import { createAdminSessionToken, ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 import { validateCsrf } from "@/lib/csrf";
 import { compare } from "bcryptjs";
 
@@ -146,15 +146,9 @@ export async function POST(request: NextRequest) {
     }
 
     const isOwner = superAdminEmails[0] === email.toLowerCase();
-    const role: AdminRole = isOwner
-      ? "OWNER"
-      : (superAdminEmails.includes(email.toLowerCase()) ? "SUPER_ADMIN" : "ADMIN");
+    const role = isOwner ? "OWNER" : (superAdminEmails.includes(email.toLowerCase()) ? "SUPER_ADMIN" : "admin");
 
-    // Bake the REAL role into the session token so SUPER_ADMIN/OWNER-gated
-    // backend routes (coupons, banners, popups, gallery, team, settings) accept
-    // the request. Previously createAdminSessionToken hard-coded "admin", which
-    // requireRole's hierarchy didn't recognize → 403 on every create.
-    const token = await createAdminSessionToken(email, adminName, normalizeAdminRole(role));
+    const token = await createAdminSessionToken(email, adminName);
 
     const response = NextResponse.json({
       success: true,

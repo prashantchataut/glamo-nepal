@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { adminApi, type AdminUserDetail } from "@/lib/api/admin";
-import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { useAdminStore } from "@/store/useAdminStore";
+import { useAdminData } from "@/lib/hooks/useAdminData";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, orderStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { Mail, Phone, Calendar, ShoppingBag, DollarSign, Clock, RefreshCw } from "lucide-react";
@@ -33,28 +31,6 @@ interface CustomerDetailModalProps {
   userId: string | null;
 }
 
-// The selectable staff/admin roles. OWNER is deliberately NOT offered here:
-// there must be exactly one owner (bootstrap from SUPER_ADMIN_EMAILS) and
-// letting an owner promote someone else to OWNER through this UI risks a
-// lockout or a privilege escalation we can't undo from the panel.
-const ROLE_OPTIONS = [
-  {
-    value: "CUSTOMER",
-    label: "Customer",
-    description: "Can shop and place orders. No admin access.",
-  },
-  {
-    value: "STAFF",
-    label: "Staff",
-    description: "Can manage orders and inventory. Cannot change settings, roles, coupons or marketing.",
-  },
-  {
-    value: "ADMIN",
-    label: "Admin",
-    description: "Full access to products, orders, marketing, banners, popups and analytics. Cannot manage other admins' roles.",
-  },
-] as const;
-
 export function CustomerDetailModal({ open, onOpenChange, userId }: CustomerDetailModalProps) {
   const fetchUser = useCallback(() => {
     if (!userId) return Promise.reject(new Error("No user ID"));
@@ -65,32 +41,6 @@ export function CustomerDetailModal({ open, onOpenChange, userId }: CustomerDeta
     fetchUser,
     { enabled: open && !!userId, deps: [userId] }
   );
-
-  const currentAdmin = useAdminStore((s) => s.adminUser);
-  const isOwner = (currentAdmin?.role ?? "").toUpperCase() === "OWNER";
-
-  // Role-change state. The selected role mirrors the loaded user's role until
-  // the admin picks a different one.
-  const [pendingRole, setPendingRole] = useState<string | null>(null);
-  const { mutate: updateRole, isLoading: isSavingRole } = useAdminMutation(
-    (vars: { id: string; role: string }) => adminApi.updateUserRole(vars.id, vars.role)
-  );
-
-  const effectiveRole = user?.role ?? "";
-  const selectedRole = pendingRole ?? effectiveRole;
-  const roleChanged = pendingRole !== null && pendingRole !== effectiveRole;
-
-  async function handleSaveRole() {
-    if (!user || !pendingRole) return;
-    try {
-      await updateRole({ id: user.id, role: pendingRole });
-      toast.success(`Role updated to ${ROLE_OPTIONS.find((r) => r.value === pendingRole)?.label ?? pendingRole}`);
-      setPendingRole(null);
-      refetch();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update role");
-    }
-  }
 
   const fullName = user
     ? [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email
@@ -175,75 +125,6 @@ export function CustomerDetailModal({ open, onOpenChange, userId }: CustomerDeta
                   {formatNPR(user.totalSpent ?? 0)}
                 </p>
               </div>
-            </div>
-
-            {/* Role & access — only an Owner can change roles (backend gates
-                PATCH /users/:id/role on OWNER). Staff/Admin see read-only. */}
-            <div>
-              <h4 className="font-display text-base font-semibold text-brand-textPrimary">
-                Role &amp; access
-              </h4>
-              {isOwner ? (
-                <div className="mt-3 space-y-2">
-                  {ROLE_OPTIONS.map((opt) => {
-                    const checked = selectedRole === opt.value;
-                    return (
-                      <label
-                        key={opt.value}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition ${
-                          checked
-                            ? "border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary/20"
-                            : "border-brand-border bg-white hover:bg-brand-bgLight/50"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="user-role"
-                          value={opt.value}
-                          checked={checked}
-                          onChange={() => setPendingRole(opt.value)}
-                          className="mt-1 h-4 w-4 accent-brand-primary"
-                        />
-                        <div>
-                          <p className="text-sm font-semibold text-brand-textPrimary">{opt.label}</p>
-                          <p className="text-xs text-brand-textMuted">{opt.description}</p>
-                        </div>
-                      </label>
-                    );
-                  })}
-                  {roleChanged && (
-                    <div className="flex items-center gap-3 pt-1">
-                      <button
-                        type="button"
-                        onClick={handleSaveRole}
-                        disabled={isSavingRole}
-                        className="inline-flex items-center justify-center rounded-full bg-brand-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-primary/90 disabled:opacity-60"
-                      >
-                        {isSavingRole ? "Saving…" : "Save role"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPendingRole(null)}
-                        disabled={isSavingRole}
-                        className="rounded-full px-4 py-2 text-sm font-medium text-brand-textMuted hover:bg-brand-bgLight"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                  {effectiveRole === "OWNER" && (
-                    <p className="text-xs text-amber-700">
-                      This is the store owner. Owner role is set by the SUPER_ADMIN_EMAILS env
-                      variable and can't be changed here.
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="mt-3 text-sm text-brand-textMuted">
-                  Only the store owner can change roles. Current role:{" "}
-                  <span className="font-semibold text-brand-textPrimary">{effectiveRole}</span>.
-                </p>
-              )}
             </div>
 
             {/* Recent Orders */}

@@ -3,27 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
-import { Bell, Check, CheckCheck, ShoppingCart, AlertTriangle, UserPlus, Info, Megaphone, PartyPopper, type LucideIcon } from "lucide-react";
+import { Bell, Check, CheckCheck } from "lucide-react";
 
-// Notification row as returned by the Hono/SQLite backend
-// (admin.service.ts → getNotifications). Column names follow the DB schema,
-// NOT the legacy Convex `_id`/`_creationTime`/`isRead` shape this component
-// used before — that mismatch is why notifications always looked empty/broken.
-interface NotificationRow {
-  id: string;
-  user_id?: string | null;
-  type: string; // INFO | SUCCESS | WARNING | ERROR | ORDER | PROMO
+interface NotificationData {
+  _id: string;
+  userId?: string;
+  type: string;
   title: string;
   message: string;
-  data?: string | null;
-  is_read: number; // SQLite boolean (0/1)
-  created_at: string; // ISO datetime string
-}
-
-function parseTimestamp(value: unknown): number {
-  if (!value) return Date.now();
-  const ms = new Date(String(value)).getTime();
-  return Number.isFinite(ms) ? ms : Date.now();
+  data?: string;
+  isRead: boolean;
+  _creationTime: number;
 }
 
 function formatTimeAgo(timestamp: number): string {
@@ -37,25 +27,19 @@ function formatTimeAgo(timestamp: number): string {
   return `${days}d ago`;
 }
 
-// Map the DB `type` enum to an icon + accent color. Replaces the old
-// TYPE_ICONS record that held literal "??" strings (the symbols the client
-// saw in the bell dropdown).
-const TYPE_META: Record<string, { icon: LucideIcon; color: string }> = {
-  ORDER: { icon: ShoppingCart, color: "text-blue-600" },
-  SUCCESS: { icon: PartyPopper, color: "text-emerald-600" },
-  WARNING: { icon: AlertTriangle, color: "text-amber-600" },
-  ERROR: { icon: AlertTriangle, color: "text-red-600" },
-  INFO: { icon: Info, color: "text-neutral-500" },
-  PROMO: { icon: Megaphone, color: "text-fuchsia-600" },
-  // Friendly alias for "new customer" notifications we emit locally.
-  USER: { icon: UserPlus, color: "text-indigo-600" },
+const TYPE_ICONS: Record<string, string> = {
+  order: "??",
+  stock: "??",
+  user: "??",
+  system: "??",
+  payment: "??",
 };
 
 export function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const { data: result, isLoading } = useAdminData(() => adminApi.getNotifications({ limit: 20 }));
+  const { data: result, isLoading: notifLoading } = useAdminData(() => adminApi.getNotifications({ limit: 20 }));
   const { mutate: markReadMutate } = useAdminMutation((vars: { id: string }) => adminApi.markNotificationRead(vars.id));
   const { mutate: markAllReadMutate } = useAdminMutation(() => adminApi.markAllNotificationsRead());
 
@@ -69,8 +53,9 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const notifications = ((result?.notifications ?? []) as unknown as NotificationRow[]);
+  const notifications = (result?.notifications ?? []) as unknown as NotificationData[];
   const unreadCount = result?.unreadCount ?? 0;
+  const isLoading = notifLoading;
 
   const handleMarkRead = async (id: string) => {
     await markReadMutate({ id });
@@ -85,7 +70,7 @@ export function NotificationDropdown() {
       <button
         onClick={() => setOpen(!open)}
         className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-textMuted transition hover:text-brand-primary shadow-sm"
-        aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
+        aria-label="Notifications"
       >
         <Bell size={16} />
         {unreadCount > 0 && (
@@ -118,40 +103,31 @@ export function NotificationDropdown() {
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-6 text-center text-sm text-brand-textMuted">
-                <Bell size={20} className="mx-auto mb-2 opacity-40" />
-                No notifications yet
+                No notifications
               </div>
             ) : (
-              notifications.map((n) => {
-                const isRead = Number(n.is_read) === 1;
-                const meta = TYPE_META[String(n.type ?? "").toUpperCase()] ?? TYPE_META.INFO;
-                const Icon = meta.icon;
-                const ts = parseTimestamp(n.created_at);
-                return (
-                  <div
-                    key={n.id}
-                    className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${isRead ? "opacity-60" : ""}`}
-                  >
-                    <span className={`mt-0.5 ${meta.color}`} aria-hidden="true">
-                      <Icon size={16} />
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-snug">{n.title}</p>
-                      <p className="mt-0.5 text-xs text-brand-textMuted line-clamp-2">{n.message}</p>
-                      <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(ts)}</p>
-                    </div>
-                    {!isRead && (
-                      <button
-                        onClick={() => handleMarkRead(n.id)}
-                        className="mt-1 shrink-0 text-brand-textMuted hover:text-brand-primary"
-                        aria-label="Mark as read"
-                      >
-                        <Check size={14} />
-                      </button>
-                    )}
+              notifications.map((n) => (
+                <div
+                  key={n._id}
+                  className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${n.isRead ? "opacity-60" : ""}`}
+                >
+                  <span className="mt-0.5 text-base">{TYPE_ICONS[n.type] ?? "??"}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-snug">{n.title}</p>
+                    <p className="mt-0.5 text-xs text-brand-textMuted line-clamp-2">{n.message}</p>
+                    <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(n._creationTime)}</p>
                   </div>
-                );
-              })
+                  {!n.isRead && (
+                    <button
+                      onClick={() => handleMarkRead(n._id)}
+                      className="mt-1 shrink-0 text-brand-textMuted hover:text-brand-primary"
+                      aria-label="Mark as read"
+                    >
+                      <Check size={14} />
+                    </button>
+                  )}
+                </div>
+              ))
             )}
           </div>
         </div>

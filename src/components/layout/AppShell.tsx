@@ -36,16 +36,6 @@ const CompareTray = dynamic(
     })),
   { ssr: false }
 );
-// Site-wide promotional popup. Mounted client-only; fetches the active popup
-// from /api/v1/popups/active and shows it as an overlay. This is what makes the
-// admin Popups manager visible to shoppers.
-const SitePopup = dynamic(
-  () =>
-    import("@/components/layout/SitePopup").then((m) => ({
-      default: m.SitePopup,
-    })),
-  { ssr: false }
-);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -75,7 +65,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <CartDrawer />
       <SearchModal />
       <CompareTray />
-      <SitePopup />
       <MobileBottomNav />
       <WhatsAppFloatingButton />
       <BackToTopButton />

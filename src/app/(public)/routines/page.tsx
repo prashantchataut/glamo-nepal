@@ -6,7 +6,7 @@ import { breadcrumbJsonLd, createMetadata } from "@/lib/seo";
 import { formatNPR } from "@/lib/utils";
 
 export const metadata = createMetadata({
-  title: "Beauty Routines • GLAMO NEPAL",
+  title: "Beauty Routines � GLAMO NEPAL",
   description: "Discover curated beauty routines at GLAMO NEPAL. Step-by-step skincare, haircare, and makeup bundles designed for Nepal's climate.",
   path: "/routines",
   keywords: ["beauty routines", "skincare routine Nepal", "GLAMO NEPAL", "beauty bundles"],

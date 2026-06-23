@@ -196,7 +196,7 @@ export function ProductsView() {
           )}
           <div>
             <p className="font-semibold text-brand-textPrimary">{product.name}</p>
-            <p className="text-xs text-brand-textMuted">{product.brand?.name ?? "—"}</p>
+            <p className="text-xs text-brand-textMuted">{product.brand?.name ?? "�"}</p>
           </div>
         </div>
       ),
@@ -204,12 +204,12 @@ export function ProductsView() {
     {
       key: "sku",
       header: "SKU",
-      render: (product) => <span className="font-mono text-xs">{product.sku ?? "—"}</span>,
+      render: (product) => <span className="font-mono text-xs">{product.sku ?? "�"}</span>,
     },
     {
       key: "category",
       header: "Category",
-      render: (product) => <span className="capitalize">{product.category?.name ?? "—"}</span>,
+      render: (product) => <span className="capitalize">{product.category?.name ?? "�"}</span>,
     },
     {
       key: "price",
