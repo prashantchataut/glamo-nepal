@@ -2,6 +2,7 @@ import type { Client, InValue } from '@libsql/client'
 import type { CloudflareBindings } from '../../types/bindings'
 import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, fromSqliteBool, toSqliteBool, withTransaction } from '../../utils/turso-helpers'
 import { createAuditLog } from '../../utils/audit'
+import { createNotification } from '../../utils/notifications'
 import { generateOrderNumber } from '../../utils/orderNumber'
 import { toDisplayPrice, toStoredPrice } from '../../utils/price'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
@@ -487,6 +488,51 @@ await tx.execute({
       }
     } catch (err) {
       console.error('Failed to send order confirmation email:', err)
+    }
+  }
+
+  // Best-effort admin notification. Broadcast (user_id = NULL) so every admin /
+  // owner sees the new-order alert in the bell dropdown. Non-fatal on failure.
+  const customerName = order.customer?.name || order.customer?.email || 'a customer'
+  await createNotification(db, {
+    type: 'ORDER',
+    title: `New order ${order.orderNumber}`,
+    message: `${customerName} placed an order for NPR ${Math.round(order.totalAmount).toLocaleString('en-US')} (${order.paymentMethod}).`,
+    data: { orderId: order.id, orderNumber: order.orderNumber, totalAmount: order.totalAmount },
+  })
+
+  // Low / out-of-stock alerts for the products that were just sold. We check
+  // post-commit against the live DB (the transaction already decremented stock)
+  // so we observe the real remaining quantity. Only products flagged as
+  // inventory-tracked with stock at or below their threshold fire an alert, and
+  // only once per product per order. Best-effort, never blocks the response.
+  const soldProductIds = Array.from(new Set(order.items.map((i) => i.productId).filter(Boolean))) as string[]
+  if (soldProductIds.length > 0) {
+    try {
+      const placeholders = soldProductIds.map(() => '?').join(',')
+      const stockResult = await db.execute({
+        sql: `SELECT id, name, sku, stock_quantity, low_stock_threshold
+              FROM products WHERE is_active = 1 AND track_inventory = 1 AND id IN (${placeholders})`,
+        args: soldProductIds,
+      })
+      for (const row of stockResult.rows as any[]) {
+        const stock = Number(row.stock_quantity ?? 0)
+        const threshold = Number(row.low_stock_threshold ?? 5)
+        if (stock <= threshold) {
+          const productName = String(row.name ?? 'a product')
+          const outOfStock = stock <= 0
+          await createNotification(db, {
+            type: 'WARNING',
+            title: outOfStock ? 'Out of stock' : 'Low stock',
+            message: outOfStock
+              ? `${productName} is now out of stock. Reorder to avoid lost sales.`
+              : `${productName} is running low (${stock} left, reorder at ${threshold}).`,
+            data: { productId: row.id, sku: row.sku ?? null, stock, threshold },
+          })
+        }
+      }
+    } catch (err) {
+      console.error('Failed to evaluate low-stock notifications:', err)
     }
   }
 

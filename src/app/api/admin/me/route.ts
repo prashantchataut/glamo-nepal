@@ -1,15 +1,21 @@
 import { NextResponse } from "next/server";
-import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE, LEGACY_ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
+import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE, LEGACY_ADMIN_SESSION_COOKIE, normalizeAdminRole } from "@/lib/admin-auth";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-function resolveRole(email: string): string {
+/**
+ * Derive the canonical role from the SUPER_ADMIN_EMAILS env list. The first
+ * listed address is OWNER; the rest are SUPER_ADMIN; everyone else who logged
+ * in successfully is at least ADMIN. Always returns a normalized AdminRole so
+ * the UI and backend agree on the vocabulary.
+ */
+function resolveRole(email: string): ReturnType<typeof normalizeAdminRole> {
   const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || process.env.ADMIN_EMAIL || "")
     .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
   if (superAdminEmails[0] === email.toLowerCase()) return "OWNER";
   if (superAdminEmails.includes(email.toLowerCase())) return "SUPER_ADMIN";
-  return "admin";
+  return "ADMIN";
 }
 
 async function getSessionCookie(request: Request): Promise<string | undefined> {

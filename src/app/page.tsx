@@ -4,6 +4,7 @@ import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { BrandPhilosophyBanner } from "@/components/home/BrandPhilosophyBanner";
 import { BrandShowcase } from "@/components/home/BrandShowcase";
 import { BestSellers } from "@/components/home/BestSellers";
+import { AdminBanners } from "@/components/home/AdminBanners";
 import { EditorialStrip } from "@/components/home/EditorialStrip";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { LazySection } from "@/components/common/LazySection";
@@ -36,6 +37,7 @@ export default function HomePage() {
       <LazySection>
         <BestSellers />
       </LazySection>
+      <AdminBanners />
       <LazySection>
         <EditorialStrip />
       </LazySection>

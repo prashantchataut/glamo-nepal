@@ -1,5 +1,6 @@
 import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertSingle, fromSqliteBool } from '../../utils/turso-helpers'
+import { createNotification } from '../../utils/notifications'
 
 function formatUser(row: Record<string, unknown>) {
   return {
@@ -15,6 +16,57 @@ function formatUser(row: Record<string, unknown>) {
     phoneVerified: fromSqliteBool(row.phone_verified as number),
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+  }
+}
+
+/**
+ * Backfill first_name/last_name on an existing user row when the /auth/sync
+ * request provides them but the stored values are empty. This is what makes the
+ * customer's name actually appear in the admin Customers list for users who:
+ *   - placed a guest order first (row created with a placeholder name), or
+ *   - synced earlier without a name (older client build).
+ *
+ * `targetId` lets the caller override which row to update (used when we just
+ * re-pointed an email-matched row's id to the Firebase uid). It defaults to the
+ * row's own id. Only fills empty columns — never clobbers a deliberately-set
+ * name. Mutates `row` in place so the caller's cached row reflects the change.
+ */
+async function backfillNameIfMissing(
+  row: Record<string, unknown>,
+  params: { firstName?: string; lastName?: string },
+  db: Client,
+  targetId?: string,
+): Promise<void> {
+  const id = (targetId ?? (row.id as string)) as string
+  const currentFirst = (row.first_name as string | null) ?? ''
+  const currentLast = (row.last_name as string | null) ?? ''
+  const newFirst = (params.firstName ?? '').trim()
+  const newLast = (params.lastName ?? '').trim()
+
+  const sets: string[] = []
+  const args: InValue[] = []
+  if (!currentFirst && newFirst) {
+    sets.push('first_name = ?')
+    args.push(newFirst)
+    row.first_name = newFirst
+  }
+  if (!currentLast && newLast) {
+    sets.push('last_name = ?')
+    args.push(newLast)
+    row.last_name = newLast
+  }
+  if (sets.length === 0) return
+
+  sets.push("updated_at = datetime('now')")
+  args.push(id)
+  try {
+    await db.execute({
+      sql: `UPDATE users SET ${sets.join(', ')} WHERE id = ?`,
+      args,
+    })
+  } catch {
+    // Non-fatal: the name backfill is best-effort. The row already exists and
+    // is usable; we just couldn't enrich it this time.
   }
 }
 
@@ -47,6 +99,16 @@ export async function register(
     })
 
     const user = assertSingle(result.rows, 'User')
+
+    // Best-effort admin notification that a new customer signed up.
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ')
+    await createNotification(db, {
+      type: 'INFO',
+      title: 'New customer registered',
+      message: `${fullName || (user.email as string).split('@')[0]} just created an account.`,
+      data: { userId: user.id as string, email: user.email as string },
+    })
+
     return { user: formatUser(user) }
   } catch (error: any) {
     if (error?.message?.includes('UNIQUE constraint')) {
@@ -82,7 +144,23 @@ export async function findOrCreateUser(
   })
 
   if (existingById.rows.length > 0) {
-    return formatUser(existingById.rows[0])
+    const user = existingById.rows[0]
+    // Backfill missing name fields if the sync provided them. This is the fix
+    // for "customer name doesn't show in admin": a row often already exists
+    // (created by guest checkout with a placeholder/guest name, or by an earlier
+    // sync that didn't carry a name), and we were returning it as-is — leaving
+    // first_name/last_name null forever. Only fill when currently empty so we
+    // never overwrite a name the customer deliberately set later.
+    await backfillNameIfMissing(user, params, db)
+    if ((user as any).id === params.uid) {
+      return formatUser(user)
+    }
+    // id differs (rare) — re-read to return the post-backfill row.
+    const reread = await db.execute({
+      sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
+      args: [params.uid],
+    })
+    return formatUser(reread.rows[0])
   }
 
   const existingByEmail = await db.execute({
@@ -100,6 +178,8 @@ export async function findOrCreateUser(
       sql: `UPDATE users SET id = ?, updated_at = datetime('now') WHERE id = ? AND deleted_at IS NULL`,
       args: [params.uid, (user as any).id],
     })
+    // Backfill name on the email-matched row too (same reasoning as above).
+    await backfillNameIfMissing(user, params, db, params.uid)
     const updated = await db.execute({
       sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
       args: [params.uid],

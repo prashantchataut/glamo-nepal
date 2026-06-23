@@ -969,51 +969,60 @@ export function getDeliveryRule(district: District, province: Province): Distric
 // The backend recomputes the fee server-side on order placement and rejects the
 // order ("Delivery fee mismatch — please refresh and try again") if the client's
 // value differs by more than NPR 5. Keep these tables in sync with the backend.
+//
+// The backend stores fees as a flat Record<districtName, fee> keyed by the
+// human-readable district name (e.g. "Kathmandu", "Rukum West"). The lookup is
+// case-INSENSITIVE on the district, and the province is looked up case-SENSITIVELY
+// (falling back to 150 on a miss). We mirror that exact behaviour to stay within
+// tolerance, so the frontend MUST use the same flat structure.
 export const DELIVERY_FREE_THRESHOLD = 2500;
 
-const DISTRICT_DELIVERY_FEES_CLIENT_LOWER: Map<string, number> = new Map<string, number>([
+// IMPORTANT: keep these values identical to DISTRICT_DELIVERY_FEES /
+// PROVINCE_DEFAULTS in backend/src/utils/delivery.ts. The keys are the canonical
+// district / province names and are compared case-insensitively.
+const DISTRICT_DELIVERY_FEES_CLIENT: Record<string, number> = {
   // Bagmati (valley + near)
-  ["kathmandu__bagmati", 0], ["lalitpur__bagmati", 0], ["bhaktapur__bagmati", 50],
-  ["kavrepalanchok__bagmati", 100], ["dhading__bagmati", 120], ["chitwan__bagmati", 100],
-  ["makwanpur__bagmati", 120], ["sindhupalchok__bagmati", 150], ["nuwakot__bagmati", 150],
-  ["rasuwa__bagmati", 200], ["ramechhap__bagmati", 200], ["sindhuli__bagmati", 200],
-  ["dolakha__bagmati", 250],
+  "Kathmandu": 0, "Lalitpur": 0, "Bhaktapur": 50,
+  "Kavrepalanchok": 100, "Dhading": 120, "Chitwan": 100,
+  "Makwanpur": 120, "Sindhupalchok": 150, "Nuwakot": 150,
+  "Rasuwa": 200, "Ramechhap": 200, "Sindhuli": 200,
+  "Dolakha": 250,
   // Gandaki
-  ["kaski__gandaki", 100], ["tanahu__gandaki", 120], ["syangja__gandaki", 150],
-  ["gorkha__gandaki", 150], ["lamjung__gandaki", 150], ["nawalpur__gandaki", 120],
-  ["parbat__gandaki", 150], ["baglung__gandaki", 150], ["myagdi__gandaki", 200],
-  ["mustang__gandaki", 300], ["manang__gandaki", 300],
+  "Kaski": 100, "Tanahu": 120, "Syangja": 150,
+  "Gorkha": 150, "Lamjung": 150, "Nawalpur": 120,
+  "Parbat": 150, "Baglung": 150, "Myagdi": 200,
+  "Mustang": 300, "Manang": 300,
   // Lumbini
-  ["rupandehi__lumbini", 100], ["kapilvastu__lumbini", 120], ["palpa__lumbini", 150],
-  ["arghakhanchi__lumbini", 150], ["gulmi__lumbini", 150], ["pyuthan__lumbini", 200],
-  ["rolpa__lumbini", 200], ["dang__lumbini", 150], ["banke__lumbini", 150],
-  ["bardiya__lumbini", 150], ["parasi__lumbini", 120],
+  "Rupandehi": 100, "Kapilvastu": 120, "Palpa": 150,
+  "Arghakhanchi": 150, "Gulmi": 150, "Pyuthan": 200,
+  "Rolpa": 200, "Dang": 150, "Banke": 150,
+  "Bardiya": 150, "Parasi": 120,
   // Koshi
-  ["jhapa__koshi", 150], ["morang__koshi", 150], ["sunsari__koshi", 150],
-  ["ilam__koshi", 200], ["panchthar__koshi", 200], ["taplejung__koshi", 250],
-  ["bhojpur__koshi", 250], ["dhankuta__koshi", 250], ["terhathum__koshi", 250],
-  ["sankhuwasabha__koshi", 300], ["solukhumbu__koshi", 300], ["okhaldhunga__koshi", 250],
-  ["khotang__koshi", 250], ["udayapur__koshi", 200],
+  "Jhapa": 150, "Morang": 150, "Sunsari": 150,
+  "Ilam": 200, "Panchthar": 200, "Taplejung": 250,
+  "Bhojpur": 250, "Dhankuta": 250, "Terhathum": 250,
+  "Sankhuwasabha": 300, "Solukhumbu": 300, "Okhaldhunga": 250,
+  "Khotang": 250, "Udayapur": 200,
   // Madhesh
-  ["saptari__madhesh", 150], ["siraha__madhesh", 150], ["dhanusha__madhesh", 150],
-  ["mahottari__madhesh", 150], ["sarlahi__madhesh", 150], ["rautahat__madhesh", 150],
-  ["bara__madhesh", 150], ["parsa__madhesh", 150],
+  "Saptari": 150, "Siraha": 150, "Dhanusha": 150,
+  "Mahottari": 150, "Sarlahi": 150, "Rautahat": 150,
+  "Bara": 150, "Parsa": 150,
   // Karnali
-  ["surkhet__karnali", 200], ["kalikot__karnali", 300], ["jumla__karnali", 300],
-  ["mugu__karnali", 350], ["humla__karnali", 350], ["dolpa__karnali", 350],
-  ["dailekh__karnali", 250], ["jajarkot__karnali", 250], ["rukum west__karnali", 250],
-  ["salyan__karnali", 250], ["rukum east__karnali", 250], ["bajura__karnali", 300],
-  ["bajhang__karnali", 300], ["darchula__karnali", 300],
+  "Surkhet": 200, "Kalikot": 300, "Jumla": 300,
+  "Mugu": 350, "Humla": 350, "Dolpa": 350,
+  "Dailekh": 250, "Jajarkot": 250, "Rukum West": 250,
+  "Salyan": 250, "Rukum East": 250, "Bajura": 300,
+  "Bajhang": 300, "Darchula": 300,
   // Sudurpashchim
-  ["kailali__sudurpashchim", 200], ["kanchanpur__sudurpashchim", 200],
-  ["achham__sudurpashchim", 250], ["doti__sudurpashchim", 250],
-  ["dadeldhura__sudurpashchim", 300], ["baitadi__sudurpashchim", 250],
-]);
+  "Kailali": 200, "Kanchanpur": 200,
+  "Achham": 250, "Doti": 250,
+  "Dadeldhura": 300, "Baitadi": 250,
+};
 
-const PROVINCE_DEFAULTS_CLIENT_LOWER: Map<string, number> = new Map<string, number>([
-  ["koshi", 200], ["madhesh", 150], ["bagmati", 100], ["gandaki", 150],
-  ["lumbini", 120], ["karnali", 300], ["sudurpashchim", 250],
-]);
+const PROVINCE_DEFAULTS_CLIENT: Record<string, number> = {
+  "Koshi": 200, "Madhesh": 150, "Bagmati": 100, "Gandaki": 150,
+  "Lumbini": 120, "Karnali": 300, "Sudurpashchim": 250,
+};
 
 export function calculateDeliveryFee(subtotal: number, district: District, province: Province): number {
   // IMPORTANT: This MUST mirror backend/src/utils/delivery.ts `calculateDeliveryFee`
