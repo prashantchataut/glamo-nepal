@@ -1,0 +1,910 @@
+Build the admin panel as a daily operating system for the beauty business, not as a technical backend. The owner should be able to answer these questions within 30 seconds:
+
+“What needs my attention today?”
+“What products need action?”
+“What orders, customers, returns, or complaints are pending?”
+“What is selling, what is not, and what should I restock or promote?”
+
+Major ecommerce platforms organize admin operations around products, inventory, orders, analytics, customers, and settings; for example, Shopify’s admin separates product catalog management, inventory tracking, order management, and analytics into dedicated operational areas. For a beauty retailer, you should extend that foundation with beauty-specific controls: shade variants, ingredient data, skin concerns, batch/expiry tracking, returns hygiene, claims substantiation, reviews with skin-type context, and adverse-event handling where applicable.
+
+1. Core administrative functions
+A. Dashboard / control center
+
+The first screen should not be a generic analytics page. It should be a business action dashboard.
+
+Include:
+
+Area	What the owner should see
+Sales snapshot	Today, yesterday, week/month, revenue, order count, average order value
+Fulfillment status	Orders to pack, orders delayed, failed payments, high-risk orders
+Inventory alerts	Low stock, out of stock, fast-moving items, expiry-risk products
+Customer issues	Pending support tickets, return requests, refund requests, complaints
+Marketing performance	Active promotions, abandoned carts, coupon usage, email/SMS campaign results
+Beauty-specific alerts	Shade return spikes, allergic reaction complaints, expired/near-expiry batches, products missing INCI/ingredients, products missing shade swatches
+
+A good dashboard should show regularly updated information that users must monitor and help them act quickly, not just display charts. NN/g defines dashboards as single-page views for at-a-glance information that users can act on quickly.
+
+Practical recommendation: every dashboard card should have an action button, for example: “Restock now,” “Review return,” “Fix missing product info,” “Contact customer,” “Create promotion.”
+
+B. Product catalog and beauty-specific PIM
+
+This is one of the most critical modules. Beauty products have more complex attributes than many ecommerce categories because shoppers compare by shade, skin type, ingredients, finish, concern, fragrance, texture, claims, size, and routine step.
+
+Include a strong product information management area with:
+
+Basic product fields
+Product name
+Brand
+Category: skincare, makeup, haircare, fragrance, tools, body care, wellness, etc.
+Product type: cleanser, serum, foundation, lipstick, shampoo, perfume, sunscreen, etc.
+Short description
+Long description
+Usage instructions
+Benefits
+Product images
+Video/tutorial media
+SEO title and meta description
+Status: draft, active, archived, hidden
+Sales channels: website, marketplace, retail/POS, social commerce
+Beauty-specific product fields
+Beauty field	Why it matters
+Skin type	Dry, oily, combination, sensitive, mature, acne-prone
+Skin concern	Acne, dark spots, redness, aging, dullness, dryness
+Hair type	Curly, coily, straight, fine, thick, color-treated
+Shade	Essential for complexion, lip, eye, brow, and hair-color products
+Undertone	Cool, warm, neutral, olive
+Finish	Matte, dewy, satin, shimmer, glossy
+Coverage	Sheer, medium, full
+Fragrance family	Floral, woody, citrus, gourmand, fresh
+Ingredients / INCI	Critical for trust, filtering, allergies, and compliance
+Allergen warnings	Helps customer safety and service handling
+Claims	Vegan, cruelty-free, clean, dermatologist-tested, non-comedogenic, SPF, pregnancy-safe, etc.
+Certification evidence	Upload documents supporting claims
+Usage warnings	Patch test, avoid eyes, external use only, sun exposure warnings
+Expiry / PAO	Especially useful for skincare, sunscreen, mascara, and natural products
+
+For product variants, support shade, size, scent, bundle, finish, and refill options. BigCommerce’s product model, for example, distinguishes product variations, variant options, product images, videos, and reviews, which reflects the complexity that mature ecommerce catalogs need.
+
+Practical recommendation: create product templates by beauty category. A foundation product should automatically ask for shade, undertone, coverage, and finish. A serum should ask for active ingredients, skin concern, skin type, usage frequency, and warnings. A fragrance should ask for size, concentration, notes, and fragrance family.
+
+C. Inventory, purchasing, batch, and expiry control
+
+Inventory is especially important in beauty because products can expire, leak, break, be shade-specific, or become unsellable after return.
+
+Include:
+Stock by SKU and variant
+Stock by location or warehouse
+Low-stock alerts
+Reorder points
+Supplier/vendor records
+Purchase orders
+Incoming stock tracking
+Stock adjustments with reason codes
+Barcode/SKU scanning
+Bundle stock logic
+Sample stock tracking
+Tester stock if also used in physical retail
+Expiry date tracking
+Batch/lot tracking
+First-expiry-first-out recommendation
+Quarantine status for damaged, returned, recalled, or suspicious stock
+“Do not sell after” dates
+Recall lookup by batch
+
+Shopify’s inventory setup includes inventory tracking, out-of-stock settings, bin locations, and inventory quantity imports, which are baseline capabilities an ecommerce admin should support.
+
+Beauty-specific recommendation: add an “Expiry & Batch Risk” view showing products expiring in the next 30, 60, and 90 days. This lets the owner run controlled promotions before stock becomes unsellable.
+
+D. Order management and fulfillment
+
+The admin panel should make order handling simple, status-driven, and hard to misunderstand.
+
+Include:
+
+New orders
+Paid / unpaid / partially paid statuses
+Fraud or risk flags
+Address validation
+Pick, pack, ship workflow
+Packing slips
+Shipping label generation
+Tracking number updates
+Partial fulfillment
+Local pickup or delivery options
+Order editing
+Payment capture
+Refunds
+Cancellations
+Returns and exchanges
+Customer communication history
+Internal order notes
+
+Shopify’s order management includes viewing and tracking orders, processing payments, editing orders, returns, refunds, cancellations, address validation, and fraud protection, which is a useful benchmark for core admin expectations.
+
+Beauty-specific recommendation: add return reason codes such as wrong shade, allergic reaction, damaged item, leaked product, changed mind, duplicate order, expired item, irritation, scent disliked, color not as expected. These reasons should feed into product-quality reports.
+
+E. Returns, refunds, exchanges, and complaints
+
+Beauty returns need stricter handling than many categories because opened products are often not resellable.
+
+Include:
+
+Return request approval workflow
+Return eligibility rules by category
+Opened/unopened status
+Hygiene status
+Refund, exchange, or store credit options
+Photo upload for damaged/leaking items
+Return shipping label generation
+Restocking decision: return to stock, quarantine, dispose, inspect
+Refund calculation
+Staff notes
+Customer-facing return status
+Complaint escalation
+Adverse-event workflow where applicable
+
+Practical beauty recommendation: do not treat all returns the same. The admin should force staff to select whether the item is sealed, opened, damaged, expired, used, or unsafe to resell before inventory is updated.
+
+For the US market, MoCRA requires a “responsible person” to report serious adverse events associated with cosmetic products to FDA within 15 business days and include a copy of the product label, so a beauty admin should have a way to record, escalate, and export serious complaints where applicable.
+
+F. Customer management and CRM
+
+Include:
+
+Customer profile
+Order history
+Refund and return history
+Support history
+Loyalty status
+Product preferences
+Shade match history
+Skin type or hair type preferences, only with proper consent
+Allergies or sensitivities, only if necessary and handled carefully
+Marketing consent
+Email/SMS subscription status
+Customer segments
+VIP tagging
+Manual notes
+Customer lifetime value
+Last purchase date
+Recommended replenishment timing
+
+For EU customers, GDPR sets requirements for collecting, storing, and managing personal data, and it applies to EU organizations as well as non-EU organizations targeting people in the EU. It also treats health data as a special category except in specific cases, so beauty retailers should be cautious when storing allergy, sensitivity, skin-condition, or health-adjacent information.
+
+Practical recommendation: use neutral preference fields like “skin concern preference” or “avoid these ingredients” rather than collecting unnecessary medical information.
+
+G. Promotions, campaigns, and merchandising
+
+Beauty retail relies heavily on promotions, launches, seasonal campaigns, bundles, samples, and loyalty.
+
+Include:
+
+Discount codes
+Automatic discounts
+Gift with purchase
+Buy X get Y
+Free shipping thresholds
+Bundle builder
+Routine kits
+Sample selection rules
+Loyalty points
+Referral codes
+Product launch waitlists
+Back-in-stock notifications
+Abandoned cart campaigns
+New customer offers
+VIP/customer segment offers
+Birthday rewards
+Campaign calendar
+Homepage banner scheduling
+Collection page merchandising
+Cross-sells and upsells
+“Complete the routine” recommendations
+
+Beauty-specific examples:
+
+“Buy serum + moisturizer, get cleanser sample.”
+“Foundation launch: sort shades by undertone.”
+“Skincare routine kit: cleanser, toner, serum, moisturizer, SPF.”
+“Fragrance discovery set with coupon toward full size.”
+“Lip combo bundle: liner + lipstick + gloss.”
+
+Baymard’s health and beauty ecommerce research covers large-scale UX testing and benchmarking across leading beauty sites, and its product-list/filtering research emphasizes how customers scan, evaluate, filter, and sort product lists. That means the admin should let business owners control the customer-facing filters, product sorting, collection logic, and merchandising rules without needing a developer.
+
+H. Reviews, Q&A, and user-generated content
+
+Beauty shoppers rely heavily on reviews, photos, shade references, skin-type context, and before/after content.
+
+Include:
+
+Review moderation
+Photo/video review approval
+Q&A moderation
+Review tagging by skin type, shade, age range, hair type, or concern
+Verified buyer badge
+Review request automation
+Low-rating alert
+Product issue detection from reviews
+Before/after image moderation
+Ability to feature helpful reviews
+Ability to hide reviews only according to a transparent moderation policy
+
+Beauty-specific recommendation: let customers filter reviews by skin type, shade, undertone, age range, hair type, and concern. In the admin, show review patterns like “many users with oily skin report pilling” or “shade 230 is often returned as too orange.”
+
+I. Content management
+
+Non-technical owners should be able to change content without editing code.
+
+Include:
+
+Homepage sections
+Banners
+Promotional landing pages
+Blog/articles
+FAQ
+Shipping policy
+Return policy
+Privacy policy
+Ingredient glossary
+Routine guides
+Brand pages
+Category landing pages
+SEO metadata
+Media library
+Before/after gallery moderation
+Scheduled publishing
+Preview before publishing
+Version history
+
+Beauty-specific content areas:
+
+“How to build a skincare routine”
+“How to choose foundation undertone”
+“Ingredient glossary”
+“Fragrance notes explained”
+“Hair porosity guide”
+“Sensitive skin guide”
+“Clean beauty policy”
+“Cruelty-free or vegan explanation page”
+J. Analytics and reporting
+
+The owner needs a small number of decision-ready metrics, not overwhelming data.
+
+Include:
+
+Daily metrics
+Revenue
+Orders
+Average order value
+Conversion rate
+Gross margin
+Refunds
+Return rate
+Orders to fulfill
+Low-stock products
+Out-of-stock products
+Customer complaints
+Product metrics
+Best sellers
+Slow movers
+High-return products
+High-margin products
+Low-margin products
+Products frequently bought together
+Shade-level performance
+Variant-level stockout rate
+Products with high add-to-cart but low purchase
+Products with poor reviews
+Products missing required data
+Beauty-specific metrics
+Shade return rate
+Skin concern demand
+Ingredient search trends
+Expiring stock value
+Batch complaints
+Sample conversion rate
+Routine-kit performance
+Gift-with-purchase profitability
+Repeat purchase timing by category
+Replenishment interval for skincare/haircare
+Fragrance discovery-set conversion
+
+Shopify’s analytics dashboard and reports are designed to review recent activity, visitor behavior, web performance, transactions, best-converting landing pages, and products bought together, which are good baseline reporting concepts for this admin.
+
+K. Compliance, security, and risk controls
+
+Include:
+
+Role-based permissions
+Two-factor authentication
+Staff activity log
+Approval workflow for high-risk changes
+Audit history for product, price, inventory, and refund changes
+Secure payment provider integration
+PCI-aware payment handling
+GDPR/privacy tools where applicable
+Consent management
+Data export and deletion workflows
+Product claim evidence storage
+Ingredient and label records
+Batch/lot records
+Adverse-event complaint log
+Product recall support
+Tax and invoice records
+Market-specific compliance fields
+
+PCI Security Standards are maintained to protect payment data throughout the payment lifecycle, so the admin should avoid storing raw card data and should rely on compliant payment providers.
+
+For cosmetics, market rules vary. In the US, FDA states that cosmetic manufacturers and processors must register facilities and renew registration every two years; in the EU, the CPNP is the notification system for implementing Regulation (EC) No 1223/2009 on cosmetic products. Even if the retailer is not always the manufacturer or responsible person, the admin should still store supplier, label, ingredient, batch, and claim documentation so the business can respond quickly.
+
+2. User experience for non-technical owners
+
+The admin panel should be built around plain-language workflows, not technical database concepts.
+
+Foundational pillars
+1. “Today’s work” home screen
+
+The owner should not need to search through menus to know what matters.
+
+Show:
+
+Orders to ship
+Returns to approve
+Refunds pending
+Low-stock products
+Products expiring soon
+Products missing images or ingredients
+Customer complaints
+New reviews to approve
+Active promotions
+Campaigns ending soon
+
+Use language like:
+
+“5 orders need shipping”
+“3 products are almost out of stock”
+“2 products are missing ingredient lists”
+“1 complaint may need urgent review”
+
+Avoid technical labels like:
+
+fulfillment_queue
+inventory_exception
+PIM validation state
+variant object
+2. Guided product creation
+
+Use a step-by-step wizard:
+
+Choose product category
+Add basic information
+Add beauty attributes
+Add variants
+Add images and swatches
+Add inventory and pricing
+Add shipping/tax information
+Add SEO
+Review checklist
+Publish or save draft
+
+Example: if the owner selects Foundation, the admin should automatically request:
+
+Shade name
+Shade code
+Undertone
+Coverage
+Finish
+Skin type
+Swatch image
+Model image if available
+Ingredients
+Usage instructions
+Warnings
+Variant SKU
+Stock per shade
+3. Plain-language validation
+
+Instead of saying:
+
+“Variant metafield value is invalid.”
+
+Say:
+
+“The shade ‘Warm Beige 240’ is missing a swatch image. Add a swatch so customers can compare shades.”
+
+WCAG guidance also emphasizes clear accessibility practices and testable criteria; for forms, error identification should make users aware that an error occurred and what is wrong.
+
+4. Preview before publishing
+
+Every content or product change should have:
+
+Storefront preview
+Mobile preview
+Draft mode
+Scheduled publishing
+Change summary
+Rollback/version history
+
+This is critical for owners who are afraid of “breaking the site.”
+
+5. Bulk actions with safety checks
+
+Beauty stores often have many variants. A lipstick line may have 30 shades; a foundation may have 50 shades.
+
+Allow:
+
+Bulk price updates
+Bulk stock updates
+Bulk image uploads
+Bulk category assignment
+Bulk product status changes
+Bulk promotion assignment
+Bulk SEO edits
+Bulk shade sorting
+CSV import/export
+
+But add safeguards:
+
+Preview before applying
+“You are about to update 54 variants”
+Undo where possible
+Change log
+Permission requirements for price or inventory changes
+6. Smart search
+
+The search bar should search across:
+
+Orders
+Customers
+Products
+SKUs
+Barcodes
+Brands
+Shades
+Ingredients
+Batches
+Return requests
+Support tickets
+
+A beauty owner may remember “that niacinamide serum” or “shade 220,” not the SKU.
+
+7. Saved views and filters
+
+Each module should have practical saved views.
+
+For products:
+
+Active products
+Draft products
+Missing images
+Missing ingredients
+Low stock
+Out of stock
+Expiring soon
+High return rate
+No reviews
+New arrivals
+Best sellers
+Discontinued soon
+
+For orders:
+
+Unfulfilled
+Paid and ready to ship
+High-risk
+Delayed
+Return requested
+Refund pending
+International orders
+VIP customer orders
+
+For customers:
+
+VIPs
+First-time customers
+Repeat customers
+High return rate
+Loyalty members
+Inactive customers
+Newsletter subscribers
+Customers who bought a product affected by a batch issue
+8. Role-based access
+
+Create simple role presets:
+
+Role	Access
+Owner	Everything
+Store manager	Orders, products, inventory, customers, reports
+Fulfillment staff	Orders, shipping, stock adjustments, no financial reports
+Customer support	Customers, orders, returns, refunds with limits
+Marketing staff	Promotions, content, email campaigns, reviews
+Accountant	Reports, invoices, payouts, taxes
+Developer	Technical settings only, no customer exports unless approved
+
+Practical recommendation: dangerous actions should require stronger permissions, especially refunds, payment settings, deleting products, exporting customers, editing tax settings, or changing staff access.
+
+9. Built-in help and examples
+
+Every complex field should have:
+
+Tooltip
+Example
+“Why this matters”
+Required/optional label
+Link to policy or guide
+Auto-suggestions
+
+Example:
+
+INCI ingredients
+“Enter ingredients as shown on the product packaging. Example: Aqua, Glycerin, Niacinamide…”
+
+Claims
+“Only select claims you can support with supplier documents or certifications.”
+
+10. Accessibility and low-friction design
+
+The admin should be usable by owners with different abilities, devices, and levels of comfort with software.
+
+Follow WCAG 2.2 principles:
+
+Clear labels
+Keyboard navigation
+Visible focus states
+Text alternatives for icons
+Sufficient contrast
+Error messages in text
+No color-only status indicators
+Simple authentication options
+Large click targets
+Mobile-responsive layout
+
+WCAG 2.2 covers accessibility recommendations for users with visual, auditory, physical, cognitive, language, learning, and neurological disabilities.
+
+3. Critical functionality prioritization
+Must-have for launch / daily operations
+
+These are non-negotiable.
+
+Priority	Feature	Why it matters
+P0	Secure login, roles, 2FA	Protects store, customer, and payment-related access
+P0	Product catalog with variants	Beauty products require shades, sizes, scents, and bundles
+P0	Inventory tracking	Prevents overselling and helps restocking
+P0	Order management	Core daily workflow
+P0	Returns/refunds/exchanges	Essential for customer service and trust
+P0	Customer profiles	Needed for support, repeat purchase, loyalty
+P0	Promotions/discounts	Beauty retail depends on offers, bundles, samples, and launches
+P0	Basic analytics	Owner needs sales, inventory, and order visibility
+P0	Product images and swatches	Critical for makeup, hair color, and fragrance presentation
+P0	Ingredient and warning fields	Important for customer trust and risk reduction
+P0	Tax, payment, and shipping settings	Required to sell reliably
+P0	Audit log	Helps trace mistakes and staff actions
+High-value after launch
+Priority	Feature	Why it matters
+P1	Batch and expiry tracking	Very important for skincare, SPF, mascara, natural products
+P1	Purchase orders and supplier management	Helps restocking and vendor communication
+P1	Advanced reviews and UGC	Beauty shoppers rely heavily on peer proof
+P1	Back-in-stock alerts	Captures demand from sold-out products
+P1	Abandoned cart recovery	Recovers revenue
+P1	Loyalty and referrals	Supports repeat purchasing
+P1	Gift-with-purchase engine	Common beauty merchandising tactic
+P1	Campaign calendar	Helps manage launches and seasonal promotions
+P1	Product recommendation rules	Supports routines and upsells
+P1	Complaint/adverse-event workflow	Important for regulated beauty operations
+P1	Advanced filtering controls	Helps customers find products by concern, ingredient, shade, or type
+Advanced / growth-stage features
+Priority	Feature	Why it matters
+P2	Demand forecasting	Helps buying decisions
+P2	AI product copy assistant	Speeds product creation but needs human review
+P2	AI support assistant	Helps with FAQs and order questions
+P2	Shade finder integration	Useful for makeup brands
+P2	Virtual try-on integration	Useful for color cosmetics
+P2	Subscriptions	Useful for replenishable skincare/haircare
+P2	Marketplace sync	Useful for Amazon, TikTok Shop, Instagram, etc.
+P2	Multi-store or multi-region management	Useful as the business expands
+P2	Advanced profit analytics	Needed once ad spend, COGS, returns, and shipping costs become complex
+P2	Warehouse management integration	Needed when order volume grows
+4. Usability structure for intuitive navigation
+Recommended admin navigation
+
+Use a simple left sidebar:
+
+Home
+Orders
+Products
+Inventory
+Customers
+Returns & Support
+Marketing
+Reviews
+Content
+Reports
+Compliance
+Settings
+
+Avoid splitting related things too much. For example, refunds, returns, and order communication should be reachable from the order page, not hidden in three separate modules.
+
+Recommended page structure
+
+Every major module should follow the same pattern:
+
+List view
+
+Example: product list, order list, customer list.
+
+Include:
+
+Search
+Filters
+Saved views
+Bulk actions
+Status badges
+Sort controls
+Export button
+Quick edit options
+Detail view
+
+Example: single product or single order.
+
+Include:
+
+Summary at top
+Status
+Key actions
+Tabs or sections
+Activity history
+Notes
+Related records
+Action panel
+
+Use clear action buttons:
+
+Publish
+Save draft
+Duplicate
+Archive
+Refund
+Exchange
+Contact customer
+Restock
+Create purchase order
+Add promotion
+Export
+Recommended dashboard layout
+
+Use four sections:
+
+1. Today
+Orders to ship
+Returns to approve
+Refunds pending
+Customer messages
+Low-stock alerts
+2. Sales
+Revenue
+Orders
+Conversion rate
+Average order value
+Gross margin
+3. Products
+Best sellers
+Slow movers
+Out-of-stock items
+Products expiring soon
+Products missing required content
+4. Risks
+High-risk orders
+Negative reviews
+Product complaints
+Batch issues
+Compliance/documentation gaps
+Beauty-specific admin features that are especially important
+1. Shade and variant management
+
+For makeup, hair color, nails, and complexion products, the admin should support:
+
+Shade family
+Undertone
+Shade depth
+Swatch color
+Swatch image
+Model image by shade
+Shade ordering
+Shade availability by location
+Shade-level sales
+Shade-level return rate
+Substitute shade recommendation
+Discontinued shade handling
+
+Actionable recommendation: add a “Shade Manager” for products like foundation, concealer, lipstick, blush, brow products, and hair dye.
+
+2. Ingredient and claim management
+
+Create a dedicated section for:
+
+INCI ingredients
+Key ingredients
+Ingredient benefits
+Ingredient warnings
+Allergen notes
+Claims
+Claim evidence
+Certification files
+Supplier documents
+Product label upload
+
+Actionable recommendation: do not let staff publish a product with selected claims such as vegan, cruelty-free, SPF, dermatologist-tested, organic, clean, pregnancy-safe, acne-safe, hypoallergenic unless the product has a supporting document or an internal approval note.
+
+3. Batch, expiry, and recall readiness
+
+Include:
+
+Batch number
+Supplier batch
+Manufacture date
+Expiry date
+PAO period
+Quantity per batch
+Customers who bought from batch
+Batch complaint history
+Recall status
+Quarantine status
+
+Actionable recommendation: from any batch record, the owner should be able to click “Show affected customers” and export/contact customers if a recall or safety issue occurs.
+
+4. Returns hygiene workflow
+
+For returned beauty products, the admin should require:
+
+Was the seal intact?
+Was the product opened?
+Is the item damaged?
+Is it safe to restock?
+Should it be disposed?
+Was the complaint related to irritation or reaction?
+Is follow-up required?
+
+Actionable recommendation: returned beauty products should default to quarantine, not automatically return to sellable stock.
+
+5. Routine and bundle management
+
+Beauty customers often buy routines rather than single products.
+
+Support:
+
+Morning routine
+Evening routine
+Acne routine
+Brightening routine
+Curly hair routine
+Travel kit
+Discovery set
+Starter kit
+Refill bundle
+Gift set
+
+Actionable recommendation: let the owner build bundles from products and automatically calculate bundle margin, stock availability, and discount impact.
+
+6. Review intelligence
+
+The admin should surface patterns from reviews and returns:
+
+“Customers say this shade is darker than expected.”
+“Many oily-skin customers mention separation.”
+“High return rate for shade mismatch.”
+“Customers often ask if this is fragrance-free.”
+“Low rating mentions broken pump packaging.”
+
+Actionable recommendation: connect review tags, return reasons, and support tickets into the product detail page.
+
+Practical “owner-friendly” implementation checklist
+
+Use this as a build checklist.
+
+Product management
+Product templates by beauty category
+Required beauty fields
+Variant and shade manager
+Swatch uploads
+Ingredient/INCI fields
+Claim evidence uploads
+SEO fields
+Draft/publish workflow
+Preview mode
+Bulk edit
+Import/export
+Product completeness score
+Inventory
+Stock by SKU/variant
+Low-stock alerts
+Reorder points
+Supplier records
+Purchase orders
+Batch/lot tracking
+Expiry tracking
+Quarantine stock
+Sample stock
+Bundle stock logic
+Orders
+Clear order statuses
+Pick/pack/ship workflow
+Payment status
+Shipping labels
+Tracking
+Fraud flags
+Refunds
+Exchanges
+Partial fulfillment
+Customer communication log
+Customers
+Customer profile
+Order history
+Returns history
+Loyalty status
+Consent status
+Preferences
+Support notes
+Segments
+Marketing
+Discount codes
+Automatic promotions
+Gift with purchase
+Bundles
+Loyalty
+Referrals
+Abandoned cart
+Back-in-stock
+Campaign calendar
+Landing pages
+Homepage banner scheduling
+Reports
+Sales
+Margin
+Orders
+Conversion
+Inventory
+Returns
+Customer repeat rate
+Product performance
+Variant/shade performance
+Expiry risk
+Complaint trends
+Promotion performance
+Compliance and safety
+Role permissions
+Two-factor authentication
+Audit log
+GDPR/privacy tools where applicable
+PCI-safe payment handling
+Product label storage
+Supplier documents
+Claim evidence
+Batch records
+Complaint escalation
+Adverse-event reporting workflow where applicable
+Recommended “minimum viable admin” for a beauty ecommerce site
+
+For a practical first version, prioritize these modules:
+
+Home dashboard
+Products with beauty-specific templates
+Variants/shades
+Inventory with low-stock alerts
+Orders and fulfillment
+Returns/refunds
+Customers
+Discounts and promotions
+Reviews
+Reports
+Settings, roles, and security
+Compliance records for ingredients, claims, labels, and batches
+
+Do not overbuild advanced AI, virtual try-on, subscriptions, or marketplace automation until the core workflows are reliable.
+
+The best structural principle
+
+The admin panel should be organized around the owner’s real work:
+
+Sell products. Keep stock accurate. Ship orders. Help customers. Run promotions. Understand performance. Stay compliant.
+
+For a beauty retail business, the most important thing is functionality.

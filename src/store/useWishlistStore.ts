@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product } from "@/types/product";
 import { useAuthStore } from "@/store/useAuthStore";
-import { wishlistApi, type WishlistItem } from "@/lib/api/wishlist";
+import { wishlistApi, type ServerWishlistItem } from "@/lib/api/wishlist";
 import { toast } from "sonner";
 
 interface WishlistState {
@@ -23,19 +23,32 @@ function isLoggedIn(): boolean {
   return isConfigured && !!user;
 }
 
-function wishlistItemToProduct(item: WishlistItem): Product {
+/**
+ * Map a server wishlist row (nested `product` object, basePrice/salePrice,
+ * isActive) into the flat storefront `Product` shape the UI expects.
+ *
+ * Items without an active product reference are dropped — the server filters
+ * deleted products, but we guard defensively in case a product was deactivated
+ * between the list query and now.
+ */
+function serverItemToProduct(item: ServerWishlistItem): Product | null {
+  if (!item.product || !item.product.isActive) return null;
+
+  const { product } = item;
+  const price = product.salePrice ?? product.basePrice;
+
   return {
     id: item.productId,
-    name: item.name,
-    slug: item.slug,
+    name: product.name,
+    slug: product.slug,
     sku: "",
     brand: "",
     category: "",
     subCategory: "",
-    price: item.price,
-    image: item.image,
-    inStock: item.inStock,
-    stockCount: item.inStock ? 99 : 0,
+    price,
+    image: product.imageUrl ?? "",
+    inStock: product.isActive,
+    stockCount: product.isActive ? 99 : 0,
     rating: 0,
     reviewsCount: 0,
     skinType: [],
@@ -99,10 +112,16 @@ export const useWishlistStore = create<WishlistState>()(
         set({ _syncing: true, _syncError: null });
         try {
           const response = await wishlistApi.list();
-          const serverItems = response.data ?? [];
+          // The server wraps items in `{ items: [...] }`; unwrap defensively.
+          const serverItems: ServerWishlistItem[] =
+            (response.data && Array.isArray((response.data as { items?: unknown }).items)
+              ? (response.data as { items: ServerWishlistItem[] }).items
+              : Array.isArray(response.data)
+                ? (response.data as unknown as ServerWishlistItem[])
+                : []) ?? [];
 
           const merged = serverItems
-            .map((item) => wishlistItemToProduct(item))
+            .map((item) => serverItemToProduct(item))
             .filter((p): p is Product => p !== null);
 
           const localItems = get().items;

@@ -297,7 +297,7 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
               >
                 <option value="">Select category</option>
                 {categoryList.map((cat: Record<string, unknown>) => (
-                  <option key={String(cat._id ?? cat.id)} value={String(cat._id ?? cat.id)}>{String(cat.name)}</option>
+                  <option key={String(cat.id)} value={String(cat.id)}>{String(cat.name)}</option>
                 ))}
               </select>
               {errors.category_id && <p className="text-xs text-admin-error">{errors.category_id.message}</p>}
@@ -311,7 +311,7 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
               >
                 <option value="">Select brand</option>
                 {brandList.map((brand: Record<string, unknown>) => (
-                  <option key={String(brand._id ?? brand.id)} value={String(brand._id ?? brand.id)}>{String(brand.name)}</option>
+                  <option key={String(brand.id)} value={String(brand.id)}>{String(brand.name)}</option>
                 ))}
               </select>
             </label>

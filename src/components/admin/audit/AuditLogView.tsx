@@ -7,15 +7,15 @@ import { useAdminData } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
 
 interface AuditLog {
-  _id: string;
-  _creationTime: number;
-  userId?: string;
+  id: string;
+  created_at: string;
   action: string;
   entity: string;
-  entityId?: string;
-  changes?: Record<string, unknown>;
-  ipAddress?: string;
-  userAgent?: string;
+  entity_id?: string;
+  changes?: string;
+  user_id?: string;
+  ip_address?: string;
+  user_agent?: string;
 }
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -50,11 +50,11 @@ export function AuditLogView() {
 
   const columns: Column<AuditLog>[] = [
     {
-      key: "_creationTime",
+      key: "created_at",
       header: "Time",
       render: (log) => (
         <span className="text-xs text-brand-textMuted">
-          {new Date(log._creationTime).toLocaleString()}
+          {new Date(log.created_at.replace(" ", "T")).toLocaleString()}
         </span>
       ),
     },
@@ -78,8 +78,8 @@ export function AuditLogView() {
       render: (log) => (
         <div>
           <span className="text-sm font-medium">{ENTITY_LABELS[log.entity] ?? log.entity}</span>
-          {log.entityId && (
-            <span className="ml-1 font-mono text-xs text-brand-textMuted">#{log.entityId.slice(0, 8)}</span>
+          {log.entity_id && (
+            <span className="ml-1 font-mono text-xs text-brand-textMuted">#{log.entity_id.slice(0, 8)}</span>
           )}
         </div>
       ),
@@ -104,19 +104,19 @@ export function AuditLogView() {
       },
     },
     {
-      key: "userId",
+      key: "user_id",
       header: "User",
       render: (log) => (
         <span className="font-mono text-xs text-brand-textMuted">
-          {log.userId ? log.userId.slice(0, 8) + "..." : "System"}
+          {log.user_id ? log.user_id.slice(0, 8) + "..." : "System"}
         </span>
       ),
     },
     {
-      key: "ipAddress",
+      key: "ip_address",
       header: "IP",
       render: (log) => (
-        <span className="font-mono text-xs text-brand-textMuted">{log.ipAddress ?? "�"}</span>
+        <span className="font-mono text-xs text-brand-textMuted">{log.ip_address ?? "—"}</span>
       ),
     },
   ];
@@ -159,7 +159,7 @@ export function AuditLogView() {
         <DataTable
           columns={columns}
           data={logs}
-          keyExtractor={(log) => log._id}
+          keyExtractor={(log) => log.id}
           caption="Audit log"
           isLoading={isLoading}
           emptyMessage={error ? `Error: ${error}` : "No audit logs found."}

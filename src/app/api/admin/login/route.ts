@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
     }
 
     const isOwner = superAdminEmails[0] === email.toLowerCase();
-    const role = isOwner ? "OWNER" : (superAdminEmails.includes(email.toLowerCase()) ? "SUPER_ADMIN" : "admin");
+    const role = isOwner ? "OWNER" : (superAdminEmails.includes(email.toLowerCase()) ? "SUPER_ADMIN" : "ADMIN");
 
     const token = await createAdminSessionToken(email, adminName);
 

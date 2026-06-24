@@ -5,19 +5,8 @@ import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
 import { Bell, Check, CheckCheck } from "lucide-react";
 
-interface NotificationData {
-  _id: string;
-  userId?: string;
-  type: string;
-  title: string;
-  message: string;
-  data?: string;
-  isRead: boolean;
-  _creationTime: number;
-}
-
-function formatTimeAgo(timestamp: number): string {
-  const diff = Date.now() - timestamp;
+function formatTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr.replace(" ", "T")).getTime();
   const minutes = Math.floor(diff / 60000);
   if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes}m ago`;
@@ -28,11 +17,12 @@ function formatTimeAgo(timestamp: number): string {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  order: "??",
-  stock: "??",
-  user: "??",
-  system: "??",
-  payment: "??",
+  INFO: "i",
+  SUCCESS: "✓",
+  WARNING: "!",
+  ERROR: "✗",
+  ORDER: "$",
+  PROMO: "%",
 };
 
 export function NotificationDropdown() {
@@ -53,7 +43,7 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const notifications = (result?.notifications ?? []) as unknown as NotificationData[];
+  const notifications = result?.notifications ?? [];
   const unreadCount = result?.unreadCount ?? 0;
   const isLoading = notifLoading;
 
@@ -108,18 +98,18 @@ export function NotificationDropdown() {
             ) : (
               notifications.map((n) => (
                 <div
-                  key={n._id}
-                  className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${n.isRead ? "opacity-60" : ""}`}
+                  key={n.id}
+                  className={`flex gap-3 border-b border-brand-border px-4 py-3 transition hover:bg-brand-bgLight/50 ${n.is_read ? "opacity-60" : ""}`}
                 >
-                  <span className="mt-0.5 text-base">{TYPE_ICONS[n.type] ?? "??"}</span>
+                  <span className="mt-0.5 text-base">{TYPE_ICONS[n.type] ?? "?"}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug">{n.title}</p>
                     <p className="mt-0.5 text-xs text-brand-textMuted line-clamp-2">{n.message}</p>
-                    <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(n._creationTime)}</p>
+                    <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(n.created_at)}</p>
                   </div>
-                  {!n.isRead && (
+                  {!n.is_read && (
                     <button
-                      onClick={() => handleMarkRead(n._id)}
+                      onClick={() => handleMarkRead(n.id)}
                       className="mt-1 shrink-0 text-brand-textMuted hover:text-brand-primary"
                       aria-label="Mark as read"
                     >

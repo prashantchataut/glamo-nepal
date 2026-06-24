@@ -5,7 +5,7 @@ export const createBannerSchema = z.object({
   subtitle: z.string().max(300).optional(),
   imageUrl: z.string().url(),
   linkUrl: z.string().url().optional(),
-  position: z.enum(['HERO', 'MID_PAGE', 'SIDEBAR', 'POPUP']).default('HERO'),
+  position: z.enum(['hero', 'sidebar', 'promo', 'popup']).default('hero'),
   sortOrder: z.number().int().default(0),
   startsAt: z.string().optional(),
   expiresAt: z.string().optional(),
@@ -16,7 +16,7 @@ export const updateBannerSchema = z.object({
   subtitle: z.string().max(300).optional(),
   imageUrl: z.string().url().optional(),
   linkUrl: z.string().url().optional(),
-  position: z.enum(['HERO', 'MID_PAGE', 'SIDEBAR', 'POPUP']).optional(),
+  position: z.enum(['hero', 'sidebar', 'promo', 'popup']).optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
   startsAt: z.string().optional(),
@@ -31,7 +31,7 @@ export const reorderSchema = z.object({
 })
 
 export const bannerFilterSchema = z.object({
-  position: z.enum(['HERO', 'MID_PAGE', 'SIDEBAR', 'POPUP']).optional(),
+  position: z.enum(['hero', 'sidebar', 'promo', 'popup']).optional(),
   page: z.coerce.number().int().positive().max(500).default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })

@@ -114,7 +114,7 @@ export function BannersView() {
         subtitle: formData.subtitle.trim() || undefined,
         image_url: formData.image_url,
         link_url: formData.link_url.trim() || undefined,
-        position: formData.position.toUpperCase(),
+        position: formData.position,
         sort_order: 0,
         is_active: formData.is_active ? 1 : 0,
       };
