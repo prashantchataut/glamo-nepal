@@ -4,16 +4,23 @@ export type AdminSection =
   | "dashboard"
   | "products"
   | "orders"
-  | "inventory"
-  | "banners"
-  | "coupons"
-  | "popups"
-  | "gallery"
-  | "team"
   | "customers"
+  | "inventory"
+  | "delivery"
+  | "promotions"
+  | "returns"
+  | "reviews"
+  | "popups"
+  | "setup"
+  | "issues"
+  | "support"
+  | "activity"
+  | "backups"
   | "analytics"
   | "settings"
-  | "audit";
+  | "audit"
+  | "content"
+  | "compliance";
 
 interface AdminUser {
   email: string;
@@ -32,14 +39,13 @@ export function canAccess(userRole: string, requiredRole: string): boolean {
   return allowed.includes(requiredRole);
 }
 
-const SUPER_ADMIN_SECTIONS: AdminSection[] = ["coupons", "audit"]; // eslint-disable-line @typescript-eslint/no-unused-vars
-const OWNER_SECTIONS: AdminSection[] = []; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 interface AdminState {
   activeSection: AdminSection;
   sidebarOpen: boolean;
   productSearch: string;
   orderStatusFilter: string;
+  orderSearch: string;
   customerSearch: string;
   orderDateRange: { start: string; end: string } | null;
   globalSearch: string;
@@ -52,6 +58,7 @@ interface AdminActions {
   toggleSidebar: () => void;
   setProductSearch: (query: string) => void;
   setOrderStatusFilter: (status: string) => void;
+  setOrderSearch: (query: string) => void;
   setCustomerSearch: (query: string) => void;
   setOrderDateRange: (range: { start: string; end: string } | null) => void;
   setGlobalSearch: (query: string) => void;
@@ -63,6 +70,7 @@ export const useAdminStore = create<AdminState & AdminActions>((set) => ({
   sidebarOpen: false,
   productSearch: "",
   orderStatusFilter: "",
+  orderSearch: "",
   customerSearch: "",
   orderDateRange: null,
   globalSearch: "",
@@ -73,6 +81,7 @@ export const useAdminStore = create<AdminState & AdminActions>((set) => ({
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setProductSearch: (query) => set({ productSearch: query }),
   setOrderStatusFilter: (status) => set({ orderStatusFilter: status }),
+  setOrderSearch: (query) => set({ orderSearch: query }),
   setCustomerSearch: (query) => set({ customerSearch: query }),
   setOrderDateRange: (range) => set({ orderDateRange: range }),
   setGlobalSearch: (query) => set({ globalSearch: query }),

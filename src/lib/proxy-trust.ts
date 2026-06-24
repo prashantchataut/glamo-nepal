@@ -69,7 +69,7 @@ function getProxyTrustSecret(): string {
   if (!secret) {
     throw new Error(
       "PROXY_TRUST_SECRET is required. Set the same value on the Vercel proxy and the Cloudflare Worker. " +
-        "Generate one: node -e \"console.log(require('crypto').randomBytes(48).toString('base64'))\""
+        "Generate one with a secure random 48-byte base64 value and set it in both environments."
     );
   }
   return secret;

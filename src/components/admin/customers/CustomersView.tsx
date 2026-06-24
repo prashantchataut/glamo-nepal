@@ -11,6 +11,7 @@ import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { CustomerDetailModal } from "./CustomerDetailModal";
 import { Users, RefreshCw, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { useAdminStore } from "@/store/useAdminStore";
 
 const PAGE_SIZE = 20;
 
@@ -57,12 +58,12 @@ function displayCustomerName(row: Pick<UserRow, "first_name" | "last_name" | "em
 
 export function CustomersView() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const { customerSearch, setCustomerSearch } = useAdminStore();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [pendingToggle, setPendingToggle] = useState<{ userId: string; isActive: boolean; label: string } | null>(null);
   const [isToggling, setIsToggling] = useState(false);
 
-  const { data: usersData, meta: usersMeta, isLoading, isError, refetch } = useAdminData(() => adminApi.listUsers({ search: search || undefined, page, limit: PAGE_SIZE }), { deps: [search, page] });
+  const { data: usersData, meta: usersMeta, isLoading, isError, refetch } = useAdminData(() => adminApi.listUsers({ search: customerSearch || undefined, page, limit: PAGE_SIZE }), { deps: [customerSearch, page] });
   const { mutate: updateStatus } = useAdminMutation((vars: { userId: string; isActive: boolean }) => adminApi.updateUserStatus(vars.userId, vars.isActive));
 
   const users: UserRow[] = (() => {
@@ -185,7 +186,7 @@ export function CustomersView() {
           <h2 className="font-display text-2xl font-semibold">Customers</h2>
           <p className="mt-0.5 text-sm text-brand-textMuted">Manage user accounts, roles and status.</p>
         </div>
-        <SearchInput onSearch={setSearch} placeholder="Search by name or email…" className="w-full sm:max-w-xs" />
+        <SearchInput value={customerSearch} onSearch={(q) => { setCustomerSearch(q); setPage(1); }} placeholder="Search by name or email…" className="w-full sm:max-w-xs" />
       </div>
 
       <div className="mt-5">

@@ -2,13 +2,18 @@
 
 import { useCallback, useMemo, useState } from "react";
 import NextImage from "next/image";
-import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { GripVertical, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { StatusPill } from "@/components/admin/shared/StatusPill";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { adminApi, type AdminGalleryItem, type CreateGalleryItemInput, type UpdateGalleryItemInput } from "@/lib/api/admin";
+import {
+  adminApi,
+  type AdminGalleryItem,
+  type CreateGalleryItemInput,
+  type UpdateGalleryItemInput,
+} from "@/lib/api/admin";
 
 type GalleryFormData = {
   title: string;
@@ -35,26 +40,39 @@ export function GalleryView() {
   const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState<GalleryFormData>(defaultForm);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("");
 
-  const { data: galleryData, isLoading, refetch } = useAdminData(() =>
-    adminApi.listGallery(filterCategory ? { category: filterCategory } : undefined)
+  const {
+    data: galleryData,
+    isLoading,
+    refetch,
+  } = useAdminData(() =>
+    adminApi.listGallery(
+      filterCategory ? { category: filterCategory } : undefined,
+    ),
   );
   const galleryList = useMemo(() => {
     if (!galleryData) return [];
-    const raw = (galleryData as unknown as Record<string, unknown>).data ?? galleryData;
+    const raw =
+      (galleryData as unknown as Record<string, unknown>).data ?? galleryData;
     return Array.isArray(raw) ? (raw as AdminGalleryItem[]) : [];
   }, [galleryData]);
 
-  const { mutate: createMut } = useAdminMutation((data: Record<string, unknown>) =>
-    adminApi.createGalleryItem(data as unknown as CreateGalleryItemInput)
+  const { mutate: createMut } = useAdminMutation(
+    (data: Record<string, unknown>) =>
+      adminApi.createGalleryItem(data as unknown as CreateGalleryItemInput),
   );
-  const { mutate: updateMut } = useAdminMutation(({ id, data }: { id: string; data: Record<string, unknown> }) =>
-    adminApi.updateGalleryItem(id, data as unknown as UpdateGalleryItemInput)
+  const { mutate: updateMut } = useAdminMutation(
+    ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+      adminApi.updateGalleryItem(id, data as unknown as UpdateGalleryItemInput),
   );
-  const { mutate: deleteMut } = useAdminMutation((id: string) => adminApi.deleteGalleryItem(id));
-  const { mutate: reorderMut } = useAdminMutation((items: Array<{ id: string; sortOrder: number }>) =>
-    adminApi.reorderGallery(items)
+  const { mutate: deleteMut } = useAdminMutation((id: string) =>
+    adminApi.deleteGalleryItem(id),
+  );
+  const { mutate: reorderMut } = useAdminMutation(
+    (items: Array<{ id: string; sortOrder: number }>) =>
+      adminApi.reorderGallery(items),
   );
 
   const openCreate = useCallback(() => {
@@ -75,6 +93,21 @@ export function GalleryView() {
       sortOrder: item.sort_order ?? 0,
     });
     setFormOpen(true);
+  }, []);
+
+  const handleImageUpload = useCallback(async (file: File) => {
+    setIsUploading(true);
+    try {
+      const result = await adminApi.uploadSettingImage(file);
+      const url =
+        "data" in result ? result.data.url : (result as { url: string }).url;
+      setFormData((prev) => ({ ...prev, imageUrl: url }));
+      toast.success("Image uploaded");
+    } catch {
+      toast.error("Failed to upload image");
+    } finally {
+      setIsUploading(false);
+    }
   }, []);
 
   const handleSave = useCallback(async () => {
@@ -105,7 +138,11 @@ export function GalleryView() {
       setFormOpen(false);
       refetch();
     } catch {
-      toast.error(isCreating ? "Failed to create gallery item" : "Failed to update gallery item");
+      toast.error(
+        isCreating
+          ? "Failed to create gallery item"
+          : "Failed to update gallery item",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -124,41 +161,57 @@ export function GalleryView() {
     }
   }, [deleteId, deleteMut, refetch]);
 
-  const handleMoveUp = useCallback(async (index: number) => {
-    if (index <= 0) return;
-    const reordered = [...galleryList];
-    [reordered[index - 1], reordered[index]] = [reordered[index], reordered[index - 1]];
-    const items = reordered.map((item, i) => ({ id: item.id, sortOrder: i }));
-    try {
-      await reorderMut(items);
-      toast.success("Order updated");
-      refetch();
-    } catch {
-      toast.error("Failed to reorder");
-    }
-  }, [galleryList, reorderMut, refetch]);
+  const handleMoveUp = useCallback(
+    async (index: number) => {
+      if (index <= 0) return;
+      const reordered = [...galleryList];
+      [reordered[index - 1], reordered[index]] = [
+        reordered[index],
+        reordered[index - 1],
+      ];
+      const items = reordered.map((item, i) => ({ id: item.id, sortOrder: i }));
+      try {
+        await reorderMut(items);
+        toast.success("Order updated");
+        refetch();
+      } catch {
+        toast.error("Failed to reorder");
+      }
+    },
+    [galleryList, reorderMut, refetch],
+  );
 
-  const handleMoveDown = useCallback(async (index: number) => {
-    if (index >= galleryList.length - 1) return;
-    const reordered = [...galleryList];
-    [reordered[index], reordered[index + 1]] = [reordered[index + 1], reordered[index]];
-    const items = reordered.map((item, i) => ({ id: item.id, sortOrder: i }));
-    try {
-      await reorderMut(items);
-      toast.success("Order updated");
-      refetch();
-    } catch {
-      toast.error("Failed to reorder");
-    }
-  }, [galleryList, reorderMut, refetch]);
+  const handleMoveDown = useCallback(
+    async (index: number) => {
+      if (index >= galleryList.length - 1) return;
+      const reordered = [...galleryList];
+      [reordered[index], reordered[index + 1]] = [
+        reordered[index + 1],
+        reordered[index],
+      ];
+      const items = reordered.map((item, i) => ({ id: item.id, sortOrder: i }));
+      try {
+        await reorderMut(items);
+        toast.success("Order updated");
+        refetch();
+      } catch {
+        toast.error("Failed to reorder");
+      }
+    },
+    [galleryList, reorderMut, refetch],
+  );
 
   return (
     <>
       <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-semibold">Gallery manager</h2>
-            <p className="mt-1 text-sm text-brand-textMuted">Manage gallery images and media.</p>
+            <h2 className="font-display text-2xl font-semibold">
+              Gallery manager
+            </h2>
+            <p className="mt-1 text-sm text-brand-textMuted">
+              Manage gallery images and media.
+            </p>
           </div>
           <div className="flex gap-2">
             <select
@@ -168,7 +221,9 @@ export function GalleryView() {
             >
               <option value="">All categories</option>
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+                <option key={c} value={c}>
+                  {c.charAt(0).toUpperCase() + c.slice(1)}
+                </option>
               ))}
             </select>
             <button
@@ -184,13 +239,19 @@ export function GalleryView() {
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-64 animate-pulse rounded-2xl bg-brand-bgLight" />
+                <div
+                  key={i}
+                  className="h-64 animate-pulse rounded-2xl bg-brand-bgLight"
+                />
               ))}
             </div>
           ) : galleryList.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {galleryList.map((item, index) => (
-                <div key={item.id} className="group relative overflow-hidden rounded-2xl border border-brand-border bg-brand-bgLight">
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden rounded-2xl border border-brand-border bg-brand-bgLight"
+                >
                   <div className="relative aspect-[4/3]">
                     <NextImage
                       src={item.image_url}
@@ -240,7 +301,9 @@ export function GalleryView() {
                     </div>
                   </div>
                   <div className="p-3">
-                    <p className="font-semibold text-brand-textPrimary">{item.title}</p>
+                    <p className="font-semibold text-brand-textPrimary">
+                      {item.title}
+                    </p>
                     <div className="mt-1 flex items-center gap-2">
                       {item.category && (
                         <StatusPill variant="info">{item.category}</StatusPill>
@@ -251,21 +314,36 @@ export function GalleryView() {
               ))}
             </div>
           ) : (
-            <EmptyState icon={Plus} title="No gallery items" description="Add your first gallery image." action={{ label: "Add image", onClick: openCreate }} />
+            <EmptyState
+              icon={Plus}
+              title="No gallery items"
+              description="Add your first gallery image."
+              action={{ label: "Add image", onClick: openCreate }}
+            />
           )}
         </div>
       </section>
 
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setFormOpen(false)}>
-          <div className="w-full max-w-lg rounded-[2rem] border border-brand-border bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-display text-xl font-semibold">{isCreating ? "Add gallery image" : "Edit gallery image"}</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setFormOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-[2rem] border border-brand-border bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-display text-xl font-semibold">
+              {isCreating ? "Add gallery image" : "Edit gallery image"}
+            </h3>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label className="space-y-2 text-sm font-medium sm:col-span-2">
                 Title
                 <input
                   value={formData.title}
-                  onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, title: e.target.value }))
+                  }
                   className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   placeholder="Summer collection"
                 />
@@ -274,30 +352,57 @@ export function GalleryView() {
                 Description
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, description: e.target.value }))
+                  }
                   className="mt-1 min-h-[80px] w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   placeholder="Optional description..."
                 />
               </label>
               <label className="space-y-2 text-sm font-medium sm:col-span-2">
-                Image URL
+                Image URL or replacement upload
                 <input
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData((p) => ({ ...p, imageUrl: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, imageUrl: e.target.value }))
+                  }
                   className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   placeholder="https://..."
                 />
+                <span className="block text-xs text-brand-textMuted">
+                  Paste an existing URL or upload a replacement image for this
+                  gallery slot.
+                </span>
+                <label className="btn-press inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-brand-border px-3 py-2 text-xs font-medium text-brand-textPrimary transition hover:bg-brand-bgLight">
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="sr-only"
+                    disabled={isUploading}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void handleImageUpload(file);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                  <Upload size={13} />{" "}
+                  {isUploading ? "Uploading..." : "Upload replacement"}
+                </label>
               </label>
               <label className="space-y-2 text-sm font-medium">
                 Category
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, category: e.target.value }))
+                  }
                   className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                 >
                   <option value="">None</option>
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+                    <option key={c} value={c}>
+                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -307,14 +412,26 @@ export function GalleryView() {
                   type="number"
                   min={0}
                   value={formData.sortOrder}
-                  onChange={(e) => setFormData((p) => ({ ...p, sortOrder: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setFormData((p) => ({
+                      ...p,
+                      sortOrder: parseInt(e.target.value) || 0,
+                    }))
+                  }
                   className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                 />
               </label>
             </div>
             {formData.imageUrl && (
               <div className="mt-3 relative h-40 w-full overflow-hidden rounded-xl">
-                <NextImage src={formData.imageUrl} alt="Preview" fill className="object-cover" sizes="500px" unoptimized />
+                <NextImage
+                  src={formData.imageUrl}
+                  alt="Preview"
+                  fill
+                  className="object-cover"
+                  sizes="500px"
+                  unoptimized
+                />
               </div>
             )}
             <div className="mt-6 flex justify-end gap-3">
@@ -338,7 +455,9 @@ export function GalleryView() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteId(null);
+        }}
         title="Delete gallery image"
         description="This action cannot be undone. The gallery image will be permanently removed."
         confirmLabel="Delete"

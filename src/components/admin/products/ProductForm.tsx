@@ -12,10 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  useAdminData,
-  useAdminMutation,
-} from "@/lib/hooks/useAdminData";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
@@ -37,6 +34,14 @@ const productSchema = z.object({
   stock_quantity: z.coerce.number().default(0),
   low_stock_threshold: z.coerce.number().default(5),
   tags: z.string().optional(),
+  skin_types: z.string().optional(),
+  concerns: z.string().optional(),
+  shade: z.string().optional(),
+  undertone: z.string().optional(),
+  finish: z.string().optional(),
+  coverage: z.string().optional(),
+  ingredients_inci: z.string().optional(),
+  claims: z.string().optional(),
   meta_title: z.string().optional(),
   meta_description: z.string().optional(),
 });
@@ -69,6 +74,15 @@ export interface ProductFormProduct {
   stock_quantity: number;
   low_stock_threshold: number;
   tags?: string;
+  attributes?: Record<string, unknown>;
+  skin_types?: string;
+  concerns?: string;
+  shade?: string;
+  undertone?: string;
+  finish?: string;
+  coverage?: string;
+  ingredients_inci?: string;
+  claims?: string;
   meta_title?: string;
   meta_description?: string;
   images?: ProductImage[];
@@ -81,13 +95,40 @@ interface ProductFormModalProps {
   onSaved?: () => void;
 }
 
-export function ProductFormModal({ open, onOpenChange, product, onSaved }: ProductFormModalProps) {
+function csv(value?: string): string[] {
+  return (value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function attrString(
+  attributes: Record<string, unknown> | undefined,
+  key: string,
+): string {
+  const value = attributes?.[key];
+  if (Array.isArray(value)) return value.map(String).join(", ").trim();
+  return typeof value === "string" ? value : "";
+}
+
+export function ProductFormModal({
+  open,
+  onOpenChange,
+  product,
+  onSaved,
+}: ProductFormModalProps) {
   const isEditing = !!product;
 
   const { data: categories } = useAdminData(() => adminApi.listCategories());
   const { data: brands } = useAdminData(() => adminApi.listBrands());
-  const { mutate: createMutation } = useAdminMutation((payload: Record<string, unknown>) => adminApi.createProduct(payload as never));
-  const { mutate: updateMutation } = useAdminMutation(({ id, data }: { id: string; data: Record<string, unknown> }) => adminApi.updateProduct(id, data as never));
+  const { mutate: createMutation } = useAdminMutation(
+    (payload: Record<string, unknown>) =>
+      adminApi.createProduct(payload as never),
+  );
+  const { mutate: updateMutation } = useAdminMutation(
+    ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+      adminApi.updateProduct(id, data as never),
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -116,6 +157,14 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
           stock_quantity: product.stock_quantity,
           low_stock_threshold: product.low_stock_threshold,
           tags: product.tags ?? "",
+          skin_types: attrString(product.attributes, "skinTypes"),
+          concerns: attrString(product.attributes, "concerns"),
+          shade: attrString(product.attributes, "shade"),
+          undertone: attrString(product.attributes, "undertone"),
+          finish: attrString(product.attributes, "finish"),
+          coverage: attrString(product.attributes, "coverage"),
+          ingredients_inci: attrString(product.attributes, "ingredientsInci"),
+          claims: attrString(product.attributes, "claims"),
           meta_title: product.meta_title ?? "",
           meta_description: product.meta_description ?? "",
         }
@@ -147,6 +196,14 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
         stock_quantity: product.stock_quantity,
         low_stock_threshold: product.low_stock_threshold,
         tags: product.tags ?? "",
+        skin_types: attrString(product.attributes, "skinTypes"),
+        concerns: attrString(product.attributes, "concerns"),
+        shade: attrString(product.attributes, "shade"),
+        undertone: attrString(product.attributes, "undertone"),
+        finish: attrString(product.attributes, "finish"),
+        coverage: attrString(product.attributes, "coverage"),
+        ingredients_inci: attrString(product.attributes, "ingredientsInci"),
+        claims: attrString(product.attributes, "claims"),
         meta_title: product.meta_title ?? "",
         meta_description: product.meta_description ?? "",
       });
@@ -162,7 +219,28 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
   }, [product, reset]);
 
   const onSubmit = async (data: ProductFormData) => {
-    const slugValue = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const slugValue =
+      data.slug ||
+      data.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+    const beautyAttributes = {
+      skinTypes: csv(data.skin_types),
+      concerns: csv(data.concerns),
+      shade: data.shade?.trim() || undefined,
+      undertone: data.undertone?.trim() || undefined,
+      finish: data.finish?.trim() || undefined,
+      coverage: data.coverage?.trim() || undefined,
+      ingredientsInci: data.ingredients_inci?.trim() || undefined,
+      claims: csv(data.claims),
+    };
+    const attributes = Object.fromEntries(
+      Object.entries(beautyAttributes).filter(([, value]) =>
+        Array.isArray(value) ? value.length > 0 : Boolean(value),
+      ),
+    );
+
     const payload = {
       name: data.name,
       slug: slugValue,
@@ -179,14 +257,23 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
       trackInventory: Boolean(data.track_inventory),
       stockQuantity: Number(data.stock_quantity) || 0,
       lowStockThreshold: Number(data.low_stock_threshold) || 5,
-      tags: data.tags ? data.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : undefined,
+      tags: data.tags
+        ? data.tags
+            .split(",")
+            .map((t: string) => t.trim())
+            .filter(Boolean)
+        : undefined,
+      attributes,
       metaTitle: data.meta_title || undefined,
       metaDescription: data.meta_description || undefined,
     };
     setIsSubmitting(true);
     try {
       if (isEditing && product) {
-        await updateMutation({ id: product.id, data: payload as Record<string, unknown> });
+        await updateMutation({
+          id: product.id,
+          data: payload as Record<string, unknown>,
+        });
         toast.success("Product updated successfully");
       } else {
         await createMutation(payload);
@@ -201,9 +288,7 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     }
   };
 
-  const [images, setImages] = useState<ProductImage[]>(
-    product?.images ?? [],
-  );
+  const [images, setImages] = useState<ProductImage[]>(product?.images ?? []);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -220,8 +305,25 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     setUploading(true);
     try {
       const result = await adminApi.uploadProductImage(product.id, file);
-      const uploaded = 'data' in result ? result.data : result as unknown as { message: string; image: { id: string; url: string } };
-      setImages((prev) => [...prev, { id: uploaded.image.id, url: uploaded.image.url, sort_order: prev.length, is_primary: prev.length === 0 ? 1 : 0 }]);
+      const uploadedData = "data" in result ? result.data : result;
+      const uploadedImages = Array.isArray(uploadedData)
+        ? uploadedData
+        : "image" in (uploadedData as Record<string, unknown>)
+          ? [(uploadedData as unknown as { image: ProductImage }).image]
+          : [];
+      const normalized = uploadedImages.map((img) => ({
+        id: img.id,
+        url: img.url,
+        alt_text: img.alt_text,
+        sort_order:
+          img.sort_order ??
+          (img as ProductImage & { sortOrder?: number }).sortOrder ??
+          0,
+        is_primary:
+          img.is_primary ??
+          ((img as ProductImage & { isPrimary?: boolean }).isPrimary ? 1 : 0),
+      }));
+      setImages(normalized.length > 0 ? normalized : (prev) => prev);
       toast.success("Image uploaded");
       onSaved?.();
     } catch {
@@ -250,9 +352,13 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit product" : "Add product"}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit product" : "Add product"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditing ? "Update product details below." : "Fill in the details to create a new product."}
+            {isEditing
+              ? "Update product details below."
+              : "Fill in the details to create a new product."}
           </DialogDescription>
         </DialogHeader>
 
@@ -265,7 +371,11 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
                 className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                 placeholder="Product name"
               />
-              {errors.name && <p className="text-xs text-admin-error">{errors.name.message}</p>}
+              {errors.name && (
+                <p className="text-xs text-admin-error">
+                  {errors.name.message}
+                </p>
+              )}
             </label>
 
             <label className="space-y-2 text-sm font-medium">
@@ -297,10 +407,16 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
               >
                 <option value="">Select category</option>
                 {categoryList.map((cat: Record<string, unknown>) => (
-                  <option key={String(cat.id)} value={String(cat.id)}>{String(cat.name)}</option>
+                  <option key={String(cat.id)} value={String(cat.id)}>
+                    {String(cat.name)}
+                  </option>
                 ))}
               </select>
-              {errors.category_id && <p className="text-xs text-admin-error">{errors.category_id.message}</p>}
+              {errors.category_id && (
+                <p className="text-xs text-admin-error">
+                  {errors.category_id.message}
+                </p>
+              )}
             </label>
 
             <label className="space-y-2 text-sm font-medium">
@@ -311,7 +427,9 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
               >
                 <option value="">Select brand</option>
                 {brandList.map((brand: Record<string, unknown>) => (
-                  <option key={String(brand.id)} value={String(brand.id)}>{String(brand.name)}</option>
+                  <option key={String(brand.id)} value={String(brand.id)}>
+                    {String(brand.name)}
+                  </option>
                 ))}
               </select>
             </label>
@@ -326,7 +444,11 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
                 className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                 placeholder="0"
               />
-              {errors.base_price && <p className="text-xs text-admin-error">{errors.base_price.message}</p>}
+              {errors.base_price && (
+                <p className="text-xs text-admin-error">
+                  {errors.base_price.message}
+                </p>
+              )}
             </label>
 
             <label className="space-y-2 text-sm font-medium">
@@ -379,6 +501,99 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
             </label>
           </div>
 
+          <section className="rounded-2xl border border-brand-border bg-white p-4">
+            <div>
+              <h3 className="font-display text-base font-semibold">
+                Beauty details
+              </h3>
+              <p className="mt-1 text-xs leading-5 text-brand-textMuted">
+                Add shopper-facing details in plain language. Examples help
+                search and filters: oily skin, dark spots, warm beige, matte,
+                niacinamide.
+              </p>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="space-y-2 text-sm font-medium">
+                Skin types
+                <input
+                  {...register("skin_types")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Dry, oily, sensitive"
+                />
+                <span className="text-xs text-brand-textMuted">
+                  Use commas for multiple skin types.
+                </span>
+              </label>
+              <label className="space-y-2 text-sm font-medium">
+                Skin or hair concerns
+                <input
+                  {...register("concerns")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Acne, dark spots, frizz"
+                />
+                <span className="text-xs text-brand-textMuted">
+                  Example: dark spots, redness, dullness.
+                </span>
+              </label>
+              <label className="space-y-2 text-sm font-medium">
+                Shade
+                <input
+                  {...register("shade")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Warm Beige 240"
+                />
+              </label>
+              <label className="space-y-2 text-sm font-medium">
+                Undertone
+                <input
+                  {...register("undertone")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Warm, cool, neutral, olive"
+                />
+              </label>
+              <label className="space-y-2 text-sm font-medium">
+                Finish
+                <input
+                  {...register("finish")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Matte, dewy, glossy"
+                />
+              </label>
+              <label className="space-y-2 text-sm font-medium">
+                Coverage
+                <input
+                  {...register("coverage")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Sheer, medium, full"
+                />
+              </label>
+              <label className="space-y-2 text-sm font-medium sm:col-span-2">
+                Ingredients / INCI
+                <textarea
+                  {...register("ingredients_inci")}
+                  rows={3}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Aqua, Glycerin, Niacinamide..."
+                />
+                <span className="text-xs text-brand-textMuted">
+                  Plain-language validation: missing ingredients can block trust
+                  and allergy filtering.
+                </span>
+              </label>
+              <label className="space-y-2 text-sm font-medium sm:col-span-2">
+                Claims
+                <input
+                  {...register("claims")}
+                  className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  placeholder="Vegan, cruelty-free, SPF 50, dermatologist-tested"
+                />
+                <span className="text-xs text-brand-textMuted">
+                  Only add claims the business can support with evidence.
+                </span>
+              </label>
+            </div>
+          </section>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex items-center gap-3 text-sm font-medium">
               <input
@@ -409,7 +624,14 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
               <div className="flex flex-wrap gap-3">
                 {images.map((img) => (
                   <div key={img.id} className="group relative h-20 w-20">
-                    <NextImage src={img.url} alt={img.alt_text ?? "Product"} width={80} height={80} className="h-20 w-20 rounded-xl object-cover" unoptimized />
+                    <NextImage
+                      src={img.url}
+                      alt={img.alt_text ?? "Product"}
+                      width={80}
+                      height={80}
+                      className="h-20 w-20 rounded-xl object-cover"
+                      unoptimized
+                    />
                     <button
                       type="button"
                       onClick={() => handleImageDelete(img.id)}
@@ -419,7 +641,9 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
                       <X size={12} />
                     </button>
                     {img.is_primary === 1 && (
-                      <span className="absolute bottom-0 left-0 right-0 rounded-b-xl bg-brand-primary/80 text-center text-[9px] font-bold uppercase text-white">Primary</span>
+                      <span className="absolute bottom-0 left-0 right-0 rounded-b-xl bg-brand-primary/80 text-center text-[9px] font-bold uppercase text-white">
+                        Primary
+                      </span>
                     )}
                   </div>
                 ))}
@@ -432,7 +656,9 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
                     className="hidden"
                   />
                   {uploading ? (
-                    <span className="text-xs text-brand-textMuted">Uploading...</span>
+                    <span className="text-xs text-brand-textMuted">
+                      Uploading...
+                    </span>
                   ) : (
                     <Upload size={20} className="text-brand-textMuted" />
                   )}
@@ -454,7 +680,11 @@ export function ProductFormModal({ open, onOpenChange, product, onSaved }: Produ
               disabled={isSubmitting}
               className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {isSubmitting ? "Saving..." : isEditing ? "Update product" : "Create product"}
+              {isSubmitting
+                ? "Saving..."
+                : isEditing
+                  ? "Update product"
+                  : "Create product"}
             </button>
           </div>
         </form>

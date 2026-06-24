@@ -1,5 +1,4 @@
 "use client";
-// Client component required: Next.js error boundaries receive reset() and run after render failures.
 
 import { RouteError } from "@/components/common/RouteError";
 

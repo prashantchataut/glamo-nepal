@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import type { ComponentType } from "react";
 
 import {
@@ -10,12 +11,14 @@ import {
   AlertTriangle,
   MoreHorizontal,
   ShieldCheck,
+  Truck,
+  ImageOff,
+  RotateCcw,
 } from "lucide-react";
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, orderStatusToVariant, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { useAdminData } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
-import { useAdminStore } from "@/store/useAdminStore";
 
 function StatCard({
   label,
@@ -82,10 +85,47 @@ export function DashboardView() {
     [categoryCounts]
   );
 
+  const recentOrders = stats?.recentActivity?.orders ?? [];
+  const lowStockProducts = stats?.inventoryAlerts?.lowStockProducts ?? [];
+  const revenueDays = Object.entries(stats?.revenueLast30Days ?? {}).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
+  const maxRevenue = Math.max(...revenueDays.map(([, d]) => d.revenue), 1);
+  const ordersToShip = Number(stats?.orderStatusBreakdown?.PENDING ?? 0) + Number(stats?.orderStatusBreakdown?.CONFIRMED ?? 0) + Number(stats?.orderStatusBreakdown?.PROCESSING ?? 0);
+  const todayActions = [
+    { label: `${ordersToShip} orders need packing or status update`, note: "Confirm payment, pack orders and move them to shipped.", href: "/admin/orders", icon: Truck, show: ordersToShip > 0 },
+    { label: `${stats?.inventoryAlerts?.outOfStock ?? 0} products cannot be bought`, note: "Restock or pause out-of-stock products before customers get stuck.", href: "/admin/inventory", icon: AlertTriangle, show: Number(stats?.inventoryAlerts?.outOfStock ?? 0) > 0 },
+    { label: `${stats?.inventoryAlerts?.lowStock ?? 0} products need restock planning`, note: "Review low-stock products and adjust inventory while there is still time.", href: "/admin/inventory", icon: Package, show: Number(stats?.inventoryAlerts?.lowStock ?? 0) > 0 },
+    { label: "Check product content quality", note: "Find missing photos, ingredients, shade details and search previews.", href: "/admin/products", icon: ImageOff, show: true },
+    { label: "Review returns and hygiene quarantine", note: "Beauty returns should not go back to stock without inspection.", href: "/admin/returns", icon: RotateCcw, show: true },
+  ].filter((item) => item.show).slice(0, 5);
+
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
+  
+      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Today</p>
+            <h3 className="mt-1 font-display text-2xl font-semibold">What needs attention first?</h3>
+            <p className="mt-1 text-sm text-brand-textMuted">Plain owner tasks, not technical statuses.</p>
+          </div>
+          <Link href="/admin/issues" className="btn-press inline-flex w-fit rounded-full bg-brand-primary px-4 py-3 text-sm font-bold text-white">Open issue center</Link>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {todayActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link key={action.label} href={action.href} className="rounded-[1.25rem] border border-brand-border p-4 transition hover:bg-brand-bgLight">
+                <Icon size={17} className="text-brand-primary" />
+                <p className="mt-3 text-sm font-semibold text-brand-textPrimary">{action.label}</p>
+                <p className="mt-1 text-xs leading-5 text-brand-textMuted">{action.note}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="grid gap-4 grid-cols-2 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </section>
       </div>
@@ -108,9 +148,6 @@ export function DashboardView() {
     );
   }
 
-  const recentOrders = stats?.recentActivity?.orders ?? [];
-  const lowStockProducts = stats?.inventoryAlerts?.lowStockProducts ?? [];
-
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-[2rem] bg-brand-bgDark text-white shadow-lg">
@@ -126,20 +163,44 @@ export function DashboardView() {
               Manage catalog quality, order flow, inventory risks and homepage banners from one operating panel.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                onClick={() => useAdminStore.getState().setActiveSection("products")}
+              <Link
+                href="/admin/products"
                 className="btn-press rounded-full bg-white px-4 py-3 text-sm font-bold text-brand-primary"
               >
                 Manage products
-              </button>
-              <button
-                onClick={() => useAdminStore.getState().setActiveSection("banners")}
+              </Link>
+              <Link
+                href="/admin/content"
                 className="btn-press rounded-full border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white"
               >
-                Replace banners
-              </button>
+                Update content
+              </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+
+      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Today</p>
+            <h3 className="mt-1 font-display text-2xl font-semibold">What needs attention first?</h3>
+            <p className="mt-1 text-sm text-brand-textMuted">Plain owner tasks, not technical statuses.</p>
+          </div>
+          <Link href="/admin/issues" className="btn-press inline-flex w-fit rounded-full bg-brand-primary px-4 py-3 text-sm font-bold text-white">Open issue center</Link>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {todayActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link key={action.label} href={action.href} className="rounded-[1.25rem] border border-brand-border p-4 transition hover:bg-brand-bgLight">
+                <Icon size={17} className="text-brand-primary" />
+                <p className="mt-3 text-sm font-semibold text-brand-textPrimary">{action.label}</p>
+                <p className="mt-1 text-xs leading-5 text-brand-textMuted">{action.note}</p>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -177,12 +238,12 @@ export function DashboardView() {
               <h3 className="font-display text-xl font-semibold">Order history</h3>
               <p className="mt-1 text-sm text-brand-textMuted">Track payment, status and fulfillment.</p>
             </div>
-            <button
-              onClick={() => useAdminStore.getState().setActiveSection("orders")}
+            <Link
+              href="/admin/orders"
               className="btn-press rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary min-h-[44px]"
             >
               View all
-            </button>
+            </Link>
           </div>
           <div className="overflow-x-auto -mx-6 px-6">
             {recentOrders.length > 0 ? (
@@ -211,9 +272,9 @@ export function DashboardView() {
                         </StatusPill>
                       </td>
                       <td className="px-4 py-4">
-                        <button aria-label="Open order actions" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted hover:bg-brand-bgLight">
+                        <Link href={`/admin/orders?search=${encodeURIComponent(order.order_number)}`} aria-label="Open order" className="flex h-11 w-11 items-center justify-center rounded-full text-brand-textMuted hover:bg-brand-bgLight">
                           <MoreHorizontal size={16} />
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -226,6 +287,18 @@ export function DashboardView() {
         </div>
 
         <div className="space-y-6">
+          <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+            <h3 className="font-display text-xl font-semibold">Revenue pulse</h3>
+            <p className="mt-1 text-sm text-brand-textMuted">Last 14 paid-sales days from the order table.</p>
+            <div className="mt-5 flex h-32 items-end gap-1.5">
+              {revenueDays.length > 0 ? revenueDays.map(([date, d]) => (
+                <div key={date} className="flex flex-1 flex-col items-center gap-2">
+                  <div className="w-full rounded-t-lg bg-brand-primary" style={{ height: `${Math.max(8, Math.round((d.revenue / maxRevenue) * 100))}%` }} title={`${date}: ${formatNPR(d.revenue)}`} />
+                  <span className="text-[10px] text-brand-textMuted">{date.slice(5)}</span>
+                </div>
+              )) : <p className="self-center text-sm text-brand-textMuted">No paid revenue yet.</p>}
+            </div>
+          </div>
           <div className="card-hover rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
             <h3 className="font-display text-xl font-semibold">Top categories</h3>
             <div className="mt-4 space-y-4">

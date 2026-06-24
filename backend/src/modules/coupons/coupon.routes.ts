@@ -17,11 +17,11 @@ import {
 
 const couponRoutes = new Hono<AppEnv>()
 
-couponRoutes.post('/', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(createCouponSchema), createCoupon)
-couponRoutes.get('/', authMiddleware, requireRole(['SUPER_ADMIN']), validateQuery(couponFilterSchema), getCoupons)
-couponRoutes.get('/:id', authMiddleware, requireRole(['SUPER_ADMIN']), getCouponById)
-couponRoutes.patch('/:id', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateCouponSchema), updateCoupon)
-couponRoutes.delete('/:id', authMiddleware, requireRole(['SUPER_ADMIN']), deleteCoupon)
+couponRoutes.post('/', authMiddleware, requireRole(['ADMIN']), validateBody(createCouponSchema), createCoupon)
+couponRoutes.get('/', authMiddleware, requireRole(['ADMIN']), validateQuery(couponFilterSchema), getCoupons)
+couponRoutes.get('/:id', authMiddleware, requireRole(['ADMIN']), getCouponById)
+couponRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN']), validateBody(updateCouponSchema), updateCoupon)
+couponRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN']), deleteCoupon)
 couponRoutes.post('/validate', couponRateLimit, validateBody(validateCouponSchema), validateCouponCode)
 couponRoutes.post('/apply', authMiddleware, couponRateLimit, validateBody(applyCouponSchema), applyCoupon)
 

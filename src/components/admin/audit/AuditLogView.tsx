@@ -37,15 +37,33 @@ export function AuditLogView() {
   const [page, setPage] = useState(1);
   const [entityFilter, setEntityFilter] = useState("");
 
-  const { data: result, meta: resultMeta, isLoading, isError } = useAdminData(() => adminApi.getAuditLogs({
-    page,
-    limit: PAGE_SIZE,
-    entity: entityFilter || undefined,
-  }), { deps: [page, entityFilter] });
+  const {
+    data: result,
+    meta: resultMeta,
+    isLoading,
+    isError,
+  } = useAdminData(
+    () =>
+      adminApi.getAuditLogs({
+        page,
+        limit: PAGE_SIZE,
+        entity: entityFilter || undefined,
+      }),
+    { deps: [page, entityFilter] },
+  );
 
-  const logs = (Array.isArray(result) ? result : (result as unknown as Record<string, unknown>)?.logs ?? []) as unknown as AuditLog[];
-  const total = resultMeta?.total ?? ((result as unknown as Record<string, unknown>)?.total as number ?? 0);
-  const totalPages = resultMeta?.totalPages ?? ((result as unknown as Record<string, unknown>)?.totalPages as number ?? 1);
+  const logs = (Array.isArray(result)
+    ? result
+    : ((result as unknown as Record<string, unknown>)?.logs ??
+      [])) as unknown as AuditLog[];
+  const total =
+    resultMeta?.total ??
+    ((result as unknown as Record<string, unknown>)?.total as number) ??
+    0;
+  const totalPages =
+    resultMeta?.totalPages ??
+    ((result as unknown as Record<string, unknown>)?.totalPages as number) ??
+    1;
   const error = isError ? "Failed to load audit logs" : null;
 
   const columns: Column<AuditLog>[] = [
@@ -62,12 +80,17 @@ export function AuditLogView() {
       key: "action",
       header: "Action",
       render: (log) => (
-        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-          log.action.toLowerCase().includes("create") ? "bg-admin-success-light text-admin-success" :
-          log.action.toLowerCase().includes("delete") ? "bg-admin-error-light text-admin-error" :
-          log.action.toLowerCase().includes("update") ? "bg-admin-info-light text-admin-info" :
-          "bg-admin-neutral-light text-admin-neutral"
-        }`}>
+        <span
+          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+            log.action.toLowerCase().includes("create")
+              ? "bg-admin-success-light text-admin-success"
+              : log.action.toLowerCase().includes("delete")
+                ? "bg-admin-error-light text-admin-error"
+                : log.action.toLowerCase().includes("update")
+                  ? "bg-admin-info-light text-admin-info"
+                  : "bg-admin-neutral-light text-admin-neutral"
+          }`}
+        >
           {log.action}
         </span>
       ),
@@ -77,9 +100,13 @@ export function AuditLogView() {
       header: "Entity",
       render: (log) => (
         <div>
-          <span className="text-sm font-medium">{ENTITY_LABELS[log.entity] ?? log.entity}</span>
+          <span className="text-sm font-medium">
+            {ENTITY_LABELS[log.entity] ?? log.entity}
+          </span>
           {log.entity_id && (
-            <span className="ml-1 font-mono text-xs text-brand-textMuted">#{log.entity_id.slice(0, 8)}</span>
+            <span className="ml-1 font-mono text-xs text-brand-textMuted">
+              #{log.entity_id.slice(0, 8)}
+            </span>
           )}
         </div>
       ),
@@ -88,18 +115,30 @@ export function AuditLogView() {
       key: "changes",
       header: "Details",
       render: (log) => {
-        if (!log.changes) return <span className="text-brand-textMuted">�</span>;
+        if (!log.changes)
+          return <span className="text-brand-textMuted">—</span>;
         try {
-          const parsed = typeof log.changes === "string" ? JSON.parse(log.changes) : log.changes;
-          const keys = Object.keys(parsed as unknown as Record<string, unknown>);
-          if (keys.length === 0) return <span className="text-brand-textMuted">No changes</span>;
+          const parsed =
+            typeof log.changes === "string"
+              ? JSON.parse(log.changes)
+              : log.changes;
+          const keys = Object.keys(
+            parsed as unknown as Record<string, unknown>,
+          );
+          if (keys.length === 0)
+            return <span className="text-brand-textMuted">No changes</span>;
           return (
             <div className="max-w-[300px] truncate text-xs text-brand-textMuted">
-              {keys.slice(0, 3).join(", ")}{keys.length > 3 ? ` +${keys.length - 3} more` : ""}
+              {keys.slice(0, 3).join(", ")}
+              {keys.length > 3 ? ` +${keys.length - 3} more` : ""}
             </div>
           );
         } catch {
-          return <span className="text-xs text-brand-textMuted">{String(log.changes).slice(0, 60)}</span>;
+          return (
+            <span className="text-xs text-brand-textMuted">
+              {String(log.changes).slice(0, 60)}
+            </span>
+          );
         }
       },
     },
@@ -116,7 +155,9 @@ export function AuditLogView() {
       key: "ip_address",
       header: "IP",
       render: (log) => (
-        <span className="font-mono text-xs text-brand-textMuted">{log.ip_address ?? "—"}</span>
+        <span className="font-mono text-xs text-brand-textMuted">
+          {log.ip_address ?? "—"}
+        </span>
       ),
     },
   ];
@@ -144,12 +185,17 @@ export function AuditLogView() {
           <select
             aria-label="Filter by entity"
             value={entityFilter}
-            onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setEntityFilter(e.target.value);
+              setPage(1);
+            }}
             className="rounded-full border border-brand-border bg-white px-4 py-2 text-sm font-medium outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
           >
             <option value="">All entities</option>
             {Object.entries(ENTITY_LABELS).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
+              <option key={key} value={key}>
+                {label}
+              </option>
             ))}
           </select>
         </div>

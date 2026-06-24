@@ -36,6 +36,32 @@ async function hasDeletedAtColumn(db: Client, table: string): Promise<boolean> {
   }
 }
 
+let columnCache: Map<string, boolean> | null = null
+
+function getColumnCache(): Map<string, boolean> {
+  if (!columnCache) columnCache = new Map()
+  return columnCache
+}
+
+async function hasColumn(db: Client, table: string, column: string): Promise<boolean> {
+  const key = `${table}.${column}`
+  const cache = getColumnCache()
+  const cached = cache.get(key)
+  if (cached !== undefined) return cached
+  try {
+    const result = await db.execute({
+      sql: `SELECT COUNT(*) as cnt FROM pragma_table_info('${table}') WHERE name = ?`,
+      args: [column],
+    })
+    const has = Number((result.rows[0] as any)?.cnt ?? 0) > 0
+    cache.set(key, has)
+    return has
+  } catch {
+    cache.set(key, false)
+    return false
+  }
+}
+
 interface ProductRow {
   id: string
   name: string
@@ -385,7 +411,8 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
   }
   const isCOD = data.paymentMethod ? ['CASH_ON_DELIVERY', 'COD', 'cod', 'Cash on Delivery'].includes(data.paymentMethod) : false
   const codFeeEnv = c ? getEnv(c, 'COD_FEE') : '50'
-  const codFee = isCOD ? toStoredPrice(parseInt(codFeeEnv, 10)) : 0
+  const codFeeDisplay = Number.parseInt(codFeeEnv, 10)
+  const codFee = isCOD && Number.isFinite(codFeeDisplay) && codFeeDisplay > 0 ? toStoredPrice(codFeeDisplay) : 0
   const giftWrapFee = data.giftWrap ? toStoredPrice(100) : 0
   let discountAmount = 0
   let couponId: string | null = null
@@ -424,12 +451,27 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     const orderNumber = generateOrderNumber()
     const paymentMethod = paymentMethodToDb(data.paymentMethod)
 
-await tx.execute({
-      sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, cod_fee, gift_wrap_fee, discount_amount, total_amount, coupon_id, shipping_address, billing_address, notes, created_at, updated_at)
-            VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+    const optionalFeeColumns: string[] = []
+    const optionalFeePlaceholders: string[] = []
+    const optionalFeeArgs: InValue[] = []
+
+    if (await hasColumn(tx as unknown as Client, 'orders', 'cod_fee')) {
+      optionalFeeColumns.push('cod_fee')
+      optionalFeePlaceholders.push('?')
+      optionalFeeArgs.push(codFee)
+    }
+    if (await hasColumn(tx as unknown as Client, 'orders', 'gift_wrap_fee')) {
+      optionalFeeColumns.push('gift_wrap_fee')
+      optionalFeePlaceholders.push('?')
+      optionalFeeArgs.push(giftWrapFee)
+    }
+
+    await tx.execute({
+      sql: `INSERT INTO orders (id, order_number, user_id, status, payment_status, payment_method, subtotal, shipping_charge, ${optionalFeeColumns.length ? optionalFeeColumns.join(', ') + ', ' : ''}discount_amount, total_amount, coupon_id, shipping_address, billing_address, notes, created_at, updated_at)
+            VALUES (?, ?, ?, 'PENDING', 'PENDING', ?, ?, ?, ${optionalFeePlaceholders.length ? optionalFeePlaceholders.join(', ') + ', ' : ''}?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       args: [
         orderId, orderNumber, userId, paymentMethod,
-        subtotal, shippingCharge, codFee, giftWrapFee, discountAmount, totalAmount, couponId,
+        subtotal, shippingCharge, ...optionalFeeArgs, discountAmount, totalAmount, couponId,
         safeJsonStringify(shippingAddress), safeJsonStringify(billingAddress), notes,
       ],
     })

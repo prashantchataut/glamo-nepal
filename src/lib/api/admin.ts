@@ -90,6 +90,7 @@ export interface AdminProduct {
   meta_title?: string;
   meta_description?: string;
   tags?: string;
+  attributes?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
   deleted_at?: string;
@@ -141,6 +142,7 @@ export interface CreateProductInput {
   tags?: string;
   meta_title?: string;
   meta_description?: string;
+  attributes?: Record<string, unknown>;
 }
 
 export type UpdateProductInput = Partial<CreateProductInput>;
@@ -266,30 +268,31 @@ export interface AdminBanner {
   id: string;
   title: string;
   subtitle?: string;
-  image_url: string;
-  link_url?: string;
+  imageUrl: string;
+  linkUrl?: string;
   position: string;
-  sort_order: number;
-  is_active: number;
-  starts_at?: string;
-  expires_at?: string;
-  created_at: string;
-  updated_at: string;
+  sortOrder: number;
+  isActive: boolean;
+  startsAt?: string;
+  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateBannerInput {
   title: string;
   subtitle?: string;
-  image_url: string;
-  link_url?: string;
-  position?: string;
-  sort_order?: number;
-  is_active?: number;
-  starts_at?: string;
-  expires_at?: string;
+  imageUrl: string;
+  linkUrl?: string;
+  position?: "hero" | "sidebar" | "promo" | "popup";
+  sortOrder?: number;
+  startsAt?: string;
+  expiresAt?: string;
 }
 
-export type UpdateBannerInput = Partial<CreateBannerInput>;
+export interface UpdateBannerInput extends Partial<CreateBannerInput> {
+  isActive?: boolean;
+}
 
 // ── Customers / Users ──────────────────────────────────────────────────────
 
@@ -353,6 +356,89 @@ export interface AuditLog {
   created_at: string;
 }
 
+// ── Reviews ────────────────────────────────────────────────────────────────
+
+export interface AdminReview {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+  isApproved: boolean;
+  userName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ── Returns ────────────────────────────────────────────────────────────────
+
+export interface AdminReturnRequest {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  customerId?: string | null;
+  customerName?: string | null;
+  customerEmail?: string | null;
+  status: string;
+  reason: string;
+  requestedResolution: "REFUND" | "EXCHANGE" | "STORE_CREDIT";
+  itemCondition:
+    | "SEALED"
+    | "OPENED"
+    | "DAMAGED"
+    | "LEAKED"
+    | "USED"
+    | "EXPIRED"
+    | "UNKNOWN";
+  hygieneStatus: "QUARANTINE" | "INSPECT" | "DISPOSE" | "RETURN_TO_STOCK";
+  customerNote?: string | null;
+  adminNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string | null;
+}
+
+export interface CreateReturnRequestInput {
+  orderId?: string;
+  orderNumber?: string;
+  reason: string;
+  requestedResolution?: "REFUND" | "EXCHANGE" | "STORE_CREDIT";
+  itemCondition?:
+    | "SEALED"
+    | "OPENED"
+    | "DAMAGED"
+    | "LEAKED"
+    | "USED"
+    | "EXPIRED"
+    | "UNKNOWN";
+  hygieneStatus?: "QUARANTINE" | "INSPECT" | "DISPOSE" | "RETURN_TO_STOCK";
+  customerNote?: string;
+}
+
+export interface UpdateReturnRequestInput {
+  status?:
+    | "REQUESTED"
+    | "APPROVED"
+    | "REJECTED"
+    | "RECEIVED"
+    | "INSPECTED"
+    | "REFUNDED"
+    | "EXCHANGED"
+    | "CLOSED";
+  requestedResolution?: "REFUND" | "EXCHANGE" | "STORE_CREDIT";
+  itemCondition?:
+    | "SEALED"
+    | "OPENED"
+    | "DAMAGED"
+    | "LEAKED"
+    | "USED"
+    | "EXPIRED"
+    | "UNKNOWN";
+  hygieneStatus?: "QUARANTINE" | "INSPECT" | "DISPOSE" | "RETURN_TO_STOCK";
+  adminNotes?: string;
+}
+
 // ── Sales Report ───────────────────────────────────────────────────────────
 
 export interface SalesReport {
@@ -371,8 +457,9 @@ export interface SalesReport {
 export interface SiteSetting {
   id: string;
   key: string;
-  value: string;
-  group: string;
+  value: string | number | boolean | Record<string, unknown> | unknown[];
+  group?: string;
+  groupName?: string;
 }
 
 // ── Blogs ───────────────────────────────────────────────────────────────────
@@ -569,12 +656,48 @@ export interface UpdateTeamMemberInput {
   sortOrder?: number;
 }
 
+// ── Owner operations ───────────────────────────────────────────────────────
+
+export interface AdminActivityItem {
+  id: string;
+  actor: string;
+  userId?: string | null;
+  action: string;
+  entity: string;
+  entityId?: string | null;
+  changes?: unknown;
+  ipAddress?: string | null;
+  createdAt: string;
+}
+
+export type AdminExportKind = "products" | "orders" | "customers" | "activity" | "media";
+
+function getAdminApiBaseUrl(): string {
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  return "/api/v1";
+}
+
+async function downloadAdminExport(kind: AdminExportKind): Promise<Blob> {
+  const baseUrl = getAdminApiBaseUrl().replace(/\/$/, "");
+  const response = await fetch(`${baseUrl}/admin/export/${kind}`, {
+    credentials: "include",
+    headers: { Accept: "text/csv" },
+  });
+  if (!response.ok) {
+    throw new Error("Export failed. Please try again.");
+  }
+  return response.blob();
+}
+
 // ── API Functions ───────────────────────────────────────────────────────────
 
 export const adminApi = {
   // Dashboard
-  dashboardStats: () =>
-    apiRequest<DashboardStats>("/admin/dashboard"),
+  dashboardStats: () => apiRequest<DashboardStats>("/admin/dashboard"),
+  getActivityFeed: (limit = 50) => apiRequest<AdminActivityItem[]>(`/admin/activity?limit=${limit}`),
+  downloadExport: (kind: AdminExportKind) => downloadAdminExport(kind),
 
   // Products
   listProducts: (params?: {
@@ -586,18 +709,21 @@ export const adminApi = {
     is_featured?: boolean;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<AdminProductList>(`/products${query}`);
   },
 
-  getProduct: (id: string) =>
-    apiRequest<AdminProduct>(`/products/${id}`),
+  getProduct: (id: string) => apiRequest<AdminProduct>(`/products/${id}`),
 
   createProduct: (data: CreateProductInput) =>
     apiRequest<AdminProduct>("/products", {
@@ -615,24 +741,35 @@ export const adminApi = {
     apiRequest<{ message: string }>(`/products/${id}`, { method: "DELETE" }),
 
   toggleProductVisibility: (id: string) =>
-    apiRequest<AdminProduct>(`/products/${id}/toggle-hidden`, { method: "PATCH" }),
+    apiRequest<AdminProduct>(`/products/${id}/toggle-hidden`, {
+      method: "PATCH",
+    }),
 
   toggleProductFeatured: (id: string) =>
-    apiRequest<AdminProduct>(`/products/${id}/toggle-featured`, { method: "PATCH" }),
+    apiRequest<AdminProduct>(`/products/${id}/toggle-featured`, {
+      method: "PATCH",
+    }),
 
   uploadProductImage: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("image", file);
     return apiRequest<{ message: string; image: { id: string; url: string } }>(
       `/products/${id}/images`,
-      { method: "POST", body: formData, headers: {} }
+      { method: "POST", body: formData, headers: {} },
     );
   },
 
   deleteProductImage: (id: string, imageId: string) =>
-    apiRequest<{ message: string }>(`/products/${id}/images/${imageId}`, { method: "DELETE" }),
+    apiRequest<{ message: string }>(`/products/${id}/images/${imageId}`, {
+      method: "DELETE",
+    }),
 
-  adjustStock: (productId: string, change: number, reason?: string, variantId?: string) => {
+  adjustStock: (
+    productId: string,
+    change: number,
+    reason?: string,
+    variantId?: string,
+  ) => {
     const path = variantId
       ? `/products/${productId}/variants/${variantId}/stock`
       : `/products/${productId}/stock`;
@@ -643,20 +780,63 @@ export const adminApi = {
   },
 
   // Product Variants
-  addVariant: (productId: string, data: { name: string; sku?: string; price: number; salePrice?: number; stockQuantity?: number; attributes?: Record<string, string> }) =>
-    apiRequest<{ id: string; name: string; sku?: string; price: number; sale_price?: number; stock_quantity: number; attributes?: string; is_active: number }>(`/products/${productId}/variants`, {
+  addVariant: (
+    productId: string,
+    data: {
+      name: string;
+      sku?: string;
+      price: number;
+      salePrice?: number;
+      stockQuantity?: number;
+      attributes?: Record<string, string>;
+    },
+  ) =>
+    apiRequest<{
+      id: string;
+      name: string;
+      sku?: string;
+      price: number;
+      sale_price?: number;
+      stock_quantity: number;
+      attributes?: string;
+      is_active: number;
+    }>(`/products/${productId}/variants`, {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  updateVariant: (productId: string, variantId: string, data: { name?: string; sku?: string; price?: number; salePrice?: number | null; stockQuantity?: number; attributes?: Record<string, string>; isActive?: boolean }) =>
-    apiRequest<{ id: string; name: string; sku?: string; price: number; sale_price?: number; stock_quantity: number; attributes?: string; is_active: number }>(`/products/${productId}/variants/${variantId}`, {
+  updateVariant: (
+    productId: string,
+    variantId: string,
+    data: {
+      name?: string;
+      sku?: string;
+      price?: number;
+      salePrice?: number | null;
+      stockQuantity?: number;
+      attributes?: Record<string, string>;
+      isActive?: boolean;
+    },
+  ) =>
+    apiRequest<{
+      id: string;
+      name: string;
+      sku?: string;
+      price: number;
+      sale_price?: number;
+      stock_quantity: number;
+      attributes?: string;
+      is_active: number;
+    }>(`/products/${productId}/variants/${variantId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
 
   deleteVariant: (productId: string, variantId: string) =>
-    apiRequest<{ message: string }>(`/products/${productId}/variants/${variantId}`, { method: "DELETE" }),
+    apiRequest<{ message: string }>(
+      `/products/${productId}/variants/${variantId}`,
+      { method: "DELETE" },
+    ),
 
   // Orders
   listOrders: (params?: {
@@ -667,18 +847,21 @@ export const adminApi = {
     search?: string;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<AdminOrderList>(`/orders${query}`);
   },
 
-  getOrder: (id: string) =>
-    apiRequest<AdminOrder>(`/orders/${id}`),
+  getOrder: (id: string) => apiRequest<AdminOrder>(`/orders/${id}`),
 
   updateOrderStatus: (id: string, status: string) =>
     apiRequest<AdminOrder>(`/orders/${id}/status`, {
@@ -700,18 +883,21 @@ export const adminApi = {
     lowStockOnly?: boolean;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<StockReport>(`/inventory/report${query}`);
   },
 
-  getLowStockAlerts: () =>
-    apiRequest<LowStockAlerts>("/inventory/low-stock"),
+  getLowStockAlerts: () => apiRequest<LowStockAlerts>("/inventory/low-stock"),
 
   getInventoryLogs: (params?: {
     page?: number;
@@ -719,24 +905,38 @@ export const adminApi = {
     productId?: string;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
-    return apiRequest<{ logs: InventoryLog[]; total: number; page: number; limit: number; totalPages: number }>(`/inventory/logs${query}`);
+    return apiRequest<{
+      logs: InventoryLog[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>(`/inventory/logs${query}`);
   },
 
   // Banners
   listBanners: (params?: { position?: string; is_active?: boolean }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<Array<AdminBanner>>(`/banners${query}`);
@@ -744,11 +944,15 @@ export const adminApi = {
 
   listAdminBanners: (params?: { page?: number; limit?: number }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<Array<AdminBanner>>(`/banners/admin${query}`);
@@ -769,10 +973,10 @@ export const adminApi = {
   deleteBanner: (id: string) =>
     apiRequest<{ message: string }>(`/banners/${id}`, { method: "DELETE" }),
 
-  reorderBanners: (orders: Array<{ id: string; sort_order: number }>) =>
+  reorderBanners: (items: Array<{ id: string; sortOrder: number }>) =>
     apiRequest<{ message: string }>("/banners/reorder", {
       method: "PATCH",
-      body: JSON.stringify({ orders }),
+      body: JSON.stringify({ items }),
     }),
 
   uploadBannerImage: (file: File) => {
@@ -793,18 +997,21 @@ export const adminApi = {
     limit?: number;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<AdminUserList>(`/admin/users${query}`);
   },
 
-  getUser: (id: string) =>
-    apiRequest<AdminUserDetail>(`/admin/users/${id}`),
+  getUser: (id: string) => apiRequest<AdminUserDetail>(`/admin/users/${id}`),
 
   updateUserRole: (id: string, role: string) =>
     apiRequest<{ message: string }>(`/admin/users/${id}/role`, {
@@ -825,21 +1032,36 @@ export const adminApi = {
     limit?: number;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
-    return apiRequest<{ notifications: AdminNotification[]; unreadCount: number; total: number; page: number; limit: number; totalPages: number }>(`/admin/notifications${query}`);
+    return apiRequest<{
+      notifications: AdminNotification[];
+      unreadCount: number;
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>(`/admin/notifications${query}`);
   },
 
   markNotificationRead: (id: string) =>
-    apiRequest<{ message: string }>(`/admin/notifications/${id}/read`, { method: "PATCH" }),
+    apiRequest<{ message: string }>(`/admin/notifications/${id}/read`, {
+      method: "PATCH",
+    }),
 
   markAllNotificationsRead: () =>
-    apiRequest<{ message: string }>("/admin/notifications/read-all", { method: "PATCH" }),
+    apiRequest<{ message: string }>("/admin/notifications/read-all", {
+      method: "PATCH",
+    }),
 
   // Audit Logs
   getAuditLogs: (params?: {
@@ -850,32 +1072,157 @@ export const adminApi = {
     limit?: number;
   }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
-    return apiRequest<{ logs: AuditLog[]; total: number; page: number; limit: number; totalPages: number }>(`/admin/audit-logs${query}`);
+    return apiRequest<{
+      logs: AuditLog[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>(`/admin/audit-logs${query}`);
   },
 
-  // Sales Report
-  getSalesReport: (startDate: string, endDate: string, groupBy: "day" | "week" | "month" = "day") =>
-    apiRequest<SalesReport>(`/admin/sales-report?startDate=${startDate}&endDate=${endDate}&groupBy=${groupBy}`),
+  // Reviews
+  listReviews: (params?: {
+    page?: number;
+    limit?: number;
+    isApproved?: boolean;
+    productId?: string;
+  }) => {
+    const query = params
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
+        ).toString()
+      : "";
+    return apiRequest<AdminReview[]>(`/reviews/admin${query}`);
+  },
 
-  // Settings
-  getPublicSettings: () =>
-    apiRequest<SiteSetting[]>("/settings/public"),
+  approveReview: (id: string) =>
+    apiRequest<AdminReview>(`/reviews/admin/${id}/approve`, {
+      method: "PATCH",
+    }),
 
-  getAllSettings: () =>
-    apiRequest<SiteSetting[]>("/settings"),
+  rejectReview: (id: string) =>
+    apiRequest<AdminReview>(`/reviews/admin/${id}/reject`, { method: "PATCH" }),
 
-  updateSettings: (data: Record<string, string>) =>
-    apiRequest<SiteSetting[]>("/settings", {
+  deleteReview: (id: string) =>
+    apiRequest<{ message: string }>(`/reviews/admin/${id}`, {
+      method: "DELETE",
+    }),
+
+  // Returns
+  listReturns: (params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }) => {
+    const query = params
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
+        ).toString()
+      : "";
+    return apiRequest<AdminReturnRequest[]>(`/returns${query}`);
+  },
+
+  createReturn: (data: CreateReturnRequestInput) =>
+    apiRequest<AdminReturnRequest>("/returns", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateReturn: (id: string, data: UpdateReturnRequestInput) =>
+    apiRequest<AdminReturnRequest>(`/returns/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
+
+  // Sales Report
+  getSalesReport: (
+    startDate: string,
+    endDate: string,
+    groupBy: "day" | "week" | "month" = "day",
+  ) =>
+    apiRequest<SalesReport>(
+      `/admin/sales-report?startDate=${startDate}&endDate=${endDate}&groupBy=${groupBy}`,
+    ),
+
+  // Settings
+  getPublicSettings: () => apiRequest<SiteSetting[]>("/settings/public"),
+
+  getAllSettings: () => apiRequest<SiteSetting[]>("/settings"),
+
+  updateSettings: (data: Record<string, string>) => {
+    // Backend expects `{ settings: [{ key, value }] }` and validates real
+    // value types, so admin text fields must be converted before saving.
+    const numericKeys = new Set([
+      "free_shipping_threshold",
+      "cod_fee",
+      "max_cart_item_quantity",
+      "low_stock_threshold_default",
+    ]);
+    const booleanKeys = new Set([
+      "maintenance_mode",
+      "review_auto_approve",
+      "store_pickup_enabled",
+      "cod_enabled",
+    ]);
+    const objectKeys = new Set([
+      "delivery_fees",
+      "announcement_texts",
+      "contact_info",
+      "delivery_zones",
+      "support_response_templates",
+    ]);
+    const settings = Object.entries(data).map(([key, raw]) => {
+      let value: unknown = raw;
+      if (numericKeys.has(key)) {
+        value = Number(raw);
+      } else if (booleanKeys.has(key)) {
+        value = raw === "true" || raw === "1" || raw === "yes" || raw === "on";
+      } else if (objectKeys.has(key)) {
+        try {
+          value = JSON.parse(raw);
+        } catch {
+          value = raw.includes(",")
+            ? raw
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean)
+            : raw;
+        }
+      }
+      return { key, value };
+    });
+    return apiRequest<{ message: string }>("/settings", {
+      method: "PATCH",
+      body: JSON.stringify({ settings }),
+    });
+  },
 
   uploadSettingImage: (file: File) => {
     const formData = new FormData();
@@ -898,13 +1245,21 @@ export const adminApi = {
       body: JSON.stringify({ productIds: ids }),
     }),
 
-  exportProducts: (params?: { search?: string; status?: string; format?: string }) => {
+  exportProducts: (params?: {
+    search?: string;
+    status?: string;
+    format?: string;
+  }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<Blob>(`/admin/products/export${query}`, {
@@ -914,7 +1269,9 @@ export const adminApi = {
 
   // Categories (for product forms)
   listCategories: () =>
-    apiRequest<Array<{ id: string; name: string; slug: string; parentId?: string }>>("/categories"),
+    apiRequest<
+      Array<{ id: string; name: string; slug: string; parentId?: string }>
+    >("/categories"),
 
   // Brands (for product forms)
   listBrands: () =>
@@ -922,20 +1279,33 @@ export const adminApi = {
 
   // ── Blogs ─────────────────────────────────────────────────────────────────
 
-  listBlogs: (params?: { page?: number; limit?: number; category?: string }) => {
+  listBlogs: (params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
-    return apiRequest<{ posts: AdminBlog[]; total: number; page: number; limit: number; totalPages: number }>(`/blogs${query}`);
+    return apiRequest<{
+      posts: AdminBlog[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>(`/blogs${query}`);
   },
 
-  getBlog: (slug: string) =>
-    apiRequest<AdminBlog>(`/blogs/${slug}`),
+  getBlog: (slug: string) => apiRequest<AdminBlog>(`/blogs/${slug}`),
 
   createBlog: (data: CreateBlogInput) =>
     apiRequest<AdminBlog>("/blogs", {
@@ -958,25 +1328,37 @@ export const adminApi = {
   deleteBlog: (id: string) =>
     apiRequest<{ message: string }>(`/blogs/${id}`, { method: "DELETE" }),
 
-  getBlogCategories: () =>
-    apiRequest<string[]>("/blogs/categories"),
+  getBlogCategories: () => apiRequest<string[]>("/blogs/categories"),
 
   // ── Coupons ───────────────────────────────────────────────────────────────
 
-  listCoupons: (params?: { page?: number; limit?: number; isActive?: boolean }) => {
+  listCoupons: (params?: {
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+  }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
-    return apiRequest<{ coupons: AdminCoupon[]; total: number; page: number; limit: number; totalPages: number }>(`/coupons${query}`);
+    return apiRequest<{
+      coupons: AdminCoupon[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>(`/coupons${query}`);
   },
 
-  getCoupon: (id: string) =>
-    apiRequest<AdminCoupon>(`/coupons/${id}`),
+  getCoupon: (id: string) => apiRequest<AdminCoupon>(`/coupons/${id}`),
 
   createCoupon: (data: CreateCouponInput) =>
     apiRequest<AdminCoupon>("/coupons", {
@@ -997,18 +1379,21 @@ export const adminApi = {
 
   listPopups: (params?: { page?: number; limit?: number }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<AdminPopup[]>(`/popups${query}`);
   },
 
-  getPopup: (id: string) =>
-    apiRequest<AdminPopup>(`/popups/${id}`),
+  getPopup: (id: string) => apiRequest<AdminPopup>(`/popups/${id}`),
 
   createPopup: (data: CreatePopupInput) =>
     apiRequest<AdminPopup>("/popups", {
@@ -1029,11 +1414,15 @@ export const adminApi = {
 
   listGallery: (params?: { category?: string }) => {
     const query = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params).reduce<Record<string, string>>((acc, [k, v]) => {
-            if (v !== undefined && v !== null) acc[k] = String(v);
-            return acc;
-          }, {})
+      ? "?" +
+        new URLSearchParams(
+          Object.entries(params).reduce<Record<string, string>>(
+            (acc, [k, v]) => {
+              if (v !== undefined && v !== null) acc[k] = String(v);
+              return acc;
+            },
+            {},
+          ),
         ).toString()
       : "";
     return apiRequest<AdminGalleryItem[]>(`/gallery${query}`);
@@ -1062,8 +1451,7 @@ export const adminApi = {
 
   // ── Team ───────────────────────────────────────────────────────────────────
 
-  listTeam: () =>
-    apiRequest<AdminTeamMember[]>("/team"),
+  listTeam: () => apiRequest<AdminTeamMember[]>("/team"),
 
   createTeamMember: (data: CreateTeamMemberInput) =>
     apiRequest<AdminTeamMember>("/team", {
@@ -1080,3 +1468,5 @@ export const adminApi = {
   deleteTeamMember: (id: string) =>
     apiRequest<{ message: string }>(`/team/${id}`, { method: "DELETE" }),
 };
+
+

@@ -15,6 +15,8 @@ import {
   getUserById,
   updateUserRole,
   updateUserStatus,
+  getActivityFeed,
+  exportAdminData,
   getMe,
 } from './admin.controller'
 
@@ -22,6 +24,8 @@ const adminRoutes = new Hono<AppEnv>()
 
 adminRoutes.get('/me', authMiddleware, requireRole(['ADMIN']), getMe)
 adminRoutes.get('/dashboard', authMiddleware, requireRole(['ADMIN']), getDashboardStats)
+adminRoutes.get('/activity', authMiddleware, requireRole(['ADMIN']), getActivityFeed)
+adminRoutes.get('/export/:kind', authMiddleware, requireRole(['ADMIN']), exportAdminData)
 adminRoutes.get('/sales-report', authMiddleware, requireRole(['ADMIN']), validateQuery(salesReportSchema), getSalesReport)
 adminRoutes.get('/notifications', authMiddleware, requireRole(['ADMIN']), validateQuery(notificationFilterSchema), getNotifications)
 adminRoutes.patch('/notifications/:id/read', authMiddleware, requireRole(['ADMIN']), markNotificationRead)

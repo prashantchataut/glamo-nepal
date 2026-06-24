@@ -14,7 +14,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatNPR } from "@/lib/utils";
-import { StatusPill, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
+import {
+  StatusPill,
+  stockStatusToVariant,
+} from "@/components/admin/shared/StatusPill";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
@@ -22,7 +25,10 @@ import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
 import { useAdminStore } from "@/store/useAdminStore";
-import { ProductFormModal, type ProductFormProduct } from "@/components/admin/products/ProductForm";
+import {
+  ProductFormModal,
+  type ProductFormProduct,
+} from "@/components/admin/products/ProductForm";
 import { ProductDetailModal } from "@/components/admin/products/ProductDetailModal";
 
 const PAGE_SIZE = 20;
@@ -47,8 +53,15 @@ interface ProductRow {
   isActive: boolean;
   brand: { id: string; name: string; slug: string } | null;
   category: { id: string; name: string; slug: string } | null;
-  images: { id: string; url: string; alt_text?: string; sort_order: number; is_primary: number }[];
+  images: {
+    id: string;
+    url: string;
+    alt_text?: string;
+    sort_order: number;
+    is_primary: number;
+  }[];
   tags?: string[];
+  attributes?: Record<string, unknown>;
   metaTitle?: string;
   metaDescription?: string;
 }
@@ -72,6 +85,7 @@ function toFormProduct(p: ProductRow): ProductFormProduct {
     stock_quantity: p.stockQuantity,
     low_stock_threshold: p.lowStockThreshold,
     tags: p.tags?.join(", "),
+    attributes: p.attributes,
     meta_title: p.metaTitle,
     meta_description: p.metaDescription,
   };
@@ -82,32 +96,62 @@ export function ProductsView() {
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [editProduct, setEditProduct] = useState<ProductFormProduct | null>(null);
+  const [editProduct, setEditProduct] = useState<ProductFormProduct | null>(
+    null,
+  );
   const [detailId, setDetailId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-  const [pendingBulkStatus, setPendingBulkStatus] = useState<{ ids: string[]; isActive: boolean } | null>(null);
+  const [pendingBulkStatus, setPendingBulkStatus] = useState<{
+    ids: string[];
+    isActive: boolean;
+  } | null>(null);
   const [isBulkLoading, setIsBulkLoading] = useState(false);
 
-  const { data: productsData, meta: productsMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listProducts({
-    page,
-    limit: PAGE_SIZE,
-    search: productSearch || undefined,
-  }));
+  const {
+    data: productsData,
+    meta: productsMeta,
+    isLoading,
+    isError: hasError,
+    refetch,
+  } = useAdminData(() =>
+    adminApi.listProducts({
+      page,
+      limit: PAGE_SIZE,
+      search: productSearch || undefined,
+    }),
+  );
 
-  const { mutate: deleteProduct } = useAdminMutation((vars: { id: string }) => adminApi.deleteProduct(vars.id));
-  const { mutate: bulkDelete } = useAdminMutation((ids: string[]) => adminApi.bulkDeleteProducts(ids));
-  const { mutate: bulkUpdateStatus } = useAdminMutation((vars: { ids: string[]; isActive: boolean }) => adminApi.bulkUpdateProductStatus(vars.ids, vars.isActive));
+  const { mutate: deleteProduct } = useAdminMutation((vars: { id: string }) =>
+    adminApi.deleteProduct(vars.id),
+  );
+  const { mutate: bulkDelete } = useAdminMutation((ids: string[]) =>
+    adminApi.bulkDeleteProducts(ids),
+  );
+  const { mutate: bulkUpdateStatus } = useAdminMutation(
+    (vars: { ids: string[]; isActive: boolean }) =>
+      adminApi.bulkUpdateProductStatus(vars.ids, vars.isActive),
+  );
 
   const products: ProductRow[] = useMemo(() => {
     if (!productsData) return [];
-    if (Array.isArray(productsData)) return productsData as unknown as ProductRow[];
-    return ((productsData as unknown as Record<string, unknown>).products ?? []) as unknown as ProductRow[];
+    if (Array.isArray(productsData))
+      return productsData as unknown as ProductRow[];
+    return ((productsData as unknown as Record<string, unknown>).products ??
+      []) as unknown as ProductRow[];
   }, [productsData]);
 
-  const total = productsMeta?.total ?? (Array.isArray(productsData) ? productsData.length : (productsData ? (productsData as unknown as Record<string, unknown>).total as number : 0) ?? 0);
+  const total =
+    productsMeta?.total ??
+    (Array.isArray(productsData)
+      ? productsData.length
+      : ((productsData
+          ? ((productsData as unknown as Record<string, unknown>)
+              .total as number)
+          : 0) ?? 0));
 
-  const totalPages = productsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages =
+    productsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const error = hasError ? "Failed to load products" : null;
 
@@ -127,26 +171,38 @@ export function ProductsView() {
       setDeleteId(null);
       refetch();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete product");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete product",
+      );
     }
   }, [deleteId, deleteProduct, refetch]);
 
-  const requestBulkStatus = useCallback((isActive: boolean) => {
-    if (selectedIds.size === 0) return;
-    setPendingBulkStatus({ ids: Array.from(selectedIds), isActive });
-  }, [selectedIds]);
+  const requestBulkStatus = useCallback(
+    (isActive: boolean) => {
+      if (selectedIds.size === 0) return;
+      setPendingBulkStatus({ ids: Array.from(selectedIds), isActive });
+    },
+    [selectedIds],
+  );
 
   const confirmBulkStatus = useCallback(async () => {
     if (!pendingBulkStatus) return;
     setIsBulkLoading(true);
     try {
-      await bulkUpdateStatus({ ids: pendingBulkStatus.ids, isActive: pendingBulkStatus.isActive });
-      toast.success(`${pendingBulkStatus.ids.length} product${pendingBulkStatus.ids.length > 1 ? "s" : ""} ${pendingBulkStatus.isActive ? "activated" : "deactivated"}`);
+      await bulkUpdateStatus({
+        ids: pendingBulkStatus.ids,
+        isActive: pendingBulkStatus.isActive,
+      });
+      toast.success(
+        `${pendingBulkStatus.ids.length} product${pendingBulkStatus.ids.length > 1 ? "s" : ""} ${pendingBulkStatus.isActive ? "activated" : "deactivated"}`,
+      );
       setSelectedIds(new Set());
       setPendingBulkStatus(null);
       refetch();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update status");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update status",
+      );
     } finally {
       setIsBulkLoading(false);
     }
@@ -165,8 +221,12 @@ export function ProductsView() {
         String(p.stockQuantity),
         p.isActive ? "active" : "inactive",
       ]),
-    ].map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","));
-    const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    ].map((row) =>
+      row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","),
+    );
+    const blob = new Blob([rows.join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -183,7 +243,9 @@ export function ProductsView() {
         <div className="flex items-center gap-4">
           {product.images?.find((img) => img.is_primary === 1)?.url ? (
             <NextImage
-              src={product.images.find((img) => img.is_primary === 1)?.url ?? ""}
+              src={
+                product.images.find((img) => img.is_primary === 1)?.url ?? ""
+              }
               alt={product.name}
               width={40}
               height={40}
@@ -195,8 +257,12 @@ export function ProductsView() {
             </div>
           )}
           <div>
-            <p className="font-semibold text-brand-textPrimary">{product.name}</p>
-            <p className="text-xs text-brand-textMuted">{product.brand?.name ?? "�"}</p>
+            <p className="font-semibold text-brand-textPrimary">
+              {product.name}
+            </p>
+            <p className="text-xs text-brand-textMuted">
+              {product.brand?.name ?? "—"}
+            </p>
           </div>
         </div>
       ),
@@ -204,12 +270,16 @@ export function ProductsView() {
     {
       key: "sku",
       header: "SKU",
-      render: (product) => <span className="font-mono text-xs">{product.sku ?? "�"}</span>,
+      render: (product) => (
+        <span className="font-mono text-xs">{product.sku ?? "—"}</span>
+      ),
     },
     {
       key: "category",
       header: "Category",
-      render: (product) => <span className="capitalize">{product.category?.name ?? "�"}</span>,
+      render: (product) => (
+        <span className="capitalize">{product.category?.name ?? "—"}</span>
+      ),
     },
     {
       key: "price",
@@ -218,7 +288,9 @@ export function ProductsView() {
         <div>
           <span className="font-semibold">{formatNPR(product.basePrice)}</span>
           {product.salePrice && product.salePrice < product.basePrice && (
-            <span className="ml-2 text-xs text-brand-textMuted line-through">{formatNPR(product.basePrice)}</span>
+            <span className="ml-2 text-xs text-brand-textMuted line-through">
+              {formatNPR(product.basePrice)}
+            </span>
           )}
         </div>
       ),
@@ -232,8 +304,17 @@ export function ProductsView() {
       key: "status",
       header: "Status",
       render: (product) => {
-        const status = product.stockQuantity <= 0 ? "Out" : product.stockQuantity <= product.lowStockThreshold ? "Low" : "Active";
-        return <StatusPill variant={stockStatusToVariant(status)}>{status}</StatusPill>;
+        const status =
+          product.stockQuantity <= 0
+            ? "Out"
+            : product.stockQuantity <= product.lowStockThreshold
+              ? "Low"
+              : "Active";
+        return (
+          <StatusPill variant={stockStatusToVariant(status)}>
+            {status}
+          </StatusPill>
+        );
       },
     },
     {
@@ -251,7 +332,10 @@ export function ProductsView() {
           <button
             aria-label="Edit product"
             className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-textMuted hover:bg-brand-bgLight"
-            onClick={() => { setEditProduct(toFormProduct(product)); setFormOpen(true); }}
+            onClick={() => {
+              setEditProduct(toFormProduct(product));
+              setFormOpen(true);
+            }}
           >
             <Pencil size={15} />
           </button>
@@ -271,8 +355,12 @@ export function ProductsView() {
     <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="font-display text-2xl font-semibold">Product management</h2>
-          <p className="mt-1 text-sm text-brand-textMuted">Browse, search and manage your product catalog.</p>
+          <h2 className="font-display text-2xl font-semibold">
+            Product management
+          </h2>
+          <p className="mt-1 text-sm text-brand-textMuted">
+            Browse, search and manage your product catalog.
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -283,7 +371,10 @@ export function ProductsView() {
             <Download size={15} /> Export
           </button>
           <button
-            onClick={() => { setEditProduct(null); setFormOpen(true); }}
+            onClick={() => {
+              setEditProduct(null);
+              setFormOpen(true);
+            }}
             className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
           >
             <Plus size={15} /> Add product
@@ -365,7 +456,9 @@ export function ProductsView() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteId(null);
+        }}
         title="Delete product"
         description="This action cannot be undone. The product will be permanently removed from your catalog."
         confirmLabel="Delete"
@@ -376,41 +469,53 @@ export function ProductsView() {
 
       <ConfirmDialog
         open={bulkDeleteOpen}
-        onOpenChange={(open) => { if (!open) setBulkDeleteOpen(false); }}
+        onOpenChange={(open) => {
+          if (!open) setBulkDeleteOpen(false);
+        }}
         title={`Delete ${selectedIds.size} product${selectedIds.size > 1 ? "s" : ""}`}
         description={`This action cannot be undone. ${selectedIds.size} product${selectedIds.size > 1 ? "s will be" : " will be"} permanently removed from your catalog.`}
         confirmLabel="Delete all"
         variant="destructive"
         isLoading={false}
         onConfirm={async () => {
-            try {
-              await bulkDelete(Array.from(selectedIds));
-              toast.success(`${selectedIds.size} product${selectedIds.size > 1 ? "s" : ""} deleted`);
-              setSelectedIds(new Set());
-              setBulkDeleteOpen(false);
-              refetch();
-            } catch (err: unknown) {
-              toast.error(err instanceof Error ? err.message : "Failed to delete products");
-            }
-          }}
+          try {
+            await bulkDelete(Array.from(selectedIds));
+            toast.success(
+              `${selectedIds.size} product${selectedIds.size > 1 ? "s" : ""} deleted`,
+            );
+            setSelectedIds(new Set());
+            setBulkDeleteOpen(false);
+            refetch();
+          } catch (err: unknown) {
+            toast.error(
+              err instanceof Error ? err.message : "Failed to delete products",
+            );
+          }
+        }}
       />
 
       <ProductFormModal
         open={formOpen}
         onOpenChange={setFormOpen}
         product={editProduct}
-        onSaved={() => { refetch(); }}
+        onSaved={() => {
+          refetch();
+        }}
       />
 
       <ProductDetailModal
         open={detailId !== null}
-        onOpenChange={(open) => { if (!open) setDetailId(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDetailId(null);
+        }}
         productId={detailId}
       />
 
       <ConfirmDialog
         open={pendingBulkStatus !== null}
-        onOpenChange={(open) => { if (!open) setPendingBulkStatus(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingBulkStatus(null);
+        }}
         title={`${pendingBulkStatus?.isActive ? "Activate" : "Deactivate"} ${pendingBulkStatus?.ids.length ?? 0} product${(pendingBulkStatus?.ids.length ?? 0) > 1 ? "s" : ""}?`}
         description={`Are you sure you want to ${pendingBulkStatus?.isActive ? "activate" : "deactivate"} the selected product${(pendingBulkStatus?.ids.length ?? 0) > 1 ? "s" : ""}?`}
         confirmLabel={`Confirm: ${pendingBulkStatus?.isActive ? "Activate" : "Deactivate"}`}

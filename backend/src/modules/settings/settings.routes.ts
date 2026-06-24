@@ -14,6 +14,6 @@ const settingsRoutes = new Hono<AppEnv>()
 
 settingsRoutes.get('/public', getPublicSettings)
 settingsRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), getSettings)
-settingsRoutes.patch('/', authMiddleware, requireRole(['SUPER_ADMIN']), validateBody(updateSettingsSchema), updateSettings)
+settingsRoutes.patch('/', authMiddleware, requireRole(['ADMIN']), validateBody(updateSettingsSchema), updateSettings)
 
 export { settingsRoutes }

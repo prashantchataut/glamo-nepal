@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Menu, ChevronDown, Search, X } from "lucide-react";
 import type { AdminSection } from "@/store/useAdminStore";
 import { useAdminStore } from "@/store/useAdminStore";
@@ -10,16 +11,23 @@ const sectionLabels: Record<AdminSection, string> = {
   dashboard: "Dashboard",
   products: "Products",
   orders: "Orders",
-  inventory: "Stocks",
-  banners: "Banners",
-  coupons: "Coupons",
-  popups: "Popups",
-  gallery: "Gallery",
-  team: "Team",
   customers: "Customers",
+  inventory: "Inventory",
+  delivery: "Delivery",
+  promotions: "Promotions",
+  returns: "Returns",
+  reviews: "Reviews",
+  popups: "Popups",
+  setup: "Setup Wizard",
+  issues: "Issue Center",
+  support: "Support Desk",
+  activity: "Activity",
+  backups: "Backups",
   analytics: "Analytics",
-  audit: "Audit Log",
   settings: "Settings",
+  audit: "Audit Log",
+  content: "Content",
+  compliance: "Compliance",
 };
 
 interface AdminHeaderProps {
@@ -37,11 +45,16 @@ function getInitials(name: string): string {
 }
 
 export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
-  const { globalSearch, setGlobalSearch, setActiveSection, setProductSearch, setCustomerSearch, adminUser } = useAdminStore();
+  const router = useRouter();
+  const { globalSearch, setGlobalSearch, setProductSearch, setCustomerSearch, setOrderSearch, adminUser } = useAdminStore();
   const displayName = adminUser?.name || "Admin";
   const initials = getInitials(displayName);
   const [localSearch, setLocalSearch] = useState(globalSearch);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  useEffect(() => {
+    setLocalSearch(globalSearch);
+  }, [globalSearch]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -51,21 +64,28 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
     setGlobalSearch(query);
     setProductSearch(query);
     setCustomerSearch(query);
+    setOrderSearch(query);
 
-    if (activeSection === "dashboard" || activeSection === "banners" || activeSection === "inventory" || activeSection === "analytics" || activeSection === "settings" || activeSection === "audit") {
-      setActiveSection("products");
+    const encoded = encodeURIComponent(query);
+    if (activeSection === "orders") {
+      router.push(`/admin/orders?search=${encoded}`);
+    } else if (activeSection === "customers") {
+      router.push(`/admin/customers?search=${encoded}`);
+    } else {
+      router.push(`/admin/products?search=${encoded}`);
     }
     setMobileSearchOpen(false);
-  }, [localSearch, activeSection, setGlobalSearch, setProductSearch, setCustomerSearch, setActiveSection]);
+  }, [localSearch, activeSection, router, setGlobalSearch, setProductSearch, setCustomerSearch, setOrderSearch]);
 
   return (
     <header role="banner" className="sticky top-0 z-admin-header border-b border-brand-border bg-white/95 px-4 py-4 md:px-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3 md:gap-4">
           <button
             onClick={onMenuToggle}
             className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-textPrimary shadow-sm lg:hidden"
             aria-label="Open admin menu"
+            type="button"
           >
             <Menu size={18} />
           </button>
@@ -82,9 +102,9 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
           <div className="relative w-full max-w-lg">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-textMuted" size={16} />
             <input
-              aria-label="Search orders and products"
+              aria-label="Search products, orders, customers, SKUs, shades or ingredients"
               className="w-full rounded-xl border border-brand-border bg-brand-bgLight py-3 pl-10 pr-4 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
-              placeholder="Search products, orders or customers"
+              placeholder="Search products, orders, customers, SKUs, shades or ingredients"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
             />
@@ -93,8 +113,9 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-textMuted transition hover:text-brand-primary shadow-sm md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-white text-brand-textMuted shadow-sm transition hover:text-brand-primary md:hidden"
             aria-label="Search"
+            type="button"
           >
             {mobileSearchOpen ? <X size={16} /> : <Search size={16} />}
           </button>
@@ -114,13 +135,13 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
         </div>
 
         {mobileSearchOpen && (
-          <form onSubmit={handleSearch} className="mt-3 md:hidden">
+          <form onSubmit={handleSearch} className="w-full md:hidden">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-textMuted" size={16} />
               <input
-                aria-label="Search products, orders or customers"
+                aria-label="Search products, orders, customers, SKUs, shades or ingredients"
                 className="w-full rounded-xl border border-brand-border bg-brand-bgLight py-3 pl-10 pr-4 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
-                placeholder="Search products, orders or customers"
+                placeholder="Search products, orders, customers, SKUs, shades or ingredients"
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
                 autoFocus

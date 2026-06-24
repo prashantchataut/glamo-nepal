@@ -18,6 +18,7 @@ import { wishlistRoutes } from './modules/wishlist/wishlist.routes'
 import { couponRoutes } from './modules/coupons/coupon.routes'
 import { orderRoutes, checkoutRoutes } from './modules/orders/order.routes'
 import { reviewRoutes } from './modules/reviews/review.routes'
+import { returnRoutes } from './modules/returns/return.routes'
 import { bannerRoutes } from './modules/banners/banner.routes'
 import { popupRoutes } from './modules/popups/popup.routes'
 import { blogRoutes } from './modules/blog/blog.routes'
@@ -126,6 +127,7 @@ app.route('/api/v1/coupons', couponRoutes)
 app.route('/api/v1/orders', orderRoutes)
 app.route('/api/v1/checkout', checkoutRoutes)
 app.route('/api/v1/reviews', reviewRoutes)
+app.route('/api/v1/returns', returnRoutes)
 app.route('/api/v1/banners', bannerRoutes)
 app.route('/api/v1/popups', popupRoutes)
 app.route('/api/v1/blogs', blogRoutes)

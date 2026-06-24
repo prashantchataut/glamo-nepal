@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
 import { CATEGORIES } from "@/lib/data/products";
-import { BLOG_POSTS_SYNC } from "@/lib/data/blog";
 import { SITE_CONFIG } from "@/lib/config";
 import { PRODUCT_COLLECTIONS } from "@/lib/collections";
 import { getBrandProfiles } from "@/lib/brands";
 import { PRODUCT_BUNDLES } from "@/lib/data/bundles";
 import { getAllServerProducts } from "@/lib/server/catalog";
+import { getServerBlogPosts } from "@/lib/server/blog";
 
 // Revalidate sitemap daily via ISR so newly published catalog entries appear.
 export const revalidate = 86400;
@@ -15,7 +15,9 @@ function toISO8601(date: Date): string {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.website).replace(/\/$/, "");
+  const base = (
+    process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.website
+  ).replace(/\/$/, "");
 
   // Prefer the live catalog; fall back to the bundled static catalog when the
   // data service is unreachable (e.g. during a build before provisioning).
@@ -33,6 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/about", priority: 0.7, changefreq: "monthly" as const },
     { path: "/contact", priority: 0.7, changefreq: "monthly" as const },
     { path: "/faq", priority: 0.7, changefreq: "monthly" as const },
+    { path: "/llms.txt", priority: 0.4, changefreq: "weekly" as const },
     { path: "/privacy-policy", priority: 0.5, changefreq: "yearly" as const },
     { path: "/terms", priority: 0.5, changefreq: "yearly" as const },
     { path: "/shipping-policy", priority: 0.5, changefreq: "yearly" as const },
@@ -55,7 +58,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const collectionRoutes = PRODUCT_COLLECTIONS.filter((collection) => collection.slug !== "low-stock").map((collection) => ({
+  const collectionRoutes = PRODUCT_COLLECTIONS.filter(
+    (collection) => collection.slug !== "low-stock",
+  ).map((collection) => ({
     url: `${base}/collections/${collection.slug}`,
     changeFrequency: "weekly" as const,
     priority: 0.72,
@@ -73,12 +78,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.68,
   }));
 
-  const blogRoutes = BLOG_POSTS_SYNC.map((post) => ({
+  const { posts: blogPosts } = await getServerBlogPosts({ limit: 100 });
+  const blogRoutes = blogPosts.map((post) => ({
     url: `${base}/blog/${post.slug}`,
     lastModified: toISO8601(new Date(post.date)),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...collectionRoutes, ...routineRoutes, ...brandRoutes, ...productRoutes, ...blogRoutes];
+  return [
+    ...staticRoutes,
+    ...categoryRoutes,
+    ...collectionRoutes,
+    ...routineRoutes,
+    ...brandRoutes,
+    ...productRoutes,
+    ...blogRoutes,
+  ];
 }

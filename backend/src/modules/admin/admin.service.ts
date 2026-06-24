@@ -534,3 +534,126 @@ export async function updateUserStatus(db: Client, userId: string, isActive: boo
 
   return { message: `User ${isActive ? 'activated' : 'deactivated'} successfully` }
 }
+
+function csvEscape(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  const text = typeof value === 'object' ? JSON.stringify(value) : String(value)
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
+}
+
+function rowsToCsv(headers: string[], rows: Array<Record<string, unknown>>): string {
+  return [headers.join(','), ...rows.map((row) => headers.map((h) => csvEscape(row[h])).join(','))].join('\n')
+}
+
+export async function getActivityFeed(db: Client, limit = 50) {
+  const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 200)
+  const result = await db.execute({
+    sql: `SELECT a.id, a.user_id, u.email as user_email, u.first_name, u.last_name,
+                 a.action, a.entity, a.entity_id, a.changes, a.ip_address, a.created_at
+          FROM audit_logs a
+          LEFT JOIN users u ON u.id = a.user_id
+          ORDER BY a.created_at DESC
+          LIMIT ?`,
+    args: [safeLimit],
+  })
+
+  return result.rows.map((row: any) => {
+    const actor = [row.first_name, row.last_name].filter(Boolean).join(' ') || row.user_email || 'System'
+    return {
+      id: String(row.id),
+      actor,
+      userId: row.user_id ? String(row.user_id) : null,
+      action: String(row.action || 'UPDATE'),
+      entity: String(row.entity || 'record'),
+      entityId: row.entity_id ? String(row.entity_id) : null,
+      changes: safeJsonParse(row.changes as string, row.changes),
+      ipAddress: row.ip_address ? String(row.ip_address) : null,
+      createdAt: String(row.created_at),
+    }
+  })
+}
+
+export async function buildExportFile(db: Client, kind: string) {
+  const normalized = String(kind || '').toLowerCase()
+
+  if (normalized === 'products') {
+    const result = await db.execute({
+      sql: `SELECT p.id, p.name, p.slug, p.sku, c.name as category, b.name as brand,
+                   p.base_price, p.sale_price, p.stock_quantity, p.low_stock_threshold,
+                   p.is_active, p.is_featured, p.created_at, p.updated_at
+            FROM products p
+            LEFT JOIN categories c ON c.id = p.category_id
+            LEFT JOIN brands b ON b.id = p.brand_id
+            WHERE p.deleted_at IS NULL
+            ORDER BY p.updated_at DESC`,
+      args: [],
+    })
+    const headers = ['id','name','slug','sku','category','brand','base_price','sale_price','stock_quantity','low_stock_threshold','is_active','is_featured','created_at','updated_at']
+    return { filename: 'glamo-products.csv', contentType: 'text/csv; charset=utf-8', body: rowsToCsv(headers, result.rows as any[]) }
+  }
+
+  if (normalized === 'orders') {
+    const result = await db.execute({
+      sql: `SELECT o.id, o.order_number, u.email as customer_email,
+                   (COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '')) as customer_name,
+                   o.status, o.payment_status, o.payment_method, o.subtotal, o.shipping_charge,
+                   0 as cod_fee, o.discount_amount, o.total_amount,
+                   o.created_at, o.updated_at
+            FROM orders o
+            LEFT JOIN users u ON u.id = o.user_id
+            WHERE o.deleted_at IS NULL
+            ORDER BY o.created_at DESC`,
+      args: [],
+    })
+    const headers = ['id','order_number','customer_email','customer_name','status','payment_status','payment_method','subtotal','shipping_charge','cod_fee','discount_amount','total_amount','created_at','updated_at']
+    return { filename: 'glamo-orders.csv', contentType: 'text/csv; charset=utf-8', body: rowsToCsv(headers, result.rows as any[]) }
+  }
+
+  if (normalized === 'customers') {
+    const result = await db.execute({
+      sql: `SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.is_active,
+                   COUNT(o.id) as order_count,
+                   COALESCE(SUM(CASE WHEN o.payment_status = 'PAID' THEN o.total_amount ELSE 0 END), 0) as paid_total,
+                   u.created_at, u.updated_at
+            FROM users u
+            LEFT JOIN orders o ON o.user_id = u.id
+            WHERE u.role = 'CUSTOMER'
+            GROUP BY u.id
+            ORDER BY u.created_at DESC`,
+      args: [],
+    })
+    const headers = ['id','first_name','last_name','email','phone','role','is_active','order_count','paid_total','created_at','updated_at']
+    return { filename: 'glamo-customers.csv', contentType: 'text/csv; charset=utf-8', body: rowsToCsv(headers, result.rows as any[]) }
+  }
+
+  if (normalized === 'activity' || normalized === 'audit') {
+    const result = await db.execute({
+      sql: `SELECT a.id, a.user_id, u.email as user_email, a.action, a.entity, a.entity_id, a.changes, a.ip_address, a.created_at
+            FROM audit_logs a
+            LEFT JOIN users u ON u.id = a.user_id
+            ORDER BY a.created_at DESC`,
+      args: [],
+    })
+    const headers = ['id','user_id','user_email','action','entity','entity_id','changes','ip_address','created_at']
+    return { filename: 'glamo-activity.csv', contentType: 'text/csv; charset=utf-8', body: rowsToCsv(headers, result.rows as any[]) }
+  }
+
+  if (normalized === 'media') {
+    const [banners, gallery, popups, settings] = await Promise.all([
+      db.execute({ sql: `SELECT id, title, image_url, link_url, position, is_active, updated_at FROM banners ORDER BY sort_order ASC`, args: [] }),
+      db.execute({ sql: `SELECT id, title, image_url, category, is_active, updated_at FROM gallery_items ORDER BY sort_order ASC`, args: [] }),
+      db.execute({ sql: `SELECT id, title, image_url, link_url, is_active, updated_at FROM popups ORDER BY sort_order ASC`, args: [] }),
+      db.execute({ sql: `SELECT id, key, value, group_name as category, updated_at FROM site_settings WHERE key LIKE '%image%' OR key LIKE '%logo%' OR key LIKE '%favicon%' OR key LIKE '%og_%'`, args: [] }),
+    ])
+    const rows: Array<Record<string, unknown>> = []
+    for (const row of banners.rows as any[]) rows.push({ source: 'banner', id: row.id, title: row.title, url: row.image_url, link: row.link_url, category: row.position, is_active: row.is_active, updated_at: row.updated_at })
+    for (const row of gallery.rows as any[]) rows.push({ source: 'gallery', id: row.id, title: row.title, url: row.image_url, link: '', category: row.category, is_active: row.is_active, updated_at: row.updated_at })
+    for (const row of popups.rows as any[]) rows.push({ source: 'popup', id: row.id, title: row.title, url: row.image_url, link: row.link_url, category: 'popup', is_active: row.is_active, updated_at: row.updated_at })
+    for (const row of settings.rows as any[]) rows.push({ source: 'setting', id: row.id, title: row.key, url: row.value, link: '', category: row.category, is_active: 1, updated_at: row.updated_at })
+    const headers = ['source','id','title','url','link','category','is_active','updated_at']
+    return { filename: 'glamo-media.csv', contentType: 'text/csv; charset=utf-8', body: rowsToCsv(headers, rows) }
+  }
+
+  throw new AppError('Unsupported export type', 400, 'UNSUPPORTED_EXPORT')
+}
+

@@ -1,8 +1,8 @@
 "use client";
+// Client component required: Next.js error boundaries receive reset() and run after render failures.
 
 import { RouteError } from "@/components/common/RouteError";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function ProductDetailError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  return <RouteError title="Product not found" description="We couldn't load this product. It may have been removed or the link may be incorrect." reset={reset} />;
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  return <RouteError error={error} reset={reset} />;
 }

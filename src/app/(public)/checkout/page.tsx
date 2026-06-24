@@ -1,15 +1,5 @@
-import { createMetadata } from "@/lib/seo";
-import { CheckoutPageClient } from "@/components/checkout/CheckoutPageClient";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export const metadata = createMetadata({
-  title: "Checkout",
-  description: "Complete your GLAMO NEPAL order.",
-  path: "/checkout",
-  noIndex: true,
-});
-
-export default function CheckoutPage() {
-  return <CheckoutPageClient />;
+export default function CheckoutSuccessRedirect() {
+  redirect("/order-confirmation/latest");
 }

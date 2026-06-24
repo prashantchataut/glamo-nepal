@@ -7,7 +7,6 @@ import {
   Package,
   ShoppingBag,
   Boxes,
-  ImageIcon,
   Ticket,
   Users,
   BarChart3,
@@ -16,7 +15,17 @@ import {
   LogOut,
   X,
   ClipboardList,
-  Megaphone,
+  RotateCcw,
+  Star,
+  FileText,
+  ShieldCheck,
+  LifeBuoy,
+  ClipboardCheck,
+  AlertCircle,
+  History,
+  Download,
+  MousePointerClick,
+  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminSection, canAccess } from "@/store/useAdminStore";
@@ -24,7 +33,6 @@ import { useAdminStore } from "@/store/useAdminStore";
 
 interface AdminSidebarProps {
   activeSection: AdminSection;
-  onSectionChange: (section: AdminSection) => void;
   isSidebarOpen: boolean;
   onSidebarClose: () => void;
   onLogout: () => void;
@@ -34,21 +42,29 @@ interface AdminSidebarProps {
 const sections: Array<{
   id: AdminSection;
   label: string;
+  href: string;
   icon: ComponentType<{ size?: number | string; className?: string }>;
 }> = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "products", label: "Products", icon: Package },
-  { id: "orders", label: "Orders", icon: ShoppingBag },
-  { id: "inventory", label: "Stocks", icon: Boxes },
-  { id: "banners", label: "Banners", icon: ImageIcon },
-  { id: "coupons", label: "Coupons", icon: Ticket },
-  { id: "popups", label: "Popups", icon: Megaphone },
-  { id: "gallery", label: "Gallery", icon: ImageIcon },
-  { id: "team", label: "Team", icon: Users },
-  { id: "customers", label: "Customers", icon: Users },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "audit", label: "Audit Log", icon: ClipboardList },
-  { id: "settings", label: "Settings", icon: Settings },
+  { id: "dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { id: "issues", label: "Issue Center", href: "/admin/issues", icon: AlertCircle },
+  { id: "setup", label: "Setup Wizard", href: "/admin/setup", icon: ClipboardCheck },
+  { id: "products", label: "Products", href: "/admin/products", icon: Package },
+  { id: "orders", label: "Orders", href: "/admin/orders", icon: ShoppingBag },
+  { id: "customers", label: "Customers", href: "/admin/customers", icon: Users },
+  { id: "inventory", label: "Inventory", href: "/admin/inventory", icon: Boxes },
+  { id: "delivery", label: "Delivery", href: "/admin/delivery", icon: Truck },
+  { id: "promotions", label: "Promotions", href: "/admin/promotions", icon: Ticket },
+  { id: "returns", label: "Returns", href: "/admin/returns", icon: RotateCcw },
+  { id: "reviews", label: "Reviews", href: "/admin/reviews", icon: Star },
+  { id: "content", label: "Homepage", href: "/admin/content", icon: FileText },
+  { id: "popups", label: "Popups", href: "/admin/popups", icon: MousePointerClick },
+  { id: "support", label: "Support Desk", href: "/admin/support", icon: LifeBuoy },
+  { id: "analytics", label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { id: "compliance", label: "Compliance", href: "/admin/compliance", icon: ShieldCheck },
+  { id: "activity", label: "Activity", href: "/admin/activity", icon: History },
+  { id: "audit", label: "Audit Log", href: "/admin/audit", icon: ClipboardList },
+  { id: "backups", label: "Backups", href: "/admin/backups", icon: Download },
+  { id: "settings", label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 function SparklesIcon() {
@@ -62,6 +78,7 @@ function SparklesIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z" />
     </svg>
@@ -72,21 +89,27 @@ const SECTION_ACCESS: Record<AdminSection, string> = {
   dashboard: "ADMIN",
   products: "ADMIN",
   orders: "ADMIN",
-  inventory: "ADMIN",
-  banners: "ADMIN",
-  coupons: "SUPER_ADMIN",
-  popups: "ADMIN",
-  gallery: "ADMIN",
-  team: "ADMIN",
   customers: "ADMIN",
+  inventory: "ADMIN",
+  delivery: "ADMIN",
+  promotions: "ADMIN",
+  returns: "ADMIN",
+  reviews: "ADMIN",
+  popups: "ADMIN",
+  setup: "ADMIN",
+  issues: "ADMIN",
+  support: "ADMIN",
+  activity: "ADMIN",
+  backups: "ADMIN",
+  content: "ADMIN",
   analytics: "ADMIN",
+  compliance: "ADMIN",
   audit: "SUPER_ADMIN",
   settings: "ADMIN",
 };
 
 export function AdminSidebar({
   activeSection,
-  onSectionChange,
   isSidebarOpen,
   onSidebarClose,
   onLogout,
@@ -94,8 +117,8 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const adminUser = useAdminStore((s) => s.adminUser);
   const userRole = adminUser?.role || "ADMIN";
-
   const visibleSections = sections.filter((s) => canAccess(userRole, SECTION_ACCESS[s.id]));
+
   return (
     <aside
       role="navigation"
@@ -107,14 +130,12 @@ export function AdminSidebar({
     >
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-brand-border px-6 py-6">
-          <Link href="/admin" className="flex items-center gap-4">
+          <Link href="/admin" className="flex items-center gap-4" onClick={onSidebarClose}>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-primary/20">
               <SparklesIcon />
             </div>
             <div>
-              <p className="font-display text-xl font-semibold leading-none">
-                GLAMO
-              </p>
+              <p className="font-display text-xl font-semibold leading-none">GLAMO</p>
               <p className="font-label mt-1 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">
                 Admin panel
               </p>
@@ -124,36 +145,32 @@ export function AdminSidebar({
             onClick={onSidebarClose}
             className="flex h-11 w-11 items-center justify-center rounded-xl text-brand-textMuted hover:bg-brand-bgLight lg:hidden"
             aria-label="Close admin menu"
+            type="button"
           >
             <X size={18} />
           </button>
         </div>
 
-        <nav
-          role="tablist"
-          className="flex-1 space-y-1 overflow-y-auto px-4 py-4"
-        >
+        <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-4">
           {visibleSections.map((section) => {
             const Icon = section.icon;
+            const active = activeSection === section.id;
             return (
-              <button
+              <Link
                 key={section.id}
-                role="tab"
-                aria-selected={activeSection === section.id}
-                onClick={() => {
-                  onSectionChange(section.id);
-                  onSidebarClose();
-                }}
+                href={section.href}
+                aria-current={active ? "page" : undefined}
+                onClick={onSidebarClose}
                 className={cn(
-                  "btn-press flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-sm font-medium transition",
-                  activeSection === section.id
+                  "btn-press flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
+                  active
                     ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20"
                     : "text-brand-textMuted hover:bg-brand-bgLight hover:text-brand-textPrimary"
                 )}
               >
                 <Icon size={17} />
                 {section.label}
-              </button>
+              </Link>
             );
           })}
         </nav>
@@ -166,11 +183,11 @@ export function AdminSidebar({
             <Eye size={17} /> View storefront
           </Link>
           <button
+            type="button"
             onClick={onLogout}
             className="btn-press flex w-full items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium text-admin-error transition hover:bg-admin-error-light"
           >
-            <LogOut size={17} />{" "}
-            {isLoggingOut ? "Signing out..." : "Logout"}
+            <LogOut size={17} /> {isLoggingOut ? "Signing out..." : "Logout"}
           </button>
         </div>
       </div>

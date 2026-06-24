@@ -1,15 +1,12 @@
 import type { ReactNode } from "react";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export const metadata = {
-  title: "Dashboard — GLAMO NEPAL",
-  description: "Workspace.",
+  title: "Admin — GLAMO NEPAL",
+  description: "Protected store operations workspace.",
   robots: { index: false, follow: false },
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="min-h-screen bg-brand-bgLight">
-      {children}
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }

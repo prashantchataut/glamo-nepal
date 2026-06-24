@@ -177,3 +177,35 @@ export async function updateUserStatus(c: Context<AppEnv>) {
     return ApiResponse.error(c, error.message || 'Failed to update user status', 500)
   }
 }
+
+export async function getActivityFeed(c: Context<AppEnv>) {
+  try {
+    const db = c.get('db')
+    const limit = Number(c.req.query('limit')) || 50
+    const result = await AdminService.getActivityFeed(db, limit)
+    return ApiResponse.success(c, 'Activity feed fetched successfully', result)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
+    return ApiResponse.error(c, error.message || 'Failed to fetch activity feed', 500)
+  }
+}
+
+export async function exportAdminData(c: Context<AppEnv>) {
+  try {
+    const db = c.get('db')
+    const { kind } = c.req.param()
+    const file = await AdminService.buildExportFile(db, kind)
+    c.header('Content-Type', file.contentType)
+    c.header('Content-Disposition', `attachment; filename="${file.filename}"`)
+    c.header('Cache-Control', 'no-store')
+    return c.body(file.body)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
+    return ApiResponse.error(c, error.message || 'Failed to export data', 500)
+  }
+}
+

@@ -44,7 +44,7 @@ function normalizeRole(role?: string): "customer" | "admin" {
   return "customer";
 }
 
-async function syncUserWithBackend(token: string, displayName?: string | null) {
+async function syncUserWithApi(token: string, displayName?: string | null) {
   try {
     const csrfToken = await ensureCsrfToken();
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
@@ -77,7 +77,7 @@ async function syncUserWithBackend(token: string, displayName?: string | null) {
       const errorBody = await res.text().catch(() => "");
       console.error("[Auth] Account sync failed:", res.status, errorBody);
       if (res.status === 401) {
-        console.error("[Auth] Token rejected by backend. The Firebase ID token may be expired or the FIREBASE_PROJECT_ID may not match. Try signing out and signing in again.");
+        console.error("[Auth] Token rejected by API. The Firebase ID token may be expired or the FIREBASE_PROJECT_ID may not match. Try signing out and signing in again.");
       }
     }
   } catch (error) {
@@ -129,20 +129,20 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
           setAuthCookie(token);
 
           if (token) {
-            const backendUser = await syncUserWithBackend(token, user.displayName);
+            const accountUser = await syncUserWithApi(token, user.displayName);
 
-            if (backendUser) {
+            if (accountUser) {
               login({
-                id: backendUser.id || user.uid,
-                email: backendUser.email || user.email || undefined,
-                name: backendUser.firstName
-                  ? `${backendUser.firstName}${backendUser.lastName ? " " + backendUser.lastName : ""}`
+                id: accountUser.id || user.uid,
+                email: accountUser.email || user.email || undefined,
+                name: accountUser.firstName
+                  ? `${accountUser.firstName}${accountUser.lastName ? " " + accountUser.lastName : ""}`
                   : user.displayName || user.email?.split("@")[0] || "User",
-                phone: backendUser.phone || "",
-                role: normalizeRole(backendUser.role),
+                phone: accountUser.phone || "",
+                role: normalizeRole(accountUser.role),
               });
             } else {
-              console.warn("[Auth] Backend sync failed, using Firebase-only user data");
+              console.warn("[Auth] Account sync failed, using Firebase-only user data");
               login({
                 id: user.uid,
                 email: user.email || undefined,

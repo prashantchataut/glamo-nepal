@@ -30,12 +30,12 @@ required_files=(
   src/app/account/password/page.tsx
   src/app/account/orders/[id]/page.tsx
   src/app/admin/layout.tsx
-  src/app/collections/page.tsx
-  src/app/collections/[slug]/page.tsx
-  src/app/routines/page.tsx
-  src/app/routines/[slug]/page.tsx
-  src/app/brands/page.tsx
-  src/app/brands/[slug]/page.tsx
+  src/app/\(public\)/collections/page.tsx
+  src/app/\(public\)/collections/[slug]/page.tsx
+  src/app/\(public\)/routines/page.tsx
+  src/app/\(public\)/routines/[slug]/page.tsx
+  src/app/\(public\)/brands/page.tsx
+  src/app/\(public\)/brands/[slug]/page.tsx
   src/components/legal/LegalLayout.tsx
   src/lib/api/client.ts
   src/lib/api/checkout.ts

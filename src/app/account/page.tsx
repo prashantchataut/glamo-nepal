@@ -1,13 +1,13 @@
-import { AccountDashboardClient } from "@/components/account/AccountDashboardClient";
+import { WishlistClient } from "@/components/account/WishlistClient";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
-  title: "My Account",
-  description: "Manage your GLAMO NEPAL account, orders, wishlist and settings.",
-  path: "/account",
+  title: "Wishlist",
+  description: "View saved GLAMO NEPAL products in the customer account wishlist.",
+  path: "/account/wishlist",
   noIndex: true,
 });
 
-export default function AccountDashboardPage() {
-  return <AccountDashboardClient />;
+export default function WishlistPage() {
+  return <WishlistClient />;
 }

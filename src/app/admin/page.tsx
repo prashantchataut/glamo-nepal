@@ -1,9 +1,9 @@
-import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { DashboardView } from "@/components/admin/dashboard/DashboardView";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Dashboard",
-  description: "Workspace.",
+  description: "Business action dashboard for GLAMO NEPAL operations.",
   path: "/admin",
   noIndex: true,
 });
@@ -11,5 +11,5 @@ export const metadata = createMetadata({
 export const dynamic = "force-dynamic";
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  return <DashboardView />;
 }

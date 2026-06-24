@@ -11,8 +11,16 @@ import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
 import { OrderDetailModal } from "@/components/admin/orders/OrderDetailModal";
 import { toast } from "sonner";
+import { useAdminStore } from "@/store/useAdminStore";
 
-const ORDER_STATUSES = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"] as const;
+const ORDER_STATUSES = [
+  "PENDING",
+  "CONFIRMED",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+] as const;
 const PAGE_SIZE = 20;
 
 interface OrderRow {
@@ -21,39 +29,91 @@ interface OrderRow {
   created_at: string;
   items: { name: string; quantity: number; price: number }[];
   payment_method: string | null;
-  shipping_address: string;
+  shipping_address: string | Record<string, unknown>;
   total_amount: number;
   status: string;
+}
+
+function formatShippingAddress(address: OrderRow["shipping_address"]): string {
+  if (!address) return "No address";
+  if (typeof address === "string") {
+    try {
+      const parsed = JSON.parse(address) as Record<string, unknown>;
+      return formatShippingAddress(parsed);
+    } catch {
+      return address;
+    }
+  }
+  return [
+    address.fullName,
+    address.phone,
+    address.addressLine1 || address.address1,
+    address.ward ? `Ward ${address.ward}` : undefined,
+    address.city,
+    address.district,
+    address.province,
+  ]
+    .filter(Boolean)
+    .map(String)
+    .join(", ");
 }
 
 export function OrdersView() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const { orderSearch, setOrderSearch } = useAdminStore();
   const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [pendingStatus, setPendingStatus] = useState<{ orderId: string; status: string; label: string } | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<{
+    orderId: string;
+    status: string;
+    label: string;
+  } | null>(null);
   const [isStatusLoading, setIsStatusLoading] = useState(false);
 
-  const { data: ordersData, meta: ordersMeta, isLoading, isError: hasError, refetch } = useAdminData(() => adminApi.listOrders({
-    status: statusFilter || undefined,
-    search: searchQuery || undefined,
-    page,
-    limit: PAGE_SIZE,
-  }));
+  const {
+    data: ordersData,
+    meta: ordersMeta,
+    isLoading,
+    isError: hasError,
+    refetch,
+  } = useAdminData(
+    () =>
+      adminApi.listOrders({
+        status: statusFilter || undefined,
+        search: orderSearch || undefined,
+        page,
+        limit: PAGE_SIZE,
+      }),
+    { deps: [statusFilter, orderSearch, page] },
+  );
 
-  const { mutate: updateStatus } = useAdminMutation((vars: { id: string; status: string }) => adminApi.updateOrderStatus(vars.id, vars.status));
-  const { mutate: cancelOrder } = useAdminMutation((vars: { id: string; reason?: string }) => adminApi.cancelOrder(vars.id, vars.reason));
+  const { mutate: updateStatus } = useAdminMutation(
+    (vars: { id: string; status: string }) =>
+      adminApi.updateOrderStatus(vars.id, vars.status),
+  );
+  const { mutate: cancelOrder } = useAdminMutation(
+    (vars: { id: string; reason?: string }) =>
+      adminApi.cancelOrder(vars.id, vars.reason),
+  );
 
   const orders: OrderRow[] = (() => {
     if (!ordersData) return [];
     if (Array.isArray(ordersData)) return ordersData as unknown as OrderRow[];
-    return ((ordersData as unknown as Record<string, unknown>).orders ?? []) as unknown as OrderRow[];
+    return ((ordersData as unknown as Record<string, unknown>).orders ??
+      []) as unknown as OrderRow[];
   })();
 
-  const total = ordersMeta?.total ?? (Array.isArray(ordersData) ? ordersData.length : (ordersData ? (ordersData as unknown as Record<string, unknown>).total as number : 0) ?? 0);
-  const totalPages = ordersMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const total =
+    ordersMeta?.total ??
+    (Array.isArray(ordersData)
+      ? ordersData.length
+      : ((ordersData
+          ? ((ordersData as unknown as Record<string, unknown>).total as number)
+          : 0) ?? 0));
+  const totalPages =
+    ordersMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
   const error = hasError ? "Failed to load orders" : null;
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -65,12 +125,24 @@ export function OrdersView() {
     if (!pendingStatus) return;
     setIsStatusLoading(true);
     try {
-      await updateStatus({ id: pendingStatus.orderId, status: pendingStatus.status as "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" });
+      await updateStatus({
+        id: pendingStatus.orderId,
+        status: pendingStatus.status as
+          | "PENDING"
+          | "CONFIRMED"
+          | "PROCESSING"
+          | "SHIPPED"
+          | "DELIVERED"
+          | "CANCELLED"
+          | "REFUNDED",
+      });
       toast.success(`Order status updated to ${pendingStatus.label}`);
       setPendingStatus(null);
       refetch();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update status");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update status",
+      );
     } finally {
       setIsStatusLoading(false);
     }
@@ -79,7 +151,10 @@ export function OrdersView() {
   const handleCancelOrder = async () => {
     if (!cancelOrderId) return;
     try {
-      await cancelOrder({ id: cancelOrderId, reason: cancelReason || undefined });
+      await cancelOrder({
+        id: cancelOrderId,
+        reason: cancelReason || undefined,
+      });
       toast.success("Order cancelled");
       setCancelOrderId(null);
       setCancelReason("");
@@ -105,7 +180,9 @@ export function OrdersView() {
     {
       key: "date",
       header: "Date",
-      render: (order) => <span>{new Date(order.created_at).toLocaleDateString()}</span>,
+      render: (order) => (
+        <span>{new Date(order.created_at).toLocaleDateString()}</span>
+      ),
     },
     {
       key: "items",
@@ -120,12 +197,18 @@ export function OrdersView() {
     {
       key: "address",
       header: "Address",
-      render: (order) => <span className="max-w-[200px] truncate block">{order.shipping_address}</span>,
+      render: (order) => (
+        <span className="block max-w-[220px] truncate">
+          {formatShippingAddress(order.shipping_address)}
+        </span>
+      ),
     },
     {
       key: "total",
       header: "Total",
-      render: (order) => <span className="font-semibold">{formatNPR(order.total_amount)}</span>,
+      render: (order) => (
+        <span className="font-semibold">{formatNPR(order.total_amount)}</span>
+      ),
     },
     {
       key: "status",
@@ -143,8 +226,8 @@ export function OrdersView() {
                 {s.charAt(0) + s.slice(1).toLowerCase()}
               </option>
             ))}
-</select>
-           {order.status !== "CANCELLED" && (
+          </select>
+          {order.status !== "CANCELLED" && (
             <button
               onClick={() => setCancelOrderId(order.id)}
               className="text-xs font-medium text-admin-error hover:underline"
@@ -170,12 +253,17 @@ export function OrdersView() {
           <select
             aria-label="Filter by status"
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
             className="rounded-full border border-brand-border bg-white px-4 py-2 text-sm font-medium outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
           >
             <option value="">All statuses</option>
             {ORDER_STATUSES.map((s) => (
-              <option key={s} value={s}>{s.charAt(0) + s.slice(1).toLowerCase()}</option>
+              <option key={s} value={s}>
+                {s.charAt(0) + s.slice(1).toLowerCase()}
+              </option>
             ))}
           </select>
         </div>
@@ -183,8 +271,11 @@ export function OrdersView() {
 
       <div className="mt-4">
         <SearchInput
-          value={searchQuery}
-          onSearch={(q) => { setSearchQuery(q); setPage(1); }}
+          value={orderSearch}
+          onSearch={(q) => {
+            setOrderSearch(q);
+            setPage(1);
+          }}
           placeholder="Search by order number or customer"
         />
       </div>
@@ -216,13 +307,20 @@ export function OrdersView() {
 
       <OrderDetailModal
         open={detailOrderId !== null}
-        onOpenChange={(open) => { if (!open) setDetailOrderId(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDetailOrderId(null);
+        }}
         orderId={detailOrderId}
       />
 
       <ConfirmDialog
         open={cancelOrderId !== null}
-        onOpenChange={(open) => { if (!open) { setCancelOrderId(null); setCancelReason(""); } }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCancelOrderId(null);
+            setCancelReason("");
+          }
+        }}
         title="Cancel order"
         description="This will mark the order as cancelled. This action cannot be undone."
         confirmLabel="Cancel order"
@@ -244,7 +342,9 @@ export function OrdersView() {
 
       <ConfirmDialog
         open={pendingStatus !== null}
-        onOpenChange={(open) => { if (!open) setPendingStatus(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingStatus(null);
+        }}
         title={`Change order status to ${pendingStatus?.label || ""}?`}
         description="This will update the order status. Customers may receive a notification."
         confirmLabel={`Confirm: ${pendingStatus?.label || ""}`}

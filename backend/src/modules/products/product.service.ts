@@ -322,8 +322,8 @@ export async function getProducts(
     const terms = filters.search.trim().split(/\s+/)
     for (const term of terms) {
       const escaped = term.replace(/[%_\\]/g, '\\$&')
-      conditions.push('(name LIKE ? OR short_description LIKE ? OR tags LIKE ?)')
-      args.push(`%${escaped}%`, `%${escaped}%`, `%"${escaped}"%`)
+      conditions.push('(name LIKE ? OR sku LIKE ? OR short_description LIKE ? OR tags LIKE ? OR attributes LIKE ?)')
+      args.push(`%${escaped}%`, `%${escaped}%`, `%${escaped}%`, `%"${escaped}"%`, `%${escaped}%`)
     }
   }
 
@@ -445,8 +445,8 @@ export async function searchProducts(query: string, page: number, limit: number,
   const args: InValue[] = []
 
   for (const term of terms) {
-    conditions.push('(name LIKE ? OR short_description LIKE ? OR tags LIKE ?)')
-    args.push(`%${term}%`, `%${term}%`, `%"${term}"%`)
+    conditions.push('(name LIKE ? OR sku LIKE ? OR short_description LIKE ? OR tags LIKE ? OR attributes LIKE ?)')
+    args.push(`%${term}%`, `%${term}%`, `%${term}%`, `%"${term}"%`, `%${term}%`)
   }
 
   const whereClause = `WHERE ${conditions.join(' AND ')}`
@@ -555,6 +555,7 @@ export async function createProduct(
     metaTitle?: string
     metaDescription?: string
     tags?: string[]
+    attributes?: Record<string, unknown>
   },
   adminId: string,
   db: Client
@@ -571,13 +572,15 @@ export async function createProduct(
   const costPrice = data.costPrice !== undefined ? toStoredPrice(data.costPrice) : null
 
   const tags = safeJsonStringify(data.tags && data.tags.length > 0 ? data.tags : null)
-  const searchVector = [data.name, data.shortDescription, ...(data.tags || [])].join(' ').toLowerCase()
+  const attributes = data.attributes && Object.keys(data.attributes).length > 0 ? safeJsonStringify(data.attributes) : null
+  const attributeSearch = data.attributes ? Object.values(data.attributes).flatMap((value) => Array.isArray(value) ? value : [value]).filter(Boolean).join(' ') : ''
+  const searchVector = [data.name, data.shortDescription, ...(data.tags || []), attributeSearch].join(' ').toLowerCase()
 
   const id = crypto.randomUUID()
 
   await db.execute({
-    sql: `INSERT INTO products (id, name, slug, description, short_description, sku, category_id, brand_id, base_price, sale_price, cost_price, currency, is_active, is_featured, is_digital, track_inventory, stock_quantity, low_stock_threshold, weight, dimensions, meta_title, meta_description, tags, search_vector)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO products (id, name, slug, description, short_description, sku, category_id, brand_id, base_price, sale_price, cost_price, currency, is_active, is_featured, is_digital, track_inventory, stock_quantity, low_stock_threshold, weight, dimensions, meta_title, meta_description, tags, attributes, search_vector)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id,
       data.name,
@@ -602,6 +605,7 @@ export async function createProduct(
       data.metaTitle ?? null,
       data.metaDescription ?? null,
       tags,
+      attributes,
       searchVector,
     ],
   })
@@ -672,6 +676,11 @@ export async function updateProduct(
     const tags = data.tags as string[]
     setClauses.push('tags = ?')
     updateArgs.push(safeJsonStringify(tags.length > 0 ? tags : null))
+  }
+  if (data.attributes !== undefined) {
+    const attributes = data.attributes as Record<string, unknown>
+    setClauses.push('attributes = ?')
+    updateArgs.push(Object.keys(attributes).length > 0 ? safeJsonStringify(attributes) : null)
   }
 
   await db.execute({
