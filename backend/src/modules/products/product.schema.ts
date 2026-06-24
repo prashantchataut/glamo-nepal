@@ -55,7 +55,7 @@ export const createProductSchema = z.object({
   metaTitle: z.string().max(255).optional(),
   metaDescription: z.string().max(500).optional(),
   tags: tagsTransform.optional().default([]),
-  attributes: z.record(z.unknown()).optional().default({}),
+  attributes: z.record(z.string(), z.unknown()).optional().default({}),
 })
 
 export const updateProductSchema = z.object({
@@ -80,7 +80,7 @@ export const updateProductSchema = z.object({
   metaTitle: z.string().max(255).nullable().optional(),
   metaDescription: z.string().max(500).nullable().optional(),
   tags: tagsTransform.optional(),
-  attributes: z.record(z.unknown()).optional(),
+  attributes: z.record(z.string(), z.unknown()).optional(),
 })
 
 const attributesTransform = z.union([

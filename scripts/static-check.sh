@@ -53,9 +53,9 @@ required_files=(
   src/lib/brands.ts
   src/lib/search.ts
   src/lib/product-safety.ts
-  PRODUCT_DATA_GUIDE.md
+  docs/PRODUCT_DATA_GUIDE.md
+  docs/PRODUCTION_PROGRESS.md
   DEPLOYMENT_CHECKLIST.md
-  PRODUCTION_PROGRESS.md
 )
 
 for file in "${required_files[@]}"; do

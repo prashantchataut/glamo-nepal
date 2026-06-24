@@ -8,7 +8,7 @@ const scanRoots = [
   "FRONTEND_HANDOFF.md",
   "FINAL_CHANGELOG.md",
   "NEXT_STEPS_FOR_OWNER.md",
-  "PRODUCT_DATA_GUIDE.md",
+  "docs/PRODUCT_DATA_GUIDE.md",
   "DEPLOYMENT_CHECKLIST.md",
 ].map((item) => join(root, item));
 
