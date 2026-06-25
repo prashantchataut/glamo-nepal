@@ -34,6 +34,12 @@ import type { Product } from "@/types/product";
 import { RecentlyViewedStrip } from "@/components/product/RecentlyViewedStrip";
 import { ReviewSection } from "@/components/reviews/ReviewSection";
 
+/** Coerce anything into a string[] so render sites never throw `.map is not a function`. */
+function asArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string");
+  return [];
+}
+
 const reassurance = [
   {
     label: "Authenticity checked",
@@ -59,7 +65,28 @@ export default function ProductDetailClient({
   product: Product;
   related: Product[];
 }) {
-  const [shade, setShade] = useState(product.shadeOptions?.[0]?.name || "");
+  const galleryImages = useMemo(
+    () =>
+      Array.from(new Set([product.image, ...(product.images || [])])).slice(
+        0,
+        5,
+      ),
+    [product],
+  );
+  // Normalize every array field defensively. Backend, static catalog, or an
+  // edge-case product can ship a non-array (null/object/string), which used to
+  // crash the page with "(l ?? []).map is not a function".
+  const benefits = useMemo(() => asArray(product.benefits), [product.benefits]);
+  const concernTags = useMemo(() => asArray(product.concernTags), [product.concernTags]);
+  const howToUse = useMemo(() => asArray(product.howToUse), [product.howToUse]);
+  const ingredients = useMemo(() => asArray(product.ingredients), [product.ingredients]);
+  const skinType = useMemo(() => asArray(product.skinType), [product.skinType]);
+  const shadeOptions = useMemo(
+    () => (Array.isArray(product.shadeOptions) ? product.shadeOptions.filter((s): s is NonNullable<typeof s> => Boolean(s && s.name)) : []),
+    [product.shadeOptions],
+  );
+
+  const [shade, setShade] = useState(shadeOptions[0]?.name || "");
   const [quantity, setQuantity] = useState(1);
   const [quantityError, setQuantityError] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
@@ -71,14 +98,6 @@ export default function ProductDetailClient({
   const isInWishlist = useWishlistStore((s) => s.isInWishlist);
   const addRecent = useRecentlyViewedStore((s) => s.addItem);
   const isWishlisted = isInWishlist(product.id);
-  const galleryImages = useMemo(
-    () =>
-      Array.from(new Set([product.image, ...(product.images || [])])).slice(
-        0,
-        5,
-      ),
-    [product],
-  );
   const discount = product.originalPrice
     ? Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100,
@@ -87,11 +106,11 @@ export default function ProductDetailClient({
   const returnEligibility = getReturnEligibility(product);
 
   useEffect(() => {
-    setShade(product.shadeOptions?.[0]?.name || "");
+    setShade(shadeOptions[0]?.name || "");
     setQuantity(1);
     setQuantityError("");
     setCurrentImage(0);
-  }, [product.id, product.shadeOptions]);
+  }, [product.id, shadeOptions]);
 
   useEffect(() => {
     addRecent(product);
@@ -336,7 +355,7 @@ export default function ProductDetailClient({
             </p>
 
             <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              {product.benefits.slice(0, 3).map((benefit) => (
+              {benefits.slice(0, 3).map((benefit) => (
                 <div
                   key={benefit}
                   className="rounded-[1.25rem] bg-neutral-50 p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
@@ -346,13 +365,13 @@ export default function ProductDetailClient({
               ))}
             </div>
 
-            {product.shadeOptions && product.shadeOptions.length > 0 && (
+            {shadeOptions.length > 0 && (
               <div className="mt-7">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
                   Shade: <span className="text-neutral-950">{shade}</span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {product.shadeOptions.map((option) => (
+                  {shadeOptions.map((option) => (
                     <button
                       key={option.name}
                       type="button"
@@ -450,7 +469,7 @@ export default function ProductDetailClient({
             with SPF in the morning and patch test active formulas when needed.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            {product.concernTags.slice(0, 5).map((tag) => (
+            {concernTags.slice(0, 5).map((tag) => (
               <span
                 key={tag}
                 className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/80"
@@ -484,7 +503,7 @@ export default function ProductDetailClient({
                     <dt className="font-semibold text-neutral-950">
                       Skin type
                     </dt>
-                    <dd>{product.skinType.join(", ")}</dd>
+                    <dd>{skinType.join(", ")}</dd>
                   </div>
                   <div>
                     <dt className="font-semibold text-neutral-950">SKU</dt>
@@ -497,7 +516,7 @@ export default function ProductDetailClient({
               <AccordionTrigger>How to use</AccordionTrigger>
               <AccordionContent>
                 <ol className="space-y-2 text-sm leading-7 text-neutral-600">
-                  {product.howToUse.map((step) => (
+                  {howToUse.map((step) => (
                     <li key={step}>- {step}</li>
                   ))}
                 </ol>
@@ -507,7 +526,7 @@ export default function ProductDetailClient({
               <AccordionTrigger>Ingredients spotlight</AccordionTrigger>
               <AccordionContent>
                 <div className="flex flex-wrap gap-2">
-                  {product.ingredients.map((ingredient) => (
+                  {ingredients.map((ingredient) => (
                     <span
                       key={ingredient}
                       className="rounded-full bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700"
