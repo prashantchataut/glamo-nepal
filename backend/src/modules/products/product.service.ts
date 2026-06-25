@@ -1,6 +1,6 @@
 import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, assertFound, safeJsonParse, safeJsonStringify, toSqliteBool, fromSqliteBool } from '../../utils/turso-helpers'
-import { createAuditLog } from '../../utils/audit'
+import { createAuditLog, type ClientInfo } from '../../utils/audit'
 import { CACHE_TTL, getFromCache, setCache, deleteCache, deleteCacheByPrefix } from '../../utils/cache'
 import { slugify, generateUniqueSlug } from '../../utils/slug'
 import { parsePagination, buildPaginationResult } from '../../utils/pagination'
@@ -558,7 +558,8 @@ export async function createProduct(
     attributes?: Record<string, unknown>
   },
   adminId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo
 ) {
   const baseSlug = slugify(data.name)
   const existingSlugsResult = await db.execute({
@@ -618,7 +619,7 @@ export async function createProduct(
   const product = mapProductRow(result.rows[0] as Record<string, unknown>)
 
   await deleteCacheByPrefix('products:list:')
-  await createAuditLog(db, { userId: adminId, action: 'CREATE', entity: 'products', entityId: product.id })
+  await createAuditLog(db, { userId: adminId, action: 'CREATE', entity: 'products', entityId: product.id }, clientInfo)
 
   return formatProduct(product)
 }
@@ -627,7 +628,8 @@ export async function updateProduct(
   id: string,
   data: Record<string, unknown>,
   adminId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo
 ) {
   const existingResult = await db.execute({
     sql: 'SELECT * FROM products WHERE id = ? AND deleted_at IS NULL',
@@ -699,12 +701,12 @@ export async function updateProduct(
     await deleteCache(`product:slug:${product.slug}`)
   }
   await deleteCacheByPrefix('products:list:')
-  await createAuditLog(db, { userId: adminId, action: 'UPDATE', entity: 'products', entityId: id, changes: data as Record<string, unknown> })
+  await createAuditLog(db, { userId: adminId, action: 'UPDATE', entity: 'products', entityId: id, changes: data as Record<string, unknown> }, clientInfo)
 
   return formatProduct(product)
 }
 
-export async function toggleFeatured(id: string, adminId: string, db: Client) {
+export async function toggleFeatured(id: string, adminId: string, db: Client, clientInfo?: ClientInfo) {
   const productResult = await db.execute({
     sql: 'SELECT id, slug, is_featured FROM products WHERE id = ? AND deleted_at IS NULL',
     args: [id],
@@ -725,12 +727,12 @@ export async function toggleFeatured(id: string, adminId: string, db: Client) {
   const slug = productResult.rows[0].slug as string
   await deleteCache(`product:slug:${slug}`)
   await deleteCacheByPrefix('products:list:')
-  await createAuditLog(db, { userId: adminId, action: 'TOGGLE_FEATURED', entity: 'products', entityId: id })
+  await createAuditLog(db, { userId: adminId, action: 'TOGGLE_FEATURED', entity: 'products', entityId: id }, clientInfo)
 
   return { isFeatured: newValue }
 }
 
-export async function toggleHidden(id: string, adminId: string, db: Client) {
+export async function toggleHidden(id: string, adminId: string, db: Client, clientInfo?: ClientInfo) {
   const productResult = await db.execute({
     sql: 'SELECT id, slug, is_active FROM products WHERE id = ? AND deleted_at IS NULL',
     args: [id],
@@ -751,12 +753,12 @@ export async function toggleHidden(id: string, adminId: string, db: Client) {
   const slug = productResult.rows[0].slug as string
   await deleteCache(`product:slug:${slug}`)
   await deleteCacheByPrefix('products:list:')
-  await createAuditLog(db, { userId: adminId, action: 'TOGGLE_HIDDEN', entity: 'products', entityId: id })
+  await createAuditLog(db, { userId: adminId, action: 'TOGGLE_HIDDEN', entity: 'products', entityId: id }, clientInfo)
 
   return { isActive: newValue }
 }
 
-export async function softDeleteProduct(id: string, adminId: string, db: Client) {
+export async function softDeleteProduct(id: string, adminId: string, db: Client, clientInfo?: ClientInfo) {
   const productResult = await db.execute({
     sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
     args: [id],
@@ -774,7 +776,7 @@ export async function softDeleteProduct(id: string, adminId: string, db: Client)
   const slug = productResult.rows[0].slug as string
   await deleteCache(`product:slug:${slug}`)
   await deleteCacheByPrefix('products:list:')
-  await createAuditLog(db, { userId: adminId, action: 'SOFT_DELETE', entity: 'products', entityId: id })
+  await createAuditLog(db, { userId: adminId, action: 'SOFT_DELETE', entity: 'products', entityId: id }, clientInfo)
 }
 
 export async function bulkSoftDeleteProducts(

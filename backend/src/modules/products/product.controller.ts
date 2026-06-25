@@ -82,7 +82,8 @@ export async function createProduct(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const product = await ProductService.createProduct(data, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const product = await ProductService.createProduct(data, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Product created successfully', product, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -101,7 +102,8 @@ export async function updateProduct(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const product = await ProductService.updateProduct(id, data, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const product = await ProductService.updateProduct(id, data, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Product updated successfully', product)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -119,7 +121,8 @@ export async function deleteProduct(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    await ProductService.softDeleteProduct(id, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    await ProductService.softDeleteProduct(id, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Product deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -162,7 +165,8 @@ export async function toggleFeatured(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    const result = await ProductService.toggleFeatured(id, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const result = await ProductService.toggleFeatured(id, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Product featured status updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -180,7 +184,8 @@ export async function toggleHidden(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    const result = await ProductService.toggleHidden(id, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const result = await ProductService.toggleHidden(id, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Product visibility updated', result)
   } catch (error: any) {
     if (error instanceof AppError) {
