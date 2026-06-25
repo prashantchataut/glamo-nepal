@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { CheckoutPageClient } from "@/components/checkout/CheckoutPageClient";
 
-export default function CheckoutSuccessRedirect() {
-  redirect("/order-confirmation/latest");
+export default function CheckoutPage() {
+  return <CheckoutPageClient />;
 }
