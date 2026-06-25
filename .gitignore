@@ -84,3 +84,5 @@ cookie*.txt.signed
 token*.txt
 
 .env*.local
+
+_jarvis_probe.ps1
