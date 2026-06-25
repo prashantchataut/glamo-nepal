@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { getFullEnv } from '../../utils/env'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
+import { extractClientInfo } from '../../utils/client-info'
 import * as ProductService from './product.service'
 
 export async function getProducts(c: Context<AppEnv>) {
@@ -128,6 +129,31 @@ export async function deleteProduct(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'Product not found', 404)
     }
     return ApiResponse.error(c, error.message || 'Failed to delete product', 500)
+  }
+}
+
+export async function bulkDeleteProducts(c: Context<AppEnv>) {
+  try {
+    const user = c.get('user')
+    const db = c.get('db')
+    const body = (await c.req.json().catch(() => ({}))) as { productIds?: unknown }
+    const ids = Array.isArray(body.productIds)
+      ? body.productIds.filter((id): id is string => typeof id === 'string')
+      : []
+    if (ids.length === 0) {
+      return ApiResponse.error(c, 'No productIds provided', 400, ['EMPTY_IDS'])
+    }
+    if (ids.length > 200) {
+      return ApiResponse.error(c, 'Cannot delete more than 200 products at once', 400, ['TOO_MANY_IDS'])
+    }
+    const clientInfo = extractClientInfo(c)
+    const result = await ProductService.bulkSoftDeleteProducts(ids, user.id, db, clientInfo)
+    return ApiResponse.success(c, `Deleted ${result.deleted.length} product${result.deleted.length === 1 ? '' : 's'}`, result)
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      return ApiResponse.error(c, error.message, error.statusCode)
+    }
+    return ApiResponse.error(c, error.message || 'Failed to bulk delete products', 500)
   }
 }
 

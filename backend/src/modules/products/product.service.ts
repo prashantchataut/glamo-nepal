@@ -777,6 +777,52 @@ export async function softDeleteProduct(id: string, adminId: string, db: Client)
   await createAuditLog(db, { userId: adminId, action: 'SOFT_DELETE', entity: 'products', entityId: id })
 }
 
+export async function bulkSoftDeleteProducts(
+  ids: string[],
+  adminId: string,
+  db: Client,
+  clientInfo?: { ipAddress?: string | null; userAgent?: string | null }
+): Promise<{ deleted: string[]; missing: string[] }> {
+  const sanitized = Array.from(new Set(ids.filter((id) => typeof id === 'string' && id.length > 0)))
+  if (sanitized.length === 0) {
+    return { deleted: [], missing: [] }
+  }
+
+  const placeholders = sanitized.map(() => '?').join(',')
+  const existingResult = await db.execute({
+    sql: `SELECT id, slug FROM products WHERE id IN (${placeholders}) AND deleted_at IS NULL`,
+    args: sanitized,
+  })
+  const existingRows = existingResult.rows as unknown as Array<{ id: string; slug: string }>
+  const existingIds = new Set(existingRows.map((row) => row.id))
+  const missing = sanitized.filter((id) => !existingIds.has(id))
+
+  if (existingIds.size > 0) {
+    const now = new Date().toISOString()
+    await db.execute({
+      sql: `UPDATE products SET deleted_at = ?, updated_at = ? WHERE id IN (${Array.from(existingIds).map(() => '?').join(',')})`,
+      args: [now, now, ...Array.from(existingIds)],
+    })
+    for (const row of existingRows) {
+      await deleteCache(`product:slug:${row.slug}`)
+    }
+    await deleteCacheByPrefix('products:list:')
+  }
+
+  await createAuditLog(
+    db,
+    {
+      userId: adminId,
+      action: 'BULK_SOFT_DELETE',
+      entity: 'products',
+      changes: { productIds: Array.from(existingIds) },
+    },
+    clientInfo
+  )
+
+  return { deleted: Array.from(existingIds), missing }
+}
+
 export async function uploadProductImages(
   productId: string,
   files: File[],

@@ -367,19 +367,54 @@ export function SettingsView() {
             Store settings
           </h2>
           <p className="mt-0.5 text-sm text-brand-textMuted">
-            Manage business configuration for GLAMO NEPAL.
+            Manage business configuration for GLAMO NEPAL. Edit any field and Save to apply across the storefront, checkout, admin and emails.
           </p>
         </div>
-        {!isReadOnly && hasChanges && (
+        <div className="flex items-center gap-2">
+          <span
+            className={`hidden text-xs font-semibold sm:inline ${
+              hasChanges ? "text-amber-700" : "text-brand-textMuted"
+            }`}
+            aria-live="polite"
+          >
+            {hasChanges ? "Unsaved changes" : "All changes saved"}
+          </span>
           <button
             onClick={handleSave}
-            disabled={saveMutation.isLoading}
-            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
+            disabled={saveMutation.isLoading || !hasChanges}
+            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={15} />{" "}
             {saveMutation.isLoading ? "Saving…" : "Save changes"}
           </button>
-        )}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 rounded-2xl border border-brand-border bg-brand-bgLight p-4 text-xs leading-5 text-brand-textMuted sm:grid-cols-3">
+        <div>
+          <p className="font-label text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">
+            {Object.values(grouped).reduce((acc, items) => acc + items.length, 0)} settings
+          </p>
+          <p className="mt-1">
+            Across {Object.keys(grouped).length} categories: branding, SEO, delivery, payment, inventory, reviews, support and more.
+          </p>
+        </div>
+        <div>
+          <p className="font-label text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">
+            Where changes apply
+          </p>
+          <p className="mt-1">
+            Header, footer, checkout, payment gateway config, customer support replies, AI/LLM snippets and the audit log.
+          </p>
+        </div>
+        <div>
+          <p className="font-label text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">
+            Saving
+          </p>
+          <p className="mt-1">
+            Edits stay local until you click <strong>Save changes</strong>. The status above the button reflects the dirty state in real time.
+          </p>
+        </div>
       </div>
 
       {isReadOnly && (

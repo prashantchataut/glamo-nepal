@@ -12,6 +12,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  bulkDeleteProducts,
   toggleFeatured,
   toggleHidden,
   uploadProductImages,
@@ -32,6 +33,7 @@ productRoutes.get('/:slug', publicReadRateLimit, getProductBySlug)
 productRoutes.post('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(createProductSchema), createProduct)
 productRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateProductSchema), updateProduct)
 productRoutes.delete('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), deleteProduct)
+productRoutes.delete('/bulk', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), bulkDeleteProducts)
 productRoutes.patch('/:id/toggle-hidden', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), toggleHidden)
 productRoutes.patch('/:id/toggle-featured', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), toggleFeatured)
 productRoutes.post('/:id/images', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), uploadProductImages)
