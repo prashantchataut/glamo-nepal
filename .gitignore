@@ -82,3 +82,5 @@ tracked.txt
 cookie*.txt
 cookie*.txt.signed
 token*.txt
+
+.env*.local

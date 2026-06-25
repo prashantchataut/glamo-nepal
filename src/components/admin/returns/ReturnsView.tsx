@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, ClipboardCheck, PackageX, Plus, Shield } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardCheck, CreditCard, PackageX, Plus, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { adminApi, type AdminReturnRequest, type CreateReturnRequestInput, type UpdateReturnRequestInput } from "@/lib/api/admin";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
@@ -9,6 +9,7 @@ import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { StatusPill } from "@/components/admin/shared/StatusPill";
+import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 
 const PAGE_SIZE = 20;
 const RETURN_STATUSES = ["REQUESTED", "APPROVED", "REJECTED", "RECEIVED", "INSPECTED", "REFUNDED", "EXCHANGED", "CLOSED"] as const;
@@ -62,6 +63,10 @@ export function ReturnsView() {
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [pendingProcess, setPendingProcess] = useState<AdminReturnRequest | null>(null);
+  const [processResolution, setProcessResolution] = useState<"REFUND" | "EXCHANGE" | "STORE_CREDIT" | "CLOSE">("REFUND");
+  const [processNote, setProcessNote] = useState("");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [newReturn, setNewReturn] = useState<CreateReturnRequestInput>({
     orderNumber: "",
     reason: "",
@@ -71,7 +76,7 @@ export function ReturnsView() {
     customerNote: "",
   });
 
-  const { data, meta, isLoading, isError, refetch } = useAdminData(
+  const { data, meta, error, isLoading, isError, refetch } = useAdminData(
     () => adminApi.listReturns({ page, limit: PAGE_SIZE, status: statusFilter || undefined, search: search || undefined }),
     { deps: [page, statusFilter, search] },
   );
@@ -118,12 +123,66 @@ export function ReturnsView() {
   async function update(id: string, data: UpdateReturnRequestInput, message: string) {
     const result = await updateReturn.mutate({ id, data });
     if (result) {
+      setStatusMessage(message);
       toast.success(message);
       refetch();
     } else {
-      toast.error(updateReturn.error || "Could not update return");
+      const errorMessage = updateReturn.error || "Could not update return";
+      setStatusMessage(`Error: ${errorMessage}`);
+      toast.error(errorMessage);
     }
   }
+
+  function openProcessDialog(row: AdminReturnRequest) {
+    const defaultResolution: typeof processResolution =
+      row.requestedResolution === "EXCHANGE" ? "EXCHANGE" :
+      row.requestedResolution === "STORE_CREDIT" ? "STORE_CREDIT" :
+      "REFUND";
+    setProcessResolution(defaultResolution);
+    setProcessNote("");
+    setPendingProcess(row);
+  }
+
+  function closeProcessDialog() {
+    setPendingProcess(null);
+    setProcessNote("");
+  }
+
+  async function confirmProcess() {
+    if (!pendingProcess) return;
+
+    const statusMap: Record<typeof processResolution, ReturnStatus | null> = {
+      REFUND: "REFUNDED",
+      EXCHANGE: "EXCHANGED",
+      STORE_CREDIT: "CLOSED",
+      CLOSE: "CLOSED",
+    };
+
+    const nextStatus = statusMap[processResolution];
+    if (!nextStatus) return;
+
+    const data: UpdateReturnRequestInput = {
+      status: nextStatus,
+      requestedResolution: processResolution === "CLOSE" ? undefined : processResolution,
+      adminNotes: processNote.trim() || undefined,
+    };
+
+    const result = await updateReturn.mutate({ id: pendingProcess.id, data });
+    if (result) {
+      const message = `Return marked as ${titleCase(nextStatus)}`;
+      setStatusMessage(message);
+      toast.success(message);
+      closeProcessDialog();
+      refetch();
+    } else {
+      const errorMessage = updateReturn.error || "Could not process return";
+      setStatusMessage(`Error: ${errorMessage}`);
+      toast.error(errorMessage);
+    }
+  }
+
+  const terminalStatuses = new Set(["REJECTED", "REFUNDED", "EXCHANGED", "CLOSED"]);
+  const canProcess = (row: AdminReturnRequest) => !terminalStatuses.has(row.status);
 
   const columns: Column<AdminReturnRequest>[] = [
     {
@@ -189,6 +248,11 @@ export function ReturnsView() {
           {row.status === "RECEIVED" && row.itemCondition === "SEALED" && (
             <button type="button" onClick={() => update(row.id, { status: "INSPECTED", hygieneStatus: "RETURN_TO_STOCK" }, "Sealed item cleared for stock")} className="rounded-full border border-admin-success px-3 py-1.5 text-xs font-semibold text-admin-success">
               Restock sealed
+            </button>
+          )}
+          {canProcess(row) && (
+            <button type="button" onClick={() => openProcessDialog(row)} className="inline-flex items-center gap-1 rounded-full bg-admin-success px-3 py-1.5 text-xs font-semibold text-white">
+              <CheckCircle2 size={14} /> Mark processed
             </button>
           )}
         </div>
@@ -264,14 +328,63 @@ export function ReturnsView() {
             {RETURN_STATUSES.map((status) => <option key={status} value={status}>{titleCase(status)}</option>)}
           </select>
         </div>
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {statusMessage ? statusMessage : isError ? "Could not load returns" : returns.length === 0 && !isLoading ? "No returns found" : `${total} return requests loaded`}
+        </div>
         {isError && <div className="mt-4 flex items-center gap-2 rounded-2xl bg-admin-error-light p-4 text-sm text-admin-error"><AlertTriangle size={16} /> Could not load returns.</div>}
         <div className="mt-4">
-          <DataTable columns={columns} data={returns} keyExtractor={(row) => row.id} caption="Return requests" emptyMessage="No returns found." isLoading={isLoading} minRowWidth="980px" />
+          <DataTable columns={columns} data={returns} keyExtractor={(row) => row.id} caption="Return requests" emptyMessage={error ? `Error: ${error}` : "No returns found."} isLoading={isLoading} minRowWidth="980px" />
         </div>
         <div className="mt-4">
           <Pagination page={page} totalPages={totalPages} total={total} pageSize={PAGE_SIZE} onPageChange={setPage} />
         </div>
       </section>
+
+      <ConfirmDialog
+        open={pendingProcess !== null}
+        onOpenChange={(open) => { if (!open) closeProcessDialog(); }}
+        title={`Process return for ${pendingProcess?.orderNumber || ""}`}
+        description="Choose the final resolution. This will close the return request and record the outcome."
+        confirmLabel="Confirm resolution"
+        variant="default"
+        isLoading={updateReturn.isLoading}
+        onConfirm={confirmProcess}
+      >
+        <div className="mt-4 space-y-4">
+          <div className="rounded-2xl border border-brand-border bg-brand-bgLight p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-brand-textPrimary">
+              <CreditCard size={16} className="text-brand-primary" />
+              Refund timeline
+            </div>
+            <p className="mt-1 text-xs text-brand-textMuted">
+              Refunds are typically issued within 3-5 business days after the return is marked processed. Exchanges and store credit are confirmed within 1-2 business days.
+            </p>
+          </div>
+          <label className="block space-y-2 text-sm font-medium">
+            Resolution
+            <select
+              value={processResolution}
+              onChange={(e) => setProcessResolution(e.target.value as typeof processResolution)}
+              className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+            >
+              <option value="REFUND">Refund to original payment</option>
+              <option value="EXCHANGE">Exchange item</option>
+              <option value="STORE_CREDIT">Issue store credit</option>
+              <option value="CLOSE">Close without compensation</option>
+            </select>
+          </label>
+          <label className="block space-y-2 text-sm font-medium">
+            Admin note
+            <textarea
+              value={processNote}
+              onChange={(e) => setProcessNote(e.target.value)}
+              rows={3}
+              placeholder="e.g. Refunded via bank transfer on 2026-06-24"
+              className="w-full rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+            />
+          </label>
+        </div>
+      </ConfirmDialog>
     </div>
   );
 }

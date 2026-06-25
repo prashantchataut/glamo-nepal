@@ -1,6 +1,10 @@
 import { apiRequest } from "./client";
 import type { Customer } from "./contracts";
 
+export interface ForgotPasswordResponse {
+  accountExists?: boolean;
+}
+
 export const authApi = {
   sync: (idToken: string) =>
     apiRequest<Customer>("/auth/sync", {
@@ -10,7 +14,7 @@ export const authApi = {
   logout: () => apiRequest<{ ok: true }>("/auth/logout", { method: "POST" }),
   me: () => apiRequest<Customer>("/auth/me"),
   forgotPassword: (email: string) =>
-    apiRequest<null>("/auth/forgot-password", {
+    apiRequest<ForgotPasswordResponse>("/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify({ email }),
     }),

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Mail, MessageCircle, Phone, RotateCcw, ShoppingBag, UserRound } from "lucide-react";
+import { Check, Clipboard, Mail, MessageCircle, Pencil, Phone, RotateCcw, Save, ShoppingBag, UserRound, X } from "lucide-react";
+import { toast } from "sonner";
 import { adminApi, type SiteSetting } from "@/lib/api/admin";
-import { useAdminData } from "@/lib/hooks/useAdminData";
+import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { formatNPR } from "@/lib/utils";
 
 type Template = { title: string; text: string };
@@ -23,7 +24,8 @@ function templates(settings: SiteSetting[] | null): Template[] {
 }
 
 export function SupportDeskView() {
-  const { data: settings } = useAdminData<SiteSetting[]>(() => adminApi.getAllSettings());
+  const settingsQuery = useAdminData<SiteSetting[]>(() => adminApi.getAllSettings());
+  const { data: settings, refetch: refetchSettings } = settingsQuery;
   const { data: orders, isLoading: ordersLoading } = useAdminData(() => adminApi.listOrders({ limit: 8 }));
   const { data: customers } = useAdminData(() => adminApi.listUsers({ role: "CUSTOMER", limit: 8 }));
   const { data: returns } = useAdminData(() => adminApi.listReturns({ limit: 8 }));
@@ -37,6 +39,87 @@ export function SupportDeskView() {
   const orderList = orders?.orders ?? [];
 
   const pendingReturns = useMemo(() => returnList.filter((item) => !["CLOSED", "REJECTED", "REFUNDED", "EXCHANGED"].includes(item.status)), [returnList]);
+
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftText, setDraftText] = useState("");
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  const saveTemplates = useAdminMutation<{ message: string }, { templates: Template[] }>(
+    ({ templates }) => adminApi.updateSettings({ support_response_templates: JSON.stringify(templates) }),
+  );
+
+  useEffect(() => {
+    if (editingIndex !== null) {
+      titleInputRef.current?.focus();
+    }
+  }, [editingIndex]);
+
+  function startEdit(index: number) {
+    const tpl = savedTemplates[index];
+    setEditingIndex(index);
+    setDraftTitle(tpl.title);
+    setDraftText(tpl.text);
+  }
+
+  function cancelEdit() {
+    setEditingIndex(null);
+    setDraftTitle("");
+    setDraftText("");
+  }
+
+  async function commitEdit() {
+    const trimmedTitle = draftTitle.trim();
+    const trimmedText = draftText.trim();
+    if (!trimmedTitle) {
+      toast.error("Title cannot be empty");
+      return;
+    }
+    if (!trimmedText) {
+      toast.error("Reply body cannot be empty");
+      return;
+    }
+    if (editingIndex === null) return;
+
+    const updated: Template[] = savedTemplates.map((tpl, i) =>
+      i === editingIndex ? { title: trimmedTitle, text: trimmedText } : tpl,
+    );
+
+    const result = await saveTemplates.mutate({ templates: updated });
+    if (result) {
+      await refetchSettings();
+      setEditingIndex(null);
+      setDraftTitle("");
+      setDraftText("");
+      toast.success("Saved reply updated");
+    } else {
+      toast.error(saveTemplates.error ?? "Could not save reply");
+    }
+  }
+
+  async function copyTemplate(index: number) {
+    const text = savedTemplates[index]?.text ?? "";
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else if (typeof document !== "undefined") {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex((current) => (current === index ? null : current)), 1800);
+    } catch {
+      toast.error("Could not copy to clipboard");
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -81,11 +164,102 @@ export function SupportDeskView() {
           </div>
 
           <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3"><h3 className="font-display text-xl font-semibold">Saved replies</h3><Link href="/admin/settings" className="text-sm font-bold text-brand-primary">Edit</Link></div>
-            <div className="mt-4 space-y-3">
-              {savedTemplates.length > 0 ? savedTemplates.map((template) => (
-                <button key={template.title} type="button" onClick={() => navigator.clipboard?.writeText(template.text)} className="w-full rounded-xl border border-brand-border p-3 text-left transition hover:bg-brand-bgLight"><p className="text-sm font-semibold">{template.title}</p><p className="mt-1 text-xs leading-5 text-brand-textMuted">{template.text}</p><p className="mt-2 text-xs font-bold text-brand-primary">Click to copy</p></button>
-              )) : <p className="text-sm text-brand-textMuted">No templates yet. Add them in Settings.</p>}
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-display text-xl font-semibold">Saved replies</h3>
+              <Link href="/admin/settings" className="text-sm font-bold text-brand-primary">All settings</Link>
+            </div>
+            <div className="mt-4 space-y-3" data-testid="saved-replies-list">
+              {savedTemplates.length > 0 ? savedTemplates.map((template, index) => {
+                const isEditing = editingIndex === index;
+                const isSaving = saveTemplates.isLoading && isEditing;
+                const isCopied = copiedIndex === index;
+                return (
+                  <div
+                    key={`${template.title}-${index}`}
+                    data-testid="saved-reply-item"
+                    data-template-title={template.title}
+                    className="rounded-xl border border-brand-border p-3"
+                  >
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <label className="block">
+                          <span className="sr-only">Reply title</span>
+                          <input
+                            ref={titleInputRef}
+                            data-testid="saved-reply-title-input"
+                            value={draftTitle}
+                            onChange={(event) => setDraftTitle(event.target.value)}
+                            maxLength={80}
+                            className="w-full rounded-lg border border-brand-border bg-white px-3 py-2 text-sm font-semibold text-brand-textPrimary focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                            placeholder="Reply title"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="sr-only">Reply body</span>
+                          <textarea
+                            data-testid="saved-reply-body-input"
+                            value={draftText}
+                            onChange={(event) => setDraftText(event.target.value)}
+                            rows={5}
+                            className="w-full resize-y rounded-lg border border-brand-border bg-white px-3 py-2 text-sm leading-6 text-brand-textPrimary focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                            placeholder="Reply body — paste or write the message you want to reuse."
+                          />
+                        </label>
+                        <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            data-testid="saved-reply-cancel"
+                            onClick={cancelEdit}
+                            disabled={isSaving}
+                            className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3 py-2 text-xs font-bold text-brand-textPrimary transition hover:bg-brand-bgLight disabled:opacity-50"
+                          >
+                            <X size={13} /> Cancel
+                          </button>
+                          <button
+                            type="button"
+                            data-testid="saved-reply-save"
+                            onClick={commitEdit}
+                            disabled={isSaving}
+                            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-bgDark disabled:opacity-50"
+                          >
+                            <Save size={13} /> {isSaving ? "Saving…" : "Save"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <p data-testid="saved-reply-title" className="text-sm font-semibold text-brand-textPrimary">{template.title}</p>
+                          <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              data-testid="saved-reply-copy"
+                              onClick={() => copyTemplate(index)}
+                              aria-label={`Copy ${template.title}`}
+                              className="btn-press inline-flex items-center gap-1 rounded-full bg-brand-primary-light px-2.5 py-1.5 text-[11px] font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
+                            >
+                              {isCopied ? <Check size={12} /> : <Clipboard size={12} />}
+                              {isCopied ? "Copied" : "Copy"}
+                            </button>
+                            <button
+                              type="button"
+                              data-testid="saved-reply-edit"
+                              onClick={() => startEdit(index)}
+                              aria-label={`Edit ${template.title}`}
+                              className="btn-press inline-flex items-center gap-1 rounded-full border border-brand-border bg-white px-2.5 py-1.5 text-[11px] font-bold text-brand-textPrimary transition hover:bg-brand-bgLight"
+                            >
+                              <Pencil size={12} /> Edit
+                            </button>
+                          </div>
+                        </div>
+                        <p data-testid="saved-reply-body" className="mt-2 whitespace-pre-wrap text-xs leading-5 text-brand-textMuted">{template.text}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              }) : (
+                <p className="text-sm text-brand-textMuted">No templates yet. Add them in Settings.</p>
+              )}
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
 import { ConfirmDialog } from "@/components/admin/shared/ConfirmDialog";
 import { CustomerDetailModal } from "./CustomerDetailModal";
-import { Users, RefreshCw, Eye } from "lucide-react";
+import { Users, RefreshCw, Eye, User } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminStore } from "@/store/useAdminStore";
 
@@ -102,19 +102,36 @@ export function CustomersView() {
 
   const columns: Column<UserRow>[] = [
     {
-      key: "name",
-      header: "Name",
-      render: (row) => (
-        <div>
-          <p className="font-semibold text-brand-textPrimary">
-            {displayCustomerName(row)}
-          </p>
-        </div>
-      ),
+      key: "customer",
+      header: "Customer",
+      render: (row) => {
+        const hasRealName = Boolean(row.first_name?.trim() || row.last_name?.trim());
+        const fallbackLabel = "Derived from email";
+        return (
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
+              <User size={14} aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <p
+                className="font-semibold text-brand-textPrimary truncate"
+                {...(!hasRealName ? { "aria-label": `${fallbackLabel}: ${row.email}` } : {})}
+                data-testid="customer-name"
+              >
+                {displayCustomerName(row)}
+              </p>
+              <p className="text-sm text-brand-textMuted truncate" data-testid="customer-email">
+                {row.email}
+              </p>
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: "email",
       header: "Email",
+      className: "hidden md:table-cell",
       render: (row) => <span className="text-sm">{row.email}</span>,
     },
     {

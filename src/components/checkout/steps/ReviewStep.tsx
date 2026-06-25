@@ -122,11 +122,26 @@ export function ReviewStep({
         </div>
       )}
 
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-neutral-600">
+        <span className="flex items-center gap-1.5">
+          <ShieldCheck size={14} className="shrink-0 text-emerald-600" />
+          Secure checkout
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Truck size={14} className="shrink-0 text-primary" />
+          Valley delivery
+        </span>
+        <span className="flex items-center gap-1.5">
+          <RotateCcw size={14} className="shrink-0 text-primary" />
+          7-day returns
+        </span>
+      </div>
+
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
         <button
           type="button"
           onClick={onBack}
-          className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+          className="min-h-12 rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
         >
           Back
         </button>
@@ -134,7 +149,7 @@ export function ReviewStep({
           type="submit"
           disabled={!canSubmit || isSubmitting}
           onClick={onSubmit}
-          className="flex-1 rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+          className="min-h-12 flex-1 rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
         >
           {isSubmitting ? "Placing order..." : "Place order"}
         </button>

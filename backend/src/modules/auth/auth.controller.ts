@@ -188,8 +188,10 @@ export async function forgotPassword(c: Context<AppEnv>) {
       args: [data.email.toLowerCase()],
     })
 
-    if (result.rows.length === 0) {
-      return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
+    const accountExists = result.rows.length > 0
+
+    if (!accountExists) {
+      return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', { accountExists })
     }
 
     const user = result.rows[0]
@@ -213,10 +215,10 @@ export async function forgotPassword(c: Context<AppEnv>) {
       console.warn('[Auth] RESEND_API_KEY is not set. Password reset email was NOT sent. Set RESEND_API_KEY in backend/.env to enable email delivery.')
     }
 
-    return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
+    return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', { accountExists })
   } catch (error: any) {
     console.error('Forgot password error:', error)
-    return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', null)
+    return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', { accountExists: false })
   }
 }
 

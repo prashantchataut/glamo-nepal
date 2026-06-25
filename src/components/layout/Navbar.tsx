@@ -296,6 +296,9 @@ className={cn(
               >
                 <ShoppingBag size={19} strokeWidth={1.7} />
                 <CountBubble count={cartCount} label="Cart items" />
+                <span className="sr-only" aria-live="polite" aria-atomic="true">
+                  {cartCount} {cartCount === 1 ? "item" : "items"} in cart
+                </span>
               </Link>
             </div>
           </div>

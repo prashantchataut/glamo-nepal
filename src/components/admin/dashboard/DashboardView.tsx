@@ -109,7 +109,7 @@ export function DashboardView() {
             <h3 className="mt-1 font-display text-2xl font-semibold">What needs attention first?</h3>
             <p className="mt-1 text-sm text-brand-textMuted">Plain owner tasks, not technical statuses.</p>
           </div>
-          <Link href="/admin/issues" className="btn-press inline-flex w-fit rounded-full bg-brand-primary px-4 py-3 text-sm font-bold text-white">Open issue center</Link>
+          <Link href="/admin/support" className="btn-press inline-flex w-fit rounded-full bg-brand-primary px-4 py-3 text-sm font-bold text-white">Open support inbox</Link>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {todayActions.map((action) => {
@@ -188,7 +188,7 @@ export function DashboardView() {
             <h3 className="mt-1 font-display text-2xl font-semibold">What needs attention first?</h3>
             <p className="mt-1 text-sm text-brand-textMuted">Plain owner tasks, not technical statuses.</p>
           </div>
-          <Link href="/admin/issues" className="btn-press inline-flex w-fit rounded-full bg-brand-primary px-4 py-3 text-sm font-bold text-white">Open issue center</Link>
+          <Link href="/admin/support" className="btn-press inline-flex w-fit rounded-full bg-brand-primary px-4 py-3 text-sm font-bold text-white">Open support inbox</Link>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {todayActions.map((action) => {

@@ -226,8 +226,9 @@ export function CheckoutPageClient() {
       }
     }
 
+    clearCart();
+    clearCheckoutDraft();
     router.push(`/order-confirmation/${order.orderNumber}`);
-    setTimeout(() => { clearCart(); clearCheckoutDraft(); }, 100);
   }
 
   const showAuthChoice = !authLoading && user === null && !guestMode;

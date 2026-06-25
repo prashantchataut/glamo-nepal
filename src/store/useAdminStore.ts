@@ -12,15 +12,12 @@ export type AdminSection =
   | "reviews"
   | "popups"
   | "setup"
-  | "issues"
   | "support"
-  | "activity"
   | "backups"
   | "analytics"
   | "settings"
   | "audit"
-  | "content"
-  | "compliance";
+  | "content";
 
 interface AdminUser {
   email: string;

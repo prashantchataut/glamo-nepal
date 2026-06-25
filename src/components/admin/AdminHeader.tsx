@@ -19,15 +19,12 @@ const sectionLabels: Record<AdminSection, string> = {
   reviews: "Reviews",
   popups: "Popups",
   setup: "Setup Wizard",
-  issues: "Issue Center",
   support: "Support Desk",
-  activity: "Activity",
   backups: "Backups",
   analytics: "Analytics",
   settings: "Settings",
   audit: "Audit Log",
   content: "Content",
-  compliance: "Compliance",
 };
 
 interface AdminHeaderProps {

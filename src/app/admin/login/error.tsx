@@ -2,7 +2,7 @@
 
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 
-export default function AdminLoginError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function AdminLoginError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bgLight px-4">
       <div className="mx-auto max-w-md rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-soft">
@@ -13,6 +13,13 @@ export default function AdminLoginError({ reset }: { error: Error & { digest?: s
         <p className="mt-3 text-sm text-brand-textMuted">
           Something went wrong. Please try again or contact your system administrator.
         </p>
+        {error?.message ? (
+          <div className="mt-4 rounded-lg border border-error/30 bg-error/5 p-3 text-left">
+            <p className="text-xs font-semibold uppercase tracking-wide text-error">Error details</p>
+            <p className="mt-1 break-words text-sm text-error">{error.message}</p>
+            {error.digest ? <p className="mt-2 text-xs text-brand-textMuted">Digest: {error.digest}</p> : null}
+          </div>
+        ) : null}
         <button
           onClick={reset}
           className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 font-semibold text-white transition hover:bg-brand-primary-hover"

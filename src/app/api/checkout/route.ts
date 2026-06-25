@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { validateCsrf } from "@/lib/csrf";
+import { backendFetch } from "@/lib/server/backend";
+import { PROXY_TRUST_HEADER, hasProxyTrustSecret, signProxyTrust } from "@/lib/proxy-trust";
 
 const orderItemSchema = z.object({
   productId: z.string().min(1),
@@ -50,8 +52,14 @@ function fieldErrors(error: z.ZodError) {
   return fields;
 }
 
-function getApiBaseUrl(): string {
-  return process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1";
+async function buildProxyTrustHeader(): Promise<Record<string, string> | undefined> {
+  if (!hasProxyTrustSecret()) return undefined;
+  try {
+    const header = await signProxyTrust({ email: "", role: "", csrfValidated: true });
+    return { [PROXY_TRUST_HEADER]: header };
+  } catch {
+    return undefined;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -60,28 +68,50 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, status: "error", message: csrf.reason, code: "CSRF_ERROR" }, { status: 403 });
   }
 
+  let parsed: z.infer<typeof checkoutOrderSchema>;
   try {
-    const parsed = checkoutOrderSchema.safeParse(await request.json());
-    if (!parsed.success) {
+    const body = await request.json();
+    const result = checkoutOrderSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors: fieldErrors(parsed.error) },
+        { success: false, status: "error", message: "Validation failed", code: "VALIDATION_ERROR", fieldErrors: fieldErrors(result.error) },
         { status: 400 },
       );
     }
-
-    const apiBaseUrl = getApiBaseUrl();
-    const upstream = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/checkout/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(parsed.data),
-    });
-
-    const data = await upstream.json();
-    return NextResponse.json(data, { status: upstream.status });
+    parsed = result.data;
   } catch {
     return NextResponse.json(
-      { success: false, status: "error", message: "An unexpected error occurred.", code: "INTERNAL_ERROR" },
-      { status: 500 },
+      { success: false, status: "error", message: "Invalid request body.", code: "INVALID_BODY" },
+      { status: 400 },
+    );
+  }
+
+  const trustHeaders = await buildProxyTrustHeader();
+
+  try {
+    const upstream = await backendFetch("/checkout/orders", {
+      method: "POST",
+      body: JSON.stringify(parsed),
+      forwardFrom: request,
+      headers: trustHeaders,
+      timeoutMs: 20000,
+    });
+
+    let data: unknown;
+    const contentType = upstream.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      data = await upstream.json().catch(() => null);
+    } else {
+      const text = await upstream.text().catch(() => "");
+      data = { raw: text.slice(0, 1000) };
+    }
+
+    return NextResponse.json(data ?? { success: false, message: "No response from backend." }, { status: upstream.status });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "An unexpected error occurred.";
+    return NextResponse.json(
+      { success: false, status: "error", message, code: "INTERNAL_ERROR" },
+      { status: 502 },
     );
   }
 }

@@ -5,27 +5,55 @@ import { CheckCircle2, ImageOff, ListChecks, Search, ShieldAlert } from "lucide-
 import { adminApi, type AdminProduct } from "@/lib/api/admin";
 import { useAdminData } from "@/lib/hooks/useAdminData";
 
+// Backend returns camelCase fields (basePrice, metaTitle, trackInventory...) but
+// the AdminProduct type still documents snake_case. Read either shape so the
+// checklist never shows wrong data or throws on undefined.
+function num(product: AdminProduct, camel: string, snake: string): number {
+  const v = (product as unknown as Record<string, unknown>)[camel] ?? (product as unknown as Record<string, unknown>)[snake];
+  return typeof v === "number" ? v : Number(v) || 0;
+}
+function str(product: AdminProduct, camel: string, snake: string): string {
+  const v = (product as unknown as Record<string, unknown>)[camel] ?? (product as unknown as Record<string, unknown>)[snake];
+  return typeof v === "string" ? v : "";
+}
+function bool(product: AdminProduct, camel: string, snake: string): boolean {
+  const v = (product as unknown as Record<string, unknown>)[camel] ?? (product as unknown as Record<string, unknown>)[snake];
+  return v === true || v === 1;
+}
+
 function readiness(product: AdminProduct) {
+  const basePrice = num(product, "basePrice", "base_price");
+  const metaTitle = str(product, "metaTitle", "meta_title");
+  const metaDescription = str(product, "metaDescription", "meta_description");
+  const shortDescription = str(product, "shortDescription", "short_description");
+  const trackInventory = bool(product, "trackInventory", "track_inventory");
+  const stockQuantity = num(product, "stockQuantity", "stock_quantity");
   const checks = [
     Boolean(product.name && product.slug),
-    Boolean(product.base_price > 0),
+    Boolean(basePrice > 0),
     Boolean(product.images && product.images.length > 0),
-    Boolean(product.description || product.short_description),
-    Boolean(product.meta_title && product.meta_description),
+    Boolean(product.description || shortDescription),
+    Boolean(metaTitle && metaDescription),
     Boolean(product.attributes && Object.keys(product.attributes).length > 0),
-    product.track_inventory ? product.stock_quantity > 0 : true,
+    trackInventory ? stockQuantity > 0 : true,
   ];
   const passed = checks.filter(Boolean).length;
   return Math.round((passed / checks.length) * 100);
 }
 
 function missingReason(product: AdminProduct): string {
+  const basePrice = num(product, "basePrice", "base_price");
+  const metaTitle = str(product, "metaTitle", "meta_title");
+  const metaDescription = str(product, "metaDescription", "meta_description");
+  const shortDescription = str(product, "shortDescription", "short_description");
+  const trackInventory = bool(product, "trackInventory", "track_inventory");
+  const stockQuantity = num(product, "stockQuantity", "stock_quantity");
   if (!product.images || product.images.length === 0) return "Missing product photos";
-  if (!product.description && !product.short_description) return "Missing description";
-  if (!product.meta_title || !product.meta_description) return "Missing search preview text";
+  if (!product.description && !shortDescription) return "Missing description";
+  if (!metaTitle || !metaDescription) return "Missing search preview text";
   if (!product.attributes || Object.keys(product.attributes).length === 0) return "Missing beauty details like skin type, shade, ingredients or claims";
-  if (product.track_inventory && product.stock_quantity <= 0) return "No sellable stock";
-  if (!product.base_price || product.base_price <= 0) return "Missing price";
+  if (trackInventory && stockQuantity <= 0) return "No sellable stock";
+  if (!basePrice || basePrice <= 0) return "Missing price";
   return "Ready to publish";
 }
 

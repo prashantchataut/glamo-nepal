@@ -658,18 +658,6 @@ export interface UpdateTeamMemberInput {
 
 // ── Owner operations ───────────────────────────────────────────────────────
 
-export interface AdminActivityItem {
-  id: string;
-  actor: string;
-  userId?: string | null;
-  action: string;
-  entity: string;
-  entityId?: string | null;
-  changes?: unknown;
-  ipAddress?: string | null;
-  createdAt: string;
-}
-
 export type AdminExportKind = "products" | "orders" | "customers" | "activity" | "media";
 
 function getAdminApiBaseUrl(): string {
@@ -696,7 +684,6 @@ async function downloadAdminExport(kind: AdminExportKind): Promise<Blob> {
 export const adminApi = {
   // Dashboard
   dashboardStats: () => apiRequest<DashboardStats>("/admin/dashboard"),
-  getActivityFeed: (limit = 50) => apiRequest<AdminActivityItem[]>(`/admin/activity?limit=${limit}`),
   downloadExport: (kind: AdminExportKind) => downloadAdminExport(kind),
 
   // Products

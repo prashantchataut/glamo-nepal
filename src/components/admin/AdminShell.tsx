@@ -19,15 +19,12 @@ const PATH_SECTION: Array<[RegExp, AdminSection]> = [
   [/^\/admin\/reviews(?:\/|$)/, "reviews"],
   [/^\/admin\/popups(?:\/|$)/, "popups"],
   [/^\/admin\/setup(?:\/|$)/, "setup"],
-  [/^\/admin\/issues(?:\/|$)/, "issues"],
   [/^\/admin\/support(?:\/|$)/, "support"],
-  [/^\/admin\/activity(?:\/|$)/, "activity"],
   [/^\/admin\/backups(?:\/|$)/, "backups"],
   [/^\/admin\/analytics(?:\/|$)/, "analytics"],
   [/^\/admin\/settings(?:\/|$)/, "settings"],
   [/^\/admin\/audit(?:\/|$)/, "audit"],
   [/^\/admin\/content(?:\/|$)/, "content"],
-  [/^\/admin\/compliance(?:\/|$)/, "compliance"],
 ];
 
 function sectionFromPath(pathname: string): AdminSection {
