@@ -37,11 +37,26 @@ const { data: couponsData, meta: couponsMeta, isLoading, refetch } = useAdminDat
 
   const coupons: AdminCoupon[] = useMemo(() => {
     if (!couponsData) return [];
-    const raw = (couponsData as unknown as Record<string, unknown>).coupons ?? couponsData;
-    return Array.isArray(raw) ? raw : [];
+    // Backend may return any of: a direct array, an object wrapping
+    // `coupons`, a paginated envelope with `data`, or `items`. Walk the
+    // common shapes so newly-created coupons always appear.
+    const candidates: unknown[] = [
+      couponsData,
+      (couponsData as { coupons?: unknown }).coupons,
+      (couponsData as { data?: unknown }).data,
+      (couponsData as { items?: unknown }).items,
+    ];
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) return candidate as AdminCoupon[];
+    }
+    return [];
   }, [couponsData]);
 
-  const total: number = couponsMeta?.total ?? (couponsData ? (couponsData as unknown as Record<string, unknown>).total as number ?? coupons.length : coupons.length);
+  const total: number =
+    couponsMeta?.total ??
+    (couponsData as { total?: number } | null)?.total ??
+    (couponsData as { pagination?: { total?: number } } | null)?.pagination?.total ??
+    coupons.length;
 
   const totalPages = couponsMeta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE));
 

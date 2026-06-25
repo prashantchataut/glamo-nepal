@@ -28,7 +28,16 @@ export type DistrictInfo = DistrictInfoType;
 export { PROVINCES, DISTRICTS, DISTRICTS_BY_PROVINCE, ALL_DISTRICTS, MUNICIPALITIES_BY_DISTRICT };
 export { _getMunicipalitiesForDistrict as getMunicipalitiesForDistrict, isValidProvinceDistrictCombo, isCodAvailable };
 
-export const COD_FEE = 50;
+/**
+ * Cash on Delivery handling fee as a percentage of the cart subtotal.
+ * 3% applies globally; no district-based surcharge.
+ */
+export const COD_FEE_PERCENT = 0.03;
+
+export function calculateCodFee(subtotal: number): number {
+  if (!Number.isFinite(subtotal) || subtotal <= 0) return 0;
+  return Math.round(subtotal * COD_FEE_PERCENT);
+}
 
 export interface DistrictDeliveryRule {
   district: string;

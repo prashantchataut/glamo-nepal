@@ -212,7 +212,9 @@ export async function forgotPassword(c: Context<AppEnv>) {
       const { sendPasswordReset } = await import('../../utils/email')
       await sendPasswordReset((user as any).email, resetToken, env)
     } else {
-      console.warn('[Auth] RESEND_API_KEY is not set. Password reset email was NOT sent. Set RESEND_API_KEY in backend/.env to enable email delivery.')
+      console.warn('[Auth] RESEND_API_KEY is not set. Password reset email was NOT sent. Set RESEND_API_KEY on the Worker via `wrangler secret put RESEND_API_KEY` to enable email delivery.')
+      const resetUrl = `${env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`
+      console.log(`[Auth] Dev-mode password reset link for ${(user as any).email}: ${resetUrl}`)
     }
 
     return ApiResponse.success(c, 'If an account with that email exists, a reset link has been sent.', { accountExists })

@@ -13,7 +13,7 @@ import { GlamoApiError } from "@/lib/api/client";
 import { getUserMessage } from "@/lib/api/error-handler";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
-import { calculateDeliveryFee, getDeliveryRule, COD_FEE } from "@/lib/delivery";
+import { calculateDeliveryFee, calculateCodFee, getDeliveryRule } from "@/lib/delivery";
 import { initiateKhaltiPayment, initiateEsewaPayment } from "@/lib/api/checkout";
 import type { Address, PaymentMethodCode } from "@/lib/api/contracts";
 import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type District } from "@/lib/nepal-locations";
@@ -97,14 +97,13 @@ export function CheckoutPageClient() {
   const deliveryFee = calculateDeliveryFee(subtotal, watched.district, watched.province);
   const giftWrapFee = watched.giftWrap ? 100 : 0;
   const isCOD = watched.payment === "Cash on Delivery";
-  const codFee = isCOD ? COD_FEE : 0;
+  const codFee = isCOD ? calculateCodFee(subtotal) : 0;
   const total = subtotal + deliveryFee + giftWrapFee + codFee - discountAmount;
   const deliveryRule = getDeliveryRule(watched.district, watched.province);
 
   const canSubmit = Boolean(
     isValid &&
-    items.length > 0 &&
-    (watched.payment !== "Cash on Delivery" || deliveryRule.codAvailable),
+    items.length > 0,
   );
 
   function goToStep(step: number) {

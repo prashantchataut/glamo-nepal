@@ -2,10 +2,17 @@
 
 import { AlertTriangle, RefreshCcw } from "lucide-react";
 
-export default function AdminError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function AdminError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  const isDev = process.env.NODE_ENV !== "production";
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bgLight px-4">
-      <div className="mx-auto max-w-md rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-soft">
+      <div className="mx-auto max-w-lg rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-soft">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 text-amber-700">
           <AlertTriangle size={32} />
         </div>
@@ -13,6 +20,15 @@ export default function AdminError({ reset }: { error: Error & { digest?: string
         <p className="mt-3 text-sm text-brand-textMuted">
           We could not load this section of the admin panel. Please try again, and if the problem continues contact your system administrator.
         </p>
+        {isDev && error?.message ? (
+          <details className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-left">
+            <summary className="cursor-pointer text-xs font-semibold text-amber-900">Developer details</summary>
+            <p className="mt-2 break-words font-mono text-[11px] text-amber-900">{error.message}</p>
+            {error.digest ? (
+              <p className="mt-1 break-words font-mono text-[11px] text-amber-800">digest: {error.digest}</p>
+            ) : null}
+          </details>
+        ) : null}
         <button
           onClick={reset}
           className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 font-semibold text-white transition hover:bg-brand-primary-hover"
