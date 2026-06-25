@@ -1,6 +1,6 @@
 import type { Client, InValue } from '@libsql/client'
 import { AppError, handleDbError, fromSqliteBool, toSqliteBool } from '../../utils/turso-helpers'
-import { createAuditLog } from '../../utils/audit'
+import { createAuditLog, type ClientInfo } from '../../utils/audit'
 
 interface CouponRow {
   id: string
@@ -67,7 +67,8 @@ export async function createCoupon(
     expiresAt: string
   },
   adminUserId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo,
 ) {
   const id = crypto.randomUUID()
   try {
@@ -106,7 +107,7 @@ export async function createCoupon(
     entity: 'coupons',
     entityId: id,
     changes: data,
-  })
+  }, clientInfo)
 
   return formatCoupon(result.rows[0])
 }
@@ -168,7 +169,8 @@ export async function updateCoupon(
   id: string,
   data: Record<string, any>,
   adminUserId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo,
 ) {
   const existingResult = await db.execute({
     sql: 'SELECT * FROM coupons WHERE id = ?',
@@ -212,7 +214,7 @@ export async function updateCoupon(
     entity: 'coupons',
     entityId: id,
     changes: data,
-  })
+  }, clientInfo)
 
   return formatCoupon(result.rows[0])
 }
@@ -220,7 +222,8 @@ export async function updateCoupon(
 export async function deleteCoupon(
   id: string,
   adminUserId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo,
 ) {
   const existingResult = await db.execute({
     sql: 'SELECT * FROM coupons WHERE id = ?',
@@ -241,7 +244,7 @@ export async function deleteCoupon(
     action: 'SOFT_DELETE',
     entity: 'coupons',
     entityId: id,
-  })
+  }, clientInfo)
 }
 
 export async function validateCoupon(

@@ -3,7 +3,7 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "Checkout",
-  description: "Complete your GLAMO NEPAL order with Nepal phone validation, COD availability, delivery estimates and payment selection.",
+  description: "Complete your GLAMO NEPAL order with secure payment and fast delivery across Nepal.",
   path: "/checkout",
   noIndex: true,
 });

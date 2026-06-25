@@ -86,7 +86,3 @@ token*.txt
 .env*.local
 
 _jarvis_probe.ps1
-
-.dev.vars*
-!.dev.vars.example
-!.env.example

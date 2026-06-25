@@ -22,24 +22,37 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
   const order = apiOrder || localOrder;
 
   useEffect(() => {
-    if (orderId && !localOrder) {
+    // Guard against invalid order IDs. The old /checkout/success redirect
+    // pointed users to /order-confirmation/latest, which would attempt to
+    // fetch an order with id="latest" from the API and fail. If orderId is
+    // not a valid UUID (or the local store has the order), skip the API
+    // call and rely on the local store instead.
+    const isLikelyOrderId = orderId && orderId !== "latest" && orderId.length > 8;
+    if (isLikelyOrderId && !localOrder) {
       setLoading(true);
+      // Try the authenticated endpoint first (works for logged-in users).
+      // For guest checkouts, the local store has the order from the checkout
+      // flow, so this API call is only needed on page refresh.
       ordersApi.get(orderId)
         .then((result) => {
           const data = result.data as unknown as Record<string, unknown>;
           const status = (data.status || data.orderStatus || "pending") as string;
           const normalizedStatus = status.toLowerCase() === "confirmed" ? "Confirmed" : status.toLowerCase() === "processing" ? "Processing" : status.toLowerCase() === "shipped" ? "Shipped" : status.toLowerCase() === "delivered" ? "Delivered" : status.toLowerCase() === "cancelled" ? "Cancelled" : "Pending";
-          const orderItems = ((data.items as Array<Record<string, unknown>>) || []).map((item) => ({
-              name: item.name as string,
-              brand: (item.brand as string) || "",
-              image: ((item.image || item.imageUrl || "/images/products/placeholder.svg") as string),
-              price: (item.unitPrice ?? item.price ?? 0) as number,
-              quantity: item.quantity as number,
-              selectedShade: (item.selectedShade || item.variantName) as string | undefined,
-            }));
+          const rawItems = Array.isArray(data.items) ? data.items : [];
+          const orderItems = rawItems.map((item) => {
+              const record = item as Record<string, unknown>;
+              return {
+                name: (record.name as string) || (record.product_name as string) || "Product",
+                brand: (record.brand as string) || "",
+                image: ((record.image || record.imageUrl || record.image_url || "/images/products/placeholder.svg") as string),
+                price: (record.unitPrice ?? record.unit_price ?? record.price ?? 0) as number,
+                quantity: (record.quantity as number) ?? 1,
+                selectedShade: (record.selectedShade || record.variantName || record.variant_name) as string | undefined,
+              };
+            });
           setApiOrder({
             id: data.id as string || "",
-            orderNumber: data.orderNumber as string || "",
+            orderNumber: data.orderNumber as string || orderId,
             total: ((data.totalAmount ?? data.grandTotal ?? 0) as number),
             paymentMethod: (data.paymentMethod as string) || "cod",
             shippingAddress: typeof data.shippingAddress === "string" ? data.shippingAddress : "",

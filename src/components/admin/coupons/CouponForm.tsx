@@ -94,6 +94,10 @@ export function CouponForm({ open, onOpenChange, coupon, onSaved }: CouponFormPr
       toast.error("Start and end dates are required");
       return;
     }
+    if (new Date(formData.expiresAt) <= new Date(formData.startsAt)) {
+      toast.error("Expiry date must be after start date");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -110,7 +114,10 @@ export function CouponForm({ open, onOpenChange, coupon, onSaved }: CouponFormPr
           expiresAt: new Date(formData.expiresAt).toISOString(),
           isActive: formData.is_active,
         };
-        await updateCouponMut({ id: coupon.id, data: updateData });
+        const result = await updateCouponMut({ id: coupon.id, data: updateData });
+        if (!result) {
+          throw new Error("Failed to update coupon - check console for details");
+        }
         toast.success("Coupon updated");
       } else {
         const createData: CreateCouponInput = {
@@ -124,13 +131,16 @@ export function CouponForm({ open, onOpenChange, coupon, onSaved }: CouponFormPr
           startsAt: new Date(formData.startsAt).toISOString(),
           expiresAt: new Date(formData.expiresAt).toISOString(),
         };
-        await createCouponMut(createData);
+        const result = await createCouponMut(createData);
+        if (!result) {
+          throw new Error("Failed to create coupon - the API rejected the request");
+        }
         toast.success("Coupon created");
       }
       onOpenChange(false);
       onSaved();
-    } catch {
-      toast.error("Failed to save coupon");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save coupon");
     } finally {
       setIsSaving(false);
     }

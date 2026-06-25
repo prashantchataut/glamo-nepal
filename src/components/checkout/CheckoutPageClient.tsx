@@ -318,7 +318,7 @@ export function CheckoutPageClient() {
               Confirm your beauty bag.
             </h1>
             <p className="max-w-sm text-sm leading-7 text-neutral-600">
-              Delivery within Kathmandu Valley. Cash on delivery available.
+              Delivery across Nepal. Pay online or with cash on delivery.
             </p>
           </div>
         </div>

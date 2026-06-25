@@ -208,7 +208,7 @@ function CouponSection({
             type="button"
             onClick={() => { if (couponInput.trim()) onApplyCoupon(); }}
             disabled={!couponInput.trim() || couponLoading}
-            className="rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+            className="rounded-full bg-primary px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-neutral-300"
           >
             {couponLoading ? <Loader2 size={16} className="animate-spin" /> : "Apply"}
           </button>

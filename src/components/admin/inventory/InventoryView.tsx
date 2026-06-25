@@ -83,6 +83,14 @@ interface InventoryRow {
   stock_quantity: number;
   low_stock_threshold: number;
   category: { name: string } | null;
+  // Price fields - used to calculate the real retail value of stock on hand.
+  // Backend may return either snake_case (DB direct) or camelCase (DTO).
+  base_price?: number;
+  basePrice?: number;
+  sale_price?: number | null;
+  salePrice?: number | null;
+  cost_price?: number;
+  costPrice?: number;
 }
 
 export function InventoryView() {
@@ -139,11 +147,21 @@ export function InventoryView() {
   }, [lowStockData]);
 
   const totalUnits = useMemo(
-    () => products.reduce((sum, p) => sum + p.stock_quantity, 0),
+    () => products.reduce((sum, p) => sum + (Number(p.stock_quantity) || 0), 0),
     [products],
   );
+  // FIX: Previously this just summed stock_quantity (number of units), which
+  // produced nonsense like "740 units, ₹740 value". Now we multiply each
+  // product's effective unit price (sale price if on sale, otherwise base
+  // price) by its stock quantity to get the real retail value of inventory.
   const inventoryValue = useMemo(
-    () => products.reduce((sum, p) => sum + p.stock_quantity, 0),
+    () =>
+      products.reduce((sum, p) => {
+        const basePrice = Number(p.base_price ?? p.basePrice ?? 0);
+        const salePrice = Number(p.sale_price ?? p.salePrice ?? 0);
+        const effectivePrice = salePrice > 0 && salePrice < basePrice ? salePrice : basePrice;
+        return sum + effectivePrice * (Number(p.stock_quantity) || 0);
+      }, 0),
     [products],
   );
   const lowStockCount = lowStockAlerts.length;

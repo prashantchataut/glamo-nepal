@@ -7,12 +7,23 @@ import { PROXY_TRUST_HEADER, hasProxyTrustSecret, signProxyTrust } from "@/lib/p
 const orderItemSchema = z.object({
   productId: z.string().min(1),
   sku: z.string().optional(),
-  name: z.string().min(1).max(160),
+  name: z.string().min(1).max(200),
   price: z.number().nonnegative(),
   quantity: z.number().int().min(1).max(20),
   selectedShade: z.string().optional(),
   image: z.string().optional(),
   brand: z.string().optional(),
+  // Also accept a nested `product` object (legacy schema) so the proxy is
+  // compatible with both client shapes.
+  product: z.object({
+    id: z.string().optional(),
+    sku: z.string().optional(),
+    slug: z.string().optional(),
+    name: z.string().optional(),
+    brand: z.string().optional(),
+    image: z.string().optional(),
+    price: z.number().nonnegative().optional(),
+  }).passthrough().optional(),
 });
 
 const checkoutOrderSchema = z.object({

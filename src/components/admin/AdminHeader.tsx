@@ -18,7 +18,6 @@ const sectionLabels: Record<AdminSection, string> = {
   returns: "Returns",
   reviews: "Reviews",
   popups: "Popups",
-  setup: "Setup Wizard",
   support: "Support Desk",
   backups: "Backups",
   analytics: "Analytics",

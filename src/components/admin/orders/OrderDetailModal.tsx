@@ -147,7 +147,7 @@ export function OrderDetailModal({ open, onOpenChange, orderId }: OrderDetailMod
             <div>
               <h3 className="text-sm font-semibold">Order items</h3>
               <div className="mt-2 space-y-2">
-                {order.items?.map((item) => (
+                {Array.isArray(order.items) && order.items.map((item) => (
                   <div key={item.id} className="flex items-center justify-between rounded-xl border border-brand-border p-3">
                     <div className="flex items-center gap-3">
                       {item.image_url && (
@@ -191,7 +191,7 @@ export function OrderDetailModal({ open, onOpenChange, orderId }: OrderDetailMod
               </div>
             </div>
 
-            {order.status_history && order.status_history.length > 0 && (
+            {Array.isArray(order.status_history) && order.status_history.length > 0 && (
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
                   <Clock size={14} /> Status history

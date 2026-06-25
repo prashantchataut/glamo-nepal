@@ -18,7 +18,6 @@ const PATH_SECTION: Array<[RegExp, AdminSection]> = [
   [/^\/admin\/returns(?:\/|$)/, "returns"],
   [/^\/admin\/reviews(?:\/|$)/, "reviews"],
   [/^\/admin\/popups(?:\/|$)/, "popups"],
-  [/^\/admin\/setup(?:\/|$)/, "setup"],
   [/^\/admin\/support(?:\/|$)/, "support"],
   [/^\/admin\/backups(?:\/|$)/, "backups"],
   [/^\/admin\/analytics(?:\/|$)/, "analytics"],

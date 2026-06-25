@@ -2,14 +2,30 @@ import type { Context } from 'hono'
 import type { AppEnv } from '../../types/bindings'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
+import type { ClientInfo } from '../../utils/audit'
 import * as CouponService from './coupon.service'
+
+/**
+ * Extract IP and user-agent from the request so audit logs record WHO acted
+ * AND from where. Without this, the audit log shows coupon creates with null
+ * IP/user-agent and the admin can't investigate suspicious activity.
+ */
+function extractClientInfo(c: Context<AppEnv>): ClientInfo {
+  const forwarded = c.req.header('x-forwarded-for')
+  const ipAddress = forwarded
+    ? forwarded.split(',')[0].trim()
+    : c.req.header('cf-connecting-ip') || c.req.header('x-real-ip') || null
+  const userAgent = c.req.header('user-agent') || null
+  return { ipAddress, userAgent }
+}
 
 export async function createCoupon(c: Context<AppEnv>) {
   try {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const result = await CouponService.createCoupon(data, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const result = await CouponService.createCoupon(data, user?.id ?? 'system', db, clientInfo)
     return ApiResponse.success(c, 'Coupon created successfully', result, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -58,7 +74,8 @@ export async function updateCoupon(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const result = await CouponService.updateCoupon(id, data, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const result = await CouponService.updateCoupon(id, data, user?.id ?? 'system', db, clientInfo)
     return ApiResponse.success(c, 'Coupon updated successfully', result)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -73,7 +90,8 @@ export async function deleteCoupon(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    await CouponService.deleteCoupon(id, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    await CouponService.deleteCoupon(id, user?.id ?? 'system', db, clientInfo)
     return ApiResponse.success(c, 'Coupon deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {

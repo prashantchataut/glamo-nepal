@@ -27,6 +27,14 @@ const orderItemSchema = z.object({
   variantId: z.string().optional(),
   quantity: z.coerce.number().int().min(1).max(99),
   selectedShade: z.string().max(80).optional(),
+  // Flat fields (current frontend contract) - the frontend sends name, price,
+  // image, brand, sku directly on each line item.
+  name: z.string().max(200).optional(),
+  price: z.coerce.number().nonnegative().optional(),
+  image: z.string().max(500).optional(),
+  brand: z.string().max(120).optional(),
+  sku: z.string().max(80).optional(),
+  // Nested product object (legacy / alternative contract).
   product: z.object({
     id: z.string().optional(),
     sku: z.string().optional(),
@@ -38,7 +46,7 @@ const orderItemSchema = z.object({
     price: z.coerce.number().nonnegative().optional(),
     originalPrice: z.coerce.number().nonnegative().optional(),
   }).passthrough().optional(),
-}).refine((value) => Boolean(value.productId || value.product?.id || value.product?.sku || value.product?.slug), 'Product identifier is required')
+}).refine((value) => Boolean(value.productId || value.product?.id || value.product?.sku || value.product?.slug || value.sku), 'Product identifier is required')
 
 export const createOrderSchema = z.object({
   customer: customerSchema.optional(),

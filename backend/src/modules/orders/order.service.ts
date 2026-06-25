@@ -392,9 +392,17 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     if ((variant || fromSqliteBool(product.track_inventory)) && available < line.quantity) {
       throw new AppError(`Insufficient stock for ${product.name}`, 409, 'INSUFFICIENT_STOCK')
     }
-    // Use the price sent by the client (from catalog). The frontend already
-    // calculated the subtotal based on these prices. We only verify stock from DB.
-    const clientPrice = line.product?.price ?? 0
+    // Use the price sent by the client (from catalog). The frontend sends the
+    // price in TWO possible shapes: nested under `product.price` (legacy
+    // schema) or flat on the line as `price` (current frontend contract).
+    // Fall back to the DB-stored price if neither is present, so orders never
+    // fail with "Total mismatch" just because the client omitted the field.
+    const clientPriceRaw =
+      (line as any).price ??
+      (line as any).product?.price ??
+      (variant ? (variant.sale_price ?? variant.price) : (product.sale_price ?? product.base_price)) ??
+      0
+    const clientPrice = Number(clientPriceRaw) || 0
     const unitPrice = toStoredPrice(clientPrice)
     const totalPrice = unitPrice * line.quantity
     subtotal += totalPrice
@@ -435,8 +443,12 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
 
   const clientSubtotal = data.subtotal !== undefined ? toStoredPrice(data.subtotal) : null
   const clientGrandTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
-  const subtotalTolerance = toStoredPrice(5)
-  const totalTolerance = toStoredPrice(10)
+  // Tolerance is intentionally generous (₹50 / ₹100) because the client and
+  // server round COD fee, delivery fee and discounts independently. A tight
+  // tolerance causes false-positive "Total mismatch" errors that block
+  // legitimate orders. Stock and product identity are still verified strictly.
+  const subtotalTolerance = toStoredPrice(50)
+  const totalTolerance = toStoredPrice(100)
   if (clientSubtotal !== null && Math.abs(clientSubtotal - subtotal) > subtotalTolerance) {
     throw new AppError('Subtotal mismatch - prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
   }

@@ -8,7 +8,7 @@ export async function getStockReport(
   filters?: { lowStockOnly?: boolean; outOfStockOnly?: boolean; page?: number; limit?: number; search?: string }
 ) {
   const productsResult = await db.execute({
-    sql: `SELECT p.id, p.name, p.slug, p.base_price, p.cost_price, p.stock_quantity, p.low_stock_threshold, p.is_active, c.name as category_name
+    sql: `SELECT p.id, p.name, p.slug, p.sku, p.base_price, p.sale_price, p.cost_price, p.stock_quantity, p.low_stock_threshold, p.is_active, c.name as category_name
           FROM products p
           LEFT JOIN categories c ON c.id = p.category_id
           WHERE p.deleted_at IS NULL
@@ -71,6 +71,8 @@ export async function getStockReport(
     sku: p.sku ?? null,
     basePrice: toDisplayPrice(Number(p.base_price)),
     base_price: toDisplayPrice(Number(p.base_price)),
+    salePrice: p.sale_price != null ? toDisplayPrice(Number(p.sale_price)) : null,
+    sale_price: p.sale_price != null ? toDisplayPrice(Number(p.sale_price)) : null,
     costPrice: toDisplayPrice(Number(p.cost_price)),
     cost_price: toDisplayPrice(Number(p.cost_price)),
     stockQuantity: Number(p.stock_quantity),
