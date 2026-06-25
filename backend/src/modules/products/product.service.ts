@@ -830,7 +830,8 @@ export async function uploadProductImages(
   files: File[],
   adminId: string,
   db: Client,
-  env: CloudflareBindings
+  env: CloudflareBindings,
+  clientInfo?: ClientInfo
 ) {
   const productResult = await db.execute({
     sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
@@ -896,7 +897,8 @@ export async function deleteProductImage(
   imageId: string,
   adminId: string,
   db: Client,
-  env: CloudflareBindings
+  env: CloudflareBindings,
+  clientInfo?: ClientInfo
 ) {
   const imageResult = await db.execute({
     sql: 'SELECT * FROM product_images WHERE id = ? AND product_id = ?',
@@ -965,7 +967,8 @@ export async function addVariant(
   productId: string,
   data: { name: string; sku?: string; price: number; salePrice?: number; stockQuantity?: number; attributes?: Record<string, string> },
   adminId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo
 ) {
   const productResult = await db.execute({
     sql: 'SELECT id, slug FROM products WHERE id = ? AND deleted_at IS NULL',
@@ -1015,7 +1018,8 @@ export async function updateVariant(
   variantId: string,
   data: Record<string, unknown>,
   adminId: string,
-  db: Client
+  db: Client,
+  clientInfo?: ClientInfo
 ) {
   const variantResult = await db.execute({
     sql: 'SELECT * FROM product_variants WHERE id = ? AND deleted_at IS NULL',
@@ -1058,12 +1062,12 @@ export async function updateVariant(
     await deleteCache(`product:slug:${slug}`)
     await deleteCacheByPrefix('products:list:')
   }
-  await createAuditLog(db, { userId: adminId, action: 'UPDATE_VARIANT', entity: 'product_variants', entityId: variantId, changes: data as Record<string, unknown> })
+  await createAuditLog(db, { userId: adminId, action: 'UPDATE_VARIANT', entity: 'product_variants', entityId: variantId, changes: data as Record<string, unknown> }, clientInfo)
 
   return formatVariant(mapVariantRow(updatedResult.rows[0] as Record<string, unknown>))
 }
 
-export async function deleteVariant(variantId: string, adminId: string, db: Client) {
+export async function deleteVariant(variantId: string, adminId: string, db: Client, clientInfo?: ClientInfo) {
   const variantResult = await db.execute({
     sql: 'SELECT * FROM product_variants WHERE id = ? AND deleted_at IS NULL',
     args: [variantId],
@@ -1099,7 +1103,7 @@ export async function deleteVariant(variantId: string, adminId: string, db: Clie
     await deleteCache(`product:slug:${slug}`)
     await deleteCacheByPrefix('products:list:')
   }
-  await createAuditLog(db, { userId: adminId, action: 'DELETE_VARIANT', entity: 'product_variants', entityId: variantId })
+  await createAuditLog(db, { userId: adminId, action: 'DELETE_VARIANT', entity: 'product_variants', entityId: variantId }, clientInfo)
 }
 
 export async function adjustStock(

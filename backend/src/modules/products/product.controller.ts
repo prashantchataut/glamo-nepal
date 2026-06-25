@@ -203,6 +203,7 @@ export async function uploadProductImages(c: Context<AppEnv>) {
     const { id } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
+    const clientInfo = extractClientInfo(c)
     const body = await c.req.parseBody()
     const fileArrays = Object.values(body).filter((v): v is File => v instanceof File)
     const files = Array.isArray(fileArrays) ? fileArrays : [fileArrays]
@@ -211,7 +212,7 @@ export async function uploadProductImages(c: Context<AppEnv>) {
       return ApiResponse.error(c, 'No images provided', 400)
     }
 
-    const images = await ProductService.uploadProductImages(id, files, user.id, db, getFullEnv(c))
+    const images = await ProductService.uploadProductImages(id, files, user.id, db, getFullEnv(c), clientInfo)
     return ApiResponse.success(c, 'Images uploaded successfully', images)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -235,7 +236,8 @@ export async function deleteProductImage(c: Context<AppEnv>) {
     const { id, imageId } = c.req.param()
     const user = c.get('user')
     const db = c.get('db')
-    const images = await ProductService.deleteProductImage(id, imageId, user.id, db, getFullEnv(c))
+    const clientInfo = extractClientInfo(c)
+    const images = await ProductService.deleteProductImage(id, imageId, user.id, db, getFullEnv(c), clientInfo)
     return ApiResponse.success(c, 'Image deleted successfully', images)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -268,7 +270,8 @@ export async function addVariant(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const variant = await ProductService.addVariant(id, data, user.id, db)
+    const clientInfo = extractClientInfo(c)
+    const variant = await ProductService.addVariant(id, data, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Variant added successfully', variant, 201)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -287,7 +290,8 @@ const { variantId } = c.req.param()
   const data = c.get('validatedBody')
   const user = c.get('user')
   const db = c.get('db')
-  const variant = await ProductService.updateVariant(variantId, data, user.id, db)
+  const clientInfo = extractClientInfo(c)
+  const variant = await ProductService.updateVariant(variantId, data, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Variant updated successfully', variant)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -305,7 +309,8 @@ export async function deleteVariant(c: Context<AppEnv>) {
 const { variantId } = c.req.param()
   const user = c.get('user')
   const db = c.get('db')
-  await ProductService.deleteVariant(variantId, user.id, db)
+  const clientInfo = extractClientInfo(c)
+  await ProductService.deleteVariant(variantId, user.id, db, clientInfo)
     return ApiResponse.success(c, 'Variant deleted successfully', null)
   } catch (error: any) {
     if (error instanceof AppError) {
