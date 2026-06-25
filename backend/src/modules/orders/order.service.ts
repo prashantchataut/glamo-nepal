@@ -394,7 +394,8 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     }
     // Use the price sent by the client (from catalog). The frontend already
     // calculated the subtotal based on these prices. We only verify stock from DB.
-    const unitPrice = toStoredPrice(line.price || 0)
+    const clientPrice = line.product?.price ?? 0
+    const unitPrice = toStoredPrice(clientPrice)
     const totalPrice = unitPrice * line.quantity
     subtotal += totalPrice
     const image = await getPrimaryImage(product.id, db)
