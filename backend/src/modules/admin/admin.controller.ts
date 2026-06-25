@@ -3,6 +3,7 @@ import type { AppEnv } from '../../types/bindings'
 import { ApiResponse } from '../../utils/response'
 import { AppError } from '../../utils/turso-helpers'
 import { getEnv } from '../../utils/env'
+import { extractClientInfo } from '../../utils/client-info'
 import * as AdminService from './admin.service'
 
 export async function getMe(c: Context<AppEnv>) {
@@ -152,7 +153,8 @@ export async function updateUserRole(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const result = await AdminService.updateUserRole(db, id, data.role, user.id)
+    const clientInfo = extractClientInfo(c)
+    const result = await AdminService.updateUserRole(db, id, data.role, user.id, clientInfo)
     return ApiResponse.success(c, result.message, null)
   } catch (error: any) {
     if (error instanceof AppError) {
@@ -168,7 +170,8 @@ export async function updateUserStatus(c: Context<AppEnv>) {
     const data = c.get('validatedBody')
     const user = c.get('user')
     const db = c.get('db')
-    const result = await AdminService.updateUserStatus(db, id, data.isActive, user.id)
+    const clientInfo = extractClientInfo(c)
+    const result = await AdminService.updateUserStatus(db, id, data.isActive, user.id, clientInfo)
     return ApiResponse.success(c, result.message, null)
   } catch (error: any) {
     if (error instanceof AppError) {

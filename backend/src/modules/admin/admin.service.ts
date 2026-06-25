@@ -1,7 +1,7 @@
 import type { Client } from '@libsql/client'
 import { AppError, handleDbError, fromSqliteBool, safeJsonParse } from '../../utils/turso-helpers'
 import { getFromCache, setCache } from '../../utils/cache'
-import { createAuditLog } from '../../utils/audit'
+import { createAuditLog, type ClientInfo } from '../../utils/audit'
 
 export async function getDashboardStats(db: Client) {
   const cacheKey = 'admin:dashboard'
@@ -481,7 +481,7 @@ export async function getUser(db: Client, id: string) {
   }
 }
 
-export async function updateUserRole(db: Client, userId: string, role: string, adminUserId: string) {
+export async function updateUserRole(db: Client, userId: string, role: string, adminUserId: string, clientInfo?: ClientInfo) {
   const result = await db.execute({
     sql: `SELECT id, role FROM users WHERE id = ?`,
     args: [userId],
@@ -503,12 +503,12 @@ export async function updateUserRole(db: Client, userId: string, role: string, a
     entity: 'users',
     entityId: userId,
     changes: { previousRole: profile.role, newRole: role },
-  })
+  }, clientInfo)
 
   return { message: 'User role updated successfully' }
 }
 
-export async function updateUserStatus(db: Client, userId: string, isActive: boolean, adminUserId: string) {
+export async function updateUserStatus(db: Client, userId: string, isActive: boolean, adminUserId: string, clientInfo?: ClientInfo) {
   const result = await db.execute({
     sql: `SELECT id, is_active FROM users WHERE id = ?`,
     args: [userId],
@@ -530,7 +530,7 @@ export async function updateUserStatus(db: Client, userId: string, isActive: boo
     entity: 'users',
     entityId: userId,
     changes: { previousStatus: fromSqliteBool(profile.is_active as number), newStatus: isActive },
-  })
+  }, clientInfo)
 
   return { message: `User ${isActive ? 'activated' : 'deactivated'} successfully` }
 }
