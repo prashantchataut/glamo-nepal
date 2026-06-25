@@ -89,6 +89,7 @@ const SECTION_ACCESS: Record<AdminSection, string> = {
   returns: "ADMIN",
   reviews: "ADMIN",
   popups: "ADMIN",
+  setup: "ADMIN",
   support: "ADMIN",
   backups: "ADMIN",
   content: "ADMIN",

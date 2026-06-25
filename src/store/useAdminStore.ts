@@ -11,6 +11,7 @@ export type AdminSection =
   | "returns"
   | "reviews"
   | "popups"
+  | "setup"
   | "support"
   | "backups"
   | "analytics"

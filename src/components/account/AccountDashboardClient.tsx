@@ -21,8 +21,8 @@ interface RecentOrder {
   source: "session" | "api";
 }
 
-function initials(name?: string) {
-  const source = name?.trim() || "GC";
+function initials(name?: string, fallback?: string) {
+  const source = name?.trim() || fallback?.trim() || "GC";
   return source.split(/\s+/).filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 }
 

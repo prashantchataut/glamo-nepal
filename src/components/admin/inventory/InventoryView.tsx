@@ -143,8 +143,8 @@ export function InventoryView() {
     [products],
   );
   const inventoryValue = useMemo(
-    () => stockMeta?.summary?.totalValue ?? products.reduce((sum, p) => sum + p.stock_quantity, 0),
-    [products, stockMeta],
+    () => products.reduce((sum, p) => sum + p.stock_quantity, 0),
+    [products],
   );
   const lowStockCount = lowStockAlerts.length;
 
