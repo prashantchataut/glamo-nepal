@@ -59,14 +59,28 @@ function missingReason(product: AdminProduct): string {
 
 export function ProductQualityChecklist() {
   const { data, isLoading } = useAdminData(() => adminApi.listProducts({ limit: 100 }));
-  const products = data?.products ?? [];
-  const weak = products
-    .map((product) => ({ product, score: readiness(product), reason: missingReason(product) }))
+  const rawProducts = data?.products ?? [];
+  // Wrap each per-product calculation in try/catch so one malformed row
+  // can never crash the whole admin products page.
+  const products = rawProducts.filter((product): product is AdminProduct => {
+    return product !== null && typeof product === 'object';
+  });
+  const scored = products
+    .map((product) => {
+      try {
+        const score = readiness(product);
+        const reason = missingReason(product);
+        return { product, score, reason, ok: true as const };
+      } catch {
+        return { product, score: 0, reason: 'Could not evaluate product', ok: false as const };
+      }
+    });
+  const weak = scored
     .filter((item) => item.score < 100)
     .sort((a, b) => a.score - b.score)
     .slice(0, 8);
-  const readyCount = products.filter((product) => readiness(product) === 100).length;
-  const average = products.length ? Math.round(products.reduce((sum, product) => sum + readiness(product), 0) / products.length) : 0;
+  const readyCount = scored.filter((item) => item.score === 100).length;
+  const average = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
 
   return (
     <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">

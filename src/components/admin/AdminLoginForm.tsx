@@ -1,12 +1,23 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { ensureCsrfToken, CSRF_HEADER_NAME, resetCsrfCache } from "@/lib/csrf";
 import { useAdminStore } from "@/store/useAdminStore";
 
+// Outer wrapper: in Next.js 16, useSearchParams() opts the page out of static
+// rendering and emits hydration warnings unless it is rendered inside a
+// <Suspense> boundary. We keep the form UX identical by suspending on null.
 export function AdminLoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginFormInner />
+    </Suspense>
+  );
+}
+
+function AdminLoginFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/admin";
