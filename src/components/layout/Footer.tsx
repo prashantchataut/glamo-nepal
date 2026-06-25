@@ -115,7 +115,7 @@ export function Footer() {
             ) : newsletterState === "error" ? (
               <p className="text-xs leading-5 text-red-400">Something went wrong. Please try again.</p>
             ) : (
-              <p className="text-xs leading-5 text-white/80">No spam — only launches, routines and practical beauty notes.</p>
+              <p className="text-xs leading-5 text-white/80">No spam - only launches, routines and practical beauty notes.</p>
             )}
             </div>
           </form>

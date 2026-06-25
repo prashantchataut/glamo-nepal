@@ -31,7 +31,7 @@ const [email, setEmail] = useState("");
       setCooldown(true);
       setTimeout(() => setCooldown(false), 60000);
       if (exists) {
-        toast.success("Check your inbox — we sent a password reset link.");
+        toast.success("Check your inbox - we sent a password reset link.");
       }
     } catch (err: unknown) {
       if (err instanceof GlamoApiError) {
@@ -63,7 +63,7 @@ const [email, setEmail] = useState("");
             <span className="flex items-start gap-3">
               <MailCheck className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
               <span>
-                Check your inbox — we sent a password reset link to your email. You can now return to the <Link href="/login" className="font-semibold underline">sign in page</Link>.
+                Check your inbox - we sent a password reset link to your email. You can now return to the <Link href="/login" className="font-semibold underline">sign in page</Link>.
               </span>
             </span>
           </div>

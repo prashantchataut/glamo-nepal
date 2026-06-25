@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ export function ProfileForm() {
   useEffect(() => {
     setName(user?.name || "");
     setPhone(user?.phone || "");
+    setInitialLoading(false);
   }, [user?.name, user?.phone]);
 
   const fetchProfile = useCallback(async () => {
@@ -30,16 +31,20 @@ export function ProfileForm() {
       const response = await customerApi.me();
       const profile = response.data;
       const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
+      const resolvedName = fullName || profile.name || currentUser.name;
       setPhone(profile.phone || currentUser.phone || "");
       useAuthStore.getState().setUser({
         id: profile.id,
-        name: fullName || profile.name || currentUser.name,
-        email: profile.email || undefined,
+        name: resolvedName,
+        email: profile.email || currentUser.email,
         phone: profile.phone || currentUser.phone,
         role: "customer",
       });
     } catch (err) {
       if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) {
+        setLoadError(null);
+        setInitialLoading(false);
+        setFetching(false);
         return;
       }
       setLoadError(getUserMessage(err));
@@ -57,8 +62,8 @@ export function ProfileForm() {
     void fetchProfile();
   }, [fetchProfile]);
 
-  const initials = (name || user?.phone || "Glamo customer")
-    .split(/\s+|@/)
+  const initials = (name || user?.name || "GC")
+    .split(/\s+/)
     .map((part) => part[0])
     .join("")
     .slice(0, 2)
@@ -79,13 +84,12 @@ export function ProfileForm() {
 
       useAuthStore.getState().setUser({
         id: user!.id,
-        name: [updated.firstName, updated.lastName].filter(Boolean).join(" ") || user!.name,
+        name: [updated.firstName, updated.lastName].filter(Boolean).join(" ") || name || user!.name,
         email: updated.email || user!.email,
         phone: updated.phone ?? phone,
         role: "customer",
       });
 
-      void fetchProfile();
       toast.success("Profile saved.");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save profile";
@@ -95,7 +99,7 @@ export function ProfileForm() {
     }
   };
 
-  if (initialLoading && isFetching) {
+  if (initialLoading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-5">
@@ -128,7 +132,7 @@ export function ProfileForm() {
 
       {loadError && (
         <div role="alert" className="flex items-center justify-between gap-3 rounded-2xl border border-error/20 bg-error/5 px-5 py-4">
-          <p className="text-sm text-error">Could not load your profile.</p>
+          <p className="text-sm text-error">{loadError}</p>
           <button
             type="button"
             onClick={() => void fetchProfile()}
@@ -189,9 +193,6 @@ export function ProfileForm() {
         >
           {isSaving ? "Saving..." : "Save profile"}
         </button>
-        {isSaving && (
-          <span className="text-sm text-neutral-500">Updating your details...</span>
-        )}
       </div>
     </form>
   );

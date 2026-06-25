@@ -47,7 +47,7 @@ describe("delivery fee parity (client vs backend)", () => {
     // backend computed 0.
     { subtotal: 2890, district: "Kathmandu", province: "Bagmati", label: "COSRX in valley, over threshold" },
     { subtotal: 5000, district: "Lalitpur", province: "Bagmati", label: "big cart, valley" },
-    // Under threshold — valley rates
+    // Under threshold - valley rates
     { subtotal: 500, district: "Kathmandu", province: "Bagmati", label: "small cart Kathmandu (0)" },
     { subtotal: 500, district: "Bhaktapur", province: "Bagmati", label: "Bhaktapur (50)" },
     // Outside valley

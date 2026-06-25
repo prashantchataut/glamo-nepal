@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   }
 
   // The signed session payload already carries email + name. Do NOT call
-  // getAdminCredentials() here — it throws when ADMIN_EMAIL is unset, which
+  // getAdminCredentials() here - it throws when ADMIN_EMAIL is unset, which
   // turns a valid session into a 500 and breaks the dashboard.
   const role = resolveRole(payload.email);
 

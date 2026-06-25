@@ -30,7 +30,7 @@ const playfair = Playfair_Display({
 
 export const metadata = {
   metadataBase: new URL("https://glamonepal.com"),
-  title: "GLAMO Nepal — Premium Beauty & Cosmetics",
+  title: "GLAMO Nepal - Premium Beauty & Cosmetics",
   description:
     "Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu Valley.",
   keywords: [
@@ -40,7 +40,7 @@ export const metadata = {
     "skincare Nepal",
   ],
   openGraph: {
-    title: "GLAMO Nepal — Premium Beauty & Cosmetics",
+    title: "GLAMO Nepal - Premium Beauty & Cosmetics",
     description:
       "Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu Valley.",
     siteName: "GLAMO Nepal",
@@ -49,7 +49,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image" as const,
-    title: "GLAMO Nepal — Premium Beauty & Cosmetics",
+    title: "GLAMO Nepal - Premium Beauty & Cosmetics",
     description:
       "Curated skincare, soft-glam makeup and personal care essentials for shoppers in Kathmandu Valley.",
     site: "@glamo_nepal",

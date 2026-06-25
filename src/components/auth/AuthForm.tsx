@@ -149,7 +149,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           if (mode === "register") {
             setError(
               requirement
-                ? `Password isn't strong enough — ${requirement}. Please update it and try again.`
+                ? `Password isn't strong enough - ${requirement}. Please update it and try again.`
                 : "Password doesn't meet the security requirements. Use 8+ characters with a letter, a number, and a special character."
             );
           } else {

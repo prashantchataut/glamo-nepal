@@ -14,7 +14,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 export const revalidate = 300;
 
 export const metadata = createMetadata({
-  title: "GLAMO Nepal — Premium Beauty & Skincare",
+  title: "GLAMO Nepal - Premium Beauty & Skincare",
   description:
     "Curated beauty, skincare, makeup and haircare essentials with रू pricing and Kathmandu Valley delivery. Shop authentic products at GLAMO Nepal.",
   path: "/",

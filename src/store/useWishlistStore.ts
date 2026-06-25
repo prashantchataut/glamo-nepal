@@ -27,7 +27,7 @@ function isLoggedIn(): boolean {
  * Map a server wishlist row (nested `product` object, basePrice/salePrice,
  * isActive) into the flat storefront `Product` shape the UI expects.
  *
- * Items without an active product reference are dropped — the server filters
+ * Items without an active product reference are dropped - the server filters
  * deleted products, but we guard defensively in case a product was deactivated
  * between the list query and now.
  */

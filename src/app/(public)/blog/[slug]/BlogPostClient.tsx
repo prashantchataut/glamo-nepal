@@ -22,7 +22,7 @@ function withHeadingIds(html: string) { let index = 0; return sanitizeBlogHtml(h
 
 export default function BlogPostClient({ post, related }: { post: BlogPost; related: BlogPost[] }) {
   const [readingProgress, setReadingProgress] = useState(0); const [copied, setCopied] = useState(false);
-  const postUrl = `${SITE_CONFIG.website}/blog/${post.slug}`; const shareText = `${post.title} — ${SITE_CONFIG.fullTitle}`;
+  const postUrl = `${SITE_CONFIG.website}/blog/${post.slug}`; const shareText = `${post.title} - ${SITE_CONFIG.fullTitle}`;
   const safeContent = useMemo(() => withHeadingIds(post.content), [post.content]); const toc = useMemo(() => extractToc(post.content), [post.content]);
   const shareLinks = [{ label: "WhatsApp", href: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${postUrl}`)}`, icon: "💬" }, { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, icon: "f" }];
   const handleCopy = useCallback(async () => { try { await navigator.clipboard.writeText(postUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard not available */ } }, [postUrl]);

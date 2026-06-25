@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -16,7 +16,6 @@ const navLinks = [
   { name: "Orders", href: "/account/orders", icon: Package },
   { name: "Wishlist", href: "/account/wishlist", icon: Heart },
   { name: "Addresses", href: "/account/addresses", icon: MapPin },
-  { name: "Password", href: "/account/password", icon: LockKeyhole },
 ];
 
 export function AccountShell({ children }: { children: React.ReactNode }) {

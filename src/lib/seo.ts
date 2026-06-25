@@ -55,7 +55,7 @@ export function createMetadata({ title, description, path = "/", image, noIndex 
 }
 
 export const defaultMetadata = createMetadata({
-  title: "GLAMO NEPAL — Premium Beauty & Cosmetics",
+  title: "GLAMO NEPAL - Premium Beauty & Cosmetics",
   description: SITE_CONFIG.description,
   path: "/",
 });

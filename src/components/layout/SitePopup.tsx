@@ -18,7 +18,7 @@ import { X } from "lucide-react";
  *  - Suppresses re-show for `cookie_days` using a localStorage flag keyed by
  *    popup id, so a returning visitor isn't nagged. `cookie_days` null/0 = show
  *    every visit until the popup's expires_at.
- *  - Silent on any error — a failed popup fetch must never break the storefront.
+ *  - Silent on any error - a failed popup fetch must never break the storefront.
  *  - Never shows on admin routes (AppShell already gates those, but this is
  *    mounted only in the public branch of AppShell).
  */
@@ -58,7 +58,7 @@ function markSuppressed(popupId: string): void {
   try {
     window.localStorage.setItem(`${SUPPRESS_KEY}:${popupId}`, String(Date.now()));
   } catch {
-    // Storage may be unavailable (private mode); ignore — popup just re-shows.
+    // Storage may be unavailable (private mode); ignore - popup just re-shows.
   }
 }
 

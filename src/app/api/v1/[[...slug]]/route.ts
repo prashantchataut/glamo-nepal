@@ -29,14 +29,14 @@ function readAdminCookie(request: NextRequest): string | undefined {
 
 /**
  * The proxy is the single trust boundary for admin traffic. It validates the
- * admin session cookie + CSRF using ITS OWN secrets (which are known-good —
+ * admin session cookie + CSRF using ITS OWN secrets (which are known-good -
  * that's why /api/admin/login and /api/admin/me work), then cryptographically
  * vouches for the verified identity to the backend via x-proxy-trust. The
  * backend trusts that header with ONE shared key (PROXY_TRUST_SECRET) instead
  * of needing three signing secrets to match across deployments.
  *
  * If PROXY_TRUST_SECRET is not set, we fall back to pure forwarding (legacy
- * behavior) so the deploy does not regress — admin auth will only work in
+ * behavior) so the deploy does not regress - admin auth will only work in
  * that mode once the cookie secrets are also synced.
  */
 async function buildAdminTrustHeader(
@@ -105,7 +105,7 @@ async function buildAdminTrustHeader(
 async function proxyRequest(request: NextRequest) {
   const trust = await buildAdminTrustHeader(request);
 
-  // CSRF failed at the proxy — short-circuit without hitting the backend.
+  // CSRF failed at the proxy - short-circuit without hitting the backend.
   if (trust.status && trust.body) {
     return new Response(JSON.stringify(trust.body), {
       status: trust.status,

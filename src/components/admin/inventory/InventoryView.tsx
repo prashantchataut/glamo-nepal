@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { useAdminData } from "@/lib/hooks/useAdminData";
@@ -143,8 +143,8 @@ export function InventoryView() {
     [products],
   );
   const inventoryValue = useMemo(
-    () => products.reduce((sum, p) => sum + p.stock_quantity, 0),
-    [products],
+    () => stockMeta?.summary?.totalValue ?? products.reduce((sum, p) => sum + p.stock_quantity, 0),
+    [products, stockMeta],
   );
   const lowStockCount = lowStockAlerts.length;
 
@@ -155,7 +155,7 @@ export function InventoryView() {
       render: (row) => (
         <div>
           <p className="font-semibold text-brand-textPrimary">{row.name}</p>
-          <p className="text-xs text-brand-textMuted">{row.sku || "—"}</p>
+          <p className="text-xs text-brand-textMuted">{row.sku || "-"}</p>
         </div>
       ),
     },
@@ -163,7 +163,7 @@ export function InventoryView() {
       key: "category",
       header: "Category",
       render: (row) => (
-        <span className="text-sm">{row.category?.name || "—"}</span>
+        <span className="text-sm">{row.category?.name || "-"}</span>
       ),
     },
     {
@@ -277,7 +277,7 @@ export function InventoryView() {
         <div className="mt-5 flex items-center gap-3">
           <SearchInput
             onSearch={setSearch}
-            placeholder="Search products—"
+            placeholder="Search products-"
             className="max-w-xs"
           />
         </div>
@@ -342,7 +342,7 @@ export function InventoryView() {
                     <div>
                       <p className="font-semibold">{item.name}</p>
                       <p className="text-xs text-brand-textMuted">
-                        {item.sku} — Reorder at {item.low_stock_threshold}
+                        {item.sku} - Reorder at {item.low_stock_threshold}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

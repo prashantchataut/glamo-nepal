@@ -967,7 +967,7 @@ export function getDeliveryRule(district: District, province: Province): Distric
 
 // ─── Delivery fee (mirrors backend/src/utils/delivery.ts EXACTLY) ───────────────
 // The backend recomputes the fee server-side on order placement and rejects the
-// order ("Delivery fee mismatch — please refresh and try again") if the client's
+// order ("Delivery fee mismatch - please refresh and try again") if the client's
 // value differs by more than NPR 5. Keep these tables in sync with the backend.
 //
 // The backend stores fees as a flat Record<districtName, fee> keyed by the

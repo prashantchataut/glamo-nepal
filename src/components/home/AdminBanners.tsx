@@ -11,7 +11,7 @@ import Link from "next/link";
  * active banners for the MID_PAGE position from the public endpoint
  * (GET /api/v1/banners?position=MID_PAGE) and renders them as promotional
  * cards. Previously the storefront never read banners at all, so an admin could
- * create banners and never see them appear anywhere — this closes that loop.
+ * create banners and never see them appear anywhere - this closes that loop.
  *
  * It renders NOTHING when there are no active banners, so the curated static
  * sections above/below it are unaffected. Silent on any fetch error.

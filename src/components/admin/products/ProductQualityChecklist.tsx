@@ -91,7 +91,7 @@ export function ProductQualityChecklist() {
           <p className="mt-1 max-w-3xl text-sm leading-6 text-brand-textMuted">This catches owner-facing product gaps before a product is promoted: photos, stock, descriptions, SEO preview and beauty-specific details.</p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-brand-bgLight p-3"><p className="text-xs text-brand-textMuted">Average</p><p className="text-xl font-semibold">{isLoading ? "—" : `${average}%`}</p></div>
+          <div className="rounded-xl bg-brand-bgLight p-3"><p className="text-xs text-brand-textMuted">Average</p><p className="text-xl font-semibold">{isLoading ? "-" : `${average}%`}</p></div>
           <div className="rounded-xl bg-brand-bgLight p-3"><p className="text-xs text-brand-textMuted">Ready</p><p className="text-xl font-semibold">{readyCount}</p></div>
           <div className="rounded-xl bg-brand-bgLight p-3"><p className="text-xs text-brand-textMuted">Needs work</p><p className="text-xl font-semibold">{weak.length}</p></div>
         </div>

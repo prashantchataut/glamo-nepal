@@ -3,7 +3,7 @@ import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
-  title: "Sign In — GLAMO NEPAL",
+  title: "Sign In - GLAMO NEPAL",
   description: "Sign in to your workspace.",
   path: "/admin/login",
   noIndex: true,

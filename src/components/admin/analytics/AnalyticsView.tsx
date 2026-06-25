@@ -272,7 +272,7 @@ export function AnalyticsView() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">Analytics</h2>
-          <p className="mt-0.5 text-sm text-brand-textMuted">Revenue, orders, products and category performance — live from your store.</p>
+          <p className="mt-0.5 text-sm text-brand-textMuted">Revenue, orders, products and category performance - live from your store.</p>
         </div>
         <div className="flex gap-2">
           {(["7d", "30d", "month"] as DateRange[]).map((range) => (

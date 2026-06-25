@@ -116,7 +116,7 @@ export function DeliveryManagerView() {
                 <option value="true">Enabled</option>
               </select>
             </label>
-            <Field label="COD fee" help="Informational only — the actual COD fee is now 3% of the cart subtotal, applied globally at checkout." value={values.cod_fee ?? "0"} onChange={(v) => update("cod_fee", v)} type="number" />
+            <Field label="COD fee" help="Informational only - the actual COD fee is now 3% of the cart subtotal, applied globally at checkout." value={values.cod_fee ?? "0"} onChange={(v) => update("cod_fee", v)} type="number" />
             <Field label="Free delivery above" help="Order total in NPR that unlocks free delivery." value={values.free_shipping_threshold ?? "0"} onChange={(v) => update("free_shipping_threshold", v)} type="number" />
             <div className="sm:col-span-2">
               <Field label="Delivery fees JSON" help='Example: {"kathmandu_valley":100,"outside_valley":0,"free_above":2500}' value={values.delivery_fees ?? ""} onChange={(v) => update("delivery_fees", v)} multiline />

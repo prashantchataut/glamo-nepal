@@ -158,7 +158,7 @@ export function ReviewStep({
       <div className="mt-2 flex flex-col gap-2 rounded-[1rem] border border-neutral-200 bg-neutral-50 p-4 md:rounded-[1.25rem]">
         <div className="flex items-center gap-2 text-xs text-neutral-600">
           <ShieldCheck size={14} className="shrink-0 text-emerald-600" />
-          <span>Secure checkout — your details are encrypted</span>
+          <span>Secure checkout - your details are encrypted</span>
         </div>
         <div className="flex items-center gap-2 text-xs text-neutral-600">
           <Truck size={14} className="shrink-0 text-primary" />
@@ -166,7 +166,7 @@ export function ReviewStep({
         </div>
         <div className="flex items-center gap-2 text-xs text-neutral-600">
           <RotateCcw size={14} className="shrink-0 text-primary" />
-          <span>Easy returns — <Link href="/return-policy" className="underline hover:text-primary">return policy</Link></span>
+          <span>Easy returns - <Link href="/return-policy" className="underline hover:text-primary">return policy</Link></span>
         </div>
         <div className="flex items-center gap-2 text-xs text-neutral-600">
           <Gift size={14} className="shrink-0 text-primary" />

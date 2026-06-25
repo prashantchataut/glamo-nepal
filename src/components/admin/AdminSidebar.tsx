@@ -20,7 +20,6 @@ import {
   FileText,
   ShieldCheck,
   LifeBuoy,
-  ClipboardCheck,
   Download,
   MousePointerClick,
   Truck,
@@ -44,7 +43,6 @@ const sections: Array<{
   icon: ComponentType<{ size?: number | string; className?: string }>;
 }> = [
   { id: "dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { id: "setup", label: "Setup Wizard", href: "/admin/setup", icon: ClipboardCheck },
   { id: "products", label: "Products", href: "/admin/products", icon: Package },
   { id: "orders", label: "Orders", href: "/admin/orders", icon: ShoppingBag },
   { id: "customers", label: "Customers", href: "/admin/customers", icon: Users },
@@ -91,7 +89,6 @@ const SECTION_ACCESS: Record<AdminSection, string> = {
   returns: "ADMIN",
   reviews: "ADMIN",
   popups: "ADMIN",
-  setup: "ADMIN",
   support: "ADMIN",
   backups: "ADMIN",
   content: "ADMIN",

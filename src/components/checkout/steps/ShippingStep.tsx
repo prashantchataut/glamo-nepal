@@ -77,7 +77,7 @@ export function ShippingStep({
             <option value="">Enter a new address</option>
             {savedAddresses.map((addr) => (
               <option key={addr.id} value={addr.id ?? ""}>
-                {addr.fullName} — {addr.addressLine1}, {addr.city}
+                {addr.fullName} - {addr.addressLine1}, {addr.city}
               </option>
             ))}
           </select>

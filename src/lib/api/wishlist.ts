@@ -4,7 +4,7 @@ import { apiRequest } from "@/lib/api/client";
  * A wishlist row as returned by the server.
  *
  * The product details are nested under `product`, and pricing uses
- * `basePrice`/`salePrice` (in display rupees) — this differs from the
+ * `basePrice`/`salePrice` (in display rupees) - this differs from the
  * simpler storefront `WishlistItem` we hand to the UI, so we map it in
  * the store rather than using it directly.
  */

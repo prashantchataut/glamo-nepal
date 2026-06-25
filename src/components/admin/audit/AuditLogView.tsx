@@ -76,7 +76,7 @@ export function AuditLogView() {
     ((result as unknown as Record<string, unknown>)?.totalPages as number) ??
     1;
 
-  // Lightweight stats — cheap to compute from the current page and useful at
+  // Lightweight stats - cheap to compute from the current page and useful at
   // a glance. The full count is already in `total`.
   const uniqueIps = useMemo(() => {
     const set = new Set<string>();
@@ -148,7 +148,7 @@ export function AuditLogView() {
       key: "changes",
       header: "Details",
       render: (log) => {
-        if (!log.changes) return <span className="text-neutral-400">—</span>;
+        if (!log.changes) return <span className="text-neutral-400">-</span>;
         try {
           const parsed =
             typeof log.changes === "string"
@@ -191,7 +191,7 @@ export function AuditLogView() {
         if (!log.ip_address) {
           return (
             <span className="font-mono text-xs text-neutral-400" title="No IP captured (older entries)">
-              —
+              -
             </span>
           );
         }

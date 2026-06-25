@@ -3,7 +3,7 @@ import "server-only";
 /**
  * Server-side bridge to the GLAMO backend API.
  * When API_BASE_URL is absolute, requests go over the network.
- * Otherwise, the Hono app is invoked in-process — avoiding broken
+ * Otherwise, the Hono app is invoked in-process - avoiding broken
  * relative fetch() calls in Node and saving a network hop.
  */
 

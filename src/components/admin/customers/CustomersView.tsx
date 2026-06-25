@@ -53,7 +53,7 @@ function displayCustomerName(row: Pick<UserRow, "first_name" | "last_name" | "em
   const name = [row.first_name, row.last_name].map((s) => (s || "").trim()).filter(Boolean).join(" ");
   if (name) return name;
   if (row.email) return row.email.split("@")[0];
-  return "—";
+  return "-";
 }
 
 export function CustomersView() {

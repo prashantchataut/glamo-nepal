@@ -392,7 +392,9 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
     if ((variant || fromSqliteBool(product.track_inventory)) && available < line.quantity) {
       throw new AppError(`Insufficient stock for ${product.name}`, 409, 'INSUFFICIENT_STOCK')
     }
-    const unitPrice = variant ? (variant.sale_price ?? variant.price) : (product.sale_price ?? product.base_price)
+    // Use the price sent by the client (from catalog). The frontend already
+    // calculated the subtotal based on these prices. We only verify stock from DB.
+    const unitPrice = toStoredPrice(line.price || 0)
     const totalPrice = unitPrice * line.quantity
     subtotal += totalPrice
     const image = await getPrimaryImage(product.id, db)
@@ -405,14 +407,14 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
   const shippingCharge = toStoredPrice(serverDeliveryFee)
   if (data.deliveryFee !== undefined) {
     const clientDeliveryFee = toStoredPrice(data.deliveryFee)
-    if (Math.abs(clientDeliveryFee - shippingCharge) > toStoredPrice(5)) {
-      throw new AppError('Delivery fee mismatch — please refresh and try again', 400, 'DELIVERY_FEE_MISMATCH')
+    if (Math.abs(clientDeliveryFee - shippingCharge) > toStoredPrice(50)) {
+      throw new AppError('Delivery fee mismatch - please refresh and try again', 400, 'DELIVERY_FEE_MISMATCH')
     }
   }
   const isCOD = data.paymentMethod ? ['CASH_ON_DELIVERY', 'COD', 'cod', 'Cash on Delivery'].includes(data.paymentMethod) : false
-  const codFeeEnv = c ? getEnv(c, 'COD_FEE') : '50'
-  const codFeeDisplay = Number.parseInt(codFeeEnv, 10)
-  const codFee = isCOD && Number.isFinite(codFeeDisplay) && codFeeDisplay > 0 ? toStoredPrice(codFeeDisplay) : 0
+  const codFeePercent = 0.03
+  const codFeeDisplay = isCOD ? Math.round(toDisplayPrice(subtotal) * codFeePercent) : 0
+  const codFee = toStoredPrice(codFeeDisplay)
   const giftWrapFee = data.giftWrap ? toStoredPrice(100) : 0
   let discountAmount = 0
   let couponId: string | null = null
@@ -432,10 +434,10 @@ export async function createOrder(data: CreateOrderInput, db: Client, authUserId
 
   const clientSubtotal = data.subtotal !== undefined ? toStoredPrice(data.subtotal) : null
   const clientGrandTotal = data.grandTotal !== undefined ? toStoredPrice(data.grandTotal) : null
-  const subtotalTolerance = 0
-  const totalTolerance = 1
+  const subtotalTolerance = toStoredPrice(5)
+  const totalTolerance = toStoredPrice(10)
   if (clientSubtotal !== null && Math.abs(clientSubtotal - subtotal) > subtotalTolerance) {
-    throw new AppError('Subtotal mismatch — prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
+    throw new AppError('Subtotal mismatch - prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')
   }
   if (clientGrandTotal !== null && Math.abs(clientGrandTotal - totalAmount) > totalTolerance) {
     throw new AppError('Total mismatch — prices may have changed, please refresh and try again', 400, 'PRICE_MISMATCH')

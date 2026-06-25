@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextValue>({ user: null, loading: true,
 const AUTH_COOKIE_NAME = "glamo-access-token";
 // Firebase ID tokens expire after 1 hour. Cookie max-age MUST match the token's
 // actual lifetime, otherwise the cookie outlives the token and the edge proxy
-// rejects the (expired) token on the next navigation — bouncing users to login.
+// rejects the (expired) token on the next navigation - bouncing users to login.
 const AUTH_COOKIE_MAX_AGE_SECONDS = 60 * 60;
 
 function setAuthCookie(token: string | null) {

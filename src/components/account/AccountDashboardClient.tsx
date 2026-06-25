@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Heart, LockKeyhole, MapPin, Package } from "lucide-react";
+import { ArrowRight, Heart, MapPin, Package } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
@@ -21,9 +21,9 @@ interface RecentOrder {
   source: "session" | "api";
 }
 
-function initials(name?: string, phone?: string) {
-  const source = name?.trim() || phone || "Glamo customer";
-  return source.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+function initials(name?: string) {
+  const source = name?.trim() || "GC";
+  return source.split(/\s+/).filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 }
 
 export function AccountDashboardClient() {
@@ -95,7 +95,7 @@ export function AccountDashboardClient() {
       description: savedCount > 0 ? `${savedCount} saved` : "Save products you love",
     },
     { name: "Addresses", href: "/account/addresses", icon: MapPin, description: "Manage delivery addresses" },
-    { name: "Password", href: "/account/password", icon: LockKeyhole, description: "Update your password" },
+    { name: "Profile", href: "/account/profile", icon: Package, description: "Update your profile details" },
   ];
 
   const displayName = user?.name?.trim() || "Your GLAMO account";

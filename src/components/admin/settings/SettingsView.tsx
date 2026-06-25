@@ -148,7 +148,7 @@ function SettingsField({
         )}
         {isReadOnly ? (
           <div className="rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm text-brand-textPrimary">
-            {value || "—"}
+            {value || "-"}
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -217,7 +217,7 @@ function SettingsField({
       )}
       {isReadOnly ? (
         <div className="rounded-xl border border-brand-border bg-brand-bgLight px-4 py-3 text-sm text-brand-textPrimary">
-          {value || "—"}
+          {value || "-"}
         </div>
       ) : isBoolean ? (
         <select

@@ -5,7 +5,7 @@ import { BlogPreview } from "@/components/home/BlogPreview";
 export const revalidate = 600;
 
 export const metadata = createMetadata({
-  title: "Blog — GLAMO NEPAL",
+  title: "Blog - GLAMO NEPAL",
   description: "Beauty tips, skincare routines and Nepal beauty advice from GLAMO NEPAL.",
   path: "/blog",
 });

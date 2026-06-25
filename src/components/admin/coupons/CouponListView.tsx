@@ -101,7 +101,7 @@ const { data: couponsData, meta: couponsMeta, isLoading, refetch } = useAdminDat
       key: "minOrder",
       header: "Min order",
       render: (c) => (
-        <span>{c.minOrderAmount ? `NPR ${c.minOrderAmount}` : "—"}</span>
+        <span>{c.minOrderAmount ? `NPR ${c.minOrderAmount}` : "-"}</span>
       ),
     },
     {

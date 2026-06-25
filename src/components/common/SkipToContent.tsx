@@ -1,4 +1,4 @@
-﻿export function SkipToContent() {
+export function SkipToContent() {
   return (
     <a
       href="#main-content"

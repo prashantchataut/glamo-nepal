@@ -7,7 +7,7 @@ export interface AdminSessionPayload {
 }
 
 // Domain-scoped cookie (NOT __Host- prefixed): the apex glamonepal.com redirects
-// to www.glamonepal.com, and __Host- cookies are host-locked — they die across
+// to www.glamonepal.com, and __Host- cookies are host-locked - they die across
 // that redirect. A .glamonepal.com-domain cookie survives the redirect so the
 // admin session works on both apex and www. Kept httpOnly + Secure + SameSite.
 // Old sessions may still carry the __Host- name, so readers accept either.

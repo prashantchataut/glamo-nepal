@@ -2,7 +2,7 @@
 import { SITE_CONFIG } from "@/lib/config";
 
 const promises = [
-  { icon: <Clock3 className="h-5 w-5" aria-hidden="true" />, title: "Fast Valley delivery", body: "Kathmandu Valley orders usually arrive within 1–2 business days." },
+  { icon: <Clock3 className="h-5 w-5" aria-hidden="true" />, title: "Fast Valley delivery", body: "Kathmandu Valley orders usually arrive within 1-2 business days." },
   { icon: <MapPin className="h-5 w-5" aria-hidden="true" />, title: "Visit our store", body: SITE_CONFIG.address },
   { icon: <PackageCheck className="h-5 w-5" aria-hidden="true" />, title: "Thoughtful gifting", body: "Gift-ready picks, easy checkout and festival-friendly shopping." },
   { icon: <ShieldCheck className="h-5 w-5" aria-hidden="true" />, title: "Authenticity first", body: "Curated beauty with supplier-backed sourcing and careful product selection." },

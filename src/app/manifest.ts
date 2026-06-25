@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "GLAMO Nepal — Premium Beauty & Skincare",
+    name: "GLAMO Nepal - Premium Beauty & Skincare",
     short_name: "GLAMO",
     description: "Premium Nepali beauty, skincare, cosmetics and lifestyle ecommerce.",
     start_url: "/",

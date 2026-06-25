@@ -86,7 +86,7 @@ export function BlogsView() {
     {
       key: "category",
       header: "Category",
-      render: (b) => <span>{b.category || "—"}</span>,
+      render: (b) => <span>{b.category || "-"}</span>,
     },
     {
       key: "status",

@@ -270,7 +270,7 @@ export default function TrackOrderClient() {
                         }`} />
                         <div>
                           <p className="font-medium text-neutral-900">{STATUS_LABELS[entry.status.toUpperCase()] || entry.status}</p>
-                          <p className="text-neutral-500">{formatDate(entry.createdAt)}{entry.comment ? ` — ${entry.comment}` : ""}</p>
+                          <p className="text-neutral-500">{formatDate(entry.createdAt)}{entry.comment ? ` - ${entry.comment}` : ""}</p>
                         </div>
                       </div>
                     ))}

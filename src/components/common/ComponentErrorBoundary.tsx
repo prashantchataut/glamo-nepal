@@ -22,7 +22,7 @@ interface State {
  * generic "Something went wrong loading this section" message: it happens when
  * a new deploy left the browser holding references to JS chunks that no longer
  * exist on the server (or whose hashes changed mid-session). The fix for that
- * case is a hard reload — NOT a component retry — so we detect it explicitly
+ * case is a hard reload - NOT a component retry - so we detect it explicitly
  * and offer the right action.
  */
 function isChunkLoadError(error: Error): boolean {
@@ -48,7 +48,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
       hasError: true,
       error,
       isChunkLoadFailure: isChunkLoadError(error),
-      // Don't reset retryToken here — incrementing it on retry (below) is what
+      // Don't reset retryToken here - incrementing it on retry (below) is what
       // forces the children to re-mount with a fresh lazy-import attempt.
       retryToken: 0,
     };
@@ -102,7 +102,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center" role="alert">
           <p className="text-sm font-semibold text-red-800">
             {isChunkLoadFailure
-              ? `We updated the dashboard — please reload to see ${sectionLabel}.`
+              ? `We updated the dashboard - please reload to see ${sectionLabel}.`
               : `Something went wrong loading ${sectionLabel}.`}
           </p>
           {/* Show the actual cause. This turns a black-box error into something

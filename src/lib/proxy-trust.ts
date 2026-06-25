@@ -1,5 +1,5 @@
 /**
- * Proxy-trust signing utilities — shared contract between the Vercel edge
+ * Proxy-trust signing utilities - shared contract between the Vercel edge
  * proxy (/api/v1/*) and the Cloudflare Worker backend.
  *
  * PROBLEM THIS SOLVES
@@ -7,7 +7,7 @@
  * The admin session cookie and CSRF token are HMAC-signed. Historically the
  * Vercel frontend and the Worker each had to hold IDENTICAL copies of three
  * secrets (ADMIN_SESSION_SECRET, CSRF_SECRET, AUTH_SECRET) to sign/verify.
- * When any one drifted — which happened silently — the entire admin panel
+ * When any one drifted - which happened silently - the entire admin panel
  * 401'd ("Failed to load X" everywhere) and checkout broke with CSRF errors,
  * with zero indication that the cause was a config mismatch.
  *
@@ -32,7 +32,7 @@
  * - Short TTL (30s) defeats replay: a captured header is useless after 30s.
  * - HMAC-SHA256 with PROXY_TRUST_SECRET defeats forgery: only the proxy
  *   (which holds the key) can mint valid headers. The Worker's public URL is
- *   irrelevant — direct callers cannot forge this without the key.
+ *   irrelevant - direct callers cannot forge this without the key.
  * - The backend STILL accepts the legacy cookie path as a fallback, so a
  *   missing PROXY_TRUST_SECRET does not regress working deployments.
  */
@@ -129,7 +129,7 @@ export interface VerifiedProxyTrust {
 
 /**
  * Verify a proxy-trust header value. Called by the backend.
- * Returns { ok: false, reason } on any failure — never throws.
+ * Returns { ok: false, reason } on any failure - never throws.
  *
  * @param headerValue raw value of the x-proxy-trust header, or undefined
  * @param secret       PROXY_TRUST_SECRET as known to the backend. If empty,

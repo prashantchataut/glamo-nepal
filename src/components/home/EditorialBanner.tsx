@@ -13,7 +13,7 @@ export function EditorialBanner() {
               Beauty that feels calm, useful and shoppable.
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-neutral-700 md:text-base">
-              Gift-ready skincare, soft glam makeup and daily glow essentials curated for Nepal — with clear navigation instead of visual noise.
+              Gift-ready skincare, soft glam makeup and daily glow essentials curated for Nepal - with clear navigation instead of visual noise.
             </p>
             <div className="mt-7 grid max-w-xl gap-3 sm:grid-cols-2">
               <div className="rounded-[24px] bg-white px-5 py-4 ring-1 ring-white/80"><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Best Sellers</p><p className="mt-1 text-sm text-neutral-600">Customer favorites for routine building</p></div>

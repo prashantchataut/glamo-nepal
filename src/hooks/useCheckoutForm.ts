@@ -25,7 +25,7 @@ function saveDraft(data: Partial<CheckoutFormData>) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
-    // quota exceeded — ignore
+    // quota exceeded - ignore
   }
 }
 

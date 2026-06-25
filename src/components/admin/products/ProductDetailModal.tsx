@@ -297,11 +297,11 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
               <div className="mt-2 space-y-1">
                 <div className="flex justify-between text-sm">
                   <span className="text-brand-textMuted">Category</span>
-                  <span>{product.category?.name ?? "—"}</span>
+                  <span>{product.category?.name ?? "-"}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-brand-textMuted">Brand</span>
-                  <span>{product.brand?.name ?? "—"}</span>
+                  <span>{product.brand?.name ?? "-"}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-brand-textMuted">Slug</span>

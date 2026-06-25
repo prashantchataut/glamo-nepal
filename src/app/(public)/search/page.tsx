@@ -1,4 +1,4 @@
-﻿import { Suspense } from "react";
+import { Suspense } from "react";
 import SearchPageContent from "./SearchPageContent";
 import { createMetadata } from "@/lib/seo";
 

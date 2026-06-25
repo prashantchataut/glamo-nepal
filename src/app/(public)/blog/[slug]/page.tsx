@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getServerBlogPost(slug);
   return createMetadata({
-    title: post?.title ?? "Blog — GLAMO NEPAL",
+    title: post?.title ?? "Blog - GLAMO NEPAL",
     description: post?.excerpt ?? "Beauty tips, skincare routines and Nepal beauty advice from GLAMO NEPAL.",
     path: `/blog/${slug}`,
     image: post?.image,

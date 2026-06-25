@@ -181,11 +181,11 @@ export function CheckoutPageClient() {
           window.location.href = khaltiResult.data.paymentUrl;
           return;
         }
-        setSubmitError("Khalti payment could not be initiated. Your order has been placed — please pay from your order details.");
+        setSubmitError("Khalti payment could not be initiated. Your order has been placed - please pay from your order details.");
         setIsSubmitting(false);
         return;
       } catch (err) {
-        setSubmitError(getUserMessage(err) || "Khalti payment failed. Your order has been placed — please pay from your order details.");
+        setSubmitError(getUserMessage(err) || "Khalti payment failed. Your order has been placed - please pay from your order details.");
         setIsSubmitting(false);
         return;
       }
@@ -215,11 +215,11 @@ export function CheckoutPageClient() {
           form.remove();
           return;
         }
-        setSubmitError("eSewa payment could not be initiated. Your order has been placed — please pay from your order details.");
+        setSubmitError("eSewa payment could not be initiated. Your order has been placed - please pay from your order details.");
         setIsSubmitting(false);
         return;
       } catch (err) {
-        setSubmitError(getUserMessage(err) || "eSewa payment failed. Your order has been placed — please pay from your order details.");
+        setSubmitError(getUserMessage(err) || "eSewa payment failed. Your order has been placed - please pay from your order details.");
         setIsSubmitting(false);
         return;
       }
