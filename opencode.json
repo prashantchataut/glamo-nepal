@@ -1,8 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"],
-  "mcpServers": {
+  "mcp": {
     "shadcn-ui": {
+      "type": "local",
+      "enabled": true,
       "command": "npx",
       "args": ["-y", "@jpisnice/shadcn-ui-mcp-server"],
       "env": {
