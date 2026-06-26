@@ -34,12 +34,15 @@ dev.pid
 # backend build output
 backend/dist/
 
-# env files
+# ─── env files ──────────────────────────────────────────────────────────────
+# ALL env files containing real values are ignored. Only .env.example is tracked.
+# If .env.local or .env.production are already tracked in git, remove them with:
+#   git rm --cached .env.local .env.production
+# Then purge them from history with scripts/purge-leaked-env.sh (in the fix pack).
 .env
 .env*.local
 .env.production
 .env.production.local
-# Secret rotation runbook (contains live secrets)
 .env.rotation-pending.local.md
 
 # backend wrangler config is tracked but MUST NOT contain secrets.
@@ -67,10 +70,17 @@ docs/superpowers/
 # graphify generated output
 graphify-out/
 
+# OpenNext build output (Cloudflare Workers frontend — currently unused, see PLATFORM_DECISION.md)
 .open-next/
 
 # Cloudflare Wrangler local state/build artifacts
 .wrangler/
+
+# ─── Build artifacts that should never be tracked ───────────────────────────
+# A pre-built minified Cloudflare Worker bundle was accidentally committed in
+# commit 7a1426e. It bloats the repo and confuses tooling. Never track it.
+dist/
+backend/dist/
 
 # Windows cmd.exe redirection accidents (on Windows `> nul` can create a real file)
 nul
@@ -83,6 +93,12 @@ cookie*.txt
 cookie*.txt.signed
 token*.txt
 
-.env*.local
-
 _jarvis_probe.ps1
+
+# ─── AI-generated fix-pack artifacts (delete after merging) ─────────────────
+# These were one-shot patch files from an earlier AI session. They should not
+# live in the repo long-term.
+apply-changes.sh
+changes.patch
+HOW_TO_APPLY.md
+README-CHANGES.md

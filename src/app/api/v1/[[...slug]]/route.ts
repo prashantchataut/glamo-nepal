@@ -7,12 +7,67 @@ import {
 import { validateCsrf } from "@/lib/csrf";
 import { signProxyTrust, hasProxyTrustSecret, PROXY_TRUST_HEADER } from "@/lib/proxy-trust";
 
-const API_BASE_URL = process.env.API_BASE_URL || "https://glamo-nepal-api.prashantchataut8.workers.dev/api/v1";
+/**
+ * API_BASE_URL resolution order:
+ *   1. process.env.API_BASE_URL  (Vercel project env var — preferred)
+ *   2. fallback constant below   (used only if env var is missing)
+ *
+ * In production, set API_BASE_URL to your backend's CUSTOM DOMAIN, e.g.
+ *   https://api.glamonepal.com/api/v1
+ * NOT the *.workers.dev URL — that hostname is subject to Cloudflare's
+ * workers.dev edge routing, which can return Error 1000 ("DNS points to
+ * prohibited IP") for cross-account traffic (e.g. Vercel → workers.dev).
+ * A custom domain on the same Cloudflare account bypasses that layer.
+ */
+const API_BASE_URL =
+  process.env.API_BASE_URL ||
+  "https://glamo-nepal-api.prashantchataut8.workers.dev/api/v1";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+/**
+ * Cloudflare edge errors that indicate the backend is unreachable at the
+ * routing layer (not a real API error). When we detect one of these in a
+ * backend response, we MUST NOT forward it as-is — the frontend's error
+ * handler interprets any 403 as "permission denied" and shows the user
+ * "You do not have permission to perform this action", which is misleading.
+ *
+ * Instead, surface these as 502 Bad Gateway with a clear message so the
+ * frontend's STATUS_FALLBACKS table shows "Something went wrong on our end".
+ *
+ * These bodies are tiny (Cloudflare returns short text bodies like
+ * "error code: 1000"), so reading them is cheap.
+ */
+const CLOUDFLARE_EDGE_ERROR_PATTERNS = [
+  "error code: 1000", // DNS points to prohibited IP
+  "error code: 1001", // DNS resolution error
+  "error code: 1003", // Direct IP access not allowed
+  "error code: 1004", // Host not configured
+  "error code: 1010", // Access denied (browser integrity)
+  "error code: 1011", // Access denied (hotlink protection)
+  "error code: 1012", // Access denied (ToS violation)
+  "error code: 1013", // HTTP hostname not allowed
+  "error code: 1014", // CNAME cross-user banned
+  "error code: 1015", // Rate limited
+  "error code: 1016", // Origin DNS error
+  "error code: 1018", // Domain misconfigured
+  "error code: 1019", // Compute server error
+  "error code: 1020", // Access denied (WAF)
+  "DNS points to prohibited IP",
+  "Cloudflare Ray ID",
+];
+
+function looksLikeCloudflareEdgeError(status: number, body: string): boolean {
+  // Cloudflare edge errors come back as 4xx or 5xx with very short text bodies.
+  // Real API responses are JSON starting with `{`.
+  if (status < 400) return false;
+  if (body.length > 500) return false; // CF edge errors are tiny
+  if (body.trimStart().startsWith("{")) return false; // JSON = real API response
+  return CLOUDFLARE_EDGE_ERROR_PATTERNS.some((p) => body.includes(p));
+}
 
 /**
  * Resolve the admin session cookie from the request. request.cookies is
@@ -154,29 +209,66 @@ async function proxyRequest(request: NextRequest) {
     headers.set(PROXY_TRUST_HEADER, trust.header);
   }
 
+  let response: Response;
   try {
-    const response = await fetch(targetUrl, {
+    response = await fetch(targetUrl, {
       method: request.method,
       headers,
       body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
       redirect: "manual",
     });
-
-    const responseHeaders = new Headers(response.headers);
-    responseHeaders.delete("x-powered-by");
-    responseHeaders.set("x-proxy-pass", "vercel-edge");
-
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: responseHeaders,
-    });
   } catch (error) {
+    // Network-level failure (DNS, TCP, TLS) — backend is unreachable.
+    console.error("[proxy] backend fetch failed:", {
+      targetUrl,
+      method: request.method,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return new Response(
-      JSON.stringify({ success: false, message: "Backend service unavailable. Please try again later." }),
-      { status: 502, headers: { "content-type": "application/json" } }
+      JSON.stringify({
+        success: false,
+        message: "Backend service unavailable. Please try again later.",
+        code: "BACKEND_UNREACHABLE",
+      }),
+      { status: 502, headers: { "content-type": "application/json" } },
     );
   }
+
+  // ─── Cloudflare edge-error detection ────────────────────────────────────
+  // If the backend URL is still on *.workers.dev and Cloudflare's edge layer
+  // rejects the request (Error 1000 etc.), the response will be a 4xx/5xx
+  // with a short non-JSON body containing "error code: NNN" or "Cloudflare
+  // Ray ID". Forwarding that as a 403 makes the frontend show "You do not
+  // have permission", which is wrong. Detect and rewrite to 502.
+  if (response.status >= 400) {
+    const cloned = response.clone();
+    const bodyText = await cloned.text().catch(() => "");
+    if (looksLikeCloudflareEdgeError(response.status, bodyText)) {
+      console.error("[proxy] Cloudflare edge error from backend:", {
+        targetUrl,
+        status: response.status,
+        bodyPreview: bodyText.slice(0, 200),
+      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "Backend service is temporarily unreachable. Please try again in a moment.",
+          code: "BACKEND_EDGE_ERROR",
+        }),
+        { status: 502, headers: { "content-type": "application/json" } },
+      );
+    }
+  }
+
+  const responseHeaders = new Headers(response.headers);
+  responseHeaders.delete("x-powered-by");
+  responseHeaders.set("x-proxy-pass", "vercel-edge");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: responseHeaders,
+  });
 }
 
 export const GET = proxyRequest;

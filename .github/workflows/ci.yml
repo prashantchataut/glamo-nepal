@@ -19,10 +19,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # NOTE: `|| true` was previously appended, which silently swallowed
+      # every vulnerability finding. We now let the audit fail the job at
+      # moderate+ severity. If you need to temporarily downgrade, set the
+      # `audit-level` input below to "high" instead of "moderate".
       - name: Frontend audit
-        run: pnpm audit --audit-level=moderate || true
+        run: pnpm audit --audit-level=moderate
       - name: Backend audit
-        run: cd backend && pnpm audit --audit-level=moderate || true
+        run: cd backend && pnpm audit --audit-level=moderate
 
   frontend:
     name: Frontend - Lint, Typecheck, Build
@@ -150,6 +154,11 @@ jobs:
         env:
           NEXT_PUBLIC_API_BASE_URL: /api/v1
 
+  # ─── Backend deployment ────────────────────────────────────────────────────
+  # The backend worker is deployed on every push to master after CI passes.
+  # The frontend stays on Vercel with auto-deploy from the GitHub integration
+  # (see docs/PLATFORM_DECISION.md for why we did NOT move the frontend to
+  # Cloudflare Workers).
   deploy-backend:
     name: Deploy Backend to Cloudflare
     runs-on: ubuntu-latest
@@ -176,7 +185,10 @@ jobs:
         run: |
           echo "Waiting for worker to become available..."
           sleep 10
-          HEALTH_URL="https://glamo-nepal-api.prashantchataut8.workers.dev/health"
+          # API_BASE_URL — set this in GitHub Secrets to your backend's
+          # CUSTOM DOMAIN (e.g. https://api.glamonepal.com). Falls back to
+          # the workers.dev URL for backward compatibility.
+          HEALTH_URL="${{ secrets.BACKEND_HEALTH_URL || 'https://glamo-nepal-api.prashantchataut8.workers.dev/health' }}"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
           if [ "$HTTP_STATUS" != "200" ]; then
             echo "❌ Health check failed: HTTP $HTTP_STATUS"
@@ -186,6 +198,18 @@ jobs:
           echo "✅ Worker health check passed (HTTP 200)"
           echo "Response:"
           curl -s "$HEALTH_URL"
+      - name: Verify integration secrets are present
+        run: |
+          INTEGRATIONS_URL="${{ secrets.BACKEND_INTEGRATIONS_URL || 'https://glamo-nepal-api.prashantchataut8.workers.dev/health/integrations' }}"
+          RESP=$(curl -s "$INTEGRATIONS_URL")
+          echo "$RESP"
+          # Fail if any of the core secrets are missing.
+          READY=$(echo "$RESP" | jq -r '.data.coreSecretsReady' 2>/dev/null || echo "false")
+          if [ "$READY" != "true" ]; then
+            echo "❌ Core secrets not ready. Check ADMIN_SESSION_SECRET, PROXY_TRUST_SECRET, CLOUDINARY_API_SECRET, RESEND_API_KEY on the worker."
+            exit 1
+          fi
+          echo "✅ All core secrets present on worker."
       - name: Upload deploy log
         if: always()
         uses: actions/upload-artifact@v4

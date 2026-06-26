@@ -34,11 +34,29 @@ import { openApiSpec } from './docs/openapi'
 
 const app = new Hono<AppEnv>()
 
+/**
+ * Resolve the CORS origin allowlist.
+ *
+ * Supports two env vars (either / both may be set):
+ *   - ALLOWED_ORIGINS: comma-separated explicit allowlist, e.g.
+ *                      "https://glamonepal.com,https://www.glamonepal.com"
+ *                      Preferred in production — survives FRONTEND_URL typos
+ *                      and lets you add staging domains without code changes.
+ *   - FRONTEND_URL:    legacy single-origin var. Used as a fallback when
+ *                      ALLOWED_ORIGINS is unset, for backward compatibility.
+ *
+ * In production both apex and www variants are accepted. In development
+ * localhost origins are also accepted.
+ */
 function getOrigins(c: any): { allowed: string[]; isProduction: boolean } {
   const frontendUrl = c.env?.FRONTEND_URL || (typeof process !== 'undefined' ? process.env.FRONTEND_URL : undefined) || 'https://glamonepal.com'
   const host = frontendUrl.replace(/^https?:\/\//, '')
   const isProduction = c.env?.ENVIRONMENT === 'production' || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production')
-  const productionOrigins = [frontendUrl, `www.${host}`]
+
+  const explicitAllowed = (c.env?.ALLOWED_ORIGINS || (typeof process !== 'undefined' ? process.env.ALLOWED_ORIGINS : undefined) || '') as string
+  const productionOrigins = explicitAllowed
+    ? explicitAllowed.split(',').map((s: string) => s.trim()).filter(Boolean)
+    : [frontendUrl, `https://www.${host}`, `https://${host}`]
   const developmentOrigins = ['http://localhost:3000', 'http://localhost:3001']
   return {
     allowed: isProduction ? productionOrigins : [...productionOrigins, ...developmentOrigins],

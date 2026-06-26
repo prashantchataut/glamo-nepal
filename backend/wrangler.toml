@@ -11,21 +11,40 @@
 #   npx wrangler secret put ADMIN_SESSION_SECRET
 #   npx wrangler secret put AUTH_SECRET
 #   npx wrangler secret put CSRF_SECRET
+#   npx wrangler secret put PROXY_TRUST_SECRET
 #   npx wrangler secret put UPSTASH_REDIS_REST_TOKEN
 #   npx wrangler secret put KHALTI_SECRET_KEY
 #   npx wrangler secret put ESEWA_SECRET_KEY
 #
 # This file is tracked in git and contains only non-secret config + vars. For
 # local dev, copy backend/.env.example -> backend/.env.
+#
+# CUSTOM DOMAIN (recommended):
+#   After deploying, attach a custom domain (e.g. api.glamonepal.com) via:
+#     npx wrangler deployments --domain api.glamonepal.com
+#   OR via the Cloudflare dashboard:
+#     Workers & Pages → glamo-nepal-api → Settings → Triggers → Custom Domains
+#   Then set API_BASE_URL on the Vercel frontend to:
+#     https://api.glamonepal.com/api/v1
+#   This avoids the *.workers.dev edge routing layer, which can return
+#   Cloudflare Error 1000 ("DNS points to prohibited IP") for cross-account
+#   traffic (e.g. Vercel → workers.dev).
 
 name = "glamo-nepal-api"
 main = "src/worker.ts"
-compatibility_date = "2024-12-01"
+# Aligned with the frontend's wrangler.jsonc. Keep these in sync — drift
+# between the two workers causes subtle runtime-behavior differences
+# (nodejs_compat semantics, Request/Response defaults, etc.).
+compatibility_date = "2026-06-25"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
 FIREBASE_PROJECT_ID = "ankura-studio"
 FRONTEND_URL = "https://glamonepal.com"
+# Comma-separated CORS allowlist. Survives FRONTEND_URL typos and lets you
+# add staging domains without code changes. Optional — falls back to
+# FRONTEND_URL-derived list if unset.
+ALLOWED_ORIGINS = "https://glamonepal.com,https://www.glamonepal.com"
 FREE_SHIPPING_THRESHOLD = "2500"
 COD_FEE = "50"
 CLOUDINARY_CLOUD_NAME = "dxy90vpw5"
@@ -36,5 +55,7 @@ ENVIRONMENT = "production"
 TURSO_DB_URL = "libsql://glamo-nepal-prashantchataut.aws-ap-south-1.turso.io"
 ADMIN_EMAIL = "admin@glamonepal.com"
 ADMIN_NAME = "GLAMO Admin"
+# TODO: set ESEWA_MERCHANT_CODE once you have an eSewa merchant account.
+# Until then, eSewa payments will fail at verification time.
 ESEWA_MERCHANT_CODE = ""
 UPSTASH_REDIS_REST_URL = "https://definite-werewolf-100521.upstash.io"

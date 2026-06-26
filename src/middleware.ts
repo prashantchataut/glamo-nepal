@@ -116,21 +116,38 @@ async function signCsrfToken(token: string): Promise<string> {
   return `${token}.${sigB64}`;
 }
 
+/**
+ * Generate a per-request nonce and base64url-encode it for use in CSP.
+ * Next.js 13+ picks up the `x-nonce` REQUEST header (propagated via
+ * NextResponse.next({ request: { headers } })) and adds it to all
+ * framework-generated <script> tags, so swapping 'unsafe-inline' for
+ * 'nonce-<value>' in script-src does NOT break Next's own inline scripts.
+ */
 function generateNonce(): string {
-  const array = new Uint8Array(16);
+  const array = new Uint8Array(18);
   crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array));
+  return btoa(String.fromCharCode(...array))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
 }
 
-function addSecurityHeaders(response: NextResponse) {
-  const nonce = generateNonce();
+function addSecurityHeaders(response: NextResponse, nonce: string) {
   response.headers.set("x-nonce", nonce);
 
   const firebaseFrameSrc = FIREBASE_AUTH_DOMAIN ? ` https://${FIREBASE_AUTH_DOMAIN}` : "";
 
+  // SECURITY: script-src uses 'nonce-${nonce}' instead of 'unsafe-inline'.
+  // Next.js reads the x-nonce request header (propagated via
+  // NextResponse.next({ request: { headers } })) and applies the nonce to
+  // all framework-generated inline scripts, so this does not break SSR/RSC.
+  //
+  // 'unsafe-eval' is currently REQUIRED by Firebase Auth's jsdom-like
+  // runtime in the browser. TODO: remove once Firebase ships a CSP-safe
+  // browser build (track firebase/firebase-js-sdk#2497).
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com",
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",
@@ -184,6 +201,23 @@ const CANONICAL_REDIRECTS: Record<string, string> = {
   "/signup": "/register",
 };
 
+/**
+ * Build a NextResponse.next() that propagates the nonce to Next.js's renderer
+ * via the `request.headers` option. This is the Next.js-blessed way to make
+ * the nonce visible to framework-generated inline scripts so they get the
+ * `nonce="${NONCE}"` attribute automatically.
+ *
+ * For redirects we don't need this (the browser follows the redirect and
+ * the next request goes through middleware again, generating a fresh nonce).
+ */
+function nextWithNonce(nonce: string): NextResponse {
+  const requestHeaders = new Headers();
+  requestHeaders.set("x-nonce", nonce);
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -200,16 +234,18 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = authPages.some((path) => isPathOrChild(pathname, path));
   const isHtml = isHtmlPageRequest(pathname);
 
+  const nonce = generateNonce();
+
   if (isAdminPath && !isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
     if (!isValid) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
-      const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
       if (isHtml) await setCsrfCookie(response, request);
       return response;
     }
-    const response = addSecurityHeaders(NextResponse.next());
+    const response = addSecurityHeaders(nextWithNonce(nonce), nonce);
     if (isHtml) await setCsrfCookie(response, request);
     return response;
   }
@@ -217,9 +253,9 @@ export async function middleware(request: NextRequest) {
   if (isAdminLogin) {
     const isValid = await hasValidAdminToken(request);
     if (isValid) {
-      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
+      return addSecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)), nonce);
     }
-    const response = addSecurityHeaders(NextResponse.next());
+    const response = addSecurityHeaders(nextWithNonce(nonce), nonce);
     if (isHtml) await setCsrfCookie(response, request);
     return response;
   }
@@ -229,7 +265,7 @@ export async function middleware(request: NextRequest) {
     if (!hasAuth) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname + search);
-      const response = addSecurityHeaders(NextResponse.redirect(loginUrl));
+      const response = addSecurityHeaders(NextResponse.redirect(loginUrl), nonce);
       if (isHtml) await setCsrfCookie(response, request);
       return response;
     }
@@ -238,11 +274,11 @@ export async function middleware(request: NextRequest) {
   if (isAuthPage) {
     const hasAuth = await hasFirebaseAuthToken(request);
     if (hasAuth) {
-      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)));
+      return addSecurityHeaders(NextResponse.redirect(new URL("/account", request.url)), nonce);
     }
   }
 
-  const response = addSecurityHeaders(NextResponse.next());
+  const response = addSecurityHeaders(nextWithNonce(nonce), nonce);
   if (isHtml) await setCsrfCookie(response, request);
   return response;
 }
