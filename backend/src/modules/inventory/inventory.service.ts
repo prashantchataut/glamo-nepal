@@ -51,7 +51,19 @@ export async function getStockReport(
   const lowStock = productList.filter((p: any) => Number(p.stock_quantity) > 0 && Number(p.stock_quantity) <= Number(p.low_stock_threshold))
   const outOfStock = productList.filter((p: any) => Number(p.stock_quantity) === 0)
 
-  const totalValue = productList.reduce((sum: number, p: any) => sum + Number(p.cost_price) * Number(p.stock_quantity), 0)
+  // RETAIL VALUE of inventory on hand = effective unit price x stock_quantity.
+  // The previous calculation used `cost_price` which is the cost GLAMO paid
+  // to acquire the unit, NOT what a customer pays. That made the "Inventory
+  // value" stat card show ~50% of the real retail value, which the owner
+  // correctly flagged as wrong.
+  const retailValueOf = (p: any): number => {
+    const base = Number(p.base_price) || 0
+    const sale = p.sale_price != null ? Number(p.sale_price) : 0
+    const effective = sale > 0 && sale < base ? sale : base
+    return effective * Number(p.stock_quantity || 0)
+  }
+  const totalValue = productList.reduce((sum: number, p: any) => sum + retailValueOf(p), 0)
+  const totalCostValue = productList.reduce((sum: number, p: any) => sum + (Number(p.cost_price) || 0) * Number(p.stock_quantity || 0), 0)
 
   const byCategory: Record<string, { count: number; totalStock: number; totalValue: number }> = {}
   for (const p of productList) {
@@ -61,7 +73,7 @@ export async function getStockReport(
     }
     byCategory[cat].count++
     byCategory[cat].totalStock += Number(p.stock_quantity)
-    byCategory[cat].totalValue += Number(p.cost_price) * Number(p.stock_quantity)
+    byCategory[cat].totalValue += retailValueOf(p)
   }
 
   const formattedProducts = paginatedProducts.map((p: any) => ({
@@ -112,7 +124,12 @@ export async function getStockReport(
       inStock: inStock.length,
       lowStock: lowStock.length,
       outOfStock: outOfStock.length,
+      // `totalValue` is the RETAIL value of all inventory on hand (what
+      // customers would pay if every stocked unit sold at current prices).
       totalValue: toDisplayPrice(totalValue),
+      totalRetailValue: toDisplayPrice(totalValue),
+      totalCostValue: toDisplayPrice(totalCostValue),
+      potentialMargin: toDisplayPrice(totalValue - totalCostValue),
     },
     byCategory: Object.entries(byCategory).map(([name, data]) => ({
       name,

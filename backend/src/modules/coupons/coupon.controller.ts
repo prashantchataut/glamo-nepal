@@ -3,20 +3,20 @@ import type { AppEnv } from '../../types/bindings'
 import { AppError } from '../../utils/turso-helpers'
 import { ApiResponse } from '../../utils/response'
 import type { ClientInfo } from '../../utils/audit'
+import { extractClientInfo as extractClientInfoShared } from '../../utils/client-info'
 import * as CouponService from './coupon.service'
 
 /**
  * Extract IP and user-agent from the request so audit logs record WHO acted
- * AND from where. Without this, the audit log shows coupon creates with null
- * IP/user-agent and the admin can't investigate suspicious activity.
+ * AND from where. We delegate to the shared `extractClientInfo` helper so
+ * coupon audit entries use the SAME IP-resolution logic as the rest of the
+ * backend (Cloudflare cf-connecting-ip -> true-client-ip -> x-forwarded-for
+ * -> x-real-ip). The previous local copy only checked x-forwarded-for and
+ * lost the IP on Cloudflare-fronted requests, which is why coupon audit
+ * rows showed ip_address=NULL.
  */
 function extractClientInfo(c: Context<AppEnv>): ClientInfo {
-  const forwarded = c.req.header('x-forwarded-for')
-  const ipAddress = forwarded
-    ? forwarded.split(',')[0].trim()
-    : c.req.header('cf-connecting-ip') || c.req.header('x-real-ip') || null
-  const userAgent = c.req.header('user-agent') || null
-  return { ipAddress, userAgent }
+  return extractClientInfoShared(c)
 }
 
 export async function createCoupon(c: Context<AppEnv>) {

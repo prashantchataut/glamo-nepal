@@ -119,7 +119,27 @@ async function proxyRequest(request: NextRequest) {
 
   const headers = new Headers(request.headers);
   headers.delete("host");
-  headers.set("x-forwarded-for", request.headers.get("x-forwarded-for") || "unknown");
+
+  // CRITICAL: preserve the REAL client IP for audit logs. The previous code
+  // did `headers.set("x-forwarded-for", request.headers.get("x-forwarded-for") || "unknown")`
+  // which OVERWROTE the real IP with the literal string "unknown" whenever
+  // the inbound request didn't carry x-forwarded-for (e.g. when Cloudflare
+  // only sets cf-connecting-ip). That's why every audit log entry had
+  // ip_address=NULL — the backend was receiving "unknown" or empty.
+  const clientIp =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("true-client-ip") ||
+    request.headers.get("x-real-ip") ||
+    (request.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+    "";
+  if (clientIp) {
+    headers.set("x-forwarded-for", clientIp);
+    headers.set("x-real-ip", clientIp);
+    headers.set("cf-connecting-ip", clientIp);
+  } else if (!headers.has("x-forwarded-for")) {
+    headers.set("x-forwarded-for", "");
+  }
+
   headers.set("x-forwarded-host", url.host);
   headers.set("x-forwarded-proto", url.protocol.replace(":", ""));
   headers.set("x-request-id", crypto.randomUUID());

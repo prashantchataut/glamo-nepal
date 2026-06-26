@@ -170,12 +170,36 @@ export function ReviewSection({ productId }: { productId: string }) {
     setIsLoading(true);
     try {
       const result = await reviewApi.getProductReviews(productId, page, 5);
-      const data = result.data;
-      setReviews(data.reviews ?? []);
-      setTotalCount(data.pagination?.total ?? 0);
-      setTotalPages(data.pagination?.totalPages ?? 1);
+      // DEFENSIVE: the backend uses `ApiResponse.paginated` which puts the
+      // reviews array directly on `result.data` (not nested under
+      // `data.reviews`). The previous code did `data.reviews ?? []` which
+      // returned `[]` forever. We now handle THREE response shapes safely.
+      const payload = result.data as unknown;
+      let reviewList: Review[] = [];
+      let pagination: { total?: number; totalPages?: number } | undefined;
+
+      if (Array.isArray(payload)) {
+        reviewList = payload.filter((r): r is Review => r && typeof r === "object" && "id" in r);
+      } else if (payload && typeof payload === "object") {
+        const obj = payload as Record<string, unknown>;
+        if (Array.isArray(obj.reviews)) {
+          reviewList = obj.reviews.filter((r): r is Review => r && typeof r === "object" && "id" in r);
+        } else if (Array.isArray(obj.data)) {
+          reviewList = obj.data.filter((r): r is Review => r && typeof r === "object" && "id" in r);
+        }
+        if (obj.pagination && typeof obj.pagination === "object") {
+          pagination = obj.pagination as { total?: number; totalPages?: number };
+        }
+      }
+
+      const meta = result.meta;
+      setReviews(reviewList);
+      setTotalCount(meta?.total ?? pagination?.total ?? reviewList.length);
+      setTotalPages(meta?.totalPages ?? pagination?.totalPages ?? 1);
     } catch {
       setReviews([]);
+      setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }

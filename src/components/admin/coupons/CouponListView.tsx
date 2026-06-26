@@ -219,10 +219,16 @@ const { data: couponsData, meta: couponsMeta, isLoading, refetch } = useAdminDat
       />
 
       <CouponForm
+        key={`${formOpen ? "open" : "closed"}-${editCoupon?.id ?? "new"}`}
         open={formOpen}
         onOpenChange={setFormOpen}
         coupon={editCoupon}
-        onSaved={refetch}
+        onSaved={() => {
+          // Reset to page 1 so the newly created coupon (which sorts to the
+          // top by created_at DESC) is immediately visible.
+          setPage(1);
+          refetch();
+        }}
       />
     </>
   );

@@ -267,8 +267,13 @@ async function findOrCreateCustomer(data: CreateOrderInput, db: Client, authUser
   } catch (error: any) {
     if (error?.message?.includes('UNIQUE constraint')) {
       if (customer.email) {
+        // BUGFIX: the previous retry query used `AND deleted_at IS NULL`
+        // unconditionally. If the `users` table didn't have a `deleted_at`
+        // column (pre-migration 0004), this query would throw a SQL error
+        // -> 500 from /api/v1/checkout/orders. Now we respect the same
+        // `userHasDeletedAt` flag as the original SELECT above.
         const retry = await db.execute({
-          sql: 'SELECT id FROM users WHERE LOWER(email) = ? AND deleted_at IS NULL LIMIT 1',
+          sql: `SELECT id FROM users WHERE LOWER(email) = ?${userHasDeletedAt ? ' AND deleted_at IS NULL' : ''} LIMIT 1`,
           args: [customer.email.toLowerCase()],
         })
         if (retry.rows.length > 0) return (retry.rows[0] as any).id as string

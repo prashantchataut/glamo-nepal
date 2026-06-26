@@ -63,7 +63,9 @@ export function PaymentStep({ form, onBack, onContinue }: PaymentStepProps) {
                 <p className="text-sm font-semibold text-neutral-950">{method}</p>
                 {isComingSoon && <p className="mt-1 text-xs text-neutral-500">Coming soon</p>}
                 {method === "Cash on Delivery" && !isComingSoon && (
-                  <p className="mt-1 text-xs text-neutral-500">Pay when your order arrives</p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Pay when your order arrives · 3% service fee applies
+                  </p>
                 )}
               </div>
             </label>

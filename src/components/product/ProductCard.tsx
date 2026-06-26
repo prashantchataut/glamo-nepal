@@ -11,6 +11,7 @@ import { cn, formatNPR } from "@/lib/utils";
 import { useCartStore } from "@/store/useCartStore";
 import { useWishlistStore } from "@/store/useWishlistStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toArray } from "@/lib/array-safe";
 import type { Product } from "@/types/product";
 
 type AddState = "idle" | "loading" | "added";
@@ -29,6 +30,16 @@ export function ProductCard({ product }: ProductCardProps) {
   const isInWishlist = useWishlistStore((s) => s.isInWishlist);
 
   useEffect(() => setMounted(true), []);
+
+  // DEFENSIVE: catalog products always have these as arrays, but backend
+  // products coming through `adaptApiProduct` can ship a non-array if the
+  // product row is malformed. Without `toArray`, `concernTags.slice(0, 3)
+  // .join()` would throw `join is not a function` and crash the whole grid.
+  const concernTags = useMemo(() => toArray<string>(product.concernTags), [product.concernTags]);
+  const shadeOptions = useMemo(
+    () => toArray<NonNullable<Product["shadeOptions"]>[number]>(product.shadeOptions).filter((s) => s && typeof s.name === "string"),
+    [product.shadeOptions],
+  );
 
   const isWishlisted = mounted ? isInWishlist(product.id) : false;
   const discount = product.originalPrice
@@ -159,7 +170,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {product.inStock && (
           <div className="absolute inset-x-3 bottom-3 z-10 hidden translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
-            {product.shadeOptions && product.shadeOptions.length > 0 ? (
+            {shadeOptions.length > 0 ? (
               <Link
                 href={`/product/${product.slug}`}
                 className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary"
@@ -210,18 +221,18 @@ export function ProductCard({ product }: ProductCardProps) {
           </h3>
         </Link>
 
-        {product.concernTags.length > 0 && (
+        {concernTags.length > 0 && (
           <p className="mt-1 line-clamp-1 text-xs text-neutral-500 sm:mt-2">
-            {product.concernTags.slice(0, 3).join(" · ")}
+            {concernTags.slice(0, 3).join(" · ")}
           </p>
         )}
 
-        {product.shadeOptions && product.shadeOptions.length > 0 && (
+        {shadeOptions.length > 0 && (
           <div
             className="mt-2 flex items-center gap-1.5 sm:mt-3"
             aria-label="Available shades"
           >
-            {product.shadeOptions.slice(0, 6).map((shade) => (
+            {shadeOptions.slice(0, 6).map((shade) => (
               <span
                 key={shade.name}
                 title={shade.name}
@@ -229,9 +240,9 @@ export function ProductCard({ product }: ProductCardProps) {
                 style={{ backgroundColor: shade.hex || "var(--color-neutral-200)" }}
               />
             ))}
-            {product.shadeOptions.length > 6 && (
+            {shadeOptions.length > 6 && (
               <span className="text-[10px] text-neutral-500">
-                +{product.shadeOptions.length - 6}
+                +{shadeOptions.length - 6}
               </span>
             )}
           </div>
@@ -255,7 +266,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
           {product.inStock && (
             <div className="mt-3 md:hidden">
-              {product.shadeOptions && product.shadeOptions.length > 0 ? (
+              {shadeOptions.length > 0 ? (
                 <Link href={`/product/${product.slug}`} className="flex h-10 w-full items-center justify-center rounded-full border border-neutral-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition-colors hover:border-primary hover:text-primary">
                   View options
                 </Link>

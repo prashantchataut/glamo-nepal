@@ -4,9 +4,15 @@
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module",
-    "ecmaFeatures": { "jsx": true }
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
-  "plugins": ["@typescript-eslint", "react-hooks", "@next/next"],
+  "plugins": [
+    "@typescript-eslint",
+    "react-hooks",
+    "@next/next"
+  ],
   "extends": [],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
@@ -22,6 +28,7 @@
     "public/",
     "backend/dist/",
     "backend/.wrangler/",
+    "dist/",
     "*.config.js",
     "*.config.mjs",
     "*.config.cjs",

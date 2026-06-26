@@ -33,6 +33,24 @@ export async function backendFetch(path: string, init: BackendFetchInit = {}): P
     if (cookie && !headers.has("cookie")) headers.set("cookie", cookie);
     if (csrf && !headers.has("x-csrf-token")) headers.set("x-csrf-token", csrf);
     if (authorization && !headers.has("authorization")) headers.set("authorization", authorization);
+
+    // CRITICAL: forward client-identifying headers so audit logs record the
+    // real client IP and user-agent. Without these, every backend audit
+    // entry has ip_address=NULL and the admin cannot investigate abuse.
+    const IP_HEADERS = [
+      "cf-connecting-ip",
+      "true-client-ip",
+      "x-real-ip",
+      "x-forwarded-for",
+      "x-vercel-forwarded-for",
+      "x-vercel-proxied-for",
+    ];
+    for (const h of IP_HEADERS) {
+      const v = init.forwardFrom.headers.get(h);
+      if (v && !headers.has(h)) headers.set(h, v);
+    }
+    const ua = init.forwardFrom.headers.get("user-agent");
+    if (ua && !headers.has("user-agent")) headers.set("user-agent", ua);
   }
 
   const normalizedPath = `/${path.replace(/^\//, "")}`;

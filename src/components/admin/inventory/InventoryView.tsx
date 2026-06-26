@@ -150,20 +150,33 @@ export function InventoryView() {
     () => products.reduce((sum, p) => sum + (Number(p.stock_quantity) || 0), 0),
     [products],
   );
-  // FIX: Previously this just summed stock_quantity (number of units), which
-  // produced nonsense like "740 units, ₹740 value". Now we multiply each
-  // product's effective unit price (sale price if on sale, otherwise base
-  // price) by its stock quantity to get the real retail value of inventory.
-  const inventoryValue = useMemo(
-    () =>
-      products.reduce((sum, p) => {
-        const basePrice = Number(p.base_price ?? p.basePrice ?? 0);
-        const salePrice = Number(p.sale_price ?? p.salePrice ?? 0);
-        const effectivePrice = salePrice > 0 && salePrice < basePrice ? salePrice : basePrice;
-        return sum + effectivePrice * (Number(p.stock_quantity) || 0);
-      }, 0),
-    [products],
-  );
+
+  // The "Inventory value" stat card must show the retail value of the
+  // ENTIRE catalog, not just the 20 rows on the current page. The backend
+  // computes this in `getStockReport.summary.totalRetailValue`.
+  const summary = useMemo(() => {
+    if (!stockReport) return null;
+    if (Array.isArray(stockReport)) return null;
+    const s = (stockReport as unknown as Record<string, unknown>).summary;
+    return s && typeof s === "object" ? (s as Record<string, unknown>) : null;
+  }, [stockReport]);
+
+  const inventoryValue = useMemo(() => {
+    const backend = Number(summary?.totalRetailValue ?? summary?.totalValue);
+    if (Number.isFinite(backend) && backend > 0) return backend;
+    return products.reduce((sum, p) => {
+      const basePrice = Number(p.base_price ?? p.basePrice ?? 0);
+      const salePrice = Number(p.sale_price ?? p.salePrice ?? 0);
+      const effectivePrice = salePrice > 0 && salePrice < basePrice ? salePrice : basePrice;
+      return sum + effectivePrice * (Number(p.stock_quantity) || 0);
+    }, 0);
+  }, [products, summary]);
+
+  const totalCatalogUnits = useMemo(() => {
+    const backend = Number(summary?.total);
+    return Number.isFinite(backend) ? backend : totalUnits;
+  }, [summary, totalUnits]);
+
   const lowStockCount = lowStockAlerts.length;
 
   const columns: Column<InventoryRow>[] = [
@@ -274,7 +287,7 @@ export function InventoryView() {
             <StatCard
               icon={Boxes}
               label="Total units"
-              value={totalUnits}
+              value={totalCatalogUnits}
               note="Available catalog units"
             />
             <StatCard

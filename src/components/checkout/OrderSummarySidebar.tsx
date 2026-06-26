@@ -147,7 +147,13 @@ function CartItems({ items }: { items: CartItem[] }) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-neutral-950">{item.product.name}</p>
-            <p className="text-xs text-neutral-500">Qty {item.quantity}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-neutral-500">
+                Qty {item.quantity}
+                {item.selectedShade && <span className="ml-1.5 text-neutral-400">· {item.selectedShade}</span>}
+              </p>
+              <p className="text-xs font-semibold text-neutral-700">{formatNPR(item.product.price * item.quantity)}</p>
+            </div>
           </div>
         </div>
       ))}
