@@ -317,5 +317,5 @@ Set environment variables in Cloudflare Dashboard → Workers → glamo-nepal-ap
 
 ### Production URLs
 - Frontend: `https://glamonepal.vercel.app` (or custom domain)
-- Backend: `https://glamo-nepal-api.prashant1327.workers.dev`
+- Backend: `https://glamo-nepal-api.prashantchataut8.workers.dev`
 - Admin: `https://glamonepal.vercel.app/admin`

@@ -89,7 +89,7 @@ pnpm deploy
 ### Step 5: Verify Deployment
 
 ```bash
-curl https://glamo-nepal-api.prashant1327.workers.dev/health
+curl https://glamo-nepal-api.prashantchataut8.workers.dev/health
 # Should return: {"status":"ok","timestamp":"..."}
 ```
 

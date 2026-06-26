@@ -23,7 +23,7 @@
 ## Cloudflare Worker Deployment
 
 - [ ] Deploy via `pnpm deploy` or `wrangler deploy`
-- [ ] Verify health endpoint: `curl https://glamo-nepal-api.prashant1327.workers.dev/health`
+- [ ] Verify health endpoint: `curl https://glamo-nepal-api.prashantchataut8.workers.dev/health`
 
 ## Environment Variables (Cloudflare Worker)
 

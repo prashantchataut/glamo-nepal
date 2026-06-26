@@ -96,6 +96,32 @@ app.get('/health', (c) => {
 // every admin endpoint 401s and the panel shows "Failed to load X" everywhere.
 // `adminSecretReady: false` here is the smoking gun for that outage.
 // Intentionally non-public: only reports readiness, never the value.
+app.get('/health/integrations', (c) => {
+  const adminSecret = (c.env?.ADMIN_SESSION_SECRET || (typeof process !== 'undefined' ? process.env.ADMIN_SESSION_SECRET : undefined) || '') as string
+  const authSecret = (c.env?.AUTH_SECRET || (typeof process !== 'undefined' ? process.env.AUTH_SECRET : undefined) || '') as string
+  const proxyTrustSecret = (c.env?.PROXY_TRUST_SECRET || (typeof process !== 'undefined' ? process.env.PROXY_TRUST_SECRET : undefined) || '') as string
+  const cloudinaryApiSecret = (c.env?.CLOUDINARY_API_SECRET || (typeof process !== 'undefined' ? process.env.CLOUDINARY_API_SECRET : undefined) || '') as string
+  const resendApiKey = (c.env?.RESEND_API_KEY || (typeof process !== 'undefined' ? process.env.RESEND_API_KEY : undefined) || '') as string
+  const khaltiSecretKey = (c.env?.KHALTI_SECRET_KEY || (typeof process !== 'undefined' ? process.env.KHALTI_SECRET_KEY : undefined) || '') as string
+  const esewaSecretKey = (c.env?.ESEWA_SECRET_KEY || (typeof process !== 'undefined' ? process.env.ESEWA_SECRET_KEY : undefined) || '') as string
+  const env = c.env?.ENVIRONMENT || (typeof process !== 'undefined' ? process.env.ENVIRONMENT : undefined) || 'development'
+  return c.json({
+    success: true,
+    data: {
+      environment: env,
+      secrets: {
+        adminSession: { present: Boolean(adminSecret), resolvedFrom: adminSecret ? 'ADMIN_SESSION_SECRET' : (authSecret ? 'AUTH_SECRET' : 'NONE') },
+        proxyTrust: { present: Boolean(proxyTrustSecret) },
+        cloudinary: { apiSecretPresent: Boolean(cloudinaryApiSecret) },
+        resend: { apiKeyPresent: Boolean(resendApiKey) },
+        khalti: { secretKeyPresent: Boolean(khaltiSecretKey) },
+        esewa: { secretKeyPresent: Boolean(esewaSecretKey) },
+      },
+      coreSecretsReady: Boolean(adminSecret || authSecret) && Boolean(proxyTrustSecret) && Boolean(cloudinaryApiSecret) && Boolean(resendApiKey),
+    },
+  })
+})
+
 app.get('/health/admin-session', (c) => {
   const adminSecret = (c.env?.ADMIN_SESSION_SECRET || (typeof process !== 'undefined' ? process.env.ADMIN_SESSION_SECRET : undefined) || '') as string
   const authSecret = (c.env?.AUTH_SECRET || (typeof process !== 'undefined' ? process.env.AUTH_SECRET : undefined) || '') as string
