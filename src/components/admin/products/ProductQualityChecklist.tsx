@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CheckCircle2, ImageOff, ListChecks, Search, ShieldAlert } from "lucide-react";
 import { adminApi, type AdminProduct } from "@/lib/api/admin";
 import { useAdminData } from "@/lib/hooks/useAdminData";
+import { toArray } from "@/lib/array-safe";
 
 // Backend returns camelCase fields (basePrice, metaTitle, trackInventory...) but
 // the AdminProduct type still documents snake_case. Read either shape so the
@@ -59,7 +60,9 @@ function missingReason(product: AdminProduct): string {
 
 export function ProductQualityChecklist() {
   const { data, isLoading } = useAdminData(() => adminApi.listProducts({ limit: 100 }));
-  const rawProducts = data?.products ?? [];
+  // DEFENSIVE: handle both {products: [...]} and [...] response shapes,
+  // plus any malformed non-array response.
+  const rawProducts = toArray(data?.products ?? data);
   // Wrap each per-product calculation in try/catch so one malformed row
   // can never crash the whole admin products page.
   const products = rawProducts.filter((product): product is AdminProduct => {

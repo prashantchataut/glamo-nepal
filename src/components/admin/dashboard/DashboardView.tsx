@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import type { ComponentType } from "react";
+import { toArray } from "@/lib/array-safe";
 
 import {
   Users,
@@ -18,7 +19,7 @@ import {
 import { formatNPR } from "@/lib/utils";
 import { StatusPill, orderStatusToVariant, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
 import { useAdminData } from "@/lib/hooks/useAdminData";
-import { adminApi } from "@/lib/api/admin";
+import { adminApi, type DashboardStats } from "@/lib/api/admin";
 
 function StatCard({
   label,
@@ -79,15 +80,26 @@ function SkeletonCard() {
 
 export function DashboardView() {
   const { data: stats, isLoading, isError, refetch } = useAdminData(() => adminApi.dashboardStats());
-  const categoryCounts = useMemo(() => stats?.topPerformers?.categories ?? {}, [stats?.topPerformers?.categories]);
+  const categoryCounts = useMemo(() => {
+    const raw = stats?.topPerformers?.categories;
+    return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  }, [stats?.topPerformers?.categories]);
   const maxCategoryCount = useMemo(
     () => Math.max(...Object.values(categoryCounts), 0),
     [categoryCounts]
   );
 
-  const recentOrders = stats?.recentActivity?.orders ?? [];
-  const lowStockProducts = stats?.inventoryAlerts?.lowStockProducts ?? [];
-  const revenueDays = Object.entries(stats?.revenueLast30Days ?? {}).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
+  // DEFENSIVE: use toArray() instead of ?? [] because the backend might
+  // return a non-array value (e.g. `1` or `null` in a malformed response).
+  // `?? []` only falls back on null/undefined, so a number would pass through
+  // and `.map()` would throw "(l ?? []).map is not a function".
+  const recentOrders = toArray<NonNullable<NonNullable<DashboardStats["recentActivity"]>["orders"]>[number]>(stats?.recentActivity?.orders);
+  const lowStockProducts = toArray<NonNullable<NonNullable<DashboardStats["inventoryAlerts"]>["lowStockProducts"]>[number]>(stats?.inventoryAlerts?.lowStockProducts);
+  const revenueDays = Object.entries(
+    stats?.revenueLast30Days && typeof stats.revenueLast30Days === "object" && !Array.isArray(stats.revenueLast30Days)
+      ? stats.revenueLast30Days
+      : {}
+  ).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
   const maxRevenue = Math.max(...revenueDays.map(([, d]) => d.revenue), 1);
   const ordersToShip = Number(stats?.orderStatusBreakdown?.PENDING ?? 0) + Number(stats?.orderStatusBreakdown?.CONFIRMED ?? 0) + Number(stats?.orderStatusBreakdown?.PROCESSING ?? 0);
   const todayActions = [

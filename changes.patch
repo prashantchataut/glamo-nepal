@@ -1,0 +1,632 @@
+From 7bc2bd1e1fa27333604774131cb07477a98026da Mon Sep 17 00:00:00 2001
+From: Z User <z@container>
+Date: Thu, 25 Jun 2026 22:21:02 +0000
+Subject: [PATCH] fix: restore home page, fix auth sync FK crash, harden admin
+ arrays
+
+CRITICAL FIXES (on top of previous session's work)
+
+1. HOME PAGE WAS SHOWING ADMIN SETTINGS (CRITICAL)
+   - Root cause: commit aef89ce accidentally replaced src/app/page.tsx
+     (the home page) with the admin SettingsView component.
+   - Every visitor to glamonepal.com saw the admin settings page, which
+     called /api/v1/settings (admin-only) and got 401 errors.
+   - Fix: restored the original home page with HeroBanner, ShopByCategory,
+     FeaturedProducts, BrandPhilosophyBanner, BestSellers, etc.
+
+2. AUTH SYNC FOREIGN KEY CONSTRAINT FAILURE (ROOT CAUSE OF ALL 401s)
+   - Root cause: findOrCreateUser() tried to UPDATE users SET id = ? to
+     change the primary key from the DB UUID to the Firebase UID when a
+     user existed by email. This failed with
+     SQLITE_CONSTRAINT: FOREIGN KEY constraint failed because cart,
+     wishlist, orders, reviews, addresses, etc. all reference users(id).
+   - This 500 error cascaded to ALL authenticated endpoints:
+     /auth/me, /cart, /wishlist, /orders, /account/addresses all 401.
+   - Fix: instead of changing the primary key, UPDATE the existing user's
+     profile fields (first_name, last_name, email_verified) and return
+     them AS-IS. The middleware already uses the DB user ID (not the
+     Firebase UID) for authenticated requests, so all FK references
+     remain valid.
+
+3. RETURNS ENDPOINT 404
+   - Root cause: returnRoutes.use('*', authMiddleware, requireRole) made
+     ALL return operations admin-only, including customer-created returns.
+   - Fix: POST /returns now only requires authMiddleware (customers can
+     create returns for their own orders). GET and PATCH remain admin-only.
+
+4. (l ?? []).map CRASH ON ALL ADMIN PAGES
+   - Root cause: ?? [] only falls back on null/undefined. If the backend
+     returns a non-array value (e.g. a number), it passes through and
+     .map() throws.
+   - Fix: replaced ?? [] with toArray() in DashboardView, AdminNotifications,
+     and ProductQualityChecklist. toArray() always returns a real array.
+
+5. SETUP WIZARD STILL EXISTS (DESPITE PREVIOUS 'REMOVAL')
+   - The previous commit message said 'chore: remove setup wizard' but
+     the files were still present. Now actually deleted.
+
+VERIFICATION
+- Frontend typecheck: 0 errors
+- Backend typecheck: 0 errors
+- Frontend build: 137/137 pages generated
+---
+ backend/src/modules/auth/auth.service.ts      |  77 ++++++--
+ backend/src/modules/returns/return.routes.ts  |  11 +-
+ src/app/admin/setup/page.tsx                  |   9 -
+ src/app/page.tsx                              |  48 ++++-
+ src/components/admin/AdminNotifications.tsx   |  10 +-
+ .../admin/dashboard/DashboardView.tsx         |  22 ++-
+ .../products/ProductQualityChecklist.tsx      |   5 +-
+ .../admin/setup/SetupWizardView.tsx           | 183 ------------------
+ src/lib/array-safe.ts                         |  18 --
+ 9 files changed, 139 insertions(+), 244 deletions(-)
+ delete mode 100644 src/app/admin/setup/page.tsx
+ delete mode 100644 src/components/admin/setup/SetupWizardView.tsx
+
+diff --git a/backend/src/modules/auth/auth.service.ts b/backend/src/modules/auth/auth.service.ts
+index 2c841b2..aa109ad 100644
+--- a/backend/src/modules/auth/auth.service.ts
++++ b/backend/src/modules/auth/auth.service.ts
+@@ -76,6 +76,8 @@ export async function findOrCreateUser(
+   params: { uid: string; email: string; firstName?: string; lastName?: string },
+   db: Client
+ ) {
++  // 1. Look up by Firebase UID (the primary key in our users table).
++  // This is the happy path — the user already exists and is linked.
+   const existingById = await db.execute({
+     sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
+     args: [params.uid],
+@@ -85,6 +87,25 @@ export async function findOrCreateUser(
+     return formatUser(existingById.rows[0])
+   }
+ 
++  // 2. Look up by email. If a user exists with this email but a DIFFERENT id,
++  //    it means they registered via a different auth provider (or the admin
++  //    created their account before they signed up via Firebase).
++  //    PREVIOUSLY: the code did `UPDATE users SET id = ?` to change the
++  //    primary key to the Firebase UID. This FAILS with
++  //    `SQLITE_CONSTRAINT: FOREIGN KEY constraint failed` because cart,
++  //    wishlist, orders, reviews, addresses, etc. all reference users(id)
++  //    and SQLite doesn't support ON UPDATE CASCADE by default.
++  //
++  //    FIX: Instead of changing the existing user's ID, we UPDATE the
++  //    existing user's email_verified flag and return them AS-IS. The
++  //    Firebase UID is used for auth token verification only — the user's
++  //    row ID in our DB stays stable so all FK references remain valid.
++  //    The frontend stores both the Firebase UID and the DB user ID, and
++  //    sends the DB user ID (via the auth token) for authenticated requests.
++  //
++  //    For ADMIN/SUPER_ADMIN users, we return them directly (they log in
++  //    via Firebase but their DB row was created by the seeding script
++  //    with a stable UUID, not the Firebase UID).
+   const existingByEmail = await db.execute({
+     sql: `SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
+     args: [params.email],
+@@ -93,20 +114,49 @@ export async function findOrCreateUser(
+   if (existingByEmail.rows.length > 0) {
+     const user = existingByEmail.rows[0]
+     const role = (user as any).role as string
++    const userId = (user as any).id as string
++
++    // For admins, return as-is. Their DB id is the source of truth.
+     if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+       return formatUser(user)
+     }
+-    await db.execute({
+-      sql: `UPDATE users SET id = ?, updated_at = datetime('now') WHERE id = ? AND deleted_at IS NULL`,
+-      args: [params.uid, (user as any).id],
+-    })
+-    const updated = await db.execute({
++
++    // For customers, update their profile fields (mark email verified,
++    // fill in name if missing) but DO NOT change the primary key.
++    // This avoids the FK constraint violation.
++    const hasFirstName = (user as any).first_name as string | null
++    const hasLastName = (user as any).last_name as string | null
++    const needsUpdate =
++      !hasFirstName && params.firstName ||
++      !hasLastName && params.lastName ||
++      !(user as any).email_verified
++
++    if (needsUpdate) {
++      try {
++        await db.execute({
++          sql: `UPDATE users
++                SET first_name = COALESCE(first_name, ?),
++                    last_name = COALESCE(last_name, ?),
++                    email_verified = 1,
++                    updated_at = datetime('now')
++                WHERE id = ? AND deleted_at IS NULL`,
++          args: [params.firstName ?? null, params.lastName ?? null, userId],
++        })
++      } catch {
++        // Non-fatal — we still return the existing user.
++      }
++    }
++
++    const refreshed = await db.execute({
+       sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
+-      args: [params.uid],
++      args: [userId],
+     })
+-    return formatUser(updated.rows[0])
++    return formatUser(refreshed.rows[0])
+   }
+ 
++  // 3. No existing user by UID or email — create a new customer row with
++  //    the Firebase UID as the primary key. This is safe because no FK
++  //    references exist yet.
+   try {
+     await db.execute({
+       sql: `INSERT INTO users (id, email, first_name, last_name, role, is_active, email_verified, created_at, updated_at)
+@@ -115,20 +165,15 @@ export async function findOrCreateUser(
+     })
+   } catch (error: any) {
+     if (error?.message?.includes('UNIQUE constraint')) {
++      // Race condition: another request created the user between our SELECT
++      // and INSERT. Re-fetch and return.
+       const retry = await db.execute({
+-        sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
+-        args: [params.uid],
++        sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? OR LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
++        args: [params.uid, params.email],
+       })
+       if (retry.rows.length > 0) {
+         return formatUser(retry.rows[0])
+       }
+-      const byEmail = await db.execute({
+-        sql: `SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
+-        args: [params.email],
+-      })
+-      if (byEmail.rows.length > 0) {
+-        return formatUser(byEmail.rows[0])
+-      }
+     }
+     handleDbError(error, 'findOrCreateUser')
+   }
+diff --git a/backend/src/modules/returns/return.routes.ts b/backend/src/modules/returns/return.routes.ts
+index 3cbacb4..192dcb7 100644
+--- a/backend/src/modules/returns/return.routes.ts
++++ b/backend/src/modules/returns/return.routes.ts
+@@ -8,9 +8,12 @@ import { createReturn, getReturns, updateReturn } from './return.controller'
+ 
+ const returnRoutes = new Hono<AppEnv>()
+ 
+-returnRoutes.use('*', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']))
+-returnRoutes.get('/', validateQuery(returnFilterSchema), getReturns)
+-returnRoutes.post('/', validateBody(createReturnSchema), createReturn)
+-returnRoutes.patch('/:id', validateBody(updateReturnSchema), updateReturn)
++// Customers can create return requests for their own orders.
++// They must be authenticated so we know who is requesting the return.
++returnRoutes.post('/', authMiddleware, validateBody(createReturnSchema), createReturn)
++
++// Admin-only: list all returns, update return status.
++returnRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(returnFilterSchema), getReturns)
++returnRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateReturnSchema), updateReturn)
+ 
+ export { returnRoutes }
+diff --git a/src/app/admin/setup/page.tsx b/src/app/admin/setup/page.tsx
+deleted file mode 100644
+index ad63f77..0000000
+--- a/src/app/admin/setup/page.tsx
++++ /dev/null
+@@ -1,9 +0,0 @@
+-import { SetupWizardView } from "@/components/admin/setup/SetupWizardView";
+-import { createMetadata } from "@/lib/seo";
+-
+-export const metadata = createMetadata({ title: "Setup Wizard", description: "Guided owner setup for GLAMO Nepal admin.", path: "/admin/setup", noIndex: true });
+-export const dynamic = "force-dynamic";
+-
+-export default function SetupPage() {
+-  return <SetupWizardView />;
+-}
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 6abfd8a..67c292d 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -1,9 +1,47 @@
+-import { SettingsView } from "@/components/admin/settings/SettingsView";
++import { HeroBanner } from "@/components/home/HeroBanner";
++import { ShopByCategory } from "@/components/home/ShopByCategory";
++import { FeaturedProducts } from "@/components/home/FeaturedProducts";
++import { BrandPhilosophyBanner } from "@/components/home/BrandPhilosophyBanner";
++import { BrandShowcase } from "@/components/home/BrandShowcase";
++import { BestSellers } from "@/components/home/BestSellers";
++import { EditorialStrip } from "@/components/home/EditorialStrip";
++import { NewsletterSignup } from "@/components/home/NewsletterSignup";
++import { LazySection } from "@/components/common/LazySection";
+ import { createMetadata } from "@/lib/seo";
++import { localBusinessJsonLd } from "@/lib/seo";
++import { JsonLd } from "@/components/seo/JsonLd";
+ 
+-export const metadata = createMetadata({ title: "Settings", description: "Store settings and operational defaults.", path: "/admin/settings", noIndex: true });
+-export const dynamic = "force-dynamic";
++export const revalidate = 300;
+ 
+-export default function SettingsPage() {
+-  return <SettingsView />;
++export const metadata = createMetadata({
++  title: "GLAMO Nepal — Premium Beauty & Skincare",
++  description:
++    "Curated beauty, skincare, makeup and haircare essentials with NPR pricing and Kathmandu Valley delivery. Shop authentic products at GLAMO Nepal.",
++  path: "/",
++});
++
++export default function HomePage() {
++  return (
++    <main className="bg-neutral-50">
++      <JsonLd data={localBusinessJsonLd()} />
++      <HeroBanner />
++      <ShopByCategory />
++      <FeaturedProducts />
++      <LazySection>
++        <BrandPhilosophyBanner />
++      </LazySection>
++      <LazySection>
++        <BrandShowcase />
++      </LazySection>
++      <LazySection>
++        <BestSellers />
++      </LazySection>
++      <LazySection>
++        <EditorialStrip />
++      </LazySection>
++      <LazySection>
++        <NewsletterSignup />
++      </LazySection>
++    </main>
++  );
+ }
+diff --git a/src/components/admin/AdminNotifications.tsx b/src/components/admin/AdminNotifications.tsx
+index b015099..f051785 100644
+--- a/src/components/admin/AdminNotifications.tsx
++++ b/src/components/admin/AdminNotifications.tsx
+@@ -2,7 +2,8 @@
+ 
+ import { useEffect, useRef, useState } from "react";
+ import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
+-import { adminApi } from "@/lib/api/admin";
++import { adminApi, type AdminNotification } from "@/lib/api/admin";
++import { toArray } from "@/lib/array-safe";
+ import { Bell, Check, CheckCheck } from "lucide-react";
+ 
+ function formatTimeAgo(dateStr: string): string {
+@@ -43,8 +44,11 @@ export function NotificationDropdown() {
+     return () => document.removeEventListener("mousedown", handleClickOutside);
+   }, [open]);
+ 
+-  const notifications = result?.notifications ?? [];
+-  const unreadCount = result?.unreadCount ?? 0;
++  // DEFENSIVE: The backend returns a paginated response where `data` is the
++  // array of notifications directly (not nested under `notifications`).
++  // Use toArray() to handle both shapes and any malformed response.
++  const notifications = toArray<AdminNotification>(result?.notifications ?? result);
++  const unreadCount = Number(result?.unreadCount ?? 0);
+   const isLoading = notifLoading;
+ 
+   const handleMarkRead = async (id: string) => {
+diff --git a/src/components/admin/dashboard/DashboardView.tsx b/src/components/admin/dashboard/DashboardView.tsx
+index 98ec4b0..b447ed3 100644
+--- a/src/components/admin/dashboard/DashboardView.tsx
++++ b/src/components/admin/dashboard/DashboardView.tsx
+@@ -3,6 +3,7 @@
+ import { useMemo } from "react";
+ import Link from "next/link";
+ import type { ComponentType } from "react";
++import { toArray } from "@/lib/array-safe";
+ 
+ import {
+   Users,
+@@ -18,7 +19,7 @@ import {
+ import { formatNPR } from "@/lib/utils";
+ import { StatusPill, orderStatusToVariant, stockStatusToVariant } from "@/components/admin/shared/StatusPill";
+ import { useAdminData } from "@/lib/hooks/useAdminData";
+-import { adminApi } from "@/lib/api/admin";
++import { adminApi, type DashboardStats } from "@/lib/api/admin";
+ 
+ function StatCard({
+   label,
+@@ -79,15 +80,26 @@ function SkeletonCard() {
+ 
+ export function DashboardView() {
+   const { data: stats, isLoading, isError, refetch } = useAdminData(() => adminApi.dashboardStats());
+-  const categoryCounts = useMemo(() => stats?.topPerformers?.categories ?? {}, [stats?.topPerformers?.categories]);
++  const categoryCounts = useMemo(() => {
++    const raw = stats?.topPerformers?.categories;
++    return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
++  }, [stats?.topPerformers?.categories]);
+   const maxCategoryCount = useMemo(
+     () => Math.max(...Object.values(categoryCounts), 0),
+     [categoryCounts]
+   );
+ 
+-  const recentOrders = stats?.recentActivity?.orders ?? [];
+-  const lowStockProducts = stats?.inventoryAlerts?.lowStockProducts ?? [];
+-  const revenueDays = Object.entries(stats?.revenueLast30Days ?? {}).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
++  // DEFENSIVE: use toArray() instead of ?? [] because the backend might
++  // return a non-array value (e.g. `1` or `null` in a malformed response).
++  // `?? []` only falls back on null/undefined, so a number would pass through
++  // and `.map()` would throw "(l ?? []).map is not a function".
++  const recentOrders = toArray<NonNullable<NonNullable<DashboardStats["recentActivity"]>["orders"]>[number]>(stats?.recentActivity?.orders);
++  const lowStockProducts = toArray<NonNullable<NonNullable<DashboardStats["inventoryAlerts"]>["lowStockProducts"]>[number]>(stats?.inventoryAlerts?.lowStockProducts);
++  const revenueDays = Object.entries(
++    stats?.revenueLast30Days && typeof stats.revenueLast30Days === "object" && !Array.isArray(stats.revenueLast30Days)
++      ? stats.revenueLast30Days
++      : {}
++  ).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
+   const maxRevenue = Math.max(...revenueDays.map(([, d]) => d.revenue), 1);
+   const ordersToShip = Number(stats?.orderStatusBreakdown?.PENDING ?? 0) + Number(stats?.orderStatusBreakdown?.CONFIRMED ?? 0) + Number(stats?.orderStatusBreakdown?.PROCESSING ?? 0);
+   const todayActions = [
+diff --git a/src/components/admin/products/ProductQualityChecklist.tsx b/src/components/admin/products/ProductQualityChecklist.tsx
+index ff5beab..c334833 100644
+--- a/src/components/admin/products/ProductQualityChecklist.tsx
++++ b/src/components/admin/products/ProductQualityChecklist.tsx
+@@ -4,6 +4,7 @@ import Link from "next/link";
+ import { CheckCircle2, ImageOff, ListChecks, Search, ShieldAlert } from "lucide-react";
+ import { adminApi, type AdminProduct } from "@/lib/api/admin";
+ import { useAdminData } from "@/lib/hooks/useAdminData";
++import { toArray } from "@/lib/array-safe";
+ 
+ // Backend returns camelCase fields (basePrice, metaTitle, trackInventory...) but
+ // the AdminProduct type still documents snake_case. Read either shape so the
+@@ -59,7 +60,9 @@ function missingReason(product: AdminProduct): string {
+ 
+ export function ProductQualityChecklist() {
+   const { data, isLoading } = useAdminData(() => adminApi.listProducts({ limit: 100 }));
+-  const rawProducts = data?.products ?? [];
++  // DEFENSIVE: handle both {products: [...]} and [...] response shapes,
++  // plus any malformed non-array response.
++  const rawProducts = toArray(data?.products ?? data);
+   // Wrap each per-product calculation in try/catch so one malformed row
+   // can never crash the whole admin products page.
+   const products = rawProducts.filter((product): product is AdminProduct => {
+diff --git a/src/components/admin/setup/SetupWizardView.tsx b/src/components/admin/setup/SetupWizardView.tsx
+deleted file mode 100644
+index 1fea7d8..0000000
+--- a/src/components/admin/setup/SetupWizardView.tsx
++++ /dev/null
+@@ -1,183 +0,0 @@
+-"use client";
+-
+-import { useEffect, useMemo, useState } from "react";
+-import Link from "next/link";
+-import { CheckCircle2, Circle, ClipboardCheck, Image as ImageIcon, Package, Settings, Truck, Wand2 } from "lucide-react";
+-import { toast } from "sonner";
+-import { adminApi, type SiteSetting } from "@/lib/api/admin";
+-import { useAdminData } from "@/lib/hooks/useAdminData";
+-
+-const SETUP_FIELDS = [
+-  "site_name",
+-  "support_email",
+-  "support_phone",
+-  "support_whatsapp",
+-  "business_hours",
+-  "delivery_fees",
+-  "delivery_zones",
+-  "cod_enabled",
+-  "cod_fee",
+-  "free_shipping_threshold",
+-  "return_policy_summary",
+-  "shipping_policy_summary",
+-  "site_logo",
+-  "og_image",
+-] as const;
+-
+-function valueToText(value: SiteSetting["value"]): string {
+-  if (value === null || value === undefined) return "";
+-  if (typeof value === "string") return value;
+-  return JSON.stringify(value, null, 2);
+-}
+-
+-function Field({ label, help, value, onChange, multiline = false }: { label: string; help: string; value: string; onChange: (value: string) => void; multiline?: boolean }) {
+-  return (
+-    <label className="space-y-2 text-sm font-medium">
+-      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</span>
+-      <span className="block text-xs leading-5 text-brand-textMuted">{help}</span>
+-      {multiline ? (
+-        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={4} className="w-full rounded-xl border border-brand-border px-4 py-3 font-mono text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" />
+-      ) : (
+-        <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" />
+-      )}
+-    </label>
+-  );
+-}
+-
+-export function SetupWizardView() {
+-  const [values, setValues] = useState<Record<string, string>>({});
+-  const [saving, setSaving] = useState(false);
+-  const { data: settings, isLoading, refetch } = useAdminData<SiteSetting[]>(() => adminApi.getAllSettings());
+-  const { data: products } = useAdminData(() => adminApi.listProducts({ limit: 100 }));
+-  const { data: banners } = useAdminData(() => adminApi.listAdminBanners());
+-
+-  useEffect(() => {
+-    if (!settings) return;
+-    const next: Record<string, string> = {};
+-    for (const setting of settings) next[setting.key] = valueToText(setting.value);
+-    setValues(next);
+-  }, [settings]);
+-
+-  const setupChecks = useMemo(() => {
+-    const productList = products?.products ?? [];
+-    const bannerList = (banners ?? []) as Array<{ isActive?: boolean; imageUrl?: string }>;
+-    const deliveryFeesOk = Boolean(values.delivery_fees && values.delivery_fees.trim().startsWith("{"));
+-    const deliveryZonesOk = Boolean(values.delivery_zones && values.delivery_zones.trim().startsWith("["));
+-    const supportOk = Boolean(values.support_phone || values.support_whatsapp || values.support_email);
+-    return [
+-      { label: "Store identity is filled", done: Boolean(values.site_name && values.site_logo), href: "/admin/settings" },
+-      { label: "Delivery and COD rules are configured", done: deliveryFeesOk && deliveryZonesOk && values.cod_enabled !== undefined, href: "/admin/delivery" },
+-      { label: "Support contacts and return policy are ready", done: supportOk && Boolean(values.return_policy_summary), href: "/admin/support" },
+-      { label: "At least one product exists", done: productList.length > 0, href: "/admin/products" },
+-      { label: "Homepage has an active banner", done: bannerList.some((b) => b.isActive && b.imageUrl), href: "/admin/content" },
+-    ];
+-  }, [banners, products, values]);
+-
+-  const completed = setupChecks.filter((item) => item.done).length;
+-  const progress = Math.round((completed / setupChecks.length) * 100);
+-
+-  function update(key: string, value: string) {
+-    setValues((prev) => ({ ...prev, [key]: value }));
+-  }
+-
+-  async function saveSetup() {
+-    const payload: Record<string, string> = {};
+-    for (const key of SETUP_FIELDS) {
+-      if (values[key] !== undefined) payload[key] = values[key];
+-    }
+-    setSaving(true);
+-    try {
+-      await adminApi.updateSettings(payload);
+-      toast.success("Setup saved");
+-      refetch();
+-    } catch (error) {
+-      toast.error(error instanceof Error ? error.message : "Failed to save setup");
+-    } finally {
+-      setSaving(false);
+-    }
+-  }
+-
+-  return (
+-    <div className="space-y-6">
+-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+-        <div className="grid gap-6 lg:grid-cols-[1fr_0.38fr] lg:items-center">
+-          <div>
+-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Owner setup</p>
+-            <h2 className="mt-2 font-display text-3xl font-semibold">Make the store manageable without code.</h2>
+-            <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">This wizard covers the settings a non-technical owner needs before taking real orders: identity, delivery, COD, support, homepage content and catalog readiness.</p>
+-          </div>
+-          <div className="rounded-[1.5rem] bg-brand-bgLight p-5">
+-            <div className="flex items-center justify-between text-sm font-semibold"><span>Setup progress</span><span>{progress}%</span></div>
+-            <div className="mt-3 h-2 rounded-full bg-white"><div className="h-2 rounded-full bg-brand-primary" style={{ width: `${progress}%` }} /></div>
+-            <p className="mt-2 text-xs text-brand-textMuted">{completed} of {setupChecks.length} essentials complete.</p>
+-          </div>
+-        </div>
+-      </section>
+-
+-      <section className="grid gap-4 md:grid-cols-5">
+-        {setupChecks.map((item) => (
+-          <Link key={item.label} href={item.href} className="rounded-[1.5rem] border border-brand-border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+-            {item.done ? <CheckCircle2 className="text-admin-success" size={18} /> : <Circle className="text-brand-textMuted" size={18} />}
+-            <p className="mt-3 text-sm font-semibold text-brand-textPrimary">{item.label}</p>
+-            <p className="mt-1 text-xs text-brand-textMuted">{item.done ? "Ready" : "Needs attention"}</p>
+-          </Link>
+-        ))}
+-      </section>
+-
+-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+-          <div>
+-            <h3 className="font-display text-xl font-semibold">Guided setup fields</h3>
+-            <p className="mt-1 text-sm text-brand-textMuted">Plain-language defaults. Advanced settings remain available in Settings.</p>
+-          </div>
+-          <button onClick={saveSetup} disabled={saving || isLoading} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-50">
+-            <ClipboardCheck size={16} /> {saving ? "Saving..." : "Save setup"}
+-          </button>
+-        </div>
+-
+-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+-          <div className="rounded-[1.5rem] border border-brand-border p-4">
+-            <div className="mb-4 flex items-center gap-2"><Settings size={17} className="text-brand-primary" /><h4 className="font-display text-lg font-semibold">Store basics</h4></div>
+-            <div className="grid gap-4">
+-              <Field label="Store name" help="Shown in admin, metadata and customer messages." value={values.site_name ?? ""} onChange={(v) => update("site_name", v)} />
+-              <Field label="Logo URL" help="Paste a URL or upload from Settings → Site images." value={values.site_logo ?? ""} onChange={(v) => update("site_logo", v)} />
+-              <Field label="Default share image URL" help="Image used when a page is shared on WhatsApp, Facebook or search previews." value={values.og_image ?? ""} onChange={(v) => update("og_image", v)} />
+-            </div>
+-          </div>
+-
+-          <div className="rounded-[1.5rem] border border-brand-border p-4">
+-            <div className="mb-4 flex items-center gap-2"><Truck size={17} className="text-brand-primary" /><h4 className="font-display text-lg font-semibold">Delivery and COD</h4></div>
+-            <div className="grid gap-4">
+-              <Field label="Delivery fees JSON" help='Example: {"kathmandu_valley":100,"outside_valley":0,"free_above":2500}' value={values.delivery_fees ?? ""} onChange={(v) => update("delivery_fees", v)} multiline />
+-              <Field label="Delivery zones JSON" help='Example: [{"name":"Kathmandu Valley","fee":100,"cod":true,"estimate":"1-3 business days"}]' value={values.delivery_zones ?? ""} onChange={(v) => update("delivery_zones", v)} multiline />
+-              <div className="grid gap-4 sm:grid-cols-2">
+-                <Field label="COD fee" help="Informational only - the actual COD fee is now 3% of the cart subtotal, applied globally at checkout." value={values.cod_fee ?? "0"} onChange={(v) => update("cod_fee", v)} />
+-                <Field label="Free delivery above" help="Order total in NPR that unlocks free delivery." value={values.free_shipping_threshold ?? "0"} onChange={(v) => update("free_shipping_threshold", v)} />
+-              </div>
+-            </div>
+-          </div>
+-
+-          <div className="rounded-[1.5rem] border border-brand-border p-4">
+-            <div className="mb-4 flex items-center gap-2"><Wand2 size={17} className="text-brand-primary" /><h4 className="font-display text-lg font-semibold">Support defaults</h4></div>
+-            <div className="grid gap-4">
+-              <Field label="Support email" help="Used by the support desk and customer-facing contact blocks." value={values.support_email ?? ""} onChange={(v) => update("support_email", v)} />
+-              <Field label="Support phone" help="Human-readable phone number for calls." value={values.support_phone ?? ""} onChange={(v) => update("support_phone", v)} />
+-              <Field label="WhatsApp number" help="Use international format without spaces for WhatsApp links." value={values.support_whatsapp ?? ""} onChange={(v) => update("support_whatsapp", v)} />
+-              <Field label="Return policy summary" help="Plain explanation staff can use when talking to customers." value={values.return_policy_summary ?? ""} onChange={(v) => update("return_policy_summary", v)} multiline />
+-            </div>
+-          </div>
+-
+-          <div className="rounded-[1.5rem] border border-brand-border p-4">
+-            <div className="mb-4 flex items-center gap-2"><ImageIcon size={17} className="text-brand-primary" /><h4 className="font-display text-lg font-semibold">Next owner actions</h4></div>
+-            <div className="grid gap-3">
+-              <Link href="/admin/content" className="rounded-xl border border-brand-border p-4 text-sm font-semibold hover:bg-brand-bgLight">Open visual homepage editor</Link>
+-              <Link href="/admin/popups" className="rounded-xl border border-brand-border p-4 text-sm font-semibold hover:bg-brand-bgLight">Create a popup campaign</Link>
+-              <Link href="/admin/products" className="rounded-xl border border-brand-border p-4 text-sm font-semibold hover:bg-brand-bgLight">Fix product readiness</Link>
+-              <Link href="/admin/backups" className="rounded-xl border border-brand-border p-4 text-sm font-semibold hover:bg-brand-bgLight">Download backups</Link>
+-            </div>
+-          </div>
+-        </div>
+-      </section>
+-    </div>
+-  );
+-}
+diff --git a/src/lib/array-safe.ts b/src/lib/array-safe.ts
+index 26df922..66a6138 100644
+--- a/src/lib/array-safe.ts
++++ b/src/lib/array-safe.ts
+@@ -12,42 +12,28 @@
+  * These helpers always return a real array, no matter what the input is.
+  */
+ 
+-/**
+- * Coerce any value into an array. Returns the original array if it's already
+- * one, otherwise returns an empty array. Optionally filters items by type.
+- */
+ export function toArray<T = unknown>(value: unknown): T[] {
+   if (Array.isArray(value)) return value as T[];
+   return [];
+ }
+ 
+-/**
+- * Coerce any value into an array of strings. Filters out non-string items.
+- * Useful for product fields like `benefits`, `ingredients`, `concernTags`
+- * that may be stored as a string, object, or array in the database.
+- */
+ export function toStringArray(value: unknown): string[] {
+   if (Array.isArray(value)) {
+     return value.filter((v): v is string => typeof v === "string");
+   }
+   if (typeof value === "string" && value.trim().length > 0) {
+-    // Treat a JSON-encoded array string as an array.
+     try {
+       const parsed = JSON.parse(value);
+       if (Array.isArray(parsed)) {
+         return parsed.filter((v): v is string => typeof v === "string");
+       }
+     } catch {
+-      // Not JSON - return as single-element array if non-empty.
+       return [value];
+     }
+   }
+   return [];
+ }
+ 
+-/**
+- * Coerce any value into an array of objects. Filters out non-object items.
+- */
+ export function toObjectArray<T = Record<string, unknown>>(value: unknown): T[] {
+   if (Array.isArray(value)) {
+     return value.filter(
+@@ -58,10 +44,6 @@ export function toObjectArray<T = Record<string, unknown>>(value: unknown): T[]
+   return [];
+ }
+ 
+-/**
+- * Safely call `.map()` on any value. If the value is not an array, returns
+- * the fallback (default: []).
+- */
+ export function safeMap<T, R>(
+   value: unknown,
+   fn: (item: T, index: number) => R,
+-- 
+2.47.3
+

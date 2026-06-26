@@ -8,9 +8,12 @@ import { createReturn, getReturns, updateReturn } from './return.controller'
 
 const returnRoutes = new Hono<AppEnv>()
 
-returnRoutes.use('*', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']))
-returnRoutes.get('/', validateQuery(returnFilterSchema), getReturns)
-returnRoutes.post('/', validateBody(createReturnSchema), createReturn)
-returnRoutes.patch('/:id', validateBody(updateReturnSchema), updateReturn)
+// Customers can create return requests for their own orders.
+// They must be authenticated so we know who is requesting the return.
+returnRoutes.post('/', authMiddleware, validateBody(createReturnSchema), createReturn)
+
+// Admin-only: list all returns, update return status.
+returnRoutes.get('/', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateQuery(returnFilterSchema), getReturns)
+returnRoutes.patch('/:id', authMiddleware, requireRole(['ADMIN', 'SUPER_ADMIN']), validateBody(updateReturnSchema), updateReturn)
 
 export { returnRoutes }

@@ -76,6 +76,8 @@ export async function findOrCreateUser(
   params: { uid: string; email: string; firstName?: string; lastName?: string },
   db: Client
 ) {
+  // 1. Look up by Firebase UID (the primary key in our users table).
+  // This is the happy path — the user already exists and is linked.
   const existingById = await db.execute({
     sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
     args: [params.uid],
@@ -85,6 +87,25 @@ export async function findOrCreateUser(
     return formatUser(existingById.rows[0])
   }
 
+  // 2. Look up by email. If a user exists with this email but a DIFFERENT id,
+  //    it means they registered via a different auth provider (or the admin
+  //    created their account before they signed up via Firebase).
+  //    PREVIOUSLY: the code did `UPDATE users SET id = ?` to change the
+  //    primary key to the Firebase UID. This FAILS with
+  //    `SQLITE_CONSTRAINT: FOREIGN KEY constraint failed` because cart,
+  //    wishlist, orders, reviews, addresses, etc. all reference users(id)
+  //    and SQLite doesn't support ON UPDATE CASCADE by default.
+  //
+  //    FIX: Instead of changing the existing user's ID, we UPDATE the
+  //    existing user's email_verified flag and return them AS-IS. The
+  //    Firebase UID is used for auth token verification only — the user's
+  //    row ID in our DB stays stable so all FK references remain valid.
+  //    The frontend stores both the Firebase UID and the DB user ID, and
+  //    sends the DB user ID (via the auth token) for authenticated requests.
+  //
+  //    For ADMIN/SUPER_ADMIN users, we return them directly (they log in
+  //    via Firebase but their DB row was created by the seeding script
+  //    with a stable UUID, not the Firebase UID).
   const existingByEmail = await db.execute({
     sql: `SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
     args: [params.email],
@@ -93,20 +114,49 @@ export async function findOrCreateUser(
   if (existingByEmail.rows.length > 0) {
     const user = existingByEmail.rows[0]
     const role = (user as any).role as string
+    const userId = (user as any).id as string
+
+    // For admins, return as-is. Their DB id is the source of truth.
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
       return formatUser(user)
     }
-    await db.execute({
-      sql: `UPDATE users SET id = ?, updated_at = datetime('now') WHERE id = ? AND deleted_at IS NULL`,
-      args: [params.uid, (user as any).id],
-    })
-    const updated = await db.execute({
+
+    // For customers, update their profile fields (mark email verified,
+    // fill in name if missing) but DO NOT change the primary key.
+    // This avoids the FK constraint violation.
+    const hasFirstName = (user as any).first_name as string | null
+    const hasLastName = (user as any).last_name as string | null
+    const needsUpdate =
+      !hasFirstName && params.firstName ||
+      !hasLastName && params.lastName ||
+      !(user as any).email_verified
+
+    if (needsUpdate) {
+      try {
+        await db.execute({
+          sql: `UPDATE users
+                SET first_name = COALESCE(first_name, ?),
+                    last_name = COALESCE(last_name, ?),
+                    email_verified = 1,
+                    updated_at = datetime('now')
+                WHERE id = ? AND deleted_at IS NULL`,
+          args: [params.firstName ?? null, params.lastName ?? null, userId],
+        })
+      } catch {
+        // Non-fatal — we still return the existing user.
+      }
+    }
+
+    const refreshed = await db.execute({
       sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
-      args: [params.uid],
+      args: [userId],
     })
-    return formatUser(updated.rows[0])
+    return formatUser(refreshed.rows[0])
   }
 
+  // 3. No existing user by UID or email — create a new customer row with
+  //    the Firebase UID as the primary key. This is safe because no FK
+  //    references exist yet.
   try {
     await db.execute({
       sql: `INSERT INTO users (id, email, first_name, last_name, role, is_active, email_verified, created_at, updated_at)
@@ -115,19 +165,14 @@ export async function findOrCreateUser(
     })
   } catch (error: any) {
     if (error?.message?.includes('UNIQUE constraint')) {
+      // Race condition: another request created the user between our SELECT
+      // and INSERT. Re-fetch and return.
       const retry = await db.execute({
-        sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`,
-        args: [params.uid],
+        sql: `SELECT ${USER_COLUMNS} FROM users WHERE id = ? OR LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
+        args: [params.uid, params.email],
       })
       if (retry.rows.length > 0) {
         return formatUser(retry.rows[0])
-      }
-      const byEmail = await db.execute({
-        sql: `SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER(?) AND deleted_at IS NULL LIMIT 1`,
-        args: [params.email],
-      })
-      if (byEmail.rows.length > 0) {
-        return formatUser(byEmail.rows[0])
       }
     }
     handleDbError(error, 'findOrCreateUser')

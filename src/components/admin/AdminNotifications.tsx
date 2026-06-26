@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
-import { adminApi } from "@/lib/api/admin";
+import { adminApi, type AdminNotification } from "@/lib/api/admin";
+import { toArray } from "@/lib/array-safe";
 import { Bell, Check, CheckCheck } from "lucide-react";
 
 function formatTimeAgo(dateStr: string): string {
@@ -43,8 +44,11 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const notifications = result?.notifications ?? [];
-  const unreadCount = result?.unreadCount ?? 0;
+  // DEFENSIVE: The backend returns a paginated response where `data` is the
+  // array of notifications directly (not nested under `notifications`).
+  // Use toArray() to handle both shapes and any malformed response.
+  const notifications = toArray<AdminNotification>(result?.notifications ?? result);
+  const unreadCount = Number(result?.unreadCount ?? 0);
   const isLoading = notifLoading;
 
   const handleMarkRead = async (id: string) => {
