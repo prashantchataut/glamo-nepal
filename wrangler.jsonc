@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
   "name": "glamo-nepal",
-  "compatibility_date": "2026-06-25",
+  "compatibility_date": "2026-06-24",
   "compatibility_flags": [
     "nodejs_compat"
   ],
@@ -11,6 +11,10 @@
     "binding": "ASSETS"
   },
   "services": [
+    {
+      "binding": "API",
+      "service": "glamo-nepal-api"
+    },
     {
       "binding": "WORKER_SELF_REFERENCE",
       "service": "glamo-nepal"

@@ -1,11 +1,12 @@
 import { createMetadata } from "@/lib/seo";
 import { OrderDetailClient } from "@/components/account/OrderDetailClient";
 
-export function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return createMetadata({
-    title: `Order ${params.id}`,
+    title: `Order ${id}`,
     description: "View GLAMO NEPAL order details, delivery timeline and item summary.",
-    path: `/account/orders/${params.id}`,
+    path: `/account/orders/${id}`,
     noIndex: true,
   });
 }

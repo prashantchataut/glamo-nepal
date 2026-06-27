@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { verifyAdminSessionToken, ADMIN_SESSION_COOKIE, LEGACY_ADMIN_SESSION_COOKIE } from "@/lib/admin-auth";
 
-export const runtime = "edge";
+// OpenNext (Cloudflare Workers) only supports the nodejs runtime. This route
+// uses only Web Crypto (via jose in admin-auth) so nodejs is a safe default.
 export const dynamic = "force-dynamic";
 
 function resolveRole(email: string): string {

@@ -6,6 +6,7 @@ import {
 } from "@/lib/admin-auth";
 import { validateCsrf } from "@/lib/csrf";
 import { signProxyTrust, hasProxyTrustSecret, PROXY_TRUST_HEADER } from "@/lib/proxy-trust";
+import { backendBinding } from "@/lib/cf-context";
 
 /**
  * API_BASE_URL resolution order:
@@ -23,7 +24,6 @@ const API_BASE_URL =
   process.env.API_BASE_URL ||
   "https://glamo-nepal-api.prashantchataut8.workers.dev/api/v1";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -169,8 +169,13 @@ async function proxyRequest(request: NextRequest) {
   }
 
   const url = new URL(request.url);
-  const targetPath = url.pathname.replace(/^\/api\/v1/, "");
-  const targetUrl = `${API_BASE_URL}${targetPath}${url.search}`;
+  const targetPath = url.pathname.replace(/^\/api\/v1/, "") || "/";
+  const targetSearch = url.search;
+  const apiWorker = await backendBinding();
+  const useServiceBinding = apiWorker !== null;
+  const targetUrl = useServiceBinding
+    ? `https://api-worker.internal/api/v1${targetPath}${targetSearch}`
+    : `${API_BASE_URL}${targetPath}${targetSearch}`;
 
   const headers = new Headers(request.headers);
   headers.delete("host");
@@ -211,12 +216,21 @@ async function proxyRequest(request: NextRequest) {
 
   let response: Response;
   try {
-    response = await fetch(targetUrl, {
-      method: request.method,
-      headers,
-      body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
-      redirect: "manual",
-    });
+    if (useServiceBinding) {
+      response = await apiWorker!.fetch(targetUrl, {
+        method: request.method,
+        headers,
+        body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
+        redirect: "manual",
+      });
+    } else {
+      response = await fetch(targetUrl, {
+        method: request.method,
+        headers,
+        body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
+        redirect: "manual",
+      });
+    }
   } catch (error) {
     // Network-level failure (DNS, TCP, TLS) — backend is unreachable.
     console.error("[proxy] backend fetch failed:", {
@@ -234,30 +248,32 @@ async function proxyRequest(request: NextRequest) {
     );
   }
 
-  // ─── Cloudflare edge-error detection ────────────────────────────────────
-  // If the backend URL is still on *.workers.dev and Cloudflare's edge layer
-  // rejects the request (Error 1000 etc.), the response will be a 4xx/5xx
-  // with a short non-JSON body containing "error code: NNN" or "Cloudflare
-  // Ray ID". Forwarding that as a 403 makes the frontend show "You do not
-  // have permission", which is wrong. Detect and rewrite to 502.
+  // ─── Debug: capture backend response for non-200 ───────────────────────
   if (response.status >= 400) {
     const cloned = response.clone();
     const bodyText = await cloned.text().catch(() => "");
+    const backendPreview = bodyText.slice(0, 500);
+    console.error("[proxy] backend error:", targetUrl, response.status, backendPreview);
     if (looksLikeCloudflareEdgeError(response.status, bodyText)) {
-      console.error("[proxy] Cloudflare edge error from backend:", {
-        targetUrl,
-        status: response.status,
-        bodyPreview: bodyText.slice(0, 200),
-      });
       return new Response(
         JSON.stringify({
           success: false,
           message: "Backend service is temporarily unreachable. Please try again in a moment.",
           code: "BACKEND_EDGE_ERROR",
+          debug: { targetUrl, status: response.status, backendPreview },
         }),
         { status: 502, headers: { "content-type": "application/json" } },
       );
     }
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: `Backend returned ${response.status}`,
+        code: "BACKEND_ERROR",
+        debug: { targetUrl, status: response.status, backendPreview },
+      }),
+      { status: response.status, headers: { "content-type": "application/json" } },
+    );
   }
 
   const responseHeaders = new Headers(response.headers);

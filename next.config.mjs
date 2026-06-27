@@ -1,3 +1,12 @@
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+
+// Enable the Cloudflare Workers context in `next dev` so the service binding
+// (`API_WORKER`) is reachable locally. This is a no-op in production and on
+// non-CF runtimes (Vercel) — it only runs during local development.
+if (process.env.NODE_ENV === "development") {
+  initOpenNextCloudflareForDev();
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,

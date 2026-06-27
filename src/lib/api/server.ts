@@ -1,30 +1,23 @@
 import "server-only";
 import type { Product } from "@/types/product";
 import { adaptApiProduct as adaptProduct, adaptApiProducts as adaptProducts } from "./product-adapter";
+import { backendJson } from "@/lib/server/backend";
 
 /**
- * Server-side data access that calls the in-process Hono backend directly
- * (no network hop). Every call is wrapped so that if the backend is
- * unavailable (e.g. no database configured at build time) the caller can
- * fall back to the static catalog. This keeps pages renderable in every
- * environment while preferring live data when the database is reachable.
+ * Server-side data access. Calls the backend over HTTP (service binding on
+ * Cloudflare, absolute URL elsewhere). Every call is wrapped so that if the
+ * backend is unavailable the caller falls back to the static catalog — pages
+ * stay renderable in every environment while preferring live DB data.
  */
 async function callBackend<T>(path: string): Promise<T | null> {
-  try {
-    const mod = await import("../../../backend/src/index");
-    const app = mod.default;
-    const res = await app.request(`/api/v1${path}`, { method: "GET" });
-    if (!res.ok) return null;
-    const json = (await res.json()) as
-      | { success?: boolean; status?: string; data?: unknown }
-      | null;
-    if (json && (json.success === true || json.status === "success")) {
-      return (json.data as T) ?? null;
-    }
-    return null;
-  } catch {
-    return null;
+  const payload = await backendJson<
+    | { success?: boolean; status?: string; data?: unknown }
+    | null
+  >(path);
+  if (payload && (payload.success === true || payload.status === "success")) {
+    return (payload.data as T) ?? null;
   }
+  return null;
 }
 
 export async function getProductServer(slug: string): Promise<Product | null> {
