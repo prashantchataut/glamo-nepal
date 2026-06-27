@@ -217,3 +217,82 @@ jobs:
           name: deploy-log
           path: /tmp/wrangler-deploy.log
           retention-days: 7
+
+  # Frontend → Cloudflare Workers via OpenNext.
+  # Builds on Linux (OpenNext is not fully supported on Windows runners) and
+  # deploys the `glamo-nepal` worker, which reaches the backend in-network via
+  # the API_WORKER service binding (no public hop, no Cloudflare Error 1000).
+  # Runs only on master push / manual dispatch so PRs don't redeploy prod.
+  build-frontend-cf:
+    name: Build Frontend (OpenNext) - smoke
+    runs-on: ubuntu-latest
+    # Build on PRs to prove the OpenNext migration compiles before merge.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build with OpenNext (proves the Worker bundle compiles)
+        run: pnpm run build:cf
+      - name: Verify worker entrypoint was produced
+        run: |
+          test -f .open-next/worker.js && echo "✅ .open-next/worker.js present" || { echo "❌ worker.js missing"; exit 1; }
+
+  deploy-frontend-cf:
+    name: Deploy Frontend to Cloudflare (OpenNext)
+    runs-on: ubuntu-latest
+    needs: [frontend, build-frontend-cf, security-audit]
+    if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build frontend worker (OpenNext)
+        run: pnpm run build:cf
+      - name: Deploy frontend worker
+        run: pnpm run deploy:cf 2>&1 | tee /tmp/wrangler-frontend-deploy.log
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Verify frontend worker is live
+        run: |
+          echo "Waiting for worker to become available..."
+          sleep 10
+          FRONTEND_URL="${{ secrets.FRONTEND_HEALTH_URL || 'https://glamo-nepal.prashantchataut8.workers.dev/' }}"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$FRONTEND_URL" || echo "000")
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ Frontend health check failed: HTTP $HTTP_STATUS"
+            curl -s "$FRONTEND_URL" | head -c 500 || echo "(unreachable)"
+            exit 1
+          fi
+          echo "✅ Frontend worker live (HTTP 200)"
+      - name: Verify API path via service binding
+        run: |
+          FRONTEND_URL="${{ secrets.FRONTEND_HEALTH_URL || 'https://glamo-nepal.prashantchataut8.workers.dev/' }}"
+          ORIGIN=$(echo "$FRONTEND_URL" | sed 's#/$##')
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$ORIGIN/api/v1/products?limit=2" || echo "000")
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "⚠️ Frontend /api/v1/products returned HTTP $HTTP_STATUS (service binding may be misconfigured)"
+            curl -s "$ORIGIN/api/v1/products?limit=2" | head -c 300
+            # Don't fail the deploy for this — surface it for diagnosis.
+          else
+            echo "✅ Frontend reaches backend via service binding (HTTP 200)"
+          fi
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-deploy-log
+          path: /tmp/wrangler-frontend-deploy.log
+          retention-days: 7
+

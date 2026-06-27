@@ -95,10 +95,9 @@ token*.txt
 
 _jarvis_probe.ps1
 
-# ─── AI-generated fix-pack artifacts (delete after merging) ─────────────────
-# These were one-shot patch files from an earlier AI session. They should not
-# live in the repo long-term.
+# ─── AI-generated fix-pack / recovery artifacts ──────────────────────────
 apply-changes.sh
 changes.patch
 HOW_TO_APPLY.md
 README-CHANGES.md
+.recovery-log.md
