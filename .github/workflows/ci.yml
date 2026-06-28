@@ -209,7 +209,7 @@ jobs:
           echo "✅ All core secrets present on worker."
       - name: Upload deploy log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deploy-log
           path: /tmp/wrangler-deploy.log
@@ -287,7 +287,7 @@ jobs:
           fi
       - name: Upload deploy log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-deploy-log
           path: /tmp/wrangler-frontend-deploy.log
