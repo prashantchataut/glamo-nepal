@@ -147,7 +147,7 @@ function addSecurityHeaders(response: NextResponse, nonce: string) {
   // browser build (track firebase/firebase-js-sdk#2497).
   const cspDirectives = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://cdn.pixabay.com https://res.cloudinary.com https://img.freepik.com https://images.pexels.com https://lh3.googleusercontent.com",

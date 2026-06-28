@@ -17,52 +17,44 @@ Premium Nepali beauty, skincare, cosmetics and lifestyle ecommerce storefront fo
 
 ```txt
 glamo/
-  src/          Next.js 14 App Router frontend
+  src/          Next.js 15 App Router frontend (Cloudflare Workers)
   public/       Local storefront and admin imagery
   scripts/      Static QA and source checks
-  backend/      Express + Prisma backend scaffold
+  backend/      Hono API on Cloudflare Workers
 ```
 
-## Frontend commands
+## Deployment
+
+| Component | Platform | URL |
+|-----------|----------|-----|
+| Frontend | Cloudflare Workers (`glamo-nepal`) | `https://www.glamonepal.com` |
+| Backend | Cloudflare Workers (`glamo-nepal-api`) | `https://api.glamonepal.com` |
+
+Pushing to `master` triggers automatic deployment via GitHub Actions.
+
+## Commands
 
 ```bash
-npm install
-npm run qa:static
-npm run typecheck
-npm run lint
-npm run build
+pnpm install          # Install frontend deps
+pnpm dev              # Start frontend dev server (localhost:3000)
+pnpm typecheck        # TypeScript check
+pnpm lint             # ESLint
+pnpm build            # Next.js build
+pnpm build:cf         # OpenNext Cloudflare build
+pnpm deploy:cf        # Build + deploy frontend to Cloudflare
+pnpm test             # Run unit tests
+
+cd backend
+pnpm install          # Install backend deps
+pnpm dev              # Start backend dev server (localhost:3001)
+pnpm typecheck        # TypeScript check
 ```
 
 ## Admin access
 
-Admin panel routes:
-
 - `/admin/login` — protected admin sign-in
 - `/admin` — dashboard, products, orders, stock, banners, customers, analytics and settings
-
-Set these in `.env.local` before using the admin panel (see `.env.example` for the full list):
-
-```env
-ADMIN_EMAIL=<your-admin-email>
-ADMIN_PASSWORD=<generate-a-strong-password>
-ADMIN_SESSION_SECRET=<generate-with:-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
-AUTH_SECRET=<generate-with:-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
-```
-
-**Never commit real credentials.** Generate unique values for each environment.
 
 ## Security
 
 This project implements defence-in-depth security controls. See the source code and `docs/` for implementation details.
-
-## Backend commands
-
-```bash
-cd backend
-npm install
-npm run typecheck
-npm run build
-npm run dev
-```
-
-The backend folder is included for production API work. Current admin UI is protected by a signed HTTP-only Next.js admin session and is ready to be connected to backend admin APIs.

@@ -70,7 +70,7 @@ docs/superpowers/
 # graphify generated output
 graphify-out/
 
-# OpenNext build output (Cloudflare Workers frontend — currently unused, see PLATFORM_DECISION.md)
+# OpenNext build output (Cloudflare Workers frontend)
 .open-next/
 
 # Cloudflare Wrangler local state/build artifacts

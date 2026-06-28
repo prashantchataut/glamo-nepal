@@ -156,9 +156,6 @@ jobs:
 
   # ─── Backend deployment ────────────────────────────────────────────────────
   # The backend worker is deployed on every push to master after CI passes.
-  # The frontend stays on Vercel with auto-deploy from the GitHub integration
-  # (see docs/PLATFORM_DECISION.md for why we did NOT move the frontend to
-  # Cloudflare Workers).
   deploy-backend:
     name: Deploy Backend to Cloudflare
     runs-on: ubuntu-latest
@@ -188,7 +185,7 @@ jobs:
           # API_BASE_URL — set this in GitHub Secrets to your backend's
           # CUSTOM DOMAIN (e.g. https://api.glamonepal.com). Falls back to
           # the workers.dev URL for backward compatibility.
-          HEALTH_URL="${{ secrets.BACKEND_HEALTH_URL || 'https://glamo-nepal-api.prashantchataut8.workers.dev/health' }}"
+          HEALTH_URL="${{ secrets.BACKEND_HEALTH_URL || 'https://api.glamonepal.com/health' }}"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
           if [ "$HTTP_STATUS" != "200" ]; then
             echo "❌ Health check failed: HTTP $HTTP_STATUS"
@@ -200,7 +197,7 @@ jobs:
           curl -s "$HEALTH_URL"
       - name: Verify integration secrets are present
         run: |
-          INTEGRATIONS_URL="${{ secrets.BACKEND_INTEGRATIONS_URL || 'https://glamo-nepal-api.prashantchataut8.workers.dev/health/integrations' }}"
+          INTEGRATIONS_URL="${{ secrets.BACKEND_INTEGRATIONS_URL || 'https://api.glamonepal.com/health/integrations' }}"
           RESP=$(curl -s "$INTEGRATIONS_URL")
           echo "$RESP"
           # Fail if any of the core secrets are missing.
@@ -268,7 +265,7 @@ jobs:
         run: |
           echo "Waiting for worker to become available..."
           sleep 10
-          FRONTEND_URL="${{ secrets.FRONTEND_HEALTH_URL || 'https://glamo-nepal.prashantchataut8.workers.dev/' }}"
+          FRONTEND_URL="${{ secrets.FRONTEND_HEALTH_URL || 'https://www.glamonepal.com/' }}"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$FRONTEND_URL" || echo "000")
           if [ "$HTTP_STATUS" != "200" ]; then
             echo "❌ Frontend health check failed: HTTP $HTTP_STATUS"
@@ -278,7 +275,7 @@ jobs:
           echo "✅ Frontend worker live (HTTP 200)"
       - name: Verify API path via service binding
         run: |
-          FRONTEND_URL="${{ secrets.FRONTEND_HEALTH_URL || 'https://glamo-nepal.prashantchataut8.workers.dev/' }}"
+          FRONTEND_URL="${{ secrets.FRONTEND_HEALTH_URL || 'https://www.glamonepal.com/' }}"
           ORIGIN=$(echo "$FRONTEND_URL" | sed 's#/$##')
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$ORIGIN/api/v1/products?limit=2" || echo "000")
           if [ "$HTTP_STATUS" != "200" ]; then

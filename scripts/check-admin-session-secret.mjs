@@ -97,7 +97,7 @@ async function main() {
     console.error("");
     console.error("  Fix: set the SAME ADMIN_SESSION_SECRET on BOTH sides:");
     console.error("    cd backend && npx wrangler secret put ADMIN_SESSION_SECRET");
-    console.error("    vercel env add ADMIN_SESSION_SECRET production");
+    console.error("    npx wrangler secret put ADMIN_SESSION_SECRET");
     console.error("  Then redeploy both and re-login at /admin/login.");
     process.exit(1);
   }

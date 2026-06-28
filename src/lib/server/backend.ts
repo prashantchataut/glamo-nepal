@@ -69,8 +69,6 @@ async function callBackend(path: string, init: BackendFetchInit): Promise<Respon
       "true-client-ip",
       "x-real-ip",
       "x-forwarded-for",
-      "x-vercel-forwarded-for",
-      "x-vercel-proxied-for",
     ];
     for (const h of IP_HEADERS) {
       const v = init.forwardFrom.headers.get(h);

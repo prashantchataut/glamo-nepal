@@ -8,6 +8,7 @@
 - [Firebase](https://console.firebase.google.com) project (authentication)
 - [Cloudinary](https://cloudinary.com) account (image uploads)
 - [Resend](https://resend.com) account (email — optional)
+- [Cloudflare](https://dash.cloudflare.com) account (Workers deployment)
 
 ## Quick Start
 
@@ -17,10 +18,7 @@ pnpm install
 cd backend && pnpm install && cd ..
 
 # 2. Configure environment variables
-# Copy .env.example → .env.local (root) and fill in Firebase + Cloudinary keys
 cp .env.example .env.local
-
-# Copy backend/.env.example → backend/.env and fill in Turso + Firebase keys
 cp backend/.env.example backend/.env
 
 # 3. Create Turso database and run schema
@@ -68,11 +66,12 @@ pnpm dev
 | `KHALTI_SECRET_KEY` | Khalti secret key | For payments |
 | `ESEWA_SECRET_KEY` | eSewa secret key | For payments |
 | `ESEWA_MERCHANT_CODE` | eSewa merchant code | For payments |
+| `CSRF_SECRET` | HMAC key for CSRF tokens | **Yes** |
 
 > ### ⚠️ CRITICAL: `ADMIN_SESSION_SECRET` must be IDENTICAL on both sides
 >
-> The frontend (Vercel) signs the `glamo-admin-session` cookie with
-> `ADMIN_SESSION_SECRET`; the backend (Cloudflare Worker) verifies it with the
+> The frontend signs the `glamo-admin-session` cookie with
+> `ADMIN_SESSION_SECRET`; the backend verifies it with the
 > same key. If the two values differ — or one side only sets `AUTH_SECRET`
 > while the other sets `ADMIN_SESSION_SECRET` — **every admin endpoint returns
 > 401 and the entire admin panel shows "Failed to load X"** with no obvious
@@ -82,9 +81,9 @@ pnpm dev
 > # Generate once:
 > node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
 >
-> # Set the SAME value in both places:
+> # Set the SAME value in both Cloudflare Workers:
 > cd backend && npx wrangler secret put ADMIN_SESSION_SECRET
-> vercel env add ADMIN_SESSION_SECRET production
+> npx wrangler secret put ADMIN_SESSION_SECRET
 > ```
 >
 > After changing the secret, redeploy both and **re-login** at `/admin/login`
@@ -94,7 +93,7 @@ pnpm dev
 > ```bash
 > ADMIN_SESSION_SECRET=<same-value> \
 > ADMIN_SMOKE_ORIGIN=https://www.glamonepal.com \
-> npm run smoke:admin-secret
+> pnpm smoke:admin-secret
 > ```
 > Or check the backend diagnostic: `GET /health/admin-session` returns
 > `adminSecretReady` and `resolvedFrom`.
@@ -270,7 +269,7 @@ The backend starts on `http://localhost:3001`. All API routes are prefixed with 
 | Gallery | `/api/v1/gallery/*` |
 | Team | `/api/v1/team/*` |
 | Newsletter | `/api/v1/newsletter/*` |
-| Health | `/health` |
+| Health | `/api/v1/health` |
 
 ## Common Issues
 
@@ -301,21 +300,25 @@ The backend allows `http://localhost:3000` by default. If using a different port
 
 ## Production Deployment
 
-### Frontend (Vercel)
-```bash
-pnpm build
-# Deploys automatically via Vercel Git integration
-```
-Set environment variables in Vercel dashboard (Settings → Environment variables).
+Both frontend and backend deploy to **Cloudflare Workers**. Pushing to `master` triggers GitHub Actions CI/CD.
 
-### Backend (Cloudflare Worker)
+### Manual deployment (if CI/CD is not set up)
+
 ```bash
-cd backend
-pnpm deploy
+# Frontend
+pnpm deploy:cf
+
+# Backend
+cd backend && npx wrangler deploy --config wrangler.toml
 ```
-Set environment variables in Cloudflare Dashboard → Workers → glamo-nepal-api → Variables.
+
+Set secrets on both Workers:
+```bash
+npx wrangler secret put ADMIN_SESSION_SECRET
+cd backend && npx wrangler secret put ADMIN_SESSION_SECRET
+```
 
 ### Production URLs
-- Frontend: `https://glamonepal.vercel.app` (or custom domain)
-- Backend: `https://glamo-nepal-api.prashantchataut8.workers.dev`
-- Admin: `https://glamonepal.vercel.app/admin`
+- Frontend: `https://www.glamonepal.com`
+- Backend: `https://api.glamonepal.com`
+- Admin: `https://www.glamonepal.com/admin`
