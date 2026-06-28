@@ -32,11 +32,13 @@
 
 name = "glamo-nepal-api"
 main = "src/worker.ts"
-# Aligned with the frontend's wrangler.jsonc. Keep these in sync — drift
-# between the two workers causes subtle runtime-behavior differences
-# (nodejs_compat semantics, Request/Response defaults, etc.).
+workers_dev = true
 compatibility_date = "2026-06-25"
 compatibility_flags = ["nodejs_compat"]
+
+[[routes]]
+pattern = "api.glamonepal.com"
+custom_domain = true
 
 [vars]
 FIREBASE_PROJECT_ID = "ankura-studio"

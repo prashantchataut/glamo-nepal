@@ -8,21 +8,11 @@ import { validateCsrf } from "@/lib/csrf";
 import { signProxyTrust, hasProxyTrustSecret, PROXY_TRUST_HEADER } from "@/lib/proxy-trust";
 import { backendBinding } from "@/lib/cf-context";
 
-/**
- * API_BASE_URL resolution order:
- *   1. process.env.API_BASE_URL  (Vercel project env var — preferred)
- *   2. fallback constant below   (used only if env var is missing)
- *
- * In production, set API_BASE_URL to your backend's CUSTOM DOMAIN, e.g.
- *   https://api.glamonepal.com/api/v1
- * NOT the *.workers.dev URL — that hostname is subject to Cloudflare's
- * workers.dev edge routing, which can return Error 1000 ("DNS points to
- * prohibited IP") for cross-account traffic (e.g. Vercel → workers.dev).
- * A custom domain on the same Cloudflare account bypasses that layer.
- */
-const API_BASE_URL =
-  process.env.API_BASE_URL ||
+const API_BASE_URL_FALLBACK =
   "https://glamo-nepal-api.prashantchataut8.workers.dev/api/v1";
+const API_BASE_URL_CUSTOM =
+  process.env.API_BASE_URL ||
+  "https://api.glamonepal.com/api/v1";
 
 export const dynamic = "force-dynamic";
 
@@ -160,7 +150,6 @@ async function buildAdminTrustHeader(
 async function proxyRequest(request: NextRequest) {
   const trust = await buildAdminTrustHeader(request);
 
-  // CSRF failed at the proxy - short-circuit without hitting the backend.
   if (trust.status && trust.body) {
     return new Response(JSON.stringify(trust.body), {
       status: trust.status,
@@ -171,21 +160,16 @@ async function proxyRequest(request: NextRequest) {
   const url = new URL(request.url);
   const targetPath = url.pathname.replace(/^\/api\/v1/, "") || "/";
   const targetSearch = url.search;
+
   const apiWorker = await backendBinding();
   const useServiceBinding = apiWorker !== null;
-  const targetUrl = useServiceBinding
-    ? `https://api-worker.internal/api/v1${targetPath}${targetSearch}`
-    : `${API_BASE_URL}${targetPath}${targetSearch}`;
+  const bindingTargetUrl = `https://api-worker.internal/api/v1${targetPath}${targetSearch}`;
+  const workersDevUrl = `${API_BASE_URL_FALLBACK}${targetPath}${targetSearch}`;
+  const customDomainUrl = `${API_BASE_URL_CUSTOM}${targetPath}${targetSearch}`;
 
   const headers = new Headers(request.headers);
   headers.delete("host");
 
-  // CRITICAL: preserve the REAL client IP for audit logs. The previous code
-  // did `headers.set("x-forwarded-for", request.headers.get("x-forwarded-for") || "unknown")`
-  // which OVERWROTE the real IP with the literal string "unknown" whenever
-  // the inbound request didn't carry x-forwarded-for (e.g. when Cloudflare
-  // only sets cf-connecting-ip). That's why every audit log entry had
-  // ip_address=NULL — the backend was receiving "unknown" or empty.
   const clientIp =
     request.headers.get("cf-connecting-ip") ||
     request.headers.get("true-client-ip") ||
@@ -209,76 +193,86 @@ async function proxyRequest(request: NextRequest) {
     headers.set("cookie", cookieHeader);
   }
 
-  // Attach the proxy-trust vouch if the admin cookie validated locally.
   if (trust.header) {
     headers.set(PROXY_TRUST_HEADER, trust.header);
   }
 
+  const bodyInit = request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined;
+
   let response: Response;
-  try {
-    if (useServiceBinding) {
-      response = await apiWorker!.fetch(targetUrl, {
+
+  if (useServiceBinding) {
+    try {
+      response = await apiWorker!.fetch(bindingTargetUrl, {
         method: request.method,
         headers,
-        body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
+        body: bodyInit,
         redirect: "manual",
       });
-    } else {
-      response = await fetch(targetUrl, {
-        method: request.method,
-        headers,
-        body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
-        redirect: "manual",
-      });
+    } catch {
+      console.error("[proxy] service binding failed, falling back to workers.dev");
+      try {
+        response = await fetch(workersDevUrl, {
+          method: request.method,
+          headers,
+          body: bodyInit,
+          redirect: "manual",
+        });
+      } catch {
+        console.error("[proxy] workers.dev failed, trying custom domain");
+        try {
+          response = await fetch(customDomainUrl, {
+            method: request.method,
+            headers,
+            body: bodyInit,
+            redirect: "manual",
+          });
+        } catch {
+          return new Response(
+            JSON.stringify({ success: false, message: "Backend service unavailable.", code: "BACKEND_UNREACHABLE" }),
+            { status: 502, headers: { "content-type": "application/json" } },
+          );
+        }
+      }
     }
-  } catch (error) {
-    // Network-level failure (DNS, TCP, TLS) — backend is unreachable.
-    console.error("[proxy] backend fetch failed:", {
-      targetUrl,
-      method: request.method,
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: "Backend service unavailable. Please try again later.",
-        code: "BACKEND_UNREACHABLE",
-      }),
-      { status: 502, headers: { "content-type": "application/json" } },
-    );
+  } else {
+    try {
+      response = await fetch(workersDevUrl, {
+        method: request.method,
+        headers,
+        body: bodyInit,
+        redirect: "manual",
+      });
+    } catch {
+      try {
+        response = await fetch(customDomainUrl, {
+          method: request.method,
+          headers,
+          body: bodyInit,
+          redirect: "manual",
+        });
+      } catch {
+        return new Response(
+          JSON.stringify({ success: false, message: "Backend service unavailable.", code: "BACKEND_UNREACHABLE" }),
+          { status: 502, headers: { "content-type": "application/json" } },
+        );
+      }
+    }
   }
 
-  // ─── Debug: capture backend response for non-200 ───────────────────────
-  if (response.status >= 400) {
+  if (response.status >= 400 && response.status < 500) {
     const cloned = response.clone();
     const bodyText = await cloned.text().catch(() => "");
-    const backendPreview = bodyText.slice(0, 500);
-    console.error("[proxy] backend error:", targetUrl, response.status, backendPreview);
     if (looksLikeCloudflareEdgeError(response.status, bodyText)) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          message: "Backend service is temporarily unreachable. Please try again in a moment.",
-          code: "BACKEND_EDGE_ERROR",
-          debug: { targetUrl, status: response.status, backendPreview },
-        }),
+        JSON.stringify({ success: false, message: "Backend temporarily unreachable.", code: "BACKEND_EDGE_ERROR" }),
         { status: 502, headers: { "content-type": "application/json" } },
       );
     }
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: `Backend returned ${response.status}`,
-        code: "BACKEND_ERROR",
-        debug: { targetUrl, status: response.status, backendPreview },
-      }),
-      { status: response.status, headers: { "content-type": "application/json" } },
-    );
   }
 
   const responseHeaders = new Headers(response.headers);
   responseHeaders.delete("x-powered-by");
-  responseHeaders.set("x-proxy-pass", "vercel-edge");
 
   return new Response(response.body, {
     status: response.status,

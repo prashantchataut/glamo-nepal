@@ -4,7 +4,7 @@ import "server-only";
  * Cloudflare runtime context access — the single, correct entry point.
  *
  * On Cloudflare Workers (via OpenNext) the binding declared in wrangler.jsonc
- * (`API_WORKER` → glamo-nepal-api) lets the frontend call the backend in-network
+ * (`API` → glamo-nepal-api) lets the frontend call the backend in-network
  * with no public-internet hop. On any other runtime (Vercel, Node, local dev
  * without `initOpenNextCloudflareForDev`) these return null/undefined and
  * callers fall back to an HTTP fetch against API_BASE_URL.
@@ -27,7 +27,7 @@ export interface WorkerBinding {
  * Name of the binding in wrangler.jsonc pointing at the backend worker.
  * Keep in sync with the `services[].binding` entry in wrangler.jsonc.
  */
-export const API_WORKER_BINDING_NAME = "API_WORKER";
+export const API_WORKER_BINDING_NAME = "API";
 
 function pickBinding(env: Record<string, unknown> | undefined): WorkerBinding | null {
   if (!env) return null;
