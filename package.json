@@ -30,9 +30,9 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:auth": "npx playwright test e2e/auth.spec.ts",
     "preview": "pnpm preview:cf",
-    "build:cf": "opennextjs-cloudflare build",
-    "deploy:cf": "opennextjs-cloudflare build && wrangler deploy",
-    "preview:cf": "opennextjs-cloudflare build && wrangler dev",
+    "build:cf": "opennextjs-cloudflare build && node scripts/postbuild-cf-patch.mjs",
+    "deploy:cf": "opennextjs-cloudflare build && node scripts/postbuild-cf-patch.mjs && wrangler deploy",
+    "preview:cf": "opennextjs-cloudflare build && node scripts/postbuild-cf-patch.mjs && wrangler dev",
     "cf-typegen": "wrangler types --env-interface cloudflare-env.d.ts"
   },
   "dependencies": {
@@ -53,12 +53,12 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dompurify": "^3.4.3",
+    "dompurify": "^3.4.11",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^12.14.0",
     "framer-motion": "^12.38.0",
-    "hono": "^4.12.23",
+    "hono": "^4.12.27",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",
     "next": "15.5.18",
@@ -83,14 +83,15 @@
     "@types/node": "^20.19.39",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-react": "^5.2.0",
     "eslint": "^8",
     "eslint-config-next": "15.5.18",
     "jsdom": "^25.0.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
-    "vitest": "^2.1.9",
+    "vite": "^6.4.3",
+    "vitest": "^3.2.6",
     "wrangler": "^4.105.0"
   },
   "engines": {
@@ -101,6 +102,10 @@
     "glob": "^10.5.0",
     "next": {
       "postcss": "^8.5.10"
-    }
+    },
+    "ws": "^8.21.0",
+    "form-data": "^4.0.6",
+    "brace-expansion@>=5.0.0 <6.0.0": "^5.0.6",
+    "js-yaml": "^4.2.0"
   }
 }
