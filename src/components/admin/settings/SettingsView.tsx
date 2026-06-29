@@ -104,7 +104,7 @@ function ErrorState({
       <p className="text-sm text-brand-textMuted">{message}</p>
       <button
         onClick={onRetry}
-        className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
+        className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50"
       >
         <RefreshCw size={14} /> Retry
       </button>
@@ -138,7 +138,7 @@ function SettingsField({
   if (isImage) {
     return (
       <label className="space-y-2 text-sm font-medium">
-        <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">
+        <span className="text-xs font-semibold text-brand-textMuted text-brand-textMuted">
           {label}
         </span>
         {help && (
@@ -207,7 +207,7 @@ function SettingsField({
 
   return (
     <label className="space-y-2 text-sm font-medium">
-      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">
+      <span className="text-xs font-semibold text-brand-textMuted text-brand-textMuted">
         {label}
       </span>
       {help && (
@@ -345,7 +345,7 @@ export function SettingsView() {
 
   if (isError && !settings) {
     return (
-      <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
         <ErrorState
           message={error || "Failed to load settings"}
           onRetry={refetch}
@@ -360,7 +360,7 @@ export function SettingsView() {
   );
 
   return (
-    <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+    <section className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">
@@ -382,7 +382,7 @@ export function SettingsView() {
           <button
             onClick={handleSave}
             disabled={saveMutation.isLoading || !hasChanges}
-            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-neutral-50 transition hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={15} />{" "}
             {saveMutation.isLoading ? "Saving…" : "Save changes"}
@@ -392,7 +392,7 @@ export function SettingsView() {
 
       <div className="mt-4 grid gap-3 rounded-2xl border border-brand-border bg-brand-bgLight p-4 text-xs leading-5 text-brand-textMuted sm:grid-cols-3">
         <div>
-          <p className="font-label text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">
+          <p className="text-sm font-semibold text-brand-textPrimary">
             {Object.values(grouped).reduce((acc, items) => acc + items.length, 0)} settings
           </p>
           <p className="mt-1">
@@ -400,7 +400,7 @@ export function SettingsView() {
           </p>
         </div>
         <div>
-          <p className="font-label text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">
+          <p className="text-sm font-semibold text-brand-textPrimary">
             Where changes apply
           </p>
           <p className="mt-1">
@@ -408,7 +408,7 @@ export function SettingsView() {
           </p>
         </div>
         <div>
-          <p className="font-label text-[10px] font-bold uppercase tracking-[0.16em] text-brand-primary">
+          <p className="text-sm font-semibold text-brand-textPrimary">
             Saving
           </p>
           <p className="mt-1">

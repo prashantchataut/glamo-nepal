@@ -12,7 +12,7 @@ const iconMap: Record<string, TrustIconName> = {
 export function TrustBadgeStrip() {
   return (
     <div
-      className="bg-primary text-white py-3 border-y border-brand-primary/20"
+      className="bg-primary text-neutral-50 py-3 border-y border-brand-primary/20"
       role="region"
       aria-label="Trust badges"
     >

@@ -32,15 +32,15 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
             <h1 className="mt-4 font-display text-5xl font-medium leading-[1.05] text-neutral-900 md:text-7xl">{brand.name}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600">{brand.description}</p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.productCount}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Products</p></div>
-              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.madeInNepalCount}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Made in Nepal</p></div>
-              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.categories.length}</p><p className="text-xs uppercase tracking-[0.14em] text-neutral-500">Categories</p></div>
+              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.productCount}</p><p className="text-sm font-semibold text-neutral-500">Products</p></div>
+              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.madeInNepalCount}</p><p className="text-sm font-semibold text-neutral-500">Made in Nepal</p></div>
+              <div className="border border-neutral-200 bg-white p-4"><p className="text-2xl font-semibold text-neutral-900">{brand.categories.length}</p><p className="text-sm font-semibold text-neutral-500">Categories</p></div>
             </div>
           </div>
         </div>
       </section>
       <EditorialSection title={`Shop ${brand.name}`} description="Product cards use GLAMO's standard storefront layout for consistent browsing, price comparison and quick add behavior.">
-        {products.length ? <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="border border-neutral-200 bg-white p-10 text-center"><h2 className="font-display text-3xl text-neutral-900">This brand edit is coming soon.</h2><p className="mt-3 text-neutral-600">Check back for new arrivals or browse the full shop.</p><Link href="/shop" className="mt-6 inline-flex bg-primary px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white">Browse shop</Link></div>}
+        {products.length ? <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <div className="border border-neutral-200 bg-white p-10 text-center"><h2 className="font-display text-3xl text-neutral-900">This brand edit is coming soon.</h2><p className="mt-3 text-neutral-600">Check back for new arrivals or browse the full shop.</p><Link href="/shop" className="mt-6 inline-flex bg-primary px-7 py-3 text-sm font-semibold text-neutral-50">Browse shop</Link></div>}
       </EditorialSection>
     </main>
   );

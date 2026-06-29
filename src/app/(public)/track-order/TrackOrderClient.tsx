@@ -136,7 +136,7 @@ export default function TrackOrderClient() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <section className="relative overflow-hidden bg-rose-50 py-12 md:py-20">
+      <section className="relative overflow-hidden bg-brand-bgLight py-12 md:py-20">
         <div className="container mx-auto px-4 md:px-6">
           <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-500">
             <Link href="/" className="cursor-pointer transition-colors hover:text-primary">Home</Link>
@@ -171,7 +171,7 @@ export default function TrackOrderClient() {
             <button
               type="submit"
               disabled={loading || !orderNumber.trim()}
-              className="inline-flex min-h-14 min-w-[120px] items-center justify-center rounded-full bg-neutral-950 px-6 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex min-h-14 min-w-[120px] items-center justify-center rounded-full bg-neutral-950 px-6 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 size={20} className="animate-spin" /> : "Track"}
             </button>
@@ -191,14 +191,14 @@ export default function TrackOrderClient() {
 
           {order && (
             <div className="mt-8 space-y-6">
-              <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
+              <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Order Number</p>
+                    <p className="text-sm font-semibold text-neutral-500">Order Number</p>
                     <p className="mt-1 font-display text-2xl font-semibold text-neutral-900">{order.orderNumber}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Date</p>
+                    <p className="text-sm font-semibold text-neutral-500">Date</p>
                     <p className="mt-1 text-sm font-medium text-neutral-700">{formatDate(order.createdAt)}</p>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function TrackOrderClient() {
               </div>
 
               {!isCancelled && !isRefunded && (
-                <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
+                <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
                   <h2 className="font-display text-lg font-semibold text-neutral-900">Order Progress</h2>
                   <div className="mt-6 relative">
                     <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-neutral-200" />
@@ -239,14 +239,14 @@ export default function TrackOrderClient() {
                       return (
                         <div key={step.key} className="relative flex items-start gap-4 pb-6 last:pb-0">
                           <div className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                            isCompleted ? "border-primary bg-primary text-white" : "border-neutral-300 bg-white text-neutral-400"
+                            isCompleted ? "border-primary bg-primary text-neutral-50" : "border-neutral-300 bg-white text-neutral-400"
                           } ${isCurrent ? "ring-4 ring-primary/20" : ""}`}>
                             <Icon size={16} />
                           </div>
                           <div className="pt-0.5">
                             <p className={`text-sm font-semibold ${isCompleted ? "text-neutral-900" : "text-neutral-500"}`}>
                               {step.label}
-                              {isCurrent && <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-primary">Current</span>}
+                              {isCurrent && <span className="ml-2 text-xs font-bold uppercase tracking-widest text-primary">Current</span>}
                             </p>
                             {historyEntry && (
                               <p className="mt-0.5 text-xs text-neutral-500">{formatDate(historyEntry.createdAt)}</p>
@@ -260,7 +260,7 @@ export default function TrackOrderClient() {
               )}
 
               {(isCancelled || isRefunded) && order.statusHistory?.length > 0 && (
-                <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
+                <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
                   <h2 className="font-display text-lg font-semibold text-neutral-900">Status History</h2>
                   <div className="mt-4 space-y-3">
                     {order.statusHistory.map((entry) => (
@@ -278,7 +278,7 @@ export default function TrackOrderClient() {
                 </div>
               )}
 
-              <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
+              <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
                 <h2 className="font-display text-lg font-semibold text-neutral-900">Items</h2>
                 <ul className="mt-4 divide-y divide-neutral-100">
                   {order.items.map((item) => (
@@ -322,7 +322,7 @@ export default function TrackOrderClient() {
               </div>
 
               {order.shippingAddress && (
-                <div className="rounded-[2rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
+                <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-6 shadow-soft md:p-8">
                   <h2 className="font-display text-lg font-semibold text-neutral-900">Shipping Address</h2>
                   <div className="mt-3 text-sm leading-relaxed text-neutral-600">
                     <p className="font-medium text-neutral-900">{(order.shippingAddress as Record<string, unknown>).fullName as string || ""}</p>
@@ -345,7 +345,7 @@ export default function TrackOrderClient() {
               <div className="text-center">
                 <Link
                   href="/shop"
-                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary"
+                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary"
                 >
                   Continue Shopping
                 </Link>

@@ -30,23 +30,23 @@ export function CheckoutStepper({ currentStep, completedSteps, onStepClick }: Ch
                 type="button"
                 onClick={() => canNavigate && onStepClick(i)}
                 disabled={!canNavigate}
-                className={`flex flex-col items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${canNavigate ? "cursor-pointer" : "cursor-not-allowed"}`}
+                className={`flex min-h-12 flex-col items-center gap-1.5 rounded-lg px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${canNavigate ? "cursor-pointer" : "cursor-not-allowed"}`}
                 aria-current={isActive ? "step" : undefined}
                 aria-label={`${step.label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
               >
                 <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full transition md:h-10 md:w-10 ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full transition ${
                     isActive
                       ? "bg-neutral-950 text-white"
                       : isCompleted
-                        ? "bg-primary text-white"
+                        ? "bg-primary text-neutral-50"
                         : "bg-white text-neutral-500"
                   }`}
                 >
                   {isCompleted ? <CheckCircle2 size={17} /> : <StepIcon step={step.label} size={17} />}
                 </div>
                 <span
-                  className={`text-[10px] font-semibold uppercase tracking-[0.08em] md:text-xs md:tracking-[0.12em] ${
+                  className={`mt-1 text-xs font-semibold ${
                     isActive || isCompleted ? "text-neutral-950" : "text-neutral-500"
                   }`}
                 >

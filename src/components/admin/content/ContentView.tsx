@@ -21,8 +21,8 @@ export function ContentView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-        <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Content</p>
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold text-brand-textPrimary">Content</p>
         <h2 className="mt-2 font-display text-2xl font-semibold">Storefront content management</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">
           Manage homepage banners, gallery assets and popups from one URL-based module instead of hidden dashboard state. Blog content stays out of admin to avoid accidental SEO edits.
@@ -38,11 +38,11 @@ export function ContentView() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setTab(item.id)}
-                className={`rounded-2xl border p-4 text-left transition ${active ? "border-brand-primary bg-brand-primary text-white" : "border-brand-border bg-brand-bgLight hover:border-brand-primary/40"}`}
+                className={`rounded-2xl border p-4 text-left transition ${active ? "border-brand-primary bg-brand-primary text-neutral-50" : "border-brand-border bg-brand-bgLight hover:border-brand-primary/40"}`}
               >
-                <Icon size={18} className={active ? "text-white" : "text-brand-primary"} />
+                <Icon size={18} className={active ? "text-neutral-50" : "text-brand-primary"} />
                 <p className="mt-3 text-sm font-semibold">{item.label}</p>
-                <p className={`mt-1 text-xs leading-5 ${active ? "text-white/80" : "text-brand-textMuted"}`}>{item.help}</p>
+                <p className={`mt-1 text-xs leading-5 ${active ? "text-neutral-50/80" : "text-brand-textMuted"}`}>{item.help}</p>
               </button>
             );
           })}

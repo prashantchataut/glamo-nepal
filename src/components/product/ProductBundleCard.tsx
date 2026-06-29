@@ -24,13 +24,13 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
   };
 
   return (
-    <article className="group overflow-hidden rounded-[2rem] border border-brand-secondary/20 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-soft">
+    <article className="group overflow-hidden rounded-[1.5rem] border border-brand-secondary/20 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-soft">
       <Link href={`/routines/${bundle.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-neutral-50">
         <Image src={bundle.image} alt={bundle.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 33vw" />
-        <div className="font-label absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{bundle.eyebrow}</div>
+        <div className="font-label absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-primary">{bundle.eyebrow}</div>
       </Link>
       <div className="p-5 md:p-6">
-        <div className="font-label mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+        <div className="font-label mb-3 flex items-center gap-2 text-sm font-semibold text-secondary">
           <Sparkles size={14} /> Routine bundle
         </div>
         <Link href={`/routines/${bundle.slug}`}>
@@ -41,7 +41,7 @@ export function ProductBundleCard({ bundle, compact = false }: { bundle: Hydrate
           <div className="mt-4 space-y-2">
             {bundle.steps.slice(0, 3).map((step, index) => (
               <div key={step.label} className="flex gap-3 rounded-2xl bg-neutral-50 px-3 py-2 text-sm">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{index + 1}</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-neutral-50">{index + 1}</span>
                 <span className="text-neutral-500"><strong className="text-neutral-900">{step.label}:</strong> {step.note}</span>
               </div>
             ))}

@@ -94,7 +94,7 @@ export function OrdersClient() {
     <div>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary-text">Order history</p>
+          <p className="text-sm font-semibold text-primary-text">Order history</p>
           <h1 className="mt-2 font-display text-4xl font-semibold leading-tight text-neutral-950 md:text-5xl">
             Your GLAMO orders
           </h1>
@@ -111,7 +111,7 @@ export function OrdersClient() {
       </div>
 
       {!isLoading && error && orders.length === 0 ? (
-        <div className="mt-8 rounded-[2rem] border border-error/20 bg-error/5 p-8 text-center md:p-12">
+        <div className="mt-8 rounded-[1.5rem] border border-error/20 bg-error/5 p-8 text-center md:p-12">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-error/10">
             <Package className="h-6 w-6 text-error" />
           </div>
@@ -120,7 +120,7 @@ export function OrdersClient() {
           <button
             type="button"
             onClick={() => void loadOrders()}
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-neutral-50 transition hover:bg-primary"
           >
             Try again
           </button>
@@ -135,7 +135,7 @@ export function OrdersClient() {
             const firstItem = order.items[0];
             const detailHref = order.source !== "session" ? `/account/orders/${order.id}` : undefined;
             const card = (
-              <article className="group rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:rounded-[2rem] md:p-5">
+              <article className="group rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:rounded-[1.5rem] md:p-5">
                 <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                   <div className="flex min-w-0 items-center gap-4">
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-neutral-50 md:h-20 md:w-20">
@@ -158,14 +158,14 @@ export function OrdersClient() {
                         </h2>
                         <span
                           className={cn(
-                            "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ring-1",
+                            "rounded-full px-3 py-1 text-sm font-semibold ring-1",
                             statusStyles[order.status] || "bg-neutral-50 text-neutral-500 ring-neutral-200",
                           )}
                         >
                           {order.status}
                         </span>
                         {order.source === "session" ? (
-                          <span className="rounded-full bg-rose-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+                          <span className="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-primary">
                             New
                           </span>
                         ) : null}
@@ -178,7 +178,7 @@ export function OrdersClient() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between gap-4 md:block md:text-right">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-500">Total</p>
+                    <p className="text-sm font-semibold text-neutral-500">Total</p>
                     <p className="mt-1 text-xl font-bold text-neutral-950">{formatNPR(order.total)}</p>
                     {detailHref ? (
                       <span className="mt-3 hidden items-center justify-end gap-2 text-sm font-bold text-primary md:flex">
@@ -201,7 +201,7 @@ export function OrdersClient() {
           })}
 
           {orders.length === 0 && (
-            <div className="mt-8 rounded-[2rem] border border-neutral-200/80 bg-white p-12 text-center shadow-card">
+            <div className="mt-8 rounded-[1.5rem] border border-neutral-200/80 bg-white p-12 text-center shadow-card">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Package className="h-8 w-8 text-primary" />
               </div>
@@ -209,7 +209,7 @@ export function OrdersClient() {
               <p className="mt-2 text-sm text-neutral-500">Your order history will appear here once you make a purchase.</p>
               <Link
                 href="/shop"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-neutral-50 transition hover:bg-primary"
               >
                 <ShoppingBag size={14} /> Start shopping
               </Link>

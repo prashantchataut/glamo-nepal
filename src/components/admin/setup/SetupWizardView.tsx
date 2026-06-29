@@ -6,6 +6,7 @@ import { CheckCircle2, Circle, ClipboardCheck, Image as ImageIcon, Package, Sett
 import { toast } from "sonner";
 import { adminApi, type SiteSetting } from "@/lib/api/admin";
 import { useAdminData } from "@/lib/hooks/useAdminData";
+import { toArray } from "@/lib/safe-array";
 
 const SETUP_FIELDS = [
   "site_name",
@@ -33,7 +34,7 @@ function valueToText(value: SiteSetting["value"]): string {
 function Field({ label, help, value, onChange, multiline = false }: { label: string; help: string; value: string; onChange: (value: string) => void; multiline?: boolean }) {
   return (
     <label className="space-y-2 text-sm font-medium">
-      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</span>
+      <span className="text-xs font-semibold text-brand-textMuted text-brand-textMuted">{label}</span>
       <span className="block text-xs leading-5 text-brand-textMuted">{help}</span>
       {multiline ? (
         <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={4} className="w-full rounded-xl border border-brand-border px-4 py-3 font-mono text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" />
@@ -59,8 +60,8 @@ export function SetupWizardView() {
   }, [settings]);
 
   const setupChecks = useMemo(() => {
-    const productList = products?.products ?? [];
-    const bannerList = (banners ?? []) as Array<{ isActive?: boolean; imageUrl?: string }>;
+    const productList = toArray<NonNullable<typeof products>["products"][number]>(products?.products);
+    const bannerList = toArray<{ isActive?: boolean; imageUrl?: string }>(banners);
     const deliveryFeesOk = Boolean(values.delivery_fees && values.delivery_fees.trim().startsWith("{"));
     const deliveryZonesOk = Boolean(values.delivery_zones && values.delivery_zones.trim().startsWith("["));
     const supportOk = Boolean(values.support_phone || values.support_whatsapp || values.support_email);
@@ -99,10 +100,10 @@ export function SetupWizardView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-[1fr_0.38fr] lg:items-center">
           <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Owner setup</p>
+            <p className="text-sm font-semibold text-brand-textPrimary">Owner setup</p>
             <h2 className="mt-2 font-display text-3xl font-semibold">Make the store manageable without code.</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">This wizard covers the settings a non-technical owner needs before taking real orders: identity, delivery, COD, support, homepage content and catalog readiness.</p>
           </div>
@@ -124,13 +125,13 @@ export function SetupWizardView() {
         ))}
       </section>
 
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="font-display text-xl font-semibold">Guided setup fields</h3>
             <p className="mt-1 text-sm text-brand-textMuted">Plain-language defaults. Advanced settings remain available in Settings.</p>
           </div>
-          <button onClick={saveSetup} disabled={saving || isLoading} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-50">
+          <button onClick={saveSetup} disabled={saving || isLoading} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-neutral-50 disabled:opacity-50">
             <ClipboardCheck size={16} /> {saving ? "Saving..." : "Save setup"}
           </button>
         </div>

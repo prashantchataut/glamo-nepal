@@ -6,9 +6,9 @@ import type { Address } from "@/lib/api/contracts";
 import { PROVINCES, getDistrictsForProvince, getMunicipalitiesForDistrict, type Province, type District } from "@/lib/nepal-locations";
 
 const inputClass =
-  "w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-500 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm";
+  "w-full rounded-xl border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-500 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.5rem] md:py-3 md:text-sm";
 const labelClass =
-  "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 md:mb-2";
+  "mb-1.5 block text-sm font-medium text-neutral-700 md:mb-2";
 const errorClass = "mt-1 text-xs text-error";
 
 interface ShippingStepProps {
@@ -126,7 +126,7 @@ export function ShippingStep({
           autoComplete="email"
         />
         {errors.email && <p id="email-error" className={errorClass} role="alert">{errors.email.message}</p>}
-        <p className="mt-1 text-[11px] text-neutral-500">For order confirmation and delivery updates.</p>
+        <p className="mt-1 text-xs text-neutral-500">For order confirmation and delivery updates.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 md:gap-5">
@@ -201,7 +201,7 @@ export function ShippingStep({
           const valid = await trigger(["name", "phone", "province", "district", "city", "ward", "address"]);
           if (valid) onContinue();
         }}
-        className="w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300 md:w-auto"
+        className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-neutral-950 px-8 py-3.5 text-sm font-semibold text-neutral-50 transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300 md:w-auto"
       >
         Continue to delivery
       </button>

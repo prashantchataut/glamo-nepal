@@ -36,15 +36,16 @@ export function DataTable<T>({
   onSelectionChange,
   onRowClick,
 }: DataTableProps<T>) {
+  const safeData: T[] = Array.isArray(data) ? data : [];
   const hasSelection = selectedIds !== undefined && onSelectionChange !== undefined;
-  const allSelected = hasSelection && data.length > 0 && data.every((row) => selectedIds.has(keyExtractor(row)));
-  const someSelected = hasSelection && data.some((row) => selectedIds.has(keyExtractor(row)));
+  const allSelected = hasSelection && safeData.length > 0 && safeData.every((row) => selectedIds.has(keyExtractor(row)));
+  const someSelected = hasSelection && safeData.some((row) => selectedIds.has(keyExtractor(row)));
 
   if (isLoading) {
     return <LoadingSkeleton rows={5} />;
   }
 
-  if (data.length === 0) {
+  if (safeData.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <p className="text-sm text-brand-textMuted">{emptyMessage}</p>
@@ -53,11 +54,11 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto -mx-6 px-6">
+    <div className="max-w-full overflow-x-auto">
       <table className="w-full min-w-[var(--table-min-width)] text-sm" style={{ "--table-min-width": minRowWidth } as React.CSSProperties}>
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>
-          <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted">
+          <tr className="font-label border-y border-brand-border bg-brand-bgLight text-left text-sm font-semibold text-brand-textMuted">
             {hasSelection && (
               <th scope="col" className="w-12 px-4 py-3">
                 <input
@@ -69,7 +70,7 @@ export function DataTable<T>({
                     if (allSelected) {
                       onSelectionChange(new Set());
                     } else {
-                      onSelectionChange(new Set(data.map(keyExtractor)));
+                      onSelectionChange(new Set(safeData.map(keyExtractor)));
                     }
                   }}
                   className="h-4 w-4 rounded border-brand-border accent-brand-primary"
@@ -84,7 +85,7 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody>
-          {data.map((row) => {
+          {safeData.map((row) => {
             const rowKey = keyExtractor(row);
             const isSelected = hasSelection && selectedIds.has(rowKey);
             return (

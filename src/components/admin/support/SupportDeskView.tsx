@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Clipboard, Mail, MessageCircle, Pencil, Phone, RotateCcw, Save, ShoppingBag, UserRound, X } from "lucide-react";
 import { toast } from "sonner";
-import { adminApi, type SiteSetting } from "@/lib/api/admin";
+import { adminApi, type SiteSetting, type AdminReturnRequest, type AdminUser, type AdminOrder } from "@/lib/api/admin";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { formatNPR } from "@/lib/utils";
+import { toArray } from "@/lib/safe-array";
 
 type Template = { title: string; text: string };
 
@@ -34,9 +35,9 @@ export function SupportDeskView() {
   const supportPhone = settingText(settings, "support_phone");
   const whatsapp = settingText(settings, "support_whatsapp").replace(/[^0-9]/g, "");
   const savedTemplates = templates(settings);
-  const returnList = Array.isArray(returns) ? returns : [];
-  const customerList = customers?.users ?? [];
-  const orderList = orders?.orders ?? [];
+  const returnList = toArray<AdminReturnRequest>(returns);
+  const customerList = toArray<AdminUser>(customers?.users);
+  const orderList = toArray<AdminOrder>(orders?.orders);
 
   const pendingReturns = useMemo(() => returnList.filter((item) => !["CLOSED", "REJECTED", "REFUNDED", "EXCHANGED"].includes(item.status)), [returnList]);
 
@@ -123,14 +124,14 @@ export function SupportDeskView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-        <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Customer support desk</p>
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold text-brand-textPrimary">Customer support desk</p>
         <h2 className="mt-2 font-display text-3xl font-semibold">Help customers without hunting through the admin.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">Recent orders, returns, customers and saved reply templates in one place. This is practical support, not a ticketing gimmick.</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <a href={`mailto:${supportEmail}`} className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary"><Mail size={15} /> Email</a>
           {supportPhone ? <a href={`tel:${supportPhone}`} className="btn-press inline-flex items-center gap-2 rounded-full border border-brand-border px-4 py-2 text-sm font-bold text-brand-primary"><Phone size={15} /> Call</a> : null}
-          {whatsapp ? <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-bold text-white"><MessageCircle size={15} /> WhatsApp</a> : null}
+          {whatsapp ? <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-bold text-neutral-50"><MessageCircle size={15} /> WhatsApp</a> : null}
         </div>
       </section>
 
@@ -141,20 +142,20 @@ export function SupportDeskView() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+        <div className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3"><h3 className="font-display text-xl font-semibold">Recent orders to help with</h3><Link href="/admin/orders" className="text-sm font-bold text-brand-primary">View all</Link></div>
           <div className="mt-4 overflow-x-auto">
             {ordersLoading ? <div className="h-40 animate-pulse rounded-xl bg-brand-bgLight" /> : (
               <table className="w-full min-w-[680px] text-sm">
-                <thead><tr className="border-y border-brand-border bg-brand-bgLight text-left text-xs uppercase tracking-[0.14em] text-brand-textMuted"><th className="px-3 py-3">Order</th><th className="px-3 py-3">Customer</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Total</th><th className="px-3 py-3">Help</th></tr></thead>
-                <tbody>{orderList.map((order) => (<tr key={order.id} className="border-b border-brand-border"><td className="px-3 py-3 font-mono text-xs font-semibold">{order.order_number}</td><td className="px-3 py-3">{order.customer ? `${order.customer.first_name ?? ""} ${order.customer.last_name ?? ""}`.trim() || order.customer.email : "Customer"}</td><td className="px-3 py-3">{order.status}</td><td className="px-3 py-3 font-semibold">{formatNPR(order.total_amount)}</td><td className="px-3 py-3"><Link href={`/admin/orders?search=${encodeURIComponent(order.order_number)}`} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-bold text-white">Open</Link></td></tr>))}</tbody>
+                <thead><tr className="border-y border-brand-border bg-brand-bgLight text-left text-sm font-semibold text-brand-textMuted"><th className="px-3 py-3">Order</th><th className="px-3 py-3">Customer</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Total</th><th className="px-3 py-3">Help</th></tr></thead>
+                <tbody>{orderList.map((order) => (<tr key={order.id} className="border-b border-brand-border"><td className="px-3 py-3 font-mono text-xs font-semibold">{order.order_number}</td><td className="px-3 py-3">{order.customer ? `${order.customer.first_name ?? ""} ${order.customer.last_name ?? ""}`.trim() || order.customer.email : "Customer"}</td><td className="px-3 py-3">{order.status}</td><td className="px-3 py-3 font-semibold">{formatNPR(order.total_amount)}</td><td className="px-3 py-3"><Link href={`/admin/orders?search=${encodeURIComponent(order.order_number)}`} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-bold text-neutral-50">Open</Link></td></tr>))}</tbody>
               </table>
             )}
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+          <div className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3"><h3 className="font-display text-xl font-semibold">Open returns</h3><Link href="/admin/returns" className="text-sm font-bold text-brand-primary">View returns</Link></div>
             <div className="mt-4 space-y-3">
               {pendingReturns.length > 0 ? pendingReturns.slice(0, 5).map((item) => (
@@ -163,7 +164,7 @@ export function SupportDeskView() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+          <div className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <h3 className="font-display text-xl font-semibold">Saved replies</h3>
               <Link href="/admin/settings" className="text-sm font-bold text-brand-primary">All settings</Link>
@@ -220,7 +221,7 @@ export function SupportDeskView() {
                             data-testid="saved-reply-save"
                             onClick={commitEdit}
                             disabled={isSaving}
-                            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-bgDark disabled:opacity-50"
+                            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-3 py-2 text-xs font-bold text-neutral-50 transition hover:bg-brand-bgDark disabled:opacity-50"
                           >
                             <Save size={13} /> {isSaving ? "Saving…" : "Save"}
                           </button>
@@ -236,7 +237,7 @@ export function SupportDeskView() {
                               data-testid="saved-reply-copy"
                               onClick={() => copyTemplate(index)}
                               aria-label={`Copy ${template.title}`}
-                              className="btn-press inline-flex items-center gap-1 rounded-full bg-brand-primary-light px-2.5 py-1.5 text-[11px] font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
+                              className="btn-press inline-flex items-center gap-1 rounded-full bg-brand-primary-light px-2.5 py-1.5 text-xs font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white"
                             >
                               {isCopied ? <Check size={12} /> : <Clipboard size={12} />}
                               {isCopied ? "Copied" : "Copy"}
@@ -246,7 +247,7 @@ export function SupportDeskView() {
                               data-testid="saved-reply-edit"
                               onClick={() => startEdit(index)}
                               aria-label={`Edit ${template.title}`}
-                              className="btn-press inline-flex items-center gap-1 rounded-full border border-brand-border bg-white px-2.5 py-1.5 text-[11px] font-bold text-brand-textPrimary transition hover:bg-brand-bgLight"
+                              className="btn-press inline-flex items-center gap-1 rounded-full border border-brand-border bg-white px-2.5 py-1.5 text-xs font-bold text-brand-textPrimary transition hover:bg-brand-bgLight"
                             >
                               <Pencil size={12} /> Edit
                             </button>

@@ -109,7 +109,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
               actionable: the developer (and the support thread) can read exactly
               what failed instead of guessing from "Something went wrong". */}
           {error?.message ? (
-            <p className="mx-auto mt-2 max-w-md break-words rounded-md bg-white/60 px-3 py-1.5 font-mono text-[11px] text-red-700">
+            <p className="mx-auto mt-2 max-w-md break-words rounded-md bg-white/60 px-3 py-1.5 font-mono text-xs text-red-700">
               {error.message}
             </p>
           ) : null}
@@ -118,7 +118,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
             {isChunkLoadFailure ? (
               <button
                 onClick={this.handleHardReload}
-                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-neutral-50 transition hover:bg-red-700"
               >
                 Reload page
               </button>
@@ -126,7 +126,7 @@ export class ComponentErrorBoundary extends Component<Props, State> {
               <>
                 <button
                   onClick={this.handleRetry}
-                  className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                  className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-neutral-50 transition hover:bg-red-700"
                 >
                   Try again
                 </button>

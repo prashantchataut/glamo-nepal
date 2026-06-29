@@ -19,7 +19,7 @@ export function ProductCardSkeleton({ className = '' }: { className?: string }) 
 
 export function HeroSkeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`w-full rounded-[2rem] overflow-hidden ${className}`}>
+    <div className={`w-full rounded-[1.5rem] overflow-hidden ${className}`}>
       <div className="w-full h-[400px] md:h-[600px] skeleton-hero-bg">
         <div className="p-8 md:p-16 space-y-4">
           <div className="h-3 w-20 rounded skeleton-shimmer" />

@@ -16,7 +16,7 @@ function text(value: SiteSetting["value"]): string {
 function Field({ label, help, value, onChange, multiline = false, type = "text" }: { label: string; help: string; value: string; onChange: (value: string) => void; multiline?: boolean; type?: string }) {
   return (
     <label className="space-y-2 text-sm font-medium">
-      <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">{label}</span>
+      <span className="text-xs font-semibold text-brand-textMuted text-brand-textMuted">{label}</span>
       <span className="block text-xs leading-5 text-brand-textMuted">{help}</span>
       {multiline ? (
         <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={5} className="w-full rounded-xl border border-brand-border px-4 py-3 font-mono text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10" />
@@ -73,14 +73,14 @@ export function DeliveryManagerView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Delivery manager</p>
+            <p className="text-sm font-semibold text-brand-textPrimary">Delivery manager</p>
             <h2 className="mt-2 font-display text-3xl font-semibold">Control where orders can be delivered.</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">Keep COD and delivery simple. These settings are stored centrally and can be used by checkout, customer support and staff scripts.</p>
           </div>
-          <button onClick={save} disabled={saving || isLoading} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-50">
+          <button onClick={save} disabled={saving || isLoading} className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-neutral-50 disabled:opacity-50">
             <ClipboardCheck size={16} /> {saving ? "Saving..." : "Save delivery rules"}
           </button>
         </div>
@@ -97,11 +97,11 @@ export function DeliveryManagerView() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2"><Truck size={18} className="text-brand-primary" /><h3 className="font-display text-xl font-semibold">Fees and COD</h3></div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="space-y-2 text-sm font-medium">
-              <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">Cash on Delivery</span>
+              <span className="text-xs font-semibold text-brand-textMuted text-brand-textMuted">Cash on Delivery</span>
               <span className="block text-xs leading-5 text-brand-textMuted">Turn off only if checkout should stop offering COD.</span>
               <select value={values.cod_enabled === "false" ? "false" : "true"} onChange={(e) => update("cod_enabled", e.target.value)} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10">
                 <option value="true">Enabled</option>
@@ -109,7 +109,7 @@ export function DeliveryManagerView() {
               </select>
             </label>
             <label className="space-y-2 text-sm font-medium">
-              <span className="font-label text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">Store pickup</span>
+              <span className="text-xs font-semibold text-brand-textMuted text-brand-textMuted">Store pickup</span>
               <span className="block text-xs leading-5 text-brand-textMuted">Use only if customers can pick up locally.</span>
               <select value={values.store_pickup_enabled === "true" ? "true" : "false"} onChange={(e) => update("store_pickup_enabled", e.target.value)} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10">
                 <option value="false">Disabled</option>
@@ -124,7 +124,7 @@ export function DeliveryManagerView() {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2"><MapPin size={18} className="text-brand-primary" /><h3 className="font-display text-xl font-semibold">Delivery zones</h3></div>
           <div className="mt-5 grid gap-4">
             <Field label="Zone list JSON" help='Example: [{"name":"Kathmandu Valley","fee":100,"cod":true,"estimate":"1-3 business days"}]' value={values.delivery_zones ?? ""} onChange={(v) => update("delivery_zones", v)} multiline />

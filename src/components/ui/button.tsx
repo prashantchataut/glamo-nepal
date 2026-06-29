@@ -15,7 +15,7 @@ const buttonVariants = cva(
         ghost:
           "text-neutral-700 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 hover:after:w-full after:bg-secondary after:transition-all after:duration-300",
         destructive:
-          "bg-error text-white hover:bg-error/90",
+          "bg-error text-neutral-50 hover:bg-error/90",
         outline:
           "border border-neutral-200 bg-transparent text-neutral-700 hover:border-neutral-400 hover:text-neutral-900",
         link:
@@ -23,7 +23,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-11 px-8 py-3",
-        sm: "h-9 px-5 py-2 text-[11px]",
+        sm: "h-9 px-5 py-2 text-xs",
         lg: "h-12 px-10 py-4 text-[14px]",
         icon: "h-10 w-10",
       },

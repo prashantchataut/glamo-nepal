@@ -96,7 +96,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
     return (
       <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-lg text-center" aria-live="polite">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-bgLight text-primary">
             <ShoppingBag size={30} />
           </div>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -107,7 +107,7 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
           </p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary"
           >
             Start shopping
           </Link>
@@ -147,12 +147,12 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
       <JsonLd data={orderSchema} />
       <div className="mx-auto max-w-2xl">
         {/* Success header */}
-        <div className="rounded-[2rem] bg-rose-50 px-5 py-6 md:rounded-[2.5rem] md:px-8 md:py-8" role="status" aria-live="polite">
+        <div className="rounded-[1.5rem] bg-brand-bgLight px-5 py-6 md:rounded-[1.5rem] md:px-8 md:py-8" role="status" aria-live="polite">
           <div className="text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white md:h-16 md:w-16">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-neutral-50 md:h-16 md:w-16">
               <CheckCircle2 size={28} />
             </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
+            <p className="mt-4 text-sm font-semibold text-primary-text">
               Order Confirmed
             </p>
             <h1 className="mt-2 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -164,11 +164,11 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
           </div>
         </div>
 
-        <div className="mt-6 rounded-[1.5rem] border border-neutral-200 bg-white shadow-card-prominent md:mt-8 md:rounded-[2rem]">
+        <div className="mt-6 rounded-[1.5rem] border border-neutral-200 bg-white shadow-card-prominent md:mt-8 md:rounded-[1.5rem]">
           {/* Order number */}
           <div className="flex items-start justify-between gap-4 p-4 md:p-6">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+              <p className="text-sm font-semibold text-neutral-500">
                 Order Number
               </p>
               <p className="mt-1 font-display text-2xl font-semibold text-neutral-950 md:text-3xl">
@@ -198,11 +198,11 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
           <div className="border-t border-neutral-200 p-4 md:p-6">
             <div className="flex items-center gap-2 text-primary">
               <PackageCheck size={16} />
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">Items</p>
+              <p className="text-sm font-semibold">Items</p>
             </div>
             <div className="mt-3 space-y-2.5">
               {order.items.slice(0, 3).map((item) => (
-                <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 rounded-[1rem] bg-neutral-50 p-2.5 md:p-3">
+                <div key={`${item.name}-${item.quantity}-${item.selectedShade || "base"}`} className="flex items-center gap-3 rounded-xl bg-neutral-50 p-2.5 md:p-3">
                   <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[0.75rem] bg-neutral-100 md:h-16 md:w-14">
                     <Image src={item.image} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 48px, 56px" />
                   </div>
@@ -226,13 +226,13 @@ export function CheckoutSuccessClient({ orderId }: CheckoutSuccessProps) {
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-center md:mt-8">
           <Link
             href="/account/orders"
-            className="inline-flex min-h-12 items-center justify-center rounded-full border border-neutral-200 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-700 transition-colors hover:border-neutral-400"
+            className="inline-flex min-h-12 items-center justify-center rounded-full border border-neutral-200 px-8 text-sm font-semibold text-neutral-700 transition-colors hover:border-neutral-400"
           >
             View Orders
           </Link>
           <Link
             href="/shop"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary"
           >
             Continue Shopping
           </Link>

@@ -136,7 +136,7 @@ export function ProfileForm() {
           <button
             type="button"
             onClick={() => void fetchProfile()}
-            className="shrink-0 rounded-full border border-error/25 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-error transition-colors hover:bg-error/10"
+            className="shrink-0 rounded-full border border-error/25 px-4 py-1.5 text-sm font-semibold text-error transition-colors hover:bg-error/10"
           >
             Retry
           </button>
@@ -145,7 +145,7 @@ export function ProfileForm() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="profile-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+          <label htmlFor="profile-name" className="block text-sm font-semibold text-neutral-500">
             Full name
           </label>
           <input
@@ -158,7 +158,7 @@ export function ProfileForm() {
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="profile-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+          <label htmlFor="profile-email" className="block text-sm font-semibold text-neutral-500">
             Email
           </label>
           <input
@@ -168,10 +168,10 @@ export function ProfileForm() {
             className="w-full cursor-not-allowed rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 text-[15px] text-neutral-500 outline-none"
             placeholder="you@example.com"
           />
-          <p className="text-[11px] text-neutral-400">Email is linked to your account and cannot be changed here.</p>
+          <p className="text-xs text-neutral-400">Email is linked to your account and cannot be changed here.</p>
         </div>
         <div className="space-y-2">
-          <label htmlFor="profile-phone" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+          <label htmlFor="profile-phone" className="block text-sm font-semibold text-neutral-500">
             Phone
           </label>
           <input
@@ -189,7 +189,7 @@ export function ProfileForm() {
         <button
           type="submit"
           disabled={isSaving || isFetching}
-          className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-full bg-neutral-950 px-8 py-3 text-sm font-semibold text-neutral-50 transition-all duration-200 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSaving ? "Saving..." : "Save profile"}
         </button>

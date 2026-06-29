@@ -48,7 +48,7 @@ export default function SearchPageContent() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <section className="relative overflow-hidden bg-rose-50 py-12 md:py-20">
+      <section className="relative overflow-hidden bg-brand-bgLight py-12 md:py-20">
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-500">
@@ -63,7 +63,7 @@ export default function SearchPageContent() {
               {q ? `${results.length} product${results.length !== 1 ? "s" : ""} found across skincare, makeup and routine-ready picks.` : "Try sunscreen, vitamin C, lip tint, Korean skincare or Made in Nepal to jump into curated product results."}
             </p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-neutral-200 bg-white">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-neutral-200 bg-white">
             <Image src="/images/editorial/newsletter-vanity.svg" alt="GLAMO search visual" fill className="object-cover" />
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function SearchPageContent() {
 
       <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         {!q ? (
-          <div className="rounded-[2.5rem] border border-neutral-200 bg-white p-8 text-center shadow-editorial md:p-12">
+          <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-8 text-center shadow-editorial md:p-12">
             <Search size={46} className="mx-auto mb-4 text-primary/40" strokeWidth={1.5} />
             <p className="font-display text-3xl text-neutral-900">Search by product, brand or concern</p>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-neutral-500">Use quick searches below or open the search icon in the navbar for instant suggestions.</p>

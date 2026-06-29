@@ -105,7 +105,7 @@ function ErrorState({ message }: { message: string }) {
 
 function Card({ title, subtitle, children, className }: { title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm", className)}>
+    <div className={cn("rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm", className)}>
       <div>
         <h3 className="font-display text-xl font-semibold">{title}</h3>
         {subtitle ? <p className="mt-0.5 text-xs text-brand-textMuted">{subtitle}</p> : null}
@@ -125,7 +125,7 @@ function KpiCard({
   delta?: { text: string; positive: boolean } | null;
 }) {
   return (
-    <div className="card-hover rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="card-hover rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-center justify-between gap-3">
         <div className="rounded-xl bg-brand-primary-light p-2.5 text-brand-primary">
           <Icon size={16} />
@@ -133,7 +133,7 @@ function KpiCard({
         {delta ? (
           <span
             className={cn(
-              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold",
+              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold",
               delta.positive ? "bg-admin-success-light text-admin-success" : "bg-admin-error-light text-admin-error"
             )}
           >
@@ -141,12 +141,12 @@ function KpiCard({
             {delta.text}
           </span>
         ) : (
-          <span className="font-label rounded-full bg-brand-bgLight px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-textMuted">Live</span>
+          <span className="rounded-full bg-brand-bgLight px-2.5 py-0.5 text-xs font-semibold text-brand-textMuted">Live</span>
         )}
       </div>
       <p className="mt-3 text-xs font-medium text-brand-textMuted">{label}</p>
       <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">{value}</p>
-      <p className="mt-1.5 text-[11px] leading-4 text-brand-textMuted">{note}</p>
+      <p className="mt-1.5 text-xs leading-4 text-brand-textMuted">{note}</p>
     </div>
   );
 }
@@ -282,7 +282,7 @@ export function AnalyticsView() {
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-medium transition",
                 dateRange === range
-                  ? "bg-brand-primary text-white"
+                  ? "bg-brand-primary text-neutral-50"
                   : "border border-brand-border text-brand-textMuted hover:bg-brand-bgLight"
               )}
             >
@@ -296,7 +296,7 @@ export function AnalyticsView() {
       {statsLoading ? (
         <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="rounded-[2rem] border border-brand-border bg-white p-5">
+            <div key={i} className="rounded-[1.5rem] border border-brand-border bg-white p-5">
               <div className="h-4 w-16 animate-pulse rounded bg-brand-border/50" />
               <div className="mt-4 h-8 w-24 animate-pulse rounded bg-brand-border/50" />
             </div>

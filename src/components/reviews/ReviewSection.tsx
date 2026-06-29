@@ -51,7 +51,7 @@ function ReviewCard({ review }: { review: Review }) {
   });
 
   return (
-    <div className="rounded-[1.25rem] border border-neutral-200 bg-white p-5">
+    <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-neutral-950">{review.userName}</p>
@@ -149,7 +149,7 @@ function ReviewForm({
       <button
         type="submit"
         disabled={isSubmitting || rating === 0}
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-neutral-50 transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
       >
         {isSubmitting ? "Submitting..." : "Submit review"}
       </button>
@@ -216,7 +216,7 @@ export function ReviewSection({ productId }: { productId: string }) {
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
-      <div className="rounded-[2rem] border border-neutral-200 bg-white p-5 shadow-card-elevated md:p-7">
+      <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-5 shadow-card-elevated md:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-display text-2xl font-semibold text-neutral-950">
@@ -235,7 +235,7 @@ export function ReviewSection({ productId }: { productId: string }) {
           {user ? (
             <button
               onClick={() => setShowForm((v) => !v)}
-              className="btn-press inline-flex items-center gap-2 rounded-full bg-neutral-950 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary"
+              className="btn-press inline-flex items-center gap-2 rounded-full bg-neutral-950 px-5 py-3 text-sm font-semibold text-neutral-50 transition hover:bg-primary"
             >
               <MessageSquarePlus size={15} />
               {showForm ? "Cancel" : "Write a review"}
@@ -251,7 +251,7 @@ export function ReviewSection({ productId }: { productId: string }) {
         </div>
 
         {showForm && user && (
-          <div className="mt-6 rounded-[1.25rem] border border-neutral-200 bg-neutral-50 p-5">
+          <div className="mt-6 rounded-[1.5rem] border border-neutral-200 bg-neutral-50 p-5">
             <ReviewForm productId={productId} onSuccess={fetchReviews} />
           </div>
         )}
@@ -262,7 +262,7 @@ export function ReviewSection({ productId }: { productId: string }) {
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-28 animate-pulse rounded-[1.25rem] bg-neutral-100"
+                  className="h-28 animate-pulse rounded-[1.5rem] bg-neutral-100"
                 />
               ))}
             </div>

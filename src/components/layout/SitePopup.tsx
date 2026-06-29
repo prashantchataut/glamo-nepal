@@ -173,7 +173,7 @@ export function SitePopup() {
             <a
               href={popup.link_url}
               onClick={handleClose}
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-800"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-neutral-50 transition hover:bg-neutral-800"
             >
               Shop now
             </a>

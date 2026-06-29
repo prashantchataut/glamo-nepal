@@ -48,7 +48,7 @@ export function NotifyMeForm({ productName }: { productName: string }) {
   }
 
   return (
-    <div className="rounded-[2rem] border border-brand-secondary/30 bg-white p-5 shadow-sm">
+    <div className="rounded-[1.5rem] border border-brand-secondary/30 bg-white p-5 shadow-sm">
       <div className="flex items-start gap-3">
         <Bell className="mt-0.5 text-primary" size={20} aria-hidden="true" />
         <div>

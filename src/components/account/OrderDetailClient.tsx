@@ -90,13 +90,13 @@ export function OrderDetailClient() {
 
   if (notFoundError || !order) {
     return (
-      <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-8 text-center shadow-sm md:rounded-[2rem] md:p-12">
+      <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-8 text-center shadow-sm md:rounded-[1.5rem] md:p-12">
         <Package className="mx-auto h-12 w-12 text-neutral-300" />
         <h2 className="mt-4 font-display text-2xl font-semibold text-neutral-950">Order not found</h2>
         <p className="mt-2 text-sm text-neutral-500">This order may not exist or you may not have access.</p>
         <Link
           href="/account/orders"
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-primary"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-neutral-50 transition hover:bg-primary"
         >
           <ArrowLeft size={14} /> Back to orders
         </Link>
@@ -114,15 +114,15 @@ return (
       </Link>
       <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary-text">Order detail</p>
+          <p className="text-sm font-semibold text-primary-text">Order detail</p>
           <h1 className="mt-2 font-display text-4xl font-semibold text-neutral-950 md:text-5xl">{order.orderNumber}</h1>
           <p className="mt-2 text-sm text-neutral-500">Placed on {order.date} · Paid by {order.paymentMethod}</p>
         </div>
-        <span className={cn("w-fit rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.16em]", isCancelled ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700")}>{order.status}</span>
+        <span className={cn("w-fit rounded-full px-4 py-2 text-sm font-semibold", isCancelled ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700")}>{order.status}</span>
       </div>
 
       {!isCancelled ? (
-        <section className="mt-8 rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
+        <section className="mt-8 rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[1.5rem] md:p-6">
           <h2 className="font-display text-2xl font-semibold text-neutral-950">Tracking timeline</h2>
           <div className="mt-6 grid gap-3 sm:grid-cols-5">
             {steps.map((step, index) => {
@@ -130,8 +130,8 @@ return (
               const completed = index < activeIndex;
               const current = index === activeIndex;
               return (
-                <div key={step} className="relative rounded-[1rem] bg-neutral-50 p-4">
-                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold", completed ? "bg-emerald-600 text-white" : current ? "bg-primary text-white" : "bg-white text-neutral-400")}><Icon size={18} /></div>
+                <div key={step} className="relative rounded-xl bg-neutral-50 p-4">
+                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold", completed ? "bg-emerald-600 text-neutral-50" : current ? "bg-primary text-neutral-50" : "bg-white text-neutral-400")}><Icon size={18} /></div>
                   <p className={cn("mt-3 text-sm font-semibold", completed ? "text-emerald-700" : current ? "text-primary" : "text-neutral-400")}>{step}</p>
                   <p className="mt-1 text-xs text-neutral-500">{completed || current ? order.date : "Pending update"}</p>
                 </div>
@@ -142,11 +142,11 @@ return (
       ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
+        <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[1.5rem] md:p-6">
           <h2 className="font-display text-2xl font-semibold text-neutral-950">Items</h2>
           <div className="mt-5 space-y-4">
             {order.items.map((item) => (
-              <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-[1.25rem] bg-neutral-50 p-3">
+              <div key={`${item.name}-${item.quantity}`} className="flex items-center gap-4 rounded-[1.5rem] bg-neutral-50 p-3">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-white">
                   <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                 </div>
@@ -161,14 +161,14 @@ return (
         </section>
 
         <aside className="space-y-6">
-          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
+          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[1.5rem] md:p-6">
             <h2 className="font-display text-2xl font-semibold text-neutral-950">Delivery & payment</h2>
             <div className="mt-4 space-y-3 text-sm leading-6 text-neutral-500">
               <p><span className="font-semibold text-neutral-950">Address:</span> {order.shippingAddress}</p>
               <p><span className="font-semibold text-neutral-950">Payment:</span> {order.paymentMethod}</p>
             </div>
           </section>
-          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[2rem] md:p-6">
+          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-sm md:rounded-[1.5rem] md:p-6">
             <h2 className="font-display text-2xl font-semibold text-neutral-950">Summary</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="text-neutral-950">{formatNPR(order.total)}</span></div>

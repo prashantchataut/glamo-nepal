@@ -38,14 +38,14 @@ export function Pagination({ page, totalPages, total, onPageChange, pageSize = 2
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-border text-brand-textMuted transition hover:bg-brand-bgLight disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-brand-border text-brand-textMuted transition hover:bg-brand-bgLight disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Previous page"
         >
           <ChevronLeft size={16} />
         </button>
         {pages.map((p, i) =>
           p === "..." ? (
-            <span key={`ellipsis-${i}`} className="flex h-9 w-9 items-center justify-center text-sm text-brand-textMuted">
+            <span key={`ellipsis-${i}`} className="flex min-h-11 min-w-11 items-center justify-center text-sm text-brand-textMuted">
               ...
             </span>
           ) : (
@@ -53,9 +53,9 @@ export function Pagination({ page, totalPages, total, onPageChange, pageSize = 2
               key={p}
               onClick={() => onPageChange(p)}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition",
+                "flex min-h-11 min-w-11 items-center justify-center rounded-lg text-sm font-medium transition",
                 page === p
-                  ? "bg-brand-primary text-white shadow-sm"
+                  ? "bg-brand-primary text-neutral-50 shadow-sm"
                   : "border border-brand-border text-brand-textMuted hover:bg-brand-bgLight"
               )}
             >
@@ -66,7 +66,7 @@ export function Pagination({ page, totalPages, total, onPageChange, pageSize = 2
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-border text-brand-textMuted transition hover:bg-brand-bgLight disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-brand-border text-brand-textMuted transition hover:bg-brand-bgLight disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Next page"
         >
           <ChevronRight size={16} />

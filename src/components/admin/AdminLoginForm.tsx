@@ -103,7 +103,7 @@ function AdminLoginFormInner() {
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center bg-primary text-white">
+        <div className="flex h-12 w-12 items-center justify-center bg-primary text-neutral-50">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
         <div>
@@ -158,7 +158,7 @@ function AdminLoginFormInner() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="btn-press w-full min-h-[44px] bg-primary-dark px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-press w-full min-h-[44px] bg-primary-dark px-6 py-3 text-[13px] font-medium text-neutral-50 transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "Signing in..." : "Sign in"}
         </button>

@@ -5,6 +5,7 @@ import NextImage from "next/image";
 import Link from "next/link";
 import { Save, Upload, Smartphone, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toArray } from "@/lib/safe-array";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import {
   adminApi,
@@ -28,15 +29,15 @@ type BannerItem = {
 
 function BannerPreview({ banner }: { banner: BannerItem }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-white/20 bg-brand-bgDark text-white shadow-lg">
+    <div className="overflow-hidden rounded-[1.5rem] border border-white/20 bg-brand-bgDark text-neutral-50 shadow-lg">
       <div className="grid min-h-[180px] md:grid-cols-[1.1fr_0.9fr]">
         <div className="flex flex-col justify-center p-5 md:p-6">
           <span
             className={cn(
-              "font-label w-fit rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.18em]",
+              "font-label w-fit rounded-full px-3 py-1 text-sm font-semibold",
               banner.isActive
-                ? "bg-white/20 text-white/90"
-                : "bg-white/10 text-white/60",
+                ? "bg-white/20 text-neutral-50/90"
+                : "bg-white/10 text-neutral-50/60",
             )}
           >
             {banner.isActive ? "Published" : "Paused"}
@@ -45,7 +46,7 @@ function BannerPreview({ banner }: { banner: BannerItem }) {
             {banner.title}
           </h3>
           {banner.subtitle && (
-            <p className="mt-2 text-sm leading-6 text-white/70">
+            <p className="mt-2 text-sm leading-6 text-neutral-50/70">
               {banner.subtitle}
             </p>
           )}
@@ -107,7 +108,7 @@ export function BannersView() {
     refetch,
   } = useAdminData(() => adminApi.listAdminBanners());
   const bannerList = useMemo(
-    () => (banners ?? []) as unknown as BannerItem[],
+    () => toArray<BannerItem>(banners),
     [banners],
   );
   const selectedBanner = bannerList.find((b) => b.id === selectedId);
@@ -231,7 +232,7 @@ export function BannersView() {
 
   if (isError && !banners) {
     return (
-      <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <p className="text-sm text-brand-textMuted">Failed to load banners</p>
         </div>
@@ -242,7 +243,7 @@ export function BannersView() {
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_0.76fr]">
       <div className="space-y-6">
-        <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="font-display text-2xl font-semibold">
@@ -266,7 +267,7 @@ export function BannersView() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-medium text-neutral-50 disabled:opacity-50"
               >
                 <Save size={15} /> {isSaving ? "Saving…" : "Save banner"}
               </button>
@@ -299,7 +300,7 @@ export function BannersView() {
                   )}
                 >
                   <p className="font-semibold">{banner.title}</p>
-                  <p className="mt-0.5 text-[11px] text-brand-textMuted">
+                  <p className="mt-0.5 text-xs text-brand-textMuted">
                     {banner.isActive ? "Published" : "Paused"}
                   </p>
                 </button>
@@ -326,7 +327,7 @@ export function BannersView() {
         )}
 
         {(isCreating || selectedBanner) && (
-          <div className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+          <div className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
             <h3 className="font-display text-xl font-semibold">
               {isCreating ? "Create new banner" : "Edit banner"}
             </h3>
@@ -418,7 +419,7 @@ export function BannersView() {
       </div>
 
       <aside className="space-y-6">
-        <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
           <Upload className="text-brand-primary" size={20} />
           <h3 className="mt-2 font-display text-xl font-semibold">
             Upload assets
@@ -469,7 +470,7 @@ export function BannersView() {
             </p>
           )}
         </div>
-        <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
           <Smartphone className="text-brand-primary" size={20} />
           <h3 className="mt-2 font-display text-xl font-semibold">
             Responsive rules

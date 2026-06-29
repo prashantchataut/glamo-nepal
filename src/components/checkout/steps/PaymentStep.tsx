@@ -6,9 +6,9 @@ import type { CheckoutFormData } from "@/lib/validations/checkout";
 import { formatNPR } from "@/lib/utils";
 
 const inputClass =
-  "w-full rounded-[1rem] border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-500 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.15rem] md:py-3 md:text-sm";
+  "w-full rounded-xl border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-500 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 md:rounded-[1.5rem] md:py-3 md:text-sm";
 const labelClass =
-  "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600 md:mb-2";
+  "mb-1.5 block text-sm font-medium text-neutral-700 md:mb-2";
 
 const paymentMethods = ["Cash on Delivery", "Khalti", "eSewa"] as const;
 
@@ -49,7 +49,7 @@ export function PaymentStep({ form, onBack, onContinue }: PaymentStepProps) {
           return (
             <label
               key={method}
-              className={`flex cursor-pointer items-center gap-4 rounded-[1.25rem] border p-4 transition md:rounded-[1.5rem] md:p-5 ${isSelected ? "border-primary bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
+              className={`flex cursor-pointer items-center gap-4 rounded-[1.5rem] border p-4 transition md:rounded-[1.5rem] md:p-5 ${isSelected ? "border-primary bg-neutral-50" : "border-neutral-200 hover:border-neutral-400"} ${isComingSoon ? "opacity-55" : ""}`}
             >
               <input
                 type="radio"
@@ -73,7 +73,7 @@ export function PaymentStep({ form, onBack, onContinue }: PaymentStepProps) {
         })}
       </div>
 
-      <label className="flex items-center gap-3 rounded-[1.25rem] border border-neutral-200 p-4 text-sm text-neutral-700 md:rounded-[1.5rem] md:p-5">
+      <label className="flex items-center gap-3 rounded-[1.5rem] border border-neutral-200 p-4 text-sm text-neutral-700 md:rounded-[1.5rem] md:p-5">
         <input
           type="checkbox"
           {...register("giftWrap")}
@@ -97,7 +97,7 @@ export function PaymentStep({ form, onBack, onContinue }: PaymentStepProps) {
         <button
           type="button"
           onClick={onBack}
-          className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+          className="inline-flex min-h-12 items-center justify-center rounded-full border border-neutral-200 px-6 py-3 text-sm font-semibold text-neutral-700 hover:border-neutral-400"
         >
           Back
         </button>
@@ -107,7 +107,7 @@ export function PaymentStep({ form, onBack, onContinue }: PaymentStepProps) {
             const valid = await trigger(["payment"]);
             if (valid) onContinue();
           }}
-          className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
+          className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-neutral-950 px-8 py-3 text-sm font-semibold text-neutral-50 hover:bg-primary"
         >
           Review order
         </button>

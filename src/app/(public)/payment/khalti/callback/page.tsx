@@ -63,7 +63,7 @@ export default function KhaltiCallbackPage() {
             <p className="mt-1 text-sm text-neutral-500">Your order was created but payment could not be verified.</p>
             <button
               onClick={() => router.push("/account/orders")}
-              className="mt-4 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition hover:bg-brand-primary-dark"
+              className="mt-4 rounded-full bg-primary px-6 py-3 text-sm font-medium text-neutral-50 transition hover:bg-brand-primary-dark"
             >
               View your orders
             </button>

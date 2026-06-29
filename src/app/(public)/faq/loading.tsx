@@ -6,7 +6,7 @@
         <div className="mb-4 h-12 w-2/3 max-w-xl rounded-2xl skeleton-shimmer" />
         <div className="grid gap-4 md:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <div key={index} className="rounded-[1.5rem] bg-white p-5 shadow-sm">
               <div className="mb-4 aspect-[4/3] rounded-2xl skeleton-shimmer" />
               <div className="mb-3 h-5 rounded-xl skeleton-shimmer" />
               <div className="h-4 w-2/3 rounded-xl skeleton-shimmer" />

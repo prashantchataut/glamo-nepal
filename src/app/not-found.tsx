@@ -15,7 +15,7 @@ export default function NotFound() {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-white transition-colors hover:bg-primary-dark cursor-pointer"
+            className="inline-flex items-center gap-2 bg-primary px-8 py-3 text-[13px] font-medium tracking-[0.1em] uppercase text-neutral-50 transition-colors hover:bg-primary-dark cursor-pointer"
           >
             <ShoppingBag size={16} /> Shop GLAMO
           </Link>

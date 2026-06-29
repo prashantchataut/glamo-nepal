@@ -241,7 +241,7 @@ export function OrdersView() {
   ];
 
   return (
-    <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+    <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">Orders</h2>

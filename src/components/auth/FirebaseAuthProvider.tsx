@@ -162,7 +162,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             });
           }
 
-          setSyncComplete(true);
           setLoading(false);
 
           const syncCart = async (retries = 1) => {
@@ -187,8 +186,18 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
               }
             }
           };
-          syncCart();
-          syncWishlist();
+          // Await both syncs so the auth handler does not resolve (and a
+          // subsequent sign-out/token-refresh does not invalidate the token)
+          // while cart/wishlist fetches are still in flight. Previously these
+          // were fire-and-forget, which raced the auth cookie/token and
+          // produced the 401 flood on page load.
+          try {
+            await syncCart();
+            await syncWishlist();
+          } catch (syncError) {
+            console.error("[Auth] Cart/wishlist sync threw:", syncError);
+          }
+          setSyncComplete(true);
         } catch (error) {
           console.error("Auth sync failed:", error);
           login({

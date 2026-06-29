@@ -70,7 +70,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${outfit.variable} ${playfair.variable}`}
     >
-      <body className="min-h-screen bg-rose-50 font-sans text-neutral-900 antialiased">
+      <body className="min-h-screen bg-brand-bgLight font-sans text-neutral-900 antialiased">
         <CsrfBootstrap />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-white focus:rounded-lg focus:top-4 focus:left-4">
           Skip to content

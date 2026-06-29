@@ -352,7 +352,7 @@ export function ProductsView() {
   ];
 
   return (
-    <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+    <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">
@@ -375,7 +375,7 @@ export function ProductsView() {
               setEditProduct(null);
               setFormOpen(true);
             }}
-            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
+            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50"
           >
             <Plus size={15} /> Add product
           </button>
@@ -397,7 +397,7 @@ export function ProductsView() {
           </span>
           <button
             onClick={() => requestBulkStatus(true)}
-            className="btn-press inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
+            className="btn-press inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3 py-1.5 text-xs font-medium text-neutral-50 transition hover:bg-green-700"
           >
             <CheckSquare size={12} />
             Activate
@@ -411,7 +411,7 @@ export function ProductsView() {
           </button>
           <button
             onClick={() => setBulkDeleteOpen(true)}
-            className="btn-press inline-flex items-center gap-1.5 rounded-full bg-admin-error px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700"
+            className="btn-press inline-flex items-center gap-1.5 rounded-full bg-admin-error px-3 py-1.5 text-xs font-medium text-neutral-50 transition hover:bg-red-700"
           >
             <Trash2 size={12} />
             Delete

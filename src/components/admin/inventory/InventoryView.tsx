@@ -11,40 +11,10 @@ import {
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { Pagination } from "@/components/admin/shared/Pagination";
 import { SearchInput } from "@/components/admin/shared/SearchInput";
+import { StatCard } from "@/components/admin/shared/StatCard";
 import { EmptyState } from "@/components/admin/shared/EmptyState";
 import { RestockModal } from "@/components/admin/inventory/RestockModal";
 import { Boxes, AlertTriangle, Store, RefreshCw } from "lucide-react";
-import type { ComponentType } from "react";
-
-function StatCard({
-  label,
-  value,
-  note,
-  icon: Icon,
-}: {
-  label: string;
-  value: string | number;
-  note: string;
-  icon: ComponentType<{ size?: number | string; className?: string }>;
-}) {
-  return (
-    <div className="card-hover rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-center justify-between gap-4">
-        <div className="rounded-xl bg-brand-primary-light p-3 text-brand-primary">
-          <Icon size={18} />
-        </div>
-        <span className="font-label rounded-full bg-brand-bgLight px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-brand-textMuted">
-          Live
-        </span>
-      </div>
-      <p className="mt-4 text-xs font-medium text-brand-textMuted">{label}</p>
-      <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">
-        {value}
-      </p>
-      <p className="mt-2 text-xs leading-4 text-brand-textMuted">{note}</p>
-    </div>
-  );
-}
 
 function getStockStatus(quantity: number, threshold: number): string {
   if (quantity <= 0) return "out of stock";
@@ -66,7 +36,7 @@ function ErrorState({
       <p className="mt-3 text-sm text-brand-textMuted">{message}</p>
       <button
         onClick={onRetry}
-        className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
+        className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50"
       >
         <RefreshCw size={14} /> Retry
       </button>
@@ -238,7 +208,7 @@ export function InventoryView() {
               stock: row.stock_quantity,
             })
           }
-          className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white"
+          className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-neutral-50"
         >
           Restock
         </button>
@@ -257,7 +227,7 @@ export function InventoryView() {
 
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
-      <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl font-semibold">
@@ -274,7 +244,7 @@ export function InventoryView() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-[2rem] border border-brand-border bg-white p-6"
+                className="rounded-[1.5rem] border border-brand-border bg-white p-6"
               >
                 <div className="h-4 w-16 animate-pulse rounded bg-brand-border/50" />
                 <div className="mt-4 h-8 w-24 animate-pulse rounded bg-brand-border/50" />
@@ -335,7 +305,7 @@ export function InventoryView() {
         )}
       </div>
 
-      <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <h3 className="font-display text-xl font-semibold">Low stock alerts</h3>
         {lowStockData === undefined ? (
           <div className="mt-4 space-y-3">
@@ -388,7 +358,7 @@ export function InventoryView() {
                             stock: item.stock_quantity,
                           })
                         }
-                        className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-white"
+                        className="btn-press rounded-full bg-brand-primary px-4 py-2 text-xs font-medium text-neutral-50"
                       >
                         Restock
                       </button>

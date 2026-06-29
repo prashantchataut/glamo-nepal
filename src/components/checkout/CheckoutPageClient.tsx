@@ -244,7 +244,7 @@ export function CheckoutPageClient() {
     return (
       <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-md text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-bgLight text-primary">
             <LockKeyhole size={28} />
           </div>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -256,14 +256,14 @@ export function CheckoutPageClient() {
           <div className="mt-8 flex flex-col gap-3">
             <Link
               href={`/login?redirect=${encodeURIComponent("/checkout")}`}
-              className="flex min-h-12 w-full items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+              className="flex min-h-12 w-full items-center justify-center rounded-full bg-neutral-950 px-8 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary"
             >
               Log in
             </Link>
             <button
               type="button"
               onClick={() => setGuestMode(true)}
-              className="flex min-h-12 w-full items-center justify-center rounded-full border border-neutral-200 bg-white px-8 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-700 transition-colors hover:border-neutral-400"
+              className="flex min-h-12 w-full items-center justify-center rounded-full border border-neutral-200 bg-white px-8 text-sm font-semibold text-neutral-700 transition-colors hover:border-neutral-400"
             >
               Continue as guest
             </button>
@@ -280,7 +280,7 @@ export function CheckoutPageClient() {
     return (
       <main className="bg-neutral-50 px-4 py-12 pb-24 md:px-6 md:py-16 md:pb-16">
         <div className="mx-auto max-w-lg text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-primary">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-bgLight text-primary">
             <ShoppingBag size={30} />
           </div>
           <h1 className="mt-6 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
@@ -291,7 +291,7 @@ export function CheckoutPageClient() {
           </p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-primary"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary"
           >
             Start shopping
           </Link>
@@ -311,8 +311,8 @@ export function CheckoutPageClient() {
           <span className="font-medium text-neutral-950">Checkout</span>
         </nav>
 
-        <div className="mb-6 rounded-[2rem] bg-rose-50 px-4 py-5 md:mb-8 md:rounded-[2rem] md:px-8 md:py-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">Secure checkout</p>
+        <div className="mb-6 rounded-[1.5rem] bg-brand-bgLight px-4 py-5 md:mb-8 md:rounded-[1.5rem] md:px-8 md:py-6">
+          <p className="text-sm font-semibold text-primary-text">Secure checkout</p>
           <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-7xl">
               Confirm your beauty bag.
@@ -324,7 +324,7 @@ export function CheckoutPageClient() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
-          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[2.25rem] md:p-7">
+          <section className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card-prominent md:rounded-[1.5rem] md:p-7">
             <CheckoutStepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
 
             <form onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting}>

@@ -23,8 +23,56 @@ function getApiBaseUrl(): string {
   return "/api/v1";
 }
 
+// Auth readiness gate (tokenReady).
+//
+// Problem: on initial page load, components that call apiRequest() on mount
+// (cart badge, wishlist count, etc.) fire BEFORE Firebase has reported the
+// current user via onAuthStateChanged. getAuthToken() then sees
+// auth().currentUser === null and returns null, so the request goes out with
+// no Authorization header and the backend returns 401 — producing the 401
+// flood observed in production.
+//
+// Fix: a module-level promise that resolves the first time onAuthStateChanged
+// fires. getAuthToken() awaits this gate (with a short timeout) before
+// reading currentUser, so the token is available instead of null.
+let authReadyGate: Promise<void> | null = null;
+
+function ensureAuthReadyGate(): void {
+  if (authReadyGate || typeof window === "undefined") return;
+  authReadyGate = import("@/lib/firebase")
+    .then(({ auth, onAuthStateChanged, isFirebaseConfigured }) => {
+      if (!isFirebaseConfigured) return; // not configured — don't block
+      return new Promise<void>((resolve) => {
+        // onAuthStateChanged fires once immediately with the persisted user
+        // (or null), which is exactly the signal we need.
+        const unsubscribe = onAuthStateChanged(auth(), () => {
+          unsubscribe();
+          resolve();
+        });
+      });
+    })
+    .catch(() => {
+      /* Firebase not available — requests proceed without a token */
+    });
+}
+
+async function waitForAuthReady(timeoutMs = 2000): Promise<void> {
+  if (!authReadyGate) return;
+  await Promise.race([
+    authReadyGate,
+    new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
+  ]);
+}
+
 async function getAuthToken(forceRefresh = false): Promise<string | null> {
   if (typeof window === "undefined") return null;
+  // On the first (non-refresh) call, wait for Firebase to report the auth
+  // state so currentUser is populated. Skip on force-refresh — the 401 retry
+  // path already has a user; it just needs a fresh token.
+  if (!forceRefresh) {
+    ensureAuthReadyGate();
+    await waitForAuthReady();
+  }
   try {
     const { auth } = await import("@/lib/firebase");
     const authInstance = auth();

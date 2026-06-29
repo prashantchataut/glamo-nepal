@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
+import { toArray } from "@/lib/safe-array";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 
@@ -288,7 +289,7 @@ export function ProductFormModal({
     }
   };
 
-  const [images, setImages] = useState<ProductImage[]>(product?.images ?? []);
+  const [images, setImages] = useState<ProductImage[]>(toArray<ProductImage>(product?.images));
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -345,8 +346,8 @@ export function ProductFormModal({
     }
   };
 
-  const categoryList = categories ?? [];
-  const brandList = brands ?? [];
+  const categoryList = toArray<Record<string, unknown>>(categories);
+  const brandList = toArray<Record<string, unknown>>(brands);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -635,13 +636,13 @@ export function ProductFormModal({
                     <button
                       type="button"
                       onClick={() => handleImageDelete(img.id)}
-                      className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-admin-error text-white opacity-0 transition group-hover:opacity-100"
+                      className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-admin-error text-neutral-50 opacity-0 transition group-hover:opacity-100"
                       aria-label="Remove image"
                     >
                       <X size={12} />
                     </button>
                     {img.is_primary === 1 && (
-                      <span className="absolute bottom-0 left-0 right-0 rounded-b-xl bg-brand-primary/80 text-center text-[9px] font-bold uppercase text-white">
+                      <span className="absolute bottom-0 left-0 right-0 rounded-b-xl bg-brand-primary/80 text-center text-[10px] font-bold uppercase text-neutral-50">
                         Primary
                       </span>
                     )}
@@ -678,7 +679,7 @@ export function ProductFormModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-neutral-50 disabled:opacity-50"
             >
               {isSubmitting
                 ? "Saving..."

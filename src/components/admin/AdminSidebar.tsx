@@ -120,12 +120,12 @@ export function AdminSidebar({
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-brand-border px-6 py-6">
           <Link href="/admin" className="flex items-center gap-4" onClick={onSidebarClose}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-primary/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-neutral-50 shadow-md shadow-brand-primary/20">
               <SparklesIcon />
             </div>
             <div>
               <p className="font-display text-xl font-semibold leading-none">GLAMO</p>
-              <p className="font-label mt-1 text-xs font-bold uppercase tracking-[0.18em] text-brand-textMuted">
+              <p className="font-label mt-1 text-sm font-semibold text-brand-textMuted">
                 Admin panel
               </p>
             </div>
@@ -153,7 +153,7 @@ export function AdminSidebar({
                 className={cn(
                   "btn-press flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-primary/30",
                   active
-                    ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20"
+                    ? "bg-brand-primary text-neutral-50 shadow-md shadow-brand-primary/20"
                     : "text-brand-textMuted hover:bg-brand-bgLight hover:text-brand-textPrimary"
                 )}
               >

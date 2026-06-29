@@ -7,7 +7,7 @@
         <div className="mt-8 space-y-5">
           <div className="w-full">
             <div className="mb-2 h-4 w-24 animate-pulse rounded bg-neutral-200" />
-            <div className="h-12 w-full animate-pulse rounded-[1.15rem] bg-neutral-200" />
+            <div className="h-12 w-full animate-pulse rounded-[1.5rem] bg-neutral-200" />
           </div>
           <div className="h-12 w-full animate-pulse rounded-full bg-neutral-200" />
         </div>
@@ -38,10 +38,10 @@ export function CheckoutSkeleton() {
       <div className="container mx-auto max-w-4xl px-4 md:px-6">
         <div className="h-8 w-64 animate-pulse rounded-lg bg-neutral-200" />
         <div className="mt-8 space-y-6">
-          <div className="h-12 w-full animate-pulse rounded-[1.15rem] bg-neutral-200" />
-          <div className="h-12 w-full animate-pulse rounded-[1.15rem] bg-neutral-200" />
-          <div className="h-12 w-3/4 animate-pulse rounded-[1.15rem] bg-neutral-200" />
-          <div className="h-12 w-full animate-pulse rounded-[1.15rem] bg-neutral-200" />
+          <div className="h-12 w-full animate-pulse rounded-[1.5rem] bg-neutral-200" />
+          <div className="h-12 w-full animate-pulse rounded-[1.5rem] bg-neutral-200" />
+          <div className="h-12 w-3/4 animate-pulse rounded-[1.5rem] bg-neutral-200" />
+          <div className="h-12 w-full animate-pulse rounded-[1.5rem] bg-neutral-200" />
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@ export function OrderTrackSkeleton() {
     <div className="bg-neutral-100 py-10 md:py-16">
       <div className="container mx-auto max-w-2xl px-4 md:px-6">
         <div className="h-8 w-48 animate-pulse rounded-lg bg-neutral-200" />
-        <div className="mt-6 h-12 w-full animate-pulse rounded-[1.15rem] bg-neutral-200" />
+        <div className="mt-6 h-12 w-full animate-pulse rounded-[1.5rem] bg-neutral-200" />
         <div className="mt-4 h-64 w-full animate-pulse rounded-2xl bg-neutral-200" />
       </div>
     </div>

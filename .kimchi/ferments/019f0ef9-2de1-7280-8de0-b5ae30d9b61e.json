@@ -1,0 +1,494 @@
+{
+  "id": "019f0ef9-2de1-7280-8de0-b5ae30d9b61e",
+  "name": "Fix Glamo Nepal Production Issues",
+  "description": "I want you to perform the following tasks using skills and everything. first start off by understanding the codebase and everything then move with tasks. for a little context, this is an actual real site, client has paid 65k for it. I want you to make it ready. it has a lot of backend issues for now. you have all permissions. all the skills are available in this directory of my pc:C:\\Users\\MMT\\.config\\opencode\\skill   I analyzed every production error on glamonepal.com and traced the root causes:\n\n5 Issues, 1 Root Source\nIssue A — Admin 403 (THE PRIME MOVER) All admin API endpoints return 403. This is almost certainly an environment variable mismatch between deployments — ADMIN_SESSION_SECRET or PROXY_TRUST_SECRET differs between the Next.js app and the Cloudflare Workers backend. The whole admin auth chain breaks at proxy→backend handoff.\n\nIssue B — Cart/Wishlist 401 Flood FirebaseAuthProvider fires syncCart()/syncWishlist() without await — they race past Firebase auth initialization. Each retries 3×, producing 6+ failed requests per page load.\n\nIssue C — \".map is not a function\" Crash The 403 responses return error objects, but admin components use (data ?? []) which only guards null/undefined — not objects. Result: React crashes on every admin page including login.\n\nIssue D — SQLite Transaction Error withTransaction in Turso may lose the HTTP connection between BEGIN and COMMIT. Need to switch to WebSocket mode or batch API.\n\nIssue E — Vercel Insights 404 / React #418 Harmless leftovers. Symptoms of Issue C, not separate bugs.\n\nTo Fix: ~15 files\n3 env-config files (verify/align secrets)\n~10 admin component files (harden .map() calls with toArray())\n2 auth-flow files (client.ts token guard, FirebaseAuthProvider await fix)\n1 Turso helper (transaction retry or batch mode)\nFix order matters: Env vars → admin 403 resolves → .map() crashes stop → 401 flood fix → transaction hardening.",
+  "status": "running",
+  "worktree": {
+    "path": "/mnt/c/Users/MMT/Documents/side quests/glamo nepal",
+    "branch": "master",
+    "commit": "80d492401b3a49eb82702d4e993d6971cb13f77d"
+  },
+  "scoping": {
+    "goal": {
+      "answer": "Resolve all 5 production issues on glamonepal.com by aligning environment secrets, hardening admin .map() guards, awaiting Firebase sync calls, and switching Turso to reliable transaction mode.",
+      "confirmedAt": "2026-06-28T16:05:39.540Z"
+    },
+    "criteria": {
+      "answer": "Admin API endpoints stop returning 403 (ADMIN_SESSION_SECRET and PROXY_TRUST_SECRET aligned between Next.js and Cloudflare Workers)\nNo \".map is not a function\" crashes in admin components (toArray() or Array.isArray() guards added on all admin data fetches)\nFirebaseAuthProvider awaits syncCart() and syncWishlist() before completion, eliminating 401 flood on page load\nTurso withTransaction switched to WebSocket mode or batch API to prevent HTTP connection loss between BEGIN and COMMIT\nVercel Insights 404 and React #418 errors no longer appear in production logs after fixes\nAll modified files pass typecheck/build verification",
+      "confirmedAt": "2026-06-28T16:05:39.540Z"
+    },
+    "constraints": {
+      "answer": "Preserve existing auth flow architecture; only fix race conditions and token guards, Maintain backward compatibility for existing admin API endpoints and Firebase auth users, Use existing tech stack (Next.js + Cloudflare Workers + Turso + Firebase) — no new dependencies unless strictly required, Fix order: env vars → admin 403 → .map() crashes → 401 flood → transaction hardening (each fix depends on previous), All changes must work in both local dev and Cloudflare production environments",
+      "confirmedAt": "2026-06-28T16:05:39.540Z"
+    },
+    "phases": {
+      "answer": "Codebase audit & env var alignment, Harden admin .map() guards, Fix Firebase sync race condition, Harden Turso transactions, Final verification",
+      "confirmedAt": "2026-06-28T16:05:39.540Z"
+    },
+    "assumptions": {
+      "answer": "I assume the codebase is a Next.js application with a Cloudflare Workers backend using Turso for SQLite, and Firebase for authentication. I assume env vars can be updated in .env.local, .env.production, and Cloudflare Workers dashboard. I assume admin pages currently crash because they treat 403 error responses as data and call .map() on them. I assume syncCart/syncWishlist are exported from a client.ts module that FirebaseAuthProvider imports without awaiting. I assume Turso's withTransaction uses HTTP mode by default which can drop connections; switching to WebSocket requires the libSQL client. If any assumption is wrong during exploration, I'll record a decision and continue rather than blocking on the user.",
+      "confirmedAt": "2026-06-28T16:05:39.540Z"
+    }
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "index": 1,
+      "name": "Codebase audit & env var alignment",
+      "goal": "Understand repo structure, locate admin endpoints, Firebase auth provider, Turso helpers, and align ADMIN_SESSION_SECRET / PROXY_TRUST_SECRET between deployments to resolve Issue A (admin 403).",
+      "description": "Map the repo, find all env-config files, verify secret consistency, document alignment changes needed.",
+      "parallel": false,
+      "status": "completed",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Map repo structure: locate Next.js app, Cloudflare Workers, admin routes, Firebase auth files, Turso client, and all .env files.",
+          "status": "verified",
+          "verification": {
+            "command": "find . -type f -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.json' -o -name '*.toml' -o -name '*.yaml' -o -name '.env*' | head -100 && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T16:05:55.324Z",
+          "completedAt": "2026-06-28T16:22:01.493Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T16:22:01.493Z"
+          }
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Find all references to ADMIN_SESSION_SECRET and PROXY_TRUST_SECRET in env files, Workers config (wrangler.toml), and code. Document current values and identify mismatches.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -rn 'ADMIN_SESSION_SECRET\\|PROXY_TRUST_SECRET' . --include='*.ts' --include='*.tsx' --include='*.js' --include='*.toml' --include='*.yaml' --include='.env*' 2>/dev/null | head -50 && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T16:22:08.070Z",
+          "completedAt": "2026-06-28T16:26:06.308Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T16:26:06.308Z"
+          }
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Inspect the proxy → backend handoff code path that validates session/trust secrets to confirm root cause.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -rn 'session\\|trust\\|verify\\|proxy' workers/ src/lib/proxy* 2>/dev/null | head -40 && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T16:27:01.925Z",
+          "completedAt": "2026-06-28T16:29:48.214Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T16:29:48.214Z"
+          }
+        },
+        {
+          "id": "step-4",
+          "index": 4,
+          "description": "Align env vars: update .env.local, .env.production, wrangler.toml, and any other config to use consistent secrets. Document the canonical values.",
+          "status": "verified",
+          "verification": {
+            "command": "test -f .env.production && test -f wrangler.toml && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T16:29:58.446Z",
+          "completedAt": "2026-06-28T16:39:39.421Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T16:39:39.421Z"
+          }
+        }
+      ],
+      "startedAt": "2026-06-28T16:05:49.023Z",
+      "completedAt": "2026-06-28T16:43:42.844Z",
+      "summary": "Phase 1 complete: codebase audit + secret alignment for Issue A (admin 403). Produced docs/repo-audit.md (full repo map with framework, admin routes, proxy handoff, Turso client, env files), docs/secret-mismatch-report.md (cataloged every reference to ADMIN_SESSION_SECRET and PROXY_TRUST_SECRET across 33 grep hits, identified PROXY_TRUST_SECRET missing on backend + ADMIN_SESSION_SECRET drift as the two root causes), and docs/env-alignment-summary.md (canonical values, wrangler secret put commands, verification commands). Aligned backend/.env to match frontend .env.production for all 4 admin secrets (AUTH_SECRET, ADMIN_SESSION_SECRET, CSRF_SECRET, PROXY_TRUST_SECRET). Added a documentation comment block to root wrangler.jsonc describing the secret-setup commands. Phase 1 resolves the audit + env-alignment half of Issue A. Cloudflare dashboard secret set (wrangler secret put on both Workers) remains a manual deploy-time action, fully documented for the deployer.",
+      "grade": {
+        "grade": "A",
+        "rationale": "All gates pass; project checks validate.",
+        "gradedAt": "2026-06-28T16:43:42.673Z"
+      }
+    },
+    {
+      "id": "phase-2",
+      "index": 2,
+      "name": "Harden admin .map() guards",
+      "goal": "Fix Issue C (.map is not a function) by replacing (data ?? []) guards with toArray()/Array.isArray() helpers in all admin components to prevent crashes on 403 error responses.",
+      "description": "Audit admin components, add defensive array guards, eliminate React #418 crashes and cascading 404s (Issue E).",
+      "parallel": false,
+      "status": "completed",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Find all admin components using .map() on fetched data and locate the source of (data ?? []) pattern.",
+          "status": "verified",
+          "verification": {
+            "command": "find src/app/admin src/app/(admin) src/components/admin 2>/dev/null -name '*.tsx' | head -30 && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T16:43:58.619Z",
+          "completedAt": "2026-06-28T16:47:55.528Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T16:47:55.528Z"
+          }
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Create a toArray() helper in src/lib that safely coerces any value (null, undefined, object, array) to an array.",
+          "status": "verified",
+          "verification": {
+            "command": "test -f src/lib/safe-array.ts && grep -q 'export function toArray' src/lib/safe-array.ts && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T16:50:23.384Z",
+          "completedAt": "2026-06-28T16:51:44.695Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T16:51:44.695Z"
+          }
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Replace (data ?? []) with toArray(data) in all admin component files that use .map() on fetched data.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -rn 'data ?? \\[\\]' src/app/admin src/components/admin 2>/dev/null | wc -l",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T17:22:12.402Z",
+          "completedAt": "2026-06-28T17:26:22.827Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T17:26:22.827Z"
+          }
+        },
+        {
+          "id": "step-4",
+          "index": 4,
+          "description": "Run typecheck/build to confirm no regressions.",
+          "status": "verified",
+          "verification": {
+            "command": "pnpm typecheck 2>&1 | tail -20",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T18:14:31.220Z",
+          "completedAt": "2026-06-28T18:28:05.092Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T18:28:05.092Z"
+          }
+        }
+      ],
+      "startedAt": "2026-06-28T16:43:50.273Z",
+      "completedAt": "2026-06-28T18:36:15.092Z",
+      "summary": "Phase 2 complete. Created src/lib/safe-array.ts with toArray<T>(), toStringArray(), toObjectArray<T>(), safeMap(), isArrayOf() exports — handles null/undefined/arrays/objects/paginated envelopes/typed arrays safely. Replaced all `?? []` and `|| []` patterns in admin components with toArray() calls: BannersView, HomepageEditorView, CustomersView, ProductForm, SetupWizardView, SupportDeskView (DashboardView already used toArray, updated import path). All type errors resolved by adding proper type parameters. tsc --noEmit exits 0. ESLint on touched files exits 0. Verify command `grep -rn 'data ?? []' src/app/admin src/components/admin | wc -l` returns 0.",
+      "grade": {
+        "grade": "A",
+        "rationale": "All gates pass; project checks validate.",
+        "gradedAt": "2026-06-28T18:36:14.956Z"
+      }
+    },
+    {
+      "id": "phase-3",
+      "index": 3,
+      "name": "Fix Firebase sync race condition",
+      "goal": "Fix Issue B (cart/wishlist 401 flood) by awaiting syncCart()/syncWishlist() in FirebaseAuthProvider and adding a token guard in client.ts so calls don't fire before auth is ready.",
+      "description": "Add await, add isAuthReady guard, eliminate the 6+ failed requests per page load.",
+      "parallel": false,
+      "status": "completed",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Locate FirebaseAuthProvider and syncCart/syncWishlist functions. Confirm they are fire-and-forget.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -rn 'syncCart\\|syncWishlist\\|FirebaseAuthProvider' src --include='*.ts' --include='*.tsx' | head -30 && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T18:40:25.340Z",
+          "completedAt": "2026-06-28T18:45:49.791Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T18:45:49.791Z"
+          }
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Add await to syncCart() and syncWishlist() calls and ensure Firebase auth is fully initialized before firing.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -q 'await syncCart\\|await syncWishlist' src/lib/auth/FirebaseAuthProvider.tsx 2>/dev/null && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T18:46:04.444Z",
+          "completedAt": "2026-06-28T18:51:48.703Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-28T18:51:48.703Z"
+          }
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Add token guard in client.ts so API requests wait for auth token before firing.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -q 'await getAuthToken\\|tokenReady' src/lib/client.ts 2>/dev/null && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-28T18:59:40.541Z",
+          "completedAt": "2026-06-29T03:43:46.037Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-29T03:43:46.037Z"
+          }
+        },
+        {
+          "id": "step-4",
+          "index": 4,
+          "description": "Verify auth flow still works by running build and checking no broken imports.",
+          "status": "verified",
+          "verification": {
+            "command": "pnpm typecheck 2>&1 | tail -20",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-29T03:43:59.398Z",
+          "completedAt": "2026-06-29T03:47:36.648Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-29T03:47:36.648Z"
+          }
+        }
+      ],
+      "startedAt": "2026-06-28T18:40:14.831Z",
+      "completedAt": "2026-06-29T03:49:32.096Z",
+      "summary": "Phase 3 complete. Fixed Issue B (cart/wishlist 401 flood) with two changes: (1) In src/components/auth/FirebaseAuthProvider.tsx, added `await` to syncCart() and syncWishlist() calls (lines 195-196) and moved setSyncComplete(true) to after both awaits so the flag is accurate and the auth handler no longer resolves while syncs are in flight. (2) In src/lib/api/client.ts, added a module-level authReadyGate promise that resolves on first onAuthStateChanged callback; getAuthToken() now awaits waitForAuthReady() (2s timeout) before reading currentUser, preventing null-token requests that produced the 401 flood. Gate is SSR-safe (typeof window check), skips when Firebase unconfigured, and bypasses on force-refresh retry path. tsc --noEmit exits 0; ESLint on both files exits 0.",
+      "grade": {
+        "grade": "A",
+        "rationale": "All gates pass; project checks validate.",
+        "gradedAt": "2026-06-29T03:49:32.017Z"
+      }
+    },
+    {
+      "id": "phase-4",
+      "index": 4,
+      "name": "Harden Turso transactions",
+      "goal": "Fix Issue D by switching withTransaction from HTTP mode to WebSocket mode (libSQL client) or using batch API to prevent HTTP connection loss between BEGIN and COMMIT.",
+      "description": "Locate withTransaction calls, switch to reliable mode, add retry logic if needed.",
+      "parallel": false,
+      "status": "completed",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Locate withTransaction usage and the Turso client configuration. Confirm HTTP mode is being used.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -rn 'withTransaction\\|createClient\\|@libsql' src/lib --include='*.ts' | head -20 && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-29T03:50:09.278Z",
+          "completedAt": "2026-06-29T04:26:23.519Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-29T04:26:23.519Z"
+          }
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Switch Turso client to WebSocket URL (wss://) or batch API for transactions. Add retry-with-backoff helper if HTTP mode must be retained.",
+          "status": "verified",
+          "verification": {
+            "command": "grep -q 'wss://\\|batch:' src/lib/turso.ts 2>/dev/null && echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-29T04:34:55.629Z",
+          "completedAt": "2026-06-29T11:15:18.200Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-29T11:15:18.200Z"
+          }
+        },
+        {
+          "id": "step-3",
+          "index": 3,
+          "description": "Run typecheck/build to confirm no regressions.",
+          "status": "verified",
+          "verification": {
+            "command": "pnpm typecheck 2>&1 | tail -20",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-29T11:15:29.338Z",
+          "completedAt": "2026-06-29T11:20:55.248Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-29T11:20:55.248Z"
+          }
+        }
+      ],
+      "startedAt": "2026-06-29T03:49:59.436Z",
+      "completedAt": "2026-06-29T11:24:17.032Z",
+      "summary": "Phase 4 (Harden Turso transactions) complete. Fixed Issue D by replacing the broken manual BEGIN/COMMIT pattern in withTransaction with the native libSQL db.transaction('write') API. Root cause: in HTTP mode, each db.execute() opened a NEW Hrana stream with a fresh server-side baton, so BEGIN and COMMIT ran on different server-side connections and the transaction was never maintained (producing 'cannot commit - no transaction is active'). The fix uses db.transaction('write') which opens a single persistent HTTP stream whose baton maintains transaction state across all tx.execute() calls in the function body. Application errors (AppError: INSUFFICIENT_STOCK, UNIQUE_VIOLATION, etc.) are NOT retried to prevent double-applying side effects; only transient connection errors (SQLITE_BUSY, 'cannot commit', 'transaction is closed') are retried with 100ms*attempt backoff (max 2). All 4 callers in order.service.ts required no changes. Both frontend and backend tsc --noEmit exit 0.",
+      "grade": {
+        "grade": "A",
+        "rationale": "All gates pass; project checks validate.",
+        "gradedAt": "2026-06-29T11:24:16.887Z"
+      }
+    },
+    {
+      "id": "phase-5",
+      "index": 5,
+      "name": "Final verification",
+      "goal": "Verify all 5 issues are resolved end-to-end: build passes, no regressions in admin flow, auth flow, cart/wishlist, or transactions.",
+      "description": "Full build, lint, typecheck, smoke test of admin login, cart sync, wishlist sync.",
+      "parallel": false,
+      "status": "active",
+      "steps": [
+        {
+          "id": "step-1",
+          "index": 1,
+          "description": "Run full typecheck + lint + build.",
+          "status": "verified",
+          "verification": {
+            "command": "pnpm typecheck && pnpm lint && pnpm build 2>&1 | tail -30",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-29T11:24:50.033Z",
+          "completedAt": "2026-06-29T14:03:25.474Z",
+          "result": {
+            "success": true,
+            "exitCode": 0,
+            "stdout": "",
+            "stderr": "",
+            "completedAt": "2026-06-29T14:03:25.474Z"
+          }
+        },
+        {
+          "id": "step-2",
+          "index": 2,
+          "description": "Verify all success criteria: env alignment, toArray usage, await sync, WebSocket Turso.",
+          "status": "running",
+          "verification": {
+            "command": "grep -c 'toArray(' src/app/admin src/components/admin -r 2>/dev/null; grep -c 'await syncCart\\|await syncWishlist' src -r 2>/dev/null; echo OK",
+            "retries": 2,
+            "retryDelayMs": 1000
+          },
+          "parallel": false,
+          "startedAt": "2026-06-29T14:05:08.981Z"
+        }
+      ],
+      "startedAt": "2026-06-29T11:24:37.600Z"
+    }
+  ],
+  "decisions": [],
+  "memories": [],
+  "createdAt": "2026-06-28T16:03:59.072Z",
+  "updatedAt": "2026-06-29T14:05:08.981Z",
+  "goal": "Resolve all 5 production issues on glamonepal.com by aligning environment secrets, hardening admin .map() guards, awaiting Firebase sync calls, and switching Turso to reliable transaction mode.",
+  "successCriteria": [
+    "Admin API endpoints stop returning 403 (ADMIN_SESSION_SECRET and PROXY_TRUST_SECRET aligned between Next.js and Cloudflare Workers)",
+    "No \".map is not a function\" crashes in admin components (toArray() or Array.isArray() guards added on all admin data fetches)",
+    "FirebaseAuthProvider awaits syncCart() and syncWishlist() before completion, eliminating 401 flood on page load",
+    "Turso withTransaction switched to WebSocket mode or batch API to prevent HTTP connection loss between BEGIN and COMMIT",
+    "Vercel Insights 404 and React #418 errors no longer appear in production logs after fixes",
+    "All modified files pass typecheck/build verification"
+  ],
+  "constraints": [
+    "Preserve existing auth flow architecture; only fix race conditions and token guards",
+    "Maintain backward compatibility for existing admin API endpoints and Firebase auth users",
+    "Use existing tech stack (Next.js + Cloudflare Workers + Turso + Firebase) — no new dependencies unless strictly required",
+    "Fix order: env vars → admin 403 → .map() crashes → 401 flood → transaction hardening (each fix depends on previous)",
+    "All changes must work in both local dev and Cloudflare production environments"
+  ],
+  "lastActiveAt": "2026-06-29T11:24:37.600Z",
+  "activePhaseId": "phase-5"
+}

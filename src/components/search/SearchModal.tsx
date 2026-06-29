@@ -247,7 +247,7 @@ export function SearchModal() {
                   <button
                     type="button"
                     onClick={() => { setSearchError(null); setDebouncedQuery(query); }}
-                    className="mt-3 text-xs font-semibold uppercase tracking-widest text-primary transition hover:text-primary"
+                    className="mt-3 text-sm font-semibold text-primary transition hover:text-primary"
                   >
                     Retry
                   </button>
@@ -269,7 +269,7 @@ export function SearchModal() {
                           key={`${suggestion.type}-${suggestion.href}`}
                           type="button"
                           onClick={() => { closeSearchModal(); router.push(suggestion.href); }}
-                          className="font-label inline-flex items-center gap-1 rounded-full bg-neutral-50 px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-primary transition hover:bg-primary hover:text-white"
+                          className="inline-flex items-center gap-1 rounded-full bg-neutral-50 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
                         >
                           <Sparkles size={12} /> {suggestion.label}
                         </button>
@@ -294,7 +294,7 @@ export function SearchModal() {
                           <Image src={product.image} alt={`${product.brand} ${product.name}`} fill className="object-cover" sizes="64px" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-label text-[10px] font-bold uppercase tracking-widest text-primary">{product.brand}</p>
+                          <p className="text-xs font-semibold text-neutral-500 text-primary">{product.brand}</p>
                           <p className="truncate font-display text-lg font-semibold text-neutral-900">{product.name}</p>
                           <p className="font-display text-sm font-semibold text-neutral-900">{formatNPR(product.price)}</p>
                         </div>
@@ -316,7 +316,7 @@ export function SearchModal() {
                   {recentSearches.length > 0 && (
                     <div className="mb-6">
                       <div className="flex items-center justify-between mb-3">
-                        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Recent searches</p>
+                        <p className="text-sm font-semibold text-neutral-500">Recent searches</p>
                         <button type="button" onClick={clearRecent} className="text-xs text-neutral-500 hover:text-neutral-700 transition">Clear</button>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -335,7 +335,7 @@ export function SearchModal() {
                   )}
                   {TRENDING_SEARCHES.length > 0 && (
                     <div>
-                      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-500">Trending</p>
+                      <p className="mb-3 text-sm font-semibold text-neutral-500">Trending</p>
                       <div className="flex flex-wrap gap-2">
                         {TRENDING_SEARCHES.map((term) => (
                           <button

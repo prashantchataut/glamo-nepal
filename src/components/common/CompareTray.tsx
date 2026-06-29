@@ -19,7 +19,7 @@ export function CompareTray() {
               <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white"><Image src={product.image} alt={product.name} fill className="object-cover" /></div>
               <div className="min-w-[120px]">
                 <p className="line-clamp-1 text-xs font-semibold text-neutral-900">{product.name}</p>
-                <p className="text-[11px] text-secondary">{formatNPR(product.price)}</p>
+                <p className="text-xs text-secondary">{formatNPR(product.price)}</p>
               </div>
               <button onClick={() => removeItem(product.id)} aria-label={`Remove ${product.name} from compare`} className="rounded-full p-1 text-neutral-500 hover:bg-white hover:text-primary"><X size={14} /></button>
             </div>

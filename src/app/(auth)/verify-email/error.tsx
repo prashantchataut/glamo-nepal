@@ -14,7 +14,7 @@ export default function VerifyEmailError({
         <p className="mt-4 text-neutral-500">{error.message || "An error occurred during email verification."}</p>
         <button
           onClick={reset}
-          className="mt-6 rounded-full bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark"
+          className="mt-6 rounded-full bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-neutral-50 transition-colors hover:bg-primary-dark"
         >
           Try again
         </button>

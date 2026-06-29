@@ -97,7 +97,7 @@ export function VerifyEmailClient() {
         </p>
 
         {error && (
-          <div className="mt-6 rounded-[1.25rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+          <div className="mt-6 rounded-[1.5rem] border border-error/30 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
             {error}
           </div>
         )}

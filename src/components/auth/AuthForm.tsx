@@ -227,15 +227,15 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   };
 
   return (
-    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[1.5rem] border border-neutral-200/80 bg-white shadow-card md:rounded-[2.5rem] md:grid-cols-[0.95fr_1.05fr]">
-      <aside className="relative flex min-h-[260px] flex-col justify-end bg-neutral-900 p-6 text-white md:min-h-[460px] md:p-10 lg:p-14">
+    <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[1.5rem] border border-neutral-200/80 bg-white shadow-card md:rounded-[1.5rem] md:grid-cols-[0.95fr_1.05fr]">
+      <aside className="relative flex min-h-[260px] flex-col justify-end bg-neutral-900 p-6 text-neutral-50 md:min-h-[460px] md:p-10 lg:p-14">
         <Image src={IMAGES.auth.loginSplit} alt="" fill className="object-cover opacity-50" sizes="(max-width: 768px) 100vw, 45vw" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-neutral-950/10" />
         <div className="relative z-10">
           <h1 className="font-display text-4xl font-light leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">{copy.title}</h1>
-          <p className="mt-4 max-w-sm text-sm leading-7 text-white/85 md:mt-5">{copy.description}</p>
-          <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/85 md:mt-8">
-            <strong className="block text-white">Need help signing in?</strong>
+          <p className="mt-4 max-w-sm text-sm leading-7 text-neutral-50/85 md:mt-5">{copy.description}</p>
+          <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-neutral-950/40 p-4 text-sm leading-6 text-white/85 md:mt-8">
+            <strong className="block text-neutral-50">Need help signing in?</strong>
             Contact GLAMO customer care at {SITE_CONFIG.phone}, or use the forgot password link below.
           </div>
         </div>
@@ -263,7 +263,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-neutral-100" />
-          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">or</span>
+          <span className="text-sm font-medium text-neutral-500">or</span>
           <div className="h-px flex-1 bg-neutral-100" />
         </div>
 
@@ -274,7 +274,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         >
           {mode === "register" && (
             <div className="space-y-2">
-              <label htmlFor="auth-name" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+              <label htmlFor="auth-name" className="block text-sm font-semibold text-neutral-500">
                 Full name
               </label>
 <input
@@ -294,7 +294,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           )}
 
           <div className="space-y-2">
-            <label htmlFor="auth-email" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+            <label htmlFor="auth-email" className="block text-sm font-semibold text-neutral-500">
               Email address
             </label>
 <input
@@ -313,7 +313,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="auth-password" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
+            <label htmlFor="auth-password" className="block text-sm font-semibold text-neutral-500">
               Password
             </label>
             <div className="relative">
@@ -347,7 +347,7 @@ onClick={() => setShowPassword((v) => !v)}
               </button>
             </div>
             {mode === "register" && (
-              <p id="auth-password-hint" className="text-[11px] tracking-wide text-neutral-500">
+              <p id="auth-password-hint" className="text-xs tracking-wide text-neutral-500">
                 Minimum 8 characters, including a letter, a number, and a special character
               </p>
             )}
@@ -361,7 +361,7 @@ onClick={() => setShowPassword((v) => !v)}
             </div>
           )}
 
-          <button type="submit" disabled={isLoading || !email || !password} className="mt-2 w-full rounded-full bg-neutral-950 px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
+          <button type="submit" disabled={isLoading || !email || !password} className="mt-2 w-full rounded-full bg-neutral-950 px-8 py-3.5 text-sm font-semibold text-neutral-50 transition-all duration-200 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500">
             {isLoading ? (
               <span className="inline-flex items-center justify-center gap-2">
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -393,7 +393,7 @@ onClick={() => setShowPassword((v) => !v)}
               <p className="mb-3 text-xs text-neutral-500">Or continue without an account</p>
               <Link
                 href={redirectTo.startsWith("/checkout") ? `${redirectTo}${redirectTo.includes("?") ? "&" : "?"}guest=true` : "/checkout?guest=true"}
-                className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50"
+                className="inline-block w-full rounded-full border border-neutral-200 bg-white px-8 py-3 text-sm font-semibold text-neutral-600 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50"
               >
                 Continue as guest
               </Link>

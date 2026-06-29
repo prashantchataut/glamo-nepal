@@ -105,6 +105,10 @@ export async function verifyProxyTrust(
       return { ok: false, payload: null, reason: "incomplete_payload" };
     }
 
+    const ROLE_MAP: Record<string, string> = { admin: 'ADMIN', owner: 'OWNER', super_admin: 'SUPER_ADMIN', superadmin: 'SUPER_ADMIN' }
+    const rawRole = payload.role
+    payload.role = ROLE_MAP[rawRole] || ROLE_MAP[rawRole.toLowerCase()] || rawRole.toUpperCase()
+
     return { ok: true, payload };
   } catch {
     return { ok: false, payload: null, reason: "verify_failed" };

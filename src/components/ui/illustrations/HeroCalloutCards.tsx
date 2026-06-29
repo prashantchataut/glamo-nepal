@@ -10,7 +10,7 @@ export function HeroCalloutCardA({ className = '' }: { className?: string }) {
         <path d="M6 7L7.5 8.5L10 6" stroke="#D97898" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
       <div className="flex flex-col">
-        <span className="text-[11px] font-medium text-neutral-500 leading-tight">Natural</span>
+        <span className="text-xs font-medium text-neutral-500 leading-tight">Natural</span>
         <span className="text-[13px] font-bold text-neutral-900 leading-tight">Ingredients</span>
       </div>
       <span className="absolute top-1.5 right-2 w-1 h-1 rounded-full bg-secondary" />
@@ -26,8 +26,8 @@ export function HeroCalloutCardB({ className = '' }: { className?: string }) {
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M7 2L8.5 5.5L12 6L9.5 8.5L10 12L7 10.5L4 12L4.5 8.5L2 6L5.5 5.5L7 2Z" fill="#C9A84C"/>
       </svg>
-      <span className="text-base font-bold text-white leading-none">4.9</span>
-      <span className="text-[10px] text-white/80 leading-none">1,200+ reviews</span>
+      <span className="text-base font-bold text-neutral-50 leading-none">4.9</span>
+      <span className="text-xs text-neutral-50/80 leading-none">1,200+ reviews</span>
     </div>
   )
 }

@@ -18,13 +18,13 @@ export function HeroBanner() {
             <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Link
                 href="/shop"
-                className="inline-flex h-[52px] items-center justify-center gap-2.5 rounded-full bg-neutral-950 px-7 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:bg-primary"
+                className="inline-flex h-[52px] items-center justify-center gap-2.5 rounded-full bg-neutral-950 px-7 text-sm font-semibold text-white transition-colors duration-200 hover:bg-primary"
               >
                 Shop the edit <ArrowRight size={15} strokeWidth={2} />
               </Link>
               <Link
                 href="/routines"
-                className="inline-flex h-[52px] items-center justify-center rounded-full border border-neutral-200 bg-white px-7 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-800 transition-colors duration-200 hover:border-primary hover:text-primary"
+                className="inline-flex h-[52px] items-center justify-center rounded-full border border-neutral-200 bg-white px-7 text-sm font-semibold text-neutral-800 transition-colors duration-200 hover:border-primary hover:text-primary"
               >
                 View routines
               </Link>
@@ -32,7 +32,7 @@ export function HeroBanner() {
           </div>
 
           <div className="relative">
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] shadow-hero-image">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] shadow-hero-image">
               <Image
                 src={IMAGES.hero.secondary}
                 alt="Premium skincare assortment for Kathmandu delivery"

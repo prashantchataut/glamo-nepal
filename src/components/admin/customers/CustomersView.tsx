@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAdminData, useAdminMutation } from "@/lib/hooks/useAdminData";
 import { adminApi } from "@/lib/api/admin";
+import { toArray } from "@/lib/safe-array";
 import { DataTable, type Column } from "@/components/admin/shared/DataTable";
 import { StatusPill } from "@/components/admin/shared/StatusPill";
 import { Pagination } from "@/components/admin/shared/Pagination";
@@ -66,11 +67,10 @@ export function CustomersView() {
   const { data: usersData, meta: usersMeta, isLoading, isError, refetch } = useAdminData(() => adminApi.listUsers({ search: customerSearch || undefined, page, limit: PAGE_SIZE }), { deps: [customerSearch, page] });
   const { mutate: updateStatus } = useAdminMutation((vars: { userId: string; isActive: boolean }) => adminApi.updateUserStatus(vars.userId, vars.isActive));
 
-  const users: UserRow[] = (() => {
-    if (!usersData) return [];
-    if (Array.isArray(usersData)) return usersData as unknown as UserRow[];
-    return ((usersData as unknown as Record<string, unknown>).users ?? []) as unknown as UserRow[];
-  })();
+  const users: UserRow[] = useMemo(
+    () => toArray<UserRow>(usersData),
+    [usersData],
+  );
 
   const total = usersMeta?.total ?? (Array.isArray(usersData) ? usersData.length : (usersData ? (usersData as unknown as Record<string, unknown>).total as number : 0) ?? 0);
   const totalPages = usersMeta?.totalPages ?? (() => {
@@ -189,7 +189,7 @@ export function CustomersView() {
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Users size={32} className="text-admin-error" />
         <p className="mt-3 text-sm text-brand-textMuted">{error}</p>
-        <button onClick={() => refetch()} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
+        <button onClick={() => refetch()} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50">
           <RefreshCw size={14} /> Retry
         </button>
       </div>
@@ -197,7 +197,7 @@ export function CustomersView() {
   }
 
   return (
-    <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+    <section className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">Customers</h2>

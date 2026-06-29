@@ -192,6 +192,18 @@ export const useCartStore = create<CartState>()(
 
       syncFromServer: async () => {
         if (!isLoggedIn()) return;
+        try {
+          const { auth } = await import('@/lib/firebase');
+          const fbUser = auth().currentUser;
+          if (!fbUser) {
+            console.warn('[Cart] Firebase currentUser not ready yet - skipping server sync');
+            set({ _syncing: false });
+            return;
+          }
+        } catch {
+          set({ _syncing: false });
+          return;
+        }
         set({ _syncing: true });
         try {
           const response = await cartApi.list();

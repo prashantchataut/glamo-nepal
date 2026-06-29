@@ -24,12 +24,12 @@ export function DeliveryStep({ district, province, subtotal, onBack, onContinue 
       </h2>
 
       {deliveryRule.serviceLevel === "pending" ? (
-        <div className="rounded-[1.25rem] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 md:rounded-[1.5rem] md:p-5">
+        <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 md:rounded-[1.5rem] md:p-5">
           <p className="font-semibold">Outside delivery area</p>
           <p className="mt-1 text-amber-800">We currently deliver within Kathmandu Valley only. Outside-Valley delivery will be available soon.</p>
         </div>
       ) : (
-        <label className="flex cursor-pointer items-center gap-4 rounded-[1.25rem] border border-primary bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
+        <label className="flex cursor-pointer items-center gap-4 rounded-[1.5rem] border border-primary bg-neutral-50 p-4 md:rounded-[1.5rem] md:p-5">
           <input
             type="radio"
             name="delivery"
@@ -53,14 +53,14 @@ export function DeliveryStep({ district, province, subtotal, onBack, onContinue 
         <button
           type="button"
           onClick={onBack}
-          className="rounded-full border border-neutral-200 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-700 hover:border-neutral-400"
+          className="inline-flex min-h-12 items-center justify-center rounded-full border border-neutral-200 px-6 py-3 text-sm font-semibold text-neutral-700 hover:border-neutral-400"
         >
           Back
         </button>
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-full bg-neutral-950 px-8 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-primary"
+          className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-neutral-950 px-8 py-3 text-sm font-semibold text-neutral-50 hover:bg-primary"
         >
           Continue to payment
         </button>

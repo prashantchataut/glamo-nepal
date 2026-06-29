@@ -6,7 +6,7 @@ export function BrandPhilosophyBanner() {
   return (
     <section className="bg-brand-surfaceLime">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16 lg:px-8">
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] bg-neutral-100 shadow-editorial lg:aspect-[5/6]">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-neutral-100 shadow-editorial lg:aspect-[5/6]">
           <Image src={IMAGES.editorial.brandMission} alt="Woman applying skincare in an editorial beauty ritual" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 45vw" />
         </div>
         <div className="lg:pl-8">
@@ -30,7 +30,7 @@ export function BrandPhilosophyBanner() {
               <p className="mt-1 text-sm leading-6 text-neutral-500">Guided product picks, not overwhelming choice.</p>
             </div>
           </div>
-          <Link href="/about" className="mt-10 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-900 px-8 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary">
+          <Link href="/about" className="mt-10 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-900 px-8 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary">
             Read our story
           </Link>
         </div>

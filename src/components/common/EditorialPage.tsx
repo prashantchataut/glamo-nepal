@@ -29,7 +29,7 @@ export function EditorialHero({
           {cta ? (
             <Link
               href={cta.href}
-              className="mt-8 inline-flex min-h-11 items-center gap-2 bg-neutral-900 px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-primary"
+              className="mt-8 inline-flex min-h-11 items-center gap-2 bg-neutral-900 px-7 py-3 text-sm font-semibold text-neutral-50 transition-colors hover:bg-primary"
             >
               {cta.label} <ArrowRight size={15} />
             </Link>
@@ -74,7 +74,7 @@ export function InfoCard({ title, body, href }: { title: string; body: string; h
     <div className="h-full border border-neutral-200 bg-white p-6 transition-colors hover:border-primary/30 md:p-7">
       <h3 className="font-display text-2xl font-medium leading-tight text-neutral-900">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-neutral-600">{body}</p>
-      {href ? <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary-text">Explore <ArrowRight size={14} /></span> : null}
+      {href ? <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-text">Explore <ArrowRight size={14} /></span> : null}
     </div>
   );
   return href ? <Link href={href} className="block h-full">{content}</Link> : content;

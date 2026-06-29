@@ -136,7 +136,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => verifySession()}
-            className="mt-4 rounded-full bg-neutral-950 px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-neutral-800"
+            className="mt-4 rounded-full bg-neutral-950 px-6 py-2.5 text-sm font-semibold text-neutral-50 transition hover:bg-neutral-800"
           >
             Retry
           </button>

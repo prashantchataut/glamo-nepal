@@ -23,9 +23,9 @@ export function PromoBannerSummerGlow({ className = '' }: { className?: string }
         <path d="M 420 80 A 200 200 0 0 1 620 380" fill="none" stroke="#C9A84C" strokeWidth="0.75" opacity="0.2" />
       </svg>
       <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
-        <p className="font-display text-white text-6xl md:text-8xl leading-none mb-2">50%</p>
+        <p className="font-display text-neutral-50 text-6xl md:text-8xl leading-none mb-2">50%</p>
         <p className="text-primary/80 text-sm tracking-[0.15em] mb-2">OFF SELECTED ITEMS</p>
-        <p className="text-white/60 text-[13px] mb-6">Clean. Vegan. Powerful.</p>
+        <p className="text-neutral-50/60 text-[13px] mb-6">Clean. Vegan. Powerful.</p>
         <a href="/shop" aria-label="Shop summer glow sale" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full border border-secondary text-secondary text-[13px] font-medium hover:bg-secondary hover:text-neutral-950 transition-colors">
           Shop Now
         </a>
@@ -66,7 +66,7 @@ export function PromoBannerNewArrivals({ className = '' }: { className?: string 
         <p className="text-neutral-900 text-4xl md:text-5xl leading-tight font-display">New Glow</p>
         <p className="text-primary text-4xl md:text-5xl leading-tight italic font-display">Collection</p>
         <p className="text-neutral-500 text-sm mt-2 mb-6">Discover our latest additions</p>
-        <a href="/collections/new-arrivals" aria-label="Explore new arrivals collection" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full bg-primary text-white text-[13px] font-medium hover:bg-primary-dark transition-colors">
+        <a href="/collections/new-arrivals" aria-label="Explore new arrivals collection" className="inline-flex items-center justify-center w-[140px] h-10 rounded-full bg-primary text-neutral-50 text-[13px] font-medium hover:bg-primary-dark transition-colors">
           Explore
         </a>
       </div>

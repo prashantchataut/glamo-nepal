@@ -56,8 +56,8 @@ export function ConfirmDialog({
             className={cn(
               "btn-press rounded-full px-4 py-2 text-sm font-medium transition disabled:opacity-50",
               variant === "destructive"
-                ? "bg-admin-error text-white hover:bg-red-700"
-                : "bg-brand-primary text-white hover:bg-brand-primary/90"
+                ? "bg-admin-error text-neutral-50 hover:bg-red-700"
+                : "bg-brand-primary text-neutral-50 hover:bg-brand-primary/90"
             )}
           >
             {isLoading ? "Processing..." : confirmLabel}

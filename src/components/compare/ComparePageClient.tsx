@@ -33,7 +33,7 @@ export function ComparePageClient() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.22em] text-secondary">Product comparison</p>
+            <p className="text-sm font-semibold text-neutral-500 text-secondary">Product comparison</p>
             <h1 className="mt-2 font-display text-5xl font-semibold text-neutral-900">Compare GLAMO picks</h1>
             <p className="mt-2 text-neutral-500">Compare up to 3 products across price, brand, concern, size, origin, stock and features.</p>
           </div>
@@ -45,15 +45,15 @@ export function ComparePageClient() {
         </div>
 
         {items.length === 0 ? (
-          <div className="mt-10 rounded-[2rem] bg-white p-12 text-center shadow-sm">
+          <div className="mt-10 rounded-[1.5rem] bg-white p-12 text-center shadow-sm">
             <h2 className="font-display text-3xl font-semibold">No products selected</h2>
             <p className="mt-2 text-neutral-500">Use compare buttons on product cards to add up to 3 products.</p>
-            <Link href="/shop" className="mt-6 inline-flex rounded-full bg-primary px-7 py-3 font-semibold text-white">
+            <Link href="/shop" className="mt-6 inline-flex rounded-full bg-primary px-7 py-3 font-semibold text-neutral-50">
               Browse products
             </Link>
           </div>
         ) : (
-          <div className="mt-10 overflow-x-auto rounded-[2rem] bg-white p-4 shadow-sm">
+          <div className="mt-10 overflow-x-auto rounded-[1.5rem] bg-white p-4 shadow-sm">
             <table className="w-full min-w-[760px] border-separate border-spacing-0">
               <thead>
                 <tr>
@@ -76,7 +76,7 @@ export function ComparePageClient() {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.label} className="border-t border-border">
-                    <td className="font-label border-t border-border p-4 text-sm font-bold uppercase tracking-[0.16em] text-neutral-500">{row.label}</td>
+                    <td className="border-t border-border p-4 text-sm font-semibold text-neutral-500">{row.label}</td>
                     {items.map((product) => (
                       <td key={`${product.id}-${row.label}`} className="border-t border-border p-4 text-sm text-neutral-900">
                         {row.render(product)}

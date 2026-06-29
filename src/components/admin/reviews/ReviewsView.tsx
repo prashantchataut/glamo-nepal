@@ -67,10 +67,10 @@ export function ReviewsView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Reviews and Q&A</p>
+            <p className="text-sm font-semibold text-brand-textPrimary">Reviews and Q&A</p>
             <h2 className="mt-2 font-display text-2xl font-semibold">Moderate product feedback before it affects trust</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">Approve useful reviews, keep risky claims hidden, and watch for shade mismatch or irritation patterns.</p>
           </div>
@@ -81,11 +81,11 @@ export function ReviewsView() {
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
           {(["pending", "approved", "all"] as ReviewView[]).map((item) => (
-            <button key={item} type="button" onClick={() => { setView(item); setPage(1); }} className={`rounded-full px-4 py-2 text-sm font-semibold ${view === item ? "bg-brand-primary text-white" : "border border-brand-border text-brand-textMuted hover:text-brand-primary"}`}>{item === "pending" ? "Needs review" : item === "approved" ? "Published" : "All"}</button>
+            <button key={item} type="button" onClick={() => { setView(item); setPage(1); }} className={`rounded-full px-4 py-2 text-sm font-semibold ${view === item ? "bg-brand-primary text-neutral-50" : "border border-brand-border text-brand-textMuted hover:text-brand-primary"}`}>{item === "pending" ? "Needs review" : item === "approved" ? "Published" : "All"}</button>
           ))}
         </div>
       </section>
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <DataTable columns={columns} data={reviews} keyExtractor={(row) => row.id} caption="Product reviews" emptyMessage="No reviews in this view." isLoading={isLoading} minRowWidth="760px" />
         <Pagination page={page} totalPages={totalPages} total={total} pageSize={PAGE_SIZE} onPageChange={setPage} />
       </section>

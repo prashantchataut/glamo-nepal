@@ -40,7 +40,7 @@ export async function BlogPreview() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="font-label bg-white/90 text-primary text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-full shadow-sm">
+                  <span className="font-label bg-white/90 text-primary text-sm font-semibold px-3 py-1.5 rounded-full shadow-sm">
                     {post.category}
                   </span>
                 </div>
@@ -52,7 +52,7 @@ export async function BlogPreview() {
                 <p className="text-neutral-500 leading-relaxed mb-6 line-clamp-3 text-sm">
                   {post.excerpt}
                 </p>
-                <span className="font-label inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-neutral-900 group-hover:text-primary transition-colors duration-300">
+                <span className="font-label inline-flex items-center gap-2 text-sm font-semibold text-neutral-900 group-hover:text-primary transition-colors duration-300">
                   Read More <MoveRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </div>

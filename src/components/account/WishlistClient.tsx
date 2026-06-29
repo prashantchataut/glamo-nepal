@@ -15,7 +15,7 @@ export function WishlistClient() {
           <h1 className="font-display text-3xl font-semibold text-neutral-900 md:text-4xl lg:text-5xl">Saved products</h1>
           <p className="mt-3 text-sm text-neutral-500">Wishlist products are saved on this device so you can return to favorites quickly.</p>
         </div>
-        <Link href="/shop" className="cursor-pointer bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark">
+        <Link href="/shop" className="cursor-pointer bg-primary px-6 py-3 text-[13px] font-medium text-neutral-50 transition-colors hover:bg-primary-dark">
           Browse shop
         </Link>
       </div>

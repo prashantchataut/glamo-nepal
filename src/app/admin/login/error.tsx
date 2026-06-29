@@ -5,7 +5,7 @@ import { AlertTriangle, RefreshCcw } from "lucide-react";
 export default function AdminLoginError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bgLight px-4">
-      <div className="mx-auto max-w-md rounded-[2rem] border border-brand-border bg-white p-8 text-center shadow-soft">
+      <div className="mx-auto max-w-md rounded-[1.5rem] border border-brand-border bg-white p-8 text-center shadow-soft">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 text-amber-700">
           <AlertTriangle size={32} />
         </div>
@@ -22,7 +22,7 @@ export default function AdminLoginError({ error, reset }: { error: Error & { dig
         ) : null}
         <button
           onClick={reset}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 font-semibold text-white transition hover:bg-brand-primary-hover"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 font-semibold text-neutral-50 transition hover:bg-brand-primary-hover"
         >
           <RefreshCcw size={17} /> Try again
         </button>

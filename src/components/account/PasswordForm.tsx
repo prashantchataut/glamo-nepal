@@ -84,7 +84,7 @@ export function PasswordForm() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-      <form onSubmit={submit} className="rounded-[2rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
+      <form onSubmit={submit} className="rounded-[1.5rem] border border-border/70 bg-white p-6 shadow-sm md:p-8">
         <h1 className="font-display text-3xl font-semibold text-neutral-900">{isGoogleOnly ? "Set up password" : "Change password"}</h1>
         <p className="mt-2 text-sm leading-6 text-neutral-500">
           {isGoogleOnly
@@ -173,10 +173,10 @@ export function PasswordForm() {
         </button>
       </form>
 
-      <aside className="rounded-[2rem] border border-border/70 bg-neutral-950 p-6 text-white shadow-sm md:p-8">
+      <aside className="rounded-[1.5rem] border border-border/70 bg-neutral-950 p-6 text-white shadow-sm md:p-8">
         <ShieldCheck className="text-secondary" size={32} />
         <h2 className="mt-4 font-display text-3xl font-semibold">Security tips</h2>
-        <ul className="mt-5 space-y-3 text-sm leading-6 text-white/75">
+        <ul className="mt-5 space-y-3 text-sm leading-6 text-neutral-50/75">
           <li>Use a strong password with at least 8 characters, including numbers and symbols.</li>
           <li>Never share your password or verification codes with anyone.</li>
           <li>If you suspect unauthorized access, change your password immediately.</li>

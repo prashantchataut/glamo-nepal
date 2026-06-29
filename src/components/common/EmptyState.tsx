@@ -25,7 +25,7 @@ export function EmptyState({ variant, className, query }: { variant: Variant; cl
         {variant === "search" && query ? `No results for "${query}"` : config.title}
       </h3>
       <p className="mt-3 max-w-sm text-sm leading-6 text-neutral-500">{config.description}</p>
-      <Link href={config.cta.href} className="mt-7 inline-flex cursor-pointer bg-primary px-8 py-3 text-[13px] font-medium uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-dark">
+      <Link href={config.cta.href} className="mt-7 inline-flex cursor-pointer bg-primary px-8 py-3 text-[13px] font-medium text-neutral-50 transition-colors hover:bg-primary-dark">
         {config.cta.label}
       </Link>
     </div>

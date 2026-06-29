@@ -66,10 +66,10 @@ export function CartPageClient() {
           <div className="h-8 w-32 skeleton-shimmer rounded-full" />
           <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
             <div className="space-y-4">
-              <div className="h-40 skeleton-shimmer rounded-[2rem]" />
-              <div className="h-40 skeleton-shimmer rounded-[2rem]" />
+              <div className="h-40 skeleton-shimmer rounded-[1.5rem]" />
+              <div className="h-40 skeleton-shimmer rounded-[1.5rem]" />
             </div>
-            <div className="h-80 skeleton-shimmer rounded-[2rem]" />
+            <div className="h-80 skeleton-shimmer rounded-[1.5rem]" />
           </div>
         </div>
       </main>
@@ -79,8 +79,8 @@ export function CartPageClient() {
   if (!items.length) {
     return (
       <main className="min-h-[72vh] bg-neutral-50 px-4 py-20 md:py-28">
-        <div className="mx-auto max-w-2xl rounded-[2rem] border border-neutral-200 bg-white p-8 text-center shadow-card md:p-12">
-          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-rose-50 text-primary">
+        <div className="mx-auto max-w-2xl rounded-[1.5rem] border border-neutral-200 bg-white p-8 text-center shadow-card md:p-12">
+          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-brand-bgLight text-primary">
             <ShoppingBag size={28} />
           </div>
           <h1 className="mt-8 font-display text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-neutral-950 md:text-5xl">
@@ -92,7 +92,7 @@ export function CartPageClient() {
           </p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-neutral-950 px-8 text-sm font-semibold text-neutral-50 transition hover:bg-primary"
           >
             Start shopping
           </Link>
@@ -120,7 +120,7 @@ export function CartPageClient() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:items-start">
           <section>
-<div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card md:rounded-[2rem] md:p-5">
+<div className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-card md:rounded-[1.5rem] md:p-5">
                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                  <h1 className="font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-neutral-950 md:text-5xl">
                    Shopping bag
@@ -135,11 +135,11 @@ export function CartPageClient() {
               {items.map((item) => (
                 <article
                   key={`${item.product.id}-${item.selectedShade || "base"}`}
-                  className="grid grid-cols-[80px_minmax(0,1fr)] gap-3 rounded-[1.5rem] border border-neutral-200 bg-white p-3 shadow-card-sm sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:rounded-[2rem] sm:p-5 sm:shadow-card-default"
+                  className="grid grid-cols-[80px_minmax(0,1fr)] gap-3 rounded-[1.5rem] border border-neutral-200 bg-white p-3 shadow-card-sm sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-6 sm:rounded-[1.5rem] sm:p-5 sm:shadow-card-default"
                 >
                   <Link
                     href={`/product/${item.product.slug}`}
-                    className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-neutral-100 sm:rounded-[1.5rem]"
+                    className="relative aspect-[4/5] overflow-hidden rounded-xl bg-neutral-100 sm:rounded-[1.5rem]"
                   >
                     <Image
                       src={item.product.image}
@@ -152,7 +152,7 @@ export function CartPageClient() {
                   <div className="min-w-0">
                     <div className="flex items-start justify-between gap-2 sm:gap-3">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                        <p className="text-xs font-medium text-neutral-500">
                           {item.product.brand}
                         </p>
                         <Link
@@ -227,8 +227,8 @@ export function CartPageClient() {
             </div>
           </section>
 
-          <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-editorial md:rounded-[2.25rem] md:p-6 lg:sticky lg:top-24">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-text">
+          <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-4 shadow-editorial md:rounded-[1.5rem] md:p-6 lg:sticky lg:top-24">
+            <p className="text-sm font-semibold text-primary-text">
               Order summary
             </p>
             <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-neutral-950 md:text-4xl">
@@ -268,7 +268,7 @@ export function CartPageClient() {
                   item_count: itemCount,
                 })
               }
-              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-full bg-neutral-950 px-6 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary"
+              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-full bg-neutral-950 px-6 text-sm font-semibold text-neutral-50 transition hover:bg-primary"
             >
               Secure checkout
             </Link>

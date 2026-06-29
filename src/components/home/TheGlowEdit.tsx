@@ -29,7 +29,7 @@ export function TheGlowEdit() {
                 className={cn(
                   "px-6 py-2.5 rounded-full text-sm font-semibold tracking-wide transition-all duration-300",
                   activeTab === tab
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    ? "bg-primary text-neutral-50 shadow-lg shadow-primary/20"
                     : "bg-white text-neutral-500 hover:bg-white hover:text-primary border border-border/50 hover:border-primary/20"
                 )}
               >
@@ -48,7 +48,7 @@ export function TheGlowEdit() {
         </div>
 
         <div className="text-center">
-          <Link href="/shop" className="font-label inline-flex items-center gap-2 px-8 py-3.5 border-2 border-neutral-900 text-neutral-900 rounded-full font-semibold uppercase tracking-[0.15em] text-sm hover:bg-neutral-900 hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+          <Link href="/shop" className="font-label inline-flex items-center gap-2 px-8 py-3.5 border-2 border-neutral-900 text-neutral-900 rounded-full font-semibold text-sm hover:bg-neutral-900 hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
             View All Collection <MoveRight size={16} />
           </Link>
         </div>

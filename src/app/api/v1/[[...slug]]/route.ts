@@ -138,9 +138,12 @@ async function buildAdminTrustHeader(
     return { header: null };
   }
 
+  const ROLE_MAP: Record<string, string> = { admin: 'ADMIN', owner: 'OWNER', super_admin: 'SUPER_ADMIN', superadmin: 'SUPER_ADMIN' }
+  const normalizedRole = ROLE_MAP[payload.role] || ROLE_MAP[payload.role.toLowerCase()] || payload.role.toUpperCase()
+
   const trustHeader = await signProxyTrust({
     email: payload.email,
-    role: payload.role,
+    role: normalizedRole,
     name: payload.name,
     csrfValidated: MUTATING_METHODS.has(request.method.toUpperCase()),
   });

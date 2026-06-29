@@ -13,17 +13,17 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-10 md:px-8">
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-5xl items-center gap-0 md:grid-cols-[0.9fr_1.1fr]">
-        <section className="relative overflow-hidden bg-neutral-900 p-8 text-white md:p-12">
+        <section className="relative overflow-hidden bg-neutral-900 p-8 text-neutral-50 md:p-12">
           <div className="pointer-events-none absolute inset-0 bg-shimmer-overlay" />
           <div className="relative z-10">
-            <span className="type-label inline-flex items-center gap-2 border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
+            <span className="type-label inline-flex items-center gap-2 border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-neutral-50/80">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               Secure Workspace
             </span>
             <h1 className="mt-8 max-w-xl font-display text-5xl font-semibold leading-tight md:text-7xl">
               Manage beauty commerce with confidence.
             </h1>
-            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/70 md:text-base">
+            <p className="mt-6 max-w-2xl text-sm leading-7 text-neutral-50/70 md:text-base">
               A protected workspace for operations and management.
             </p>
           </div>

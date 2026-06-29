@@ -104,7 +104,7 @@ export function AccountDashboardClient() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-[2rem] border border-neutral-200/80 bg-white p-6 shadow-sm md:p-8">
+      <div className="rounded-[1.5rem] border border-neutral-200/80 bg-white p-6 shadow-sm md:p-8">
         <div className="flex items-center gap-5">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 font-display text-xl font-semibold text-primary ring-1 ring-primary/10">
             {initials(user?.name, user?.phone)}
@@ -115,7 +115,7 @@ export function AccountDashboardClient() {
             </h1>
             <p className="mt-0.5 truncate text-sm text-neutral-500">{contactInfo}</p>
             {accountBadge && (
-              <span className="mt-2 inline-flex rounded-full bg-neutral-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-text ring-1 ring-neutral-200/60">
+              <span className="mt-2 inline-flex rounded-full bg-neutral-50 px-3 py-1 text-sm font-semibold text-primary-text ring-1 ring-neutral-200/60">
                 {accountBadge}
               </span>
             )}
@@ -153,7 +153,7 @@ export function AccountDashboardClient() {
           <div className="mt-4 grid gap-3">
             {recentOrders.slice(0, 3).map((order) => {
               const card = (
-                <article className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-neutral-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover md:p-5">
+                <article className="flex items-center justify-between gap-4 rounded-[1.5rem] border border-neutral-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover md:p-5">
                   <div className="flex min-w-0 items-center gap-4">
                     <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-neutral-50">
                       {order.image ? (

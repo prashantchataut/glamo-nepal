@@ -82,8 +82,8 @@ export function Footer() {
       <div className="mx-auto max-w-[1480px] px-4 py-12 sm:px-6 md:py-16 lg:px-8">
         <div className="grid gap-8 rounded-[34px] border border-white/10 bg-white/[0.035] p-5 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">Join the GLAMO beauty list</p>
-            <h2 className="mt-3 max-w-xl font-display text-2xl font-medium leading-[1.1] tracking-[-0.02em] text-white md:text-5xl">
+            <p className="text-sm font-semibold text-neutral-50/80">Join the GLAMO beauty list</p>
+            <h2 className="mt-3 max-w-xl font-display text-2xl font-medium leading-[1.1] tracking-[-0.02em] text-neutral-50 md:text-5xl">
               Softer routines, new drops and Kathmandu Valley delivery notes.
             </h2>
           </div>
@@ -115,7 +115,7 @@ export function Footer() {
             ) : newsletterState === "error" ? (
               <p className="text-xs leading-5 text-red-400">Something went wrong. Please try again.</p>
             ) : (
-              <p className="text-xs leading-5 text-white/80">No spam - only launches, routines and practical beauty notes.</p>
+              <p className="text-xs leading-5 text-neutral-50/80">No spam - only launches, routines and practical beauty notes.</p>
             )}
             </div>
           </form>
@@ -123,71 +123,71 @@ export function Footer() {
 
         <div className="mt-12 grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
           <div>
-            <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-white transition hover:text-brand-surfacePink touch-target">
+            <Link href="/" className="inline-block text-2xl font-semibold uppercase tracking-[0.18em] text-neutral-50 transition hover:text-brand-surfacePink touch-target">
               GLAMO
             </Link>
-            <p className="mt-5 max-w-sm text-sm leading-7 text-white/80">
+            <p className="mt-5 max-w-sm text-sm leading-7 text-neutral-50/80">
               Premium beauty curated for Nepal: authentic skincare, makeup, haircare and gifting essentials with clear delivery support.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/20 text-white/85 transition hover:border-white/40 hover:text-white">
+              <a href={SITE_CONFIG.social.instagram} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${SITE_CONFIG.instagramHandle}`} className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/20 text-neutral-50/85 transition hover:border-white/40 hover:text-white">
                 <InstagramIcon size={18} />
               </a>
-              <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/20 text-white/85 transition hover:border-white/40 hover:text-white">
+              <a href={SITE_CONFIG.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/20 text-neutral-50/85 transition hover:border-white/40 hover:text-white">
                 <FacebookIcon size={18} />
               </a>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">Shop</h3>
+            <h3 className="mb-4 text-sm font-semibold text-neutral-50/80">Shop</h3>
             <ul className="space-y-3">
               {shopLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="touch-target-link block py-2 text-sm text-white/85 transition hover:text-white">{link.label}</Link>
+                  <Link href={link.href} className="touch-target-link block py-2 text-sm text-neutral-50/85 transition hover:text-white">{link.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">Categories</h3>
+            <h3 className="mb-4 text-sm font-semibold text-neutral-50/80">Categories</h3>
             <ul className="space-y-3">
               {categoryLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="touch-target-link block py-2 text-sm text-white/85 transition hover:text-white">{link.label}</Link>
+                  <Link href={link.href} className="touch-target-link block py-2 text-sm text-neutral-50/85 transition hover:text-white">{link.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">Help</h3>
+            <h3 className="mb-4 text-sm font-semibold text-neutral-50/80">Help</h3>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-1">
               {helpLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="touch-target-link block py-2 text-sm text-white/85 transition hover:text-white">{link.label}</Link>
+                  <Link href={link.href} className="touch-target-link block py-2 text-sm text-neutral-50/85 transition hover:text-white">{link.label}</Link>
                 </li>
               ))}
             </ul>
-            <div className="mt-7 space-y-3 text-sm text-white/85">
+            <div className="mt-7 space-y-3 text-sm text-neutral-50/85">
               <div className="flex items-start gap-3">
-                <MapPin size={16} className="mt-0.5 shrink-0 text-white/65" />
+                <MapPin size={16} className="mt-0.5 shrink-0 text-neutral-50/65" />
                 <span>{SITE_CONFIG.address}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Phone size={16} className="shrink-0 text-white/65" />
+                <Phone size={16} className="shrink-0 text-neutral-50/65" />
                 <a href={SITE_CONFIG.whatsapp} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">{SITE_CONFIG.phone}</a>
               </div>
               <div className="flex items-center gap-3">
-                <Mail size={16} className="shrink-0 text-white/65" />
+                <Mail size={16} className="shrink-0 text-neutral-50/65" />
                 <a href={`mailto:${SITE_CONFIG.email}`} className="transition hover:text-white">{SITE_CONFIG.email}</a>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-white/65 md:flex-row md:items-center md:justify-between">
+        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-neutral-50/65 md:flex-row md:items-center md:justify-between">
           <p>&copy; {new Date().getFullYear()} {SITE_CONFIG.fullTitle}. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             {SITE_CONFIG.paymentMethods.map((method) => (

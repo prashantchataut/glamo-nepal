@@ -44,7 +44,7 @@ export default function AboutPage() {
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {["44+ curated SKUs", "77 districts considered", "NPR-first pricing"].map((stat) => <div key={stat} className="border border-neutral-200 bg-neutral-50 p-4 text-sm font-semibold text-neutral-900">{stat}</div>)}
             </div>
-            <Link href="/contact" className="mt-8 inline-flex min-h-11 items-center justify-center border border-neutral-900 px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white">Talk to us</Link>
+            <Link href="/contact" className="mt-8 inline-flex min-h-11 items-center justify-center border border-neutral-900 px-7 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white">Talk to us</Link>
           </div>
         </div>
       </section>

@@ -11,7 +11,7 @@ export default function SearchLoading() {
         <div className="h-12 w-full animate-pulse rounded-full bg-neutral-100" />
         <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="animate-pulse rounded-[2rem] bg-neutral-100">
+            <div key={i} className="animate-pulse rounded-[1.5rem] bg-neutral-100">
               <div className="aspect-square rounded-t-[2rem]" />
               <div className="p-4 space-y-2">
                 <div className="h-4 w-3/4 rounded bg-neutral-200" />

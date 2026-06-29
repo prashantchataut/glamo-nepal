@@ -122,7 +122,7 @@ export function RestockModal({ open, onOpenChange, productId, productName, curre
             <button
               type="submit"
               disabled={quantity === 0 || isSubmitting}
-              className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="btn-press rounded-full bg-brand-primary px-6 py-2 text-sm font-medium text-neutral-50 disabled:opacity-50"
             >
               {isSubmitting ? "Updating..." : quantity > 0 ? `Add ${quantity} units` : `Remove ${Math.abs(quantity)} units`}
             </button>

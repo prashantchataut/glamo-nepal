@@ -34,4 +34,19 @@
   "vars": {
     "API_BASE_URL": "https://api.glamonepal.com/api/v1"
   }
+  // ------------------------------------------------------------------------
+  // Secrets — NOT committed. Set via `wrangler secret put` from the project
+  // root (this Worker is "glamo-nepal"). Each value MUST match the backend
+  // Worker "glamo-nepal-api" and the Vercel frontend production env exactly.
+  // Mismatches cause admin 403s (HMAC verify fails on the proxy-trust header
+  // and on the admin session cookie).
+  //
+  //   npx wrangler secret put ADMIN_SESSION_SECRET
+  //   npx wrangler secret put AUTH_SECRET
+  //   npx wrangler secret put CSRF_SECRET
+  //   npx wrangler secret put PROXY_TRUST_SECRET
+  //
+  // Canonical values are documented in
+  // .kimchi/ferments/019f0ef9-2de1-7280-8de0-b5ae30d9b61e/docs/secret-mismatch-report.md
+  // ------------------------------------------------------------------------
 }

@@ -68,7 +68,7 @@ export function NotificationDropdown() {
       >
         <Bell size={16} />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-admin-error px-1 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-admin-error px-1 text-xs font-bold text-neutral-50">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -109,7 +109,7 @@ export function NotificationDropdown() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug">{n.title}</p>
                     <p className="mt-0.5 text-xs text-brand-textMuted line-clamp-2">{n.message}</p>
-                    <p className="mt-1 text-[10px] text-brand-textMuted">{formatTimeAgo(n.created_at)}</p>
+                    <p className="mt-1 text-xs text-brand-textMuted">{formatTimeAgo(n.created_at)}</p>
                   </div>
                   {!n.is_read && (
                     <button

@@ -18,7 +18,7 @@ function ErrorBlock({ message, onRetry }: { message: string; onRetry: () => void
   return (
     <div className="flex flex-col items-center py-8 text-center">
       <p className="text-sm text-brand-textMuted">{message}</p>
-      <button onClick={onRetry} className="btn-press mt-3 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white">
+      <button onClick={onRetry} className="btn-press mt-3 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50">
         <RefreshCw size={14} /> Retry
       </button>
     </div>
@@ -110,7 +110,7 @@ export function CustomerDetailModal({ open, onOpenChange, userId }: CustomerDeta
               <div className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-brand-textMuted">
                   <ShoppingBag size={16} />
-                  <span className="text-xs font-medium uppercase tracking-wide">Total Orders</span>
+                  <span className="text-sm font-semibold text-neutral-500">Total Orders</span>
                 </div>
                 <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">
                   {user.orderCount ?? user.recentOrders?.length ?? 0}
@@ -119,7 +119,7 @@ export function CustomerDetailModal({ open, onOpenChange, userId }: CustomerDeta
               <div className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
                 <div className="flex items-center gap-2 text-brand-textMuted">
                   <DollarSign size={16} />
-                  <span className="text-xs font-medium uppercase tracking-wide">Total Spent</span>
+                  <span className="text-sm font-semibold text-neutral-500">Total Spent</span>
                 </div>
                 <p className="mt-1 font-display text-2xl font-semibold text-brand-textPrimary">
                   {formatNPR(user.totalSpent ?? 0)}

@@ -94,7 +94,7 @@ export function AuditLogView() {
       return { label: action, className: "bg-emerald-50 text-emerald-700 border-emerald-200" };
     }
     if (lower.includes("delete") || lower.includes("remove")) {
-      return { label: action, className: "bg-rose-50 text-rose-700 border-rose-200" };
+      return { label: action, className: "bg-brand-bgLight text-rose-700 border-rose-200" };
     }
     if (lower.includes("update") || lower.includes("toggle")) {
       return { label: action, className: "bg-sky-50 text-sky-700 border-sky-200" };
@@ -123,7 +123,7 @@ export function AuditLogView() {
         return (
           <span
             data-testid="audit-action"
-            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-semibold ${variant.className}`}
+            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-xs font-semibold ${variant.className}`}
           >
             {variant.label}
           </span>
@@ -139,7 +139,7 @@ export function AuditLogView() {
             {ENTITY_LABELS[log.entity] ?? log.entity}
           </div>
           {log.entity_id ? (
-            <span className="font-mono text-[11px] text-neutral-500">#{log.entity_id.slice(0, 8)}</span>
+            <span className="font-mono text-xs text-neutral-500">#{log.entity_id.slice(0, 8)}</span>
           ) : null}
         </div>
       ),
@@ -199,7 +199,7 @@ export function AuditLogView() {
           <span
             data-testid="audit-ip"
             title={log.user_agent ? log.user_agent : "IP address"}
-            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[11px] text-neutral-700"
+            className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-xs text-neutral-700"
           >
             <Globe2 size={11} className="text-neutral-400" aria-hidden="true" />
             {log.ip_address}
@@ -211,7 +211,7 @@ export function AuditLogView() {
 
   if (isError && !result) {
     return (
-      <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <p className="text-sm text-brand-textMuted">{error}</p>
         </div>
@@ -221,10 +221,10 @@ export function AuditLogView() {
 
   return (
     <section className="space-y-4">
-      <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Audit log</p>
+            <p className="text-sm font-semibold text-brand-textPrimary">Audit log</p>
             <h2 className="mt-2 font-display text-2xl font-semibold">Who changed what, when, from where.</h2>
             <p className="mt-1 max-w-2xl text-sm text-brand-textMuted">
               Every write to products, orders, settings, coupons and more is captured with action, payload diff, actor and origin IP. Search by IP to investigate a single client.
@@ -232,21 +232,21 @@ export function AuditLogView() {
           </div>
           <div className="flex flex-wrap gap-3">
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
+              <div className="flex items-center gap-2 text-sm font-semibold text-neutral-500">
                 <ClipboardList size={13} aria-hidden="true" />
                 Events on page
               </div>
               <p className="mt-1 text-xl font-semibold tabular-nums text-neutral-900">{rawLogs.length}</p>
             </div>
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
                 <ShieldCheck size={13} aria-hidden="true" />
                 Unique IPs
               </div>
               <p className="mt-1 text-xl font-semibold tabular-nums text-emerald-900">{uniqueIps}</p>
             </div>
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">Total in window</div>
+              <div className="text-sm font-semibold text-neutral-500">Total in window</div>
               <p className="mt-1 text-xl font-semibold tabular-nums text-neutral-900">{total}</p>
             </div>
           </div>
@@ -291,7 +291,7 @@ export function AuditLogView() {
         </div>
       </div>
 
-      <div className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <DataTable
           columns={columns}
           data={logs}

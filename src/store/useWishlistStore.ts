@@ -109,6 +109,18 @@ export const useWishlistStore = create<WishlistState>()(
 
       syncFromServer: async () => {
         if (!isLoggedIn()) return;
+        try {
+          const { auth } = await import('@/lib/firebase');
+          const fbUser = auth().currentUser;
+          if (!fbUser) {
+            console.warn('[Wishlist] Firebase currentUser not ready yet - skipping server sync');
+            set({ _syncing: false });
+            return;
+          }
+        } catch {
+          set({ _syncing: false });
+          return;
+        }
         set({ _syncing: true, _syncError: null });
         try {
           const response = await wishlistApi.list();

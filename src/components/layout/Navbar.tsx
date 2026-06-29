@@ -145,7 +145,7 @@ export function Navbar() {
 
   const CountBubble = ({ count, label }: { count: number; label: string }) =>
     count > 0 ? (
-      <span aria-live="polite" aria-label={label} className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-950 px-1 text-[9px] font-semibold leading-none text-white">
+      <span aria-live="polite" aria-label={label} className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-950 px-1 text-[10px] font-semibold leading-none text-white">
         {count}
       </span>
     ) : null;
@@ -162,7 +162,7 @@ export function Navbar() {
               )
             : cn(
                 "border-b",
-                isScrolled ? "border-neutral-300 bg-neutral-50/98 shadow-nav" : "border-secondary bg-rose-50",
+                isScrolled ? "border-neutral-300 bg-neutral-50/98 shadow-nav" : "border-secondary bg-brand-bgLight",
               ),
         )}
       >
@@ -235,7 +235,7 @@ className={cn(
               >
                 <Search size={18} strokeWidth={1.7} />
                 {isHome ? (
-                  <span className="hidden font-body text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-700 lg:inline">
+                  <span className="hidden font-body text-sm font-semibold text-neutral-700 lg:inline">
                     Find your glow
                   </span>
                 ) : null}
@@ -264,7 +264,7 @@ className={cn(
                   )}
                   aria-label={`Account, signed in as ${firstName}`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-rose-400 font-body text-[11px] font-bold uppercase tracking-wider text-white shadow-sm transition-transform group-hover:scale-105">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-rose-400 font-body text-xs font-bold uppercase tracking-wider text-neutral-50 shadow-sm transition-transform group-hover:scale-105">
                     {initialsOf(user.name, user.email || user.phone)}
                   </span>
                   <span className="font-body hidden max-w-[7rem] truncate text-[12px] font-semibold tracking-[0.02em] text-neutral-800 lg:inline">
@@ -314,7 +314,7 @@ className={cn(
                  <Search size={15} strokeWidth={1.7} />
                  <span className="truncate text-neutral-600">Search skincare, makeup, SPF, brands...</span>
                </span>
-              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500 sm:block">
+              <span className="hidden text-sm font-semibold text-neutral-500 sm:block">
                 Search
               </span>
             </button>
@@ -394,7 +394,7 @@ className={cn(
         </nav>
 
         <div className="px-5 py-6">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+          <p className="mb-3 text-sm font-semibold text-neutral-500">
             Shop by category
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -422,7 +422,7 @@ className={cn(
           {!authReady ? null : user ? (
             <div className="mb-4">
               <div className="mb-3 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-neutral-200">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary font-body text-sm font-semibold uppercase text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary font-body text-sm font-semibold uppercase text-neutral-50">
                   {initialsOf(user.name, user.email || user.phone)}
                 </span>
                 <div className="min-w-0">
@@ -431,7 +431,7 @@ className={cn(
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/account" className="rounded-2xl bg-primary px-3 py-3 text-center text-xs font-semibold text-white transition hover:bg-primary-dark">
+                <Link href="/account" className="rounded-2xl bg-primary px-3 py-3 text-center text-xs font-semibold text-neutral-50 transition hover:bg-primary-dark">
                   My account
                 </Link>
                 <button
@@ -447,7 +447,7 @@ className={cn(
           ) : (
             <div className="mb-4 grid grid-cols-2 gap-2">
               {AUTH_LINKS.map((link) => (
-                <Link key={link.name} href={link.href} className="rounded-2xl bg-primary px-3 py-3 text-center text-xs font-semibold text-white transition hover:bg-primary-dark">
+                <Link key={link.name} href={link.href} className="rounded-2xl bg-primary px-3 py-3 text-center text-xs font-semibold text-neutral-50 transition hover:bg-primary-dark">
                   {link.name}
                 </Link>
               ))}

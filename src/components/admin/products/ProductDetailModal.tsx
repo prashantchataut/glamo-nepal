@@ -190,13 +190,13 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
                       />
                       <button
                         onClick={() => setDeleteImageId(img.id)}
-                        className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-admin-error text-white opacity-0 transition group-hover:opacity-100"
+                        className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-admin-error text-neutral-50 opacity-0 transition group-hover:opacity-100"
                         aria-label="Delete image"
                       >
                         <X size={12} />
                       </button>
                       {img.is_primary === 1 && (
-                        <span className="absolute bottom-0 left-0 right-0 rounded-b-xl bg-brand-primary/80 text-center text-[9px] font-bold uppercase text-white">Primary</span>
+                        <span className="absolute bottom-0 left-0 right-0 rounded-b-xl bg-brand-primary/80 text-center text-[10px] font-bold uppercase text-neutral-50">Primary</span>
                       )}
                     </div>
                   ))}
@@ -363,7 +363,7 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
                           placeholder="Stock"
                         />
                         <div className="flex gap-2">
-                          <button onClick={handleUpdateVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-white">Save</button>
+                          <button onClick={handleUpdateVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-neutral-50">Save</button>
                           <button onClick={() => setEditingVariant(null)} className="rounded-full border border-brand-border px-3 py-2 text-xs font-medium">Cancel</button>
                         </div>
                       </div>
@@ -421,7 +421,7 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
                         placeholder="Stock"
                       />
                       <div className="flex gap-2">
-                        <button onClick={handleAddVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-white">Add</button>
+                        <button onClick={handleAddVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-neutral-50">Add</button>
                         <button onClick={() => { setAddingVariant(false); setNewVariant({ name: "", price: "", stockQuantity: "0" }); }} className="rounded-full border border-brand-border px-3 py-2 text-xs font-medium">Cancel</button>
                       </div>
                     </div>
@@ -464,7 +464,7 @@ export function ProductDetailModal({ open, onOpenChange, productId }: ProductDet
                       placeholder="Stock"
                     />
                     <div className="flex gap-2">
-                      <button onClick={handleAddVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-white">Add</button>
+                      <button onClick={handleAddVariant} className="rounded-full bg-brand-primary px-3 py-2 text-xs font-medium text-neutral-50">Add</button>
                       <button onClick={() => { setAddingVariant(false); setNewVariant({ name: "", price: "", stockQuantity: "0" }); }} className="rounded-full border border-brand-border px-3 py-2 text-xs font-medium">Cancel</button>
                     </div>
                   </div>

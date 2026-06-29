@@ -86,7 +86,7 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
             <Menu size={18} />
           </button>
           <div>
-            <p className="font-label text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary sm:text-xs">
+            <p className="text-sm font-semibold text-brand-textPrimary">
               Store operations
             </p>
             <h1 className="font-display text-lg font-semibold md:text-2xl">
@@ -120,7 +120,7 @@ export function AdminHeader({ activeSection, onMenuToggle }: AdminHeaderProps) {
           </span>
           <NotificationDropdown />
           <div className="hidden items-center gap-2 rounded-xl bg-white py-2 pl-2 pr-3 shadow-sm md:flex">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-neutral-50">
               {initials}
             </div>
             <div className="leading-tight">

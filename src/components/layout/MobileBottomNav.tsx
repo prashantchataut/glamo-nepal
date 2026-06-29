@@ -66,7 +66,7 @@ export function MobileBottomNav() {
                   <Icon size={19} strokeWidth={isActive ? 2.2 : 1.6} />
                 </div>
                 <span className={cn(
-                  "text-[10px] font-semibold tracking-wide transition-colors",
+                  "text-xs font-semibold tracking-wide transition-colors",
                   isActive ? "text-primary" : "text-neutral-400 group-hover:text-neutral-600"
                 )}>
                   {item.label}
@@ -94,7 +94,7 @@ export function MobileBottomNav() {
                 <Icon size={19} strokeWidth={isActive ? 2.2 : 1.6} />
               </div>
               <span className={cn(
-                "text-[10px] font-semibold tracking-wide transition-colors",
+                "text-xs font-semibold tracking-wide transition-colors",
                 isActive ? "text-primary" : "text-neutral-400 group-hover:text-neutral-600"
               )}>
                 {item.label}
@@ -102,7 +102,7 @@ export function MobileBottomNav() {
               {count > 0 && (
                 <span
                   aria-live="polite"
-                  className="absolute -right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-white shadow-[0_1px_4px_rgba(219,39,119,0.3)]"
+                  className="absolute -right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-neutral-50 shadow-[0_1px_4px_rgba(219,39,119,0.3)]"
                 >
                   {count}
                 </span>

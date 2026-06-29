@@ -8,7 +8,7 @@ const TESTIMONIALS = [
 
 export function Testimonials() {
   return (
-    <section className="bg-neutral-900 py-16 text-white md:py-24" aria-labelledby="testimonials-heading">
+    <section className="bg-neutral-900 py-16 text-neutral-50 md:py-24" aria-labelledby="testimonials-heading">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
           <div>
@@ -20,9 +20,9 @@ export function Testimonials() {
                 <div className="flex gap-1 text-secondary" aria-label="5 out of 5 stars">
                   {Array.from({ length: 5 }).map((_, index) => <Star key={index} size={14} fill="currentColor" />)}
                 </div>
-                <blockquote className="mt-5 text-lg leading-snug text-white/90">&ldquo;{item.quote}&rdquo;</blockquote>
-                <p className="mt-6 text-sm font-semibold text-white">{item.name}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/40">{item.location}</p>
+                <blockquote className="mt-5 text-lg leading-snug text-neutral-50/90">&ldquo;{item.quote}&rdquo;</blockquote>
+                <p className="mt-6 text-sm font-semibold text-neutral-50">{item.name}</p>
+                <p className="mt-1 text-sm font-semibold text-neutral-50/40">{item.location}</p>
               </article>
             ))}
           </div>

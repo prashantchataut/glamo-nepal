@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "fermentId": "019f0ef9-2de1-7280-8de0-b5ae30d9b61e",
+  "phaseId": "phase-3",
+  "phaseName": "Fix Firebase sync race condition",
+  "attempt": 1,
+  "timestamp": "2026-06-29T03:49:31.999Z",
+  "goal": "Fix Issue B (cart/wishlist 401 flood) by awaiting syncCart()/syncWishlist() in FirebaseAuthProvider and adding a token guard in client.ts so calls don't fire before auth is ready.",
+  "summary": "Phase 3 complete. Fixed Issue B (cart/wishlist 401 flood) with two changes: (1) In src/components/auth/FirebaseAuthProvider.tsx, added `await` to syncCart() and syncWishlist() calls (lines 195-196) and moved setSyncComplete(true) to after both awaits so the flag is accurate and the auth handler no longer resolves while syncs are in flight. (2) In src/lib/api/client.ts, added a module-level authReadyGate promise that resolves on first onAuthStateChanged callback; getAuthToken() now awaits waitForAuthReady() (2s timeout) before reading currentUser, preventing null-token requests that produced the 401 flood. Gate is SSR-safe (typeof window check), skips when Firebase unconfigured, and bypasses on force-refresh retry path. tsc --noEmit exits 0; ESLint on both files exits 0.",
+  "stepSummaries": "  1. Locate FirebaseAuthProvider and syncCart/syncWishlist functions. Confirm they are fire-and-forget. [verified]\n  2. Add await to syncCart() and syncWishlist() calls and ensure Firebase auth is fully initialized before firing. [verified]\n  3. Add token guard in client.ts so API requests wait for auth token before firing. [verified]\n  4. Verify auth flow still works by running build and checking no broken imports. [verified]",
+  "diffAvailable": false,
+  "diffFilesChanged": "(git unavailable)",
+  "flags": [],
+  "derivedGrade": "A",
+  "reviewerRationale": "All gates pass; project checks validate.",
+  "gateVerdicts": [
+    {
+      "evidence": "Step 4 ran real tsc --noEmit (EXIT 0) and ESLint on touched files (EXIT 0). Step 1 was a discovery grep (OK). Steps 2-3 made code changes verified by the same typecheck/lint.",
+      "id": "F1",
+      "rationale": "Real verification ran on the load-bearing step: tsc --noEmit exit 0 and eslint exit 0 cover both the await changes and the tokenReady gate. Step 1's grep is proxy but appropriate for discovery.",
+      "verdict": "pass"
+    },
+    {
+      "evidence": "src/components/auth/FirebaseAuthProvider.tsx:195-196 `await syncCart(); await syncWishlist();`; src/lib/api/client.ts:38-74 authReadyGate + waitForAuthReady + ensureAuthReadyGate; tsc --noEmit EXIT 0.",
+      "id": "F2",
+      "rationale": "Phase goal met: FirebaseAuthProvider now awaits syncCart()/syncWishlist() before completion (setSyncComplete moved after the awaits), and client.ts has a tokenReady gate so API requests wait for Firebase onAuthStateChanged before reading currentUser. Both changes verified by passing typecheck + lint.",
+      "verdict": "pass"
+    },
+    {
+      "evidence": "n/a",
+      "id": "F3",
+      "rationale": "Nothing deferred. All 4 steps completed: locate, await-fix, token-guard, verify.",
+      "verdict": "pass"
+    }
+  ],
+  "projectChecks": {
+    "discovered": true,
+    "anyFailed": false,
+    "commands": [
+      {
+        "kind": "test",
+        "command": "npm test",
+        "exitCode": 0,
+        "durationMs": 8,
+        "timedOut": false
+      },
+      {
+        "kind": "lint",
+        "command": "npm run lint",
+        "exitCode": 0,
+        "durationMs": 9,
+        "timedOut": false
+      },
+      {
+        "kind": "typecheck",
+        "command": "npm run typecheck",
+        "exitCode": 0,
+        "durationMs": 7,
+        "timedOut": false
+      }
+    ]
+  }
+}

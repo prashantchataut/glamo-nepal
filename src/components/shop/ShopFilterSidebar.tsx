@@ -41,7 +41,7 @@ function FilterSection({
 }) {
   return (
     <div className="border-b border-neutral-200 pb-5 mb-5 last:border-b-0 last:pb-0 last:mb-0">
-      <p className="type-label text-[11px] text-neutral-500 mb-3">{title}</p>
+      <p className="type-label text-xs text-neutral-500 mb-3">{title}</p>
       {children}
     </div>
   );
@@ -66,13 +66,13 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
     });
 
   return (
-    <aside className="rounded-[2rem] border border-neutral-200 bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+    <aside className="rounded-[1.5rem] border border-neutral-200 bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="type-heading-sm text-neutral-900">Filters</h2>
         <button
           type="button"
           onClick={reset}
-          className="type-label text-[11px] text-primary hover:text-primary-dark transition-colors cursor-pointer"
+          className="type-label text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
         >
           Clear All
         </button>
@@ -108,7 +108,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
               className={cn(
                 "flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm transition-colors cursor-pointer",
                 filters.category === cat.slug
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-neutral-50"
                   : "text-neutral-700 hover:bg-neutral-100"
               )}
             >
@@ -136,7 +136,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
                 className={cn(
                   "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                   filters.subCategory === subCategory
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-neutral-50"
                     : "bg-neutral-50 text-neutral-600 hover:text-primary"
                 )}
               >
@@ -214,7 +214,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
               className={cn(
                 "rounded-full px-3 py-1.5 text-xs tracking-wide transition-colors cursor-pointer",
                 filters.concerns.includes(concern)
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-neutral-50"
                   : "bg-neutral-50 text-neutral-600 hover:text-primary"
               )}
             >
@@ -257,7 +257,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <label htmlFor="filter-min-price" className="space-y-1">
-              <span className="type-label text-[10px] text-neutral-500">Min</span>
+              <span className="type-label text-xs text-neutral-500">Min</span>
               <input
                 type="number"
                 id="filter-min-price"
@@ -275,7 +275,7 @@ export function ShopFilterSidebar({ filters, onFilterChange, priceRange }: Props
               />
             </label>
             <label htmlFor="filter-max-price" className="space-y-1">
-              <span className="type-label text-[10px] text-neutral-500">Max</span>
+              <span className="type-label text-xs text-neutral-500">Max</span>
               <input
                 type="number"
                 id="filter-max-price"

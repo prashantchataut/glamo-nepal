@@ -111,7 +111,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <article
       aria-label={product.name}
-      className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-card-default transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-card-hover"
+      className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-neutral-200 bg-white shadow-card-default transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-card-hover"
     >
       <div className="relative block aspect-[4/5] overflow-hidden bg-neutral-100">
         <Link
@@ -147,7 +147,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </Badge>
             )}
             {discount > 0 && product.inStock && (
-              <span className="rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-950 ring-1 ring-white/80">
+              <span className="rounded-full bg-white/95 px-3 py-1 text-sm font-semibold text-neutral-950 ring-1 ring-white/80">
                 -{discount}%
               </span>
             )}
@@ -160,7 +160,7 @@ export function ProductCard({ product }: ProductCardProps) {
             onClick={onWishlist}
             className={cn(
               "flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-neutral-700 shadow-soft transition-all duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-              isWishlisted && "bg-primary text-white hover:text-white",
+              isWishlisted && "bg-primary text-neutral-50 hover:text-white",
             )}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
@@ -173,7 +173,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {shadeOptions.length > 0 ? (
               <Link
                 href={`/product/${product.slug}`}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-primary"
               >
                 View options
               </Link>
@@ -182,7 +182,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 type="button"
                 onClick={onCart}
                 disabled={addState === "loading"}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-soft transition-colors hover:bg-primary disabled:opacity-60"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-primary disabled:opacity-60"
               >
                 {addState === "loading" ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -207,7 +207,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.brand}
           </p>
           <div
-            className="flex items-center gap-1 text-[11px] text-neutral-500"
+            className="flex items-center gap-1 text-xs text-neutral-500"
             aria-label={`${product.rating} out of 5 stars`}
           >
             <Star size={12} fill="currentColor" className="text-secondary" />
@@ -241,7 +241,7 @@ export function ProductCard({ product }: ProductCardProps) {
               />
             ))}
             {shadeOptions.length > 6 && (
-              <span className="text-[10px] text-neutral-500">
+              <span className="text-xs text-neutral-500">
                 +{shadeOptions.length - 6}
               </span>
             )}
@@ -267,7 +267,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.inStock && (
             <div className="mt-3 md:hidden">
               {shadeOptions.length > 0 ? (
-                <Link href={`/product/${product.slug}`} className="flex h-10 w-full items-center justify-center rounded-full border border-neutral-200 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-700 transition-colors hover:border-primary hover:text-primary">
+                <Link href={`/product/${product.slug}`} className="flex h-10 w-full items-center justify-center rounded-full border border-neutral-200 text-sm font-semibold text-neutral-700 transition-colors hover:border-primary hover:text-primary">
                   View options
                 </Link>
               ) : (
@@ -275,7 +275,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   type="button"
                   onClick={onCart}
                   disabled={addState === "loading"}
-                  className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-primary disabled:opacity-60"
+                  className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-neutral-950 text-sm font-semibold text-white transition-colors hover:bg-primary disabled:opacity-60"
                 >
                   {addState === "loading" ? <Loader2 size={14} className="animate-spin" /> : addState === "added" ? <><Check size={14} /> Added</> : <><ShoppingBag size={14} /> Add to bag</>}
                 </button>
@@ -290,7 +290,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-neutral-200 bg-white">
+    <div className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-neutral-200 bg-white">
       <div className="aspect-[4/5] skeleton-shimmer" />
       <div className="space-y-3 px-5 py-5">
         <div className="h-3 w-16 skeleton-shimmer rounded-full" />

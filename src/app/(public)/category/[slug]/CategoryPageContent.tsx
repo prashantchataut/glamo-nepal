@@ -83,11 +83,11 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
         <div className="container mx-auto grid gap-8 px-4 md:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
             <nav className="mb-5 flex items-center gap-2 text-sm text-neutral-500"><Link href="/" className="hover:text-primary">Home</Link><span>/</span><Link href="/shop" className="hover:text-primary">Shop</Link><span>/</span><span className="text-neutral-900">{category.name}</span></nav>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.24em] text-primary">Shop by category</p>
+            <p className="text-sm font-semibold text-neutral-500 text-primary">Shop by category</p>
             <h1 className="mt-3 font-display text-5xl font-semibold text-neutral-900 md:text-7xl">{category.name}</h1>
             <p className="mt-4 max-w-xl text-base leading-8 text-neutral-500">{category.description}</p>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-neutral-200 bg-white shadow-sm"><Image src={category.image} alt={category.name} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 420px" /></div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm"><Image src={category.image} alt={category.name} fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 420px" /></div>
         </div>
       </div>
 
@@ -97,7 +97,7 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
             onClick={() => setActiveSub("")}
             className={cn(
               "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300",
-              !activeSub ? "bg-primary text-white shadow-md" : "bg-white text-neutral-500 border border-border hover:border-primary/30 hover:text-primary"
+              !activeSub ? "bg-primary text-neutral-50 shadow-md" : "bg-white text-neutral-500 border border-border hover:border-primary/30 hover:text-primary"
             )}
           >
             All
@@ -108,7 +108,7 @@ export default function CategoryPageContent({ initialProducts }: { initialProduc
               onClick={() => setActiveSub(sub === activeSub ? "" : sub)}
               className={cn(
                 "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300",
-                activeSub === sub ? "bg-primary text-white shadow-md" : "bg-white text-neutral-500 border border-border hover:border-primary/30 hover:text-primary"
+                activeSub === sub ? "bg-primary text-neutral-50 shadow-md" : "bg-white text-neutral-500 border border-border hover:border-primary/30 hover:text-primary"
               )}
             >
               {sub}

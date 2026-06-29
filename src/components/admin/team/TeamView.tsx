@@ -143,7 +143,7 @@ export function TeamView() {
 
   return (
     <>
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="font-display text-2xl font-semibold">Team members</h2>
@@ -151,7 +151,7 @@ export function TeamView() {
           </div>
           <button
             onClick={openCreate}
-            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white"
+            className="btn-press inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50"
           >
             <Plus size={15} /> Add member
           </button>
@@ -236,7 +236,7 @@ export function TeamView() {
 
       {formOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setFormOpen(false)}>
-          <div className="w-full max-w-lg rounded-[2rem] border border-brand-border bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-display text-xl font-semibold">{isCreating ? "Add team member" : "Edit team member"}</h3>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label className="space-y-2 text-sm font-medium">
@@ -303,7 +303,7 @@ export function TeamView() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="btn-press rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                className="btn-press rounded-full bg-brand-primary px-4 py-2 text-sm font-medium text-neutral-50 disabled:opacity-50"
               >
                 {isSaving ? "Saving..." : isCreating ? "Add" : "Save"}
               </button>

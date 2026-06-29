@@ -676,33 +676,26 @@ export async function updateOrderStatus(orderId: string, data: UpdateOrderStatus
   }
   updateArgs.push(rowId)
 
-  try {
-    await db.execute({
+  await withTransaction(db, async (tx) => {
+    await tx.execute({
       sql: `UPDATE orders SET ${updateFields.join(', ')} WHERE id = ?`,
       args: updateArgs,
     })
-  } catch (error) {
-    handleDbError(error, 'updateOrderStatus.update')
-  }
 
-  try {
-    await db.execute({
+    await tx.execute({
       sql: `INSERT INTO order_status_histories (id, order_id, status, comment, changed_by, created_at)
             VALUES (?, ?, ?, ?, ?, datetime('now'))`,
       args: [crypto.randomUUID(), rowId, data.status, data.comment || null, adminUserId],
     })
-  } catch (error) {
-    console.error('Failed to insert status history:', error)
-  }
 
-  await createAuditLog(db, {
-    userId: adminUserId,
-    action: 'UPDATE_STATUS',
-    entity: 'orders',
-    entityId: rowId,
-    changes: { status: data.status, paymentStatus: data.paymentStatus },
+    await createAuditLog(tx, {
+      userId: adminUserId,
+      action: 'UPDATE_STATUS',
+      entity: 'orders',
+      entityId: rowId,
+      changes: { status: data.status, paymentStatus: data.paymentStatus },
+    })
   })
-
   const updatedOrder = await fetchOrderWithRelations(rowId, db)
 
   if (c) {
@@ -922,24 +915,17 @@ export async function verifyCheckoutPayment(orderId: string, provider: string, t
     throw new AppError('This payment has already been applied to another order', 409, 'PAYMENT_ALREADY_USED')
   }
 
-  try {
-    await db.execute({
+  await withTransaction(db, async (tx) => {
+    await tx.execute({
       sql: `UPDATE orders SET payment_status = 'PAID', payment_method = ?, payment_id = ?, status = ?, updated_at = datetime('now') WHERE id = ?`,
       args: [paymentMethod, verifiedTransactionId, nextStatus, rowId],
     })
-  } catch (error) {
-    handleDbError(error, 'verifyCheckoutPayment.update')
-  }
 
-  try {
-    await db.execute({
+    await tx.execute({
       sql: `INSERT INTO order_status_histories (id, order_id, status, comment, changed_by, created_at)
             VALUES (?, ?, ?, ?, ?, datetime('now'))`,
       args: [crypto.randomUUID(), rowId, nextStatus, `Payment verified via ${provider}`, (row as any).user_id as string],
     })
-  } catch (error) {
-    console.error('Failed to insert payment verification history:', error)
-  }
-
+  })
   return fetchOrderWithRelations(rowId, db)
 }

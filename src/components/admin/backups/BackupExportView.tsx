@@ -42,8 +42,8 @@ export function BackupExportView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
-        <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Backup and export center</p>
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold text-brand-textPrimary">Backup and export center</p>
         <h2 className="mt-2 font-display text-3xl font-semibold">Download the business data owners actually need.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">Exports are CSV files for spreadsheets. Use them before large edits, stock counts, accountant handoff, support investigation or emergency recovery.</p>
       </section>
@@ -59,7 +59,7 @@ export function BackupExportView() {
                 <div className="min-w-0 flex-1">
                   <h3 className="font-display text-lg font-semibold">{item.title}</h3>
                   <p className="mt-1 text-sm leading-5 text-brand-textMuted">{item.description}</p>
-                  <button onClick={() => download(item.kind, item.filename)} disabled={loadingKind !== null} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50">
+                  <button onClick={() => download(item.kind, item.filename)} disabled={loadingKind !== null} className="btn-press mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-bold text-neutral-50 disabled:opacity-50">
                     <Download size={14} /> {loading ? "Preparing..." : "Download CSV"}
                   </button>
                 </div>
@@ -69,7 +69,7 @@ export function BackupExportView() {
         })}
       </section>
 
-      <section className="rounded-[2rem] border border-brand-border bg-white p-5 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-5 shadow-sm">
         <div className="flex gap-3">
           <FileArchive className="mt-0.5 text-brand-primary" size={18} />
           <div>

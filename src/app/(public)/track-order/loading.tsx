@@ -10,7 +10,7 @@ export default function TrackOrderLoading() {
       <div className="container mx-auto px-4 md:px-6 py-8">
         <div className="mx-auto max-w-2xl">
           <div className="h-14 animate-pulse rounded-full bg-neutral-100" />
-          <div className="mt-8 animate-pulse rounded-[2rem] bg-neutral-100 p-8">
+          <div className="mt-8 animate-pulse rounded-[1.5rem] bg-neutral-100 p-8">
             <div className="space-y-4">
               <div className="h-4 w-1/3 rounded bg-neutral-200" />
               <div className="h-6 w-2/3 rounded bg-neutral-200" />

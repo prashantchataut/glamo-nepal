@@ -230,7 +230,7 @@ export default function ProductDetailClient({
           </div>
 
           <div
-            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-neutral-200/80 bg-neutral-100 shadow-editorial lg:order-2 lg:cursor-zoom-in"
+            className="order-1 relative aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-neutral-200/80 bg-neutral-100 shadow-editorial lg:order-2 lg:cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleZoom}
@@ -252,7 +252,7 @@ export default function ProductDetailClient({
               sizes="(max-width: 1024px) 100vw, 52vw"
             />
             {discount > 0 && (
-              <span className="absolute left-5 top-5 rounded-full bg-white/92 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-950 ring-1 ring-white/80">
+              <span className="absolute left-5 top-5 rounded-full bg-white/92 px-4 py-2 text-sm font-semibold text-neutral-950 ring-1 ring-white/80">
                 Save {discount}%
               </span>
             )}
@@ -265,7 +265,7 @@ export default function ProductDetailClient({
               <div>
                 <Link
                   href={`/brands/${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                  className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary transition-colors hover:text-primary-dark"
+                  className="text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
                 >
                   {product.brand}
                 </Link>
@@ -280,7 +280,7 @@ export default function ProductDetailClient({
                   className={cn(
                     "flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 transition",
                     isWishlisted
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-neutral-50"
                       : "bg-white text-neutral-700 hover:text-primary",
                   )}
                   aria-label={
@@ -358,7 +358,7 @@ export default function ProductDetailClient({
               {benefits.slice(0, 3).map((benefit) => (
                 <div
                   key={benefit}
-                  className="rounded-[1.25rem] bg-neutral-50 p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
+                  className="rounded-[1.5rem] bg-neutral-50 p-3 text-xs font-medium leading-5 text-neutral-700 ring-1 ring-neutral-100"
                 >
                   {benefit}
                 </div>
@@ -367,7 +367,7 @@ export default function ProductDetailClient({
 
             {shadeOptions.length > 0 && (
               <div className="mt-7">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                <p className="text-sm font-semibold text-neutral-500">
                   Shade: <span className="text-neutral-950">{shade}</span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -379,7 +379,7 @@ export default function ProductDetailClient({
                       className={cn(
                         "flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition",
                         shade === option.name
-                          ? "border-primary bg-primary text-white"
+                          ? "border-primary bg-primary text-neutral-50"
                           : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40",
                       )}
                       aria-pressed={shade === option.name}
@@ -427,7 +427,7 @@ export default function ProductDetailClient({
                 type="button"
                 onClick={addToCart}
                 disabled={!product.inStock}
-                className="inline-flex min-h-12 flex-1 items-center justify-center gap-3 rounded-full bg-neutral-950 px-7 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-3 rounded-full bg-neutral-950 px-7 text-sm font-semibold text-neutral-50 transition hover:bg-primary disabled:cursor-not-allowed disabled:bg-neutral-300"
               >
                 <ShoppingBag size={16} /> Add to bag
               </button>
@@ -459,12 +459,12 @@ export default function ProductDetailClient({
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 md:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
-        <div className="rounded-[2rem] bg-neutral-950 p-6 text-white md:p-8">
+        <div className="rounded-[1.5rem] bg-neutral-950 p-6 text-white md:p-8">
           <Sparkles size={22} className="text-secondary" />
           <h2 className="mt-5 font-display text-4xl font-semibold leading-none">
             Routine notes
           </h2>
-          <p className="mt-4 text-sm leading-7 text-white/70">
+          <p className="mt-4 text-sm leading-7 text-neutral-50/70">
             Designed to help shoppers decide quickly without fake urgency. Pair
             with SPF in the morning and patch test active formulas when needed.
           </p>
@@ -472,7 +472,7 @@ export default function ProductDetailClient({
             {concernTags.slice(0, 5).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/80"
+                className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-neutral-50/80"
               >
                 {tag}
               </span>
@@ -480,7 +480,7 @@ export default function ProductDetailClient({
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-neutral-200 bg-white p-5 md:p-7">
+        <div className="rounded-[1.5rem] border border-neutral-200 bg-white p-5 md:p-7">
           <Accordion
             type="single"
             collapsible

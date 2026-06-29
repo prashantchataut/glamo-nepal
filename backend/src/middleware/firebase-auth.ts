@@ -39,7 +39,9 @@ async function verifyAdminCookie(c: Parameters<typeof authMiddleware>[0], cookie
     if (payload.role !== 'admin' && payload.role !== 'ADMIN' && payload.role !== 'OWNER' && payload.role !== 'SUPER_ADMIN') return null
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null
 
-    return { email: payload.email, name: payload.name || 'Admin', role: payload.role }
+    const ROLE_MAP: Record<string, string> = { admin: 'ADMIN', owner: 'OWNER', super_admin: 'SUPER_ADMIN' }
+    const normalizedRole = ROLE_MAP[payload.role] || (payload.role === payload.role.toUpperCase() ? payload.role : ROLE_MAP[payload.role.toLowerCase()] || payload.role.toUpperCase())
+    return { email: payload.email, name: payload.name || 'Admin', role: normalizedRole }
   } catch {
     return null
   }
@@ -386,10 +388,12 @@ export async function verifyAdminSession(c: Parameters<typeof authMiddleware>[0]
 
     const payload = JSON.parse(atob(base64UrlToBase64(encodedPayload)))
 
-    if (payload.role !== 'admin') return null
+    if (payload.role !== 'admin' && payload.role !== 'ADMIN' && payload.role !== 'OWNER' && payload.role !== 'SUPER_ADMIN') return null
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null
 
-    return { email: payload.email, name: payload.name, role: payload.role, jti: payload.jti }
+    const ROLE_MAP: Record<string, string> = { admin: 'ADMIN', owner: 'OWNER', super_admin: 'SUPER_ADMIN', superadmin: 'SUPER_ADMIN' }
+    const normalizedRole = ROLE_MAP[payload.role] || ROLE_MAP[payload.role.toLowerCase()] || payload.role.toUpperCase()
+    return { email: payload.email, name: payload.name, role: normalizedRole, jti: payload.jti }
   } catch {
     return null
   }

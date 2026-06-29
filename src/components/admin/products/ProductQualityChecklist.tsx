@@ -86,10 +86,10 @@ export function ProductQualityChecklist() {
   const average = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
 
   return (
-    <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+    <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Product readiness</p>
+          <p className="text-sm font-semibold text-brand-textPrimary">Product readiness</p>
           <h2 className="mt-2 font-display text-2xl font-semibold">Can customers confidently buy these products?</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-brand-textMuted">This catches owner-facing product gaps before a product is promoted: photos, stock, descriptions, SEO preview and beauty-specific details.</p>
         </div>
@@ -106,7 +106,7 @@ export function ProductQualityChecklist() {
         ) : weak.length > 0 ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {weak.map(({ product, score, reason }) => (
-              <Link key={product.id} href={`/admin/products?search=${encodeURIComponent(product.name)}`} className="rounded-[1.25rem] border border-brand-border p-4 transition hover:bg-brand-bgLight">
+              <Link key={product.id} href={`/admin/products?search=${encodeURIComponent(product.name)}`} className="rounded-[1.5rem] border border-brand-border p-4 transition hover:bg-brand-bgLight">
                 <div className="flex items-start justify-between gap-3">
                   <div>{score < 50 ? <ShieldAlert className="text-admin-error" size={18} /> : <ListChecks className="text-admin-warning" size={18} />}</div>
                   <span className="rounded-full bg-brand-bgLight px-2 py-1 text-xs font-bold text-brand-textMuted">{score}%</span>
@@ -117,9 +117,9 @@ export function ProductQualityChecklist() {
             ))}
           </div>
         ) : products.length > 0 ? (
-          <div className="rounded-[1.25rem] border border-brand-border bg-brand-bgLight p-5 text-center"><CheckCircle2 className="mx-auto text-admin-success" size={24} /><p className="mt-2 text-sm font-semibold">All checked products look publish-ready.</p></div>
+          <div className="rounded-[1.5rem] border border-brand-border bg-brand-bgLight p-5 text-center"><CheckCircle2 className="mx-auto text-admin-success" size={24} /><p className="mt-2 text-sm font-semibold">All checked products look publish-ready.</p></div>
         ) : (
-          <div className="rounded-[1.25rem] border border-brand-border bg-brand-bgLight p-5 text-center"><ImageOff className="mx-auto text-brand-textMuted" size={24} /><p className="mt-2 text-sm font-semibold">No products found yet.</p><Link href="/admin/products" className="mt-3 inline-flex rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-white"><Search size={13} /> Add products</Link></div>
+          <div className="rounded-[1.5rem] border border-brand-border bg-brand-bgLight p-5 text-center"><ImageOff className="mx-auto text-brand-textMuted" size={24} /><p className="mt-2 text-sm font-semibold">No products found yet.</p><Link href="/admin/products" className="mt-3 inline-flex rounded-full bg-brand-primary px-4 py-2 text-xs font-bold text-neutral-50"><Search size={13} /> Add products</Link></div>
         )}
       </div>
     </section>

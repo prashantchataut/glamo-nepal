@@ -266,7 +266,7 @@ export default function ShopPageContent() {
                 className={cn(
                   "shrink-0 rounded-full border px-4 py-2 text-sm font-semibold tracking-wide transition-colors cursor-pointer",
                   filters.category === cat.slug
-                    ? "border-primary bg-primary text-white"
+                    ? "border-primary bg-primary text-neutral-50"
                     : "border-neutral-200 bg-white text-neutral-700 hover:border-primary/40 hover:text-primary"
                 )}
               >
@@ -302,7 +302,7 @@ export default function ShopPageContent() {
                   <SlidersHorizontal size={16} />
                   Filters
                   {chips.length > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-white">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-neutral-50">
                       {chips.length}
                     </span>
                   )}
@@ -331,7 +331,7 @@ export default function ShopPageContent() {
                 <button
                   type="button"
                   onClick={() => handleFilterChange(DEFAULT_FILTERS)}
-                  className="rounded-full bg-primary px-3 py-1.5 text-[11px] tracking-widest uppercase text-white cursor-pointer"
+                  className="rounded-full bg-primary px-3 py-1.5 text-xs tracking-widest uppercase text-neutral-50 cursor-pointer"
                 >
                   Clear All
                 </button>
@@ -435,7 +435,7 @@ export default function ShopPageContent() {
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors cursor-pointer",
                           page === currentPage
-                            ? "bg-primary text-white"
+                            ? "bg-primary text-neutral-50"
                             : "border border-neutral-200 text-neutral-700 hover:border-primary hover:text-primary"
                         )}
                         aria-label={`Page ${page}`}

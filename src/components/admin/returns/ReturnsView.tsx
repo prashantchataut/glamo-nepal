@@ -231,7 +231,7 @@ export function ReturnsView() {
       render: (row) => (
         <div className="flex flex-wrap gap-2">
           {row.status === "REQUESTED" && (
-            <button type="button" onClick={() => update(row.id, { status: "APPROVED", hygieneStatus: "QUARANTINE" }, "Return approved and kept in quarantine")} className="rounded-full bg-brand-primary px-3 py-1.5 text-xs font-semibold text-white">
+            <button type="button" onClick={() => update(row.id, { status: "APPROVED", hygieneStatus: "QUARANTINE" }, "Return approved and kept in quarantine")} className="rounded-full bg-brand-primary px-3 py-1.5 text-xs font-semibold text-neutral-50">
               Approve
             </button>
           )}
@@ -251,7 +251,7 @@ export function ReturnsView() {
             </button>
           )}
           {canProcess(row) && (
-            <button type="button" onClick={() => openProcessDialog(row)} className="inline-flex items-center gap-1 rounded-full bg-admin-success px-3 py-1.5 text-xs font-semibold text-white">
+            <button type="button" onClick={() => openProcessDialog(row)} className="inline-flex items-center gap-1 rounded-full bg-admin-success px-3 py-1.5 text-xs font-semibold text-neutral-50">
               <CheckCircle2 size={14} /> Mark processed
             </button>
           )}
@@ -262,16 +262,16 @@ export function ReturnsView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-brand-primary">Returns</p>
+            <p className="text-sm font-semibold text-brand-textPrimary">Returns</p>
             <h2 className="mt-2 font-display text-2xl font-semibold">Hygiene-safe return workflow</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-brand-textMuted">
               Returned beauty items start in quarantine. Only sealed, inspected products should ever move back to sellable stock.
             </p>
           </div>
-          <button type="button" onClick={() => setShowCreate((v) => !v)} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm">
+          <button type="button" onClick={() => setShowCreate((v) => !v)} className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-neutral-50 shadow-sm">
             <Plus size={16} /> New return
           </button>
         </div>
@@ -284,7 +284,7 @@ export function ReturnsView() {
       </section>
 
       {showCreate && (
-        <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+        <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
           <h3 className="font-display text-xl font-semibold">Create return request</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm font-medium">Order number
@@ -315,12 +315,12 @@ export function ReturnsView() {
           </div>
           <div className="mt-4 flex justify-end gap-2">
             <button type="button" onClick={() => setShowCreate(false)} className="rounded-full border border-brand-border px-4 py-2 text-sm font-semibold text-brand-textMuted">Cancel</button>
-            <button type="button" disabled={createReturn.isLoading} onClick={createRequest} className="rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Create return</button>
+            <button type="button" disabled={createReturn.isLoading} onClick={createRequest} className="rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-neutral-50 disabled:opacity-60">Create return</button>
           </div>
         </section>
       )}
 
-      <section className="rounded-[2rem] border border-brand-border bg-white p-6 shadow-sm">
+      <section className="rounded-[1.5rem] border border-brand-border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <SearchInput value={search} onSearch={(q) => { setSearch(q); setPage(1); }} placeholder="Search order number, customer or reason" className="w-full md:max-w-sm" />
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-full border border-brand-border bg-white px-4 py-2 text-sm font-medium outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10">
