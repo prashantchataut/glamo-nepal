@@ -796,6 +796,11 @@ export async function cancelOrder(orderId: string, db: Client, user: { id: strin
       }
     })
   } catch (error) {
+    // Preserve AppError semantics (e.g., ORDER_NOT_CANCELLABLE) instead of
+    // wrapping them as a generic 500 from handleDbError.
+    if (error instanceof AppError) {
+      throw error
+    }
     handleDbError(error, 'cancelOrder.transaction')
   }
 

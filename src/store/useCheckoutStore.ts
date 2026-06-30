@@ -55,6 +55,7 @@ export interface CheckoutPayload {
 interface CheckoutState {
   status: OrderStatus;
   error: string | null;
+  errorCode: string | null;
   lastOrder: SimulatedOrder | null;
   orders: SimulatedOrder[];
   couponCode: string | null;
@@ -72,6 +73,7 @@ export const useCheckoutStore = create<CheckoutState>()(
     (set, get) => ({
       status: "idle",
       error: null,
+      errorCode: null,
       lastOrder: null,
       orders: [],
       couponCode: null,
@@ -95,7 +97,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
       removeCoupon: () => set({ couponCode: null, discountAmount: 0, couponError: null }),
       placeOrder: async (order, payload) => {
-        set({ status: "pending", error: null });
+        set({ status: "pending", error: null, errorCode: null });
         try {
           const apiResponse = await createCheckoutOrder(payload as unknown as ApiCheckoutPayload);
           const apiOrder = apiResponse.data;
@@ -118,29 +120,31 @@ export const useCheckoutStore = create<CheckoutState>()(
             date: createdAt.slice(0, 10),
           };
           const existing = get().orders.filter((item) => item.orderNumber !== saved.orderNumber);
-          set({ status: "success", lastOrder: saved, orders: [saved, ...existing].slice(0, 20) });
+          set({ status: "success", error: null, errorCode: null, lastOrder: saved, orders: [saved, ...existing].slice(0, 20) });
           return saved;
         } catch (err) {
           let errorMessage: string;
           if (err instanceof GlamoApiError && (err.code === "NETWORK_ERROR" || err.code === "API_BASE_URL_MISSING")) {
             errorMessage = "Unable to connect to the server. Please check your connection and try again.";
           } else if (err instanceof GlamoApiError && err.code === "PRICE_MISMATCH") {
-            errorMessage = "Prices changed. Please refresh and try again.";
+            errorMessage = err.message || "Prices changed. Please refresh and try again.";
           } else if (err instanceof GlamoApiError && err.code === "INSUFFICIENT_STOCK") {
             errorMessage = err.message || "Out of stock. Please try again.";
           } else if (err instanceof GlamoApiError && err.fieldErrors) {
             const firstField = Object.values(err.fieldErrors).find((messages) => messages?.length);
             errorMessage = firstField?.[0] || err.message || "Please review your details and try again.";
+          } else if (err instanceof GlamoApiError) {
+            errorMessage = err.message || "Something went wrong. Please try again.";
           } else if (err instanceof Error) {
             errorMessage = err.message;
           } else {
             errorMessage = "Something went wrong. Please try again.";
           }
-          set({ status: "failed", error: errorMessage });
+          set({ status: "failed", error: errorMessage, errorCode: err instanceof GlamoApiError ? err.code ?? null : null });
           throw err;
         }
       },
-      reset: () => set({ status: "idle", error: null, couponCode: null, discountAmount: 0, couponError: null }),
+      reset: () => set({ status: "idle", error: null, errorCode: null, couponCode: null, discountAmount: 0, couponError: null }),
     }),
     {
       name: "glamo-checkout-storage",
@@ -148,6 +152,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       partialize: (state) => ({
         status: state.status,
         error: state.error,
+        errorCode: state.errorCode,
         lastOrder: state.lastOrder,
         orders: state.orders,
       }),
@@ -156,6 +161,7 @@ export const useCheckoutStore = create<CheckoutState>()(
         if (state.status === "pending") {
           state.status = "idle";
           state.error = null;
+          state.errorCode = null;
         }
         const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
         state.orders = state.orders.filter((order) => {

@@ -1,4 +1,4 @@
-import type { Client } from '@libsql/client/web'
+import type { Client, Transaction } from '@libsql/client/web'
 
 /**
  * Transaction retry/backoff for transient begin/commit failures.
@@ -36,23 +36,20 @@ export async function withTransaction<T>(
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= MAX_TRANSACTION_RETRIES; attempt++) {
-    const tx = await db.transaction('write');
-    let began = true;
+    const tx: Transaction = await db.transaction('write');
     try {
       const result = await fn(tx as unknown as Client);
       await tx.commit();
-      began = false; // commit() closed the transaction
       return result;
     } catch (error) {
       lastError = error;
-      // Only roll back if the transaction is still open. commit()/rollback()
-      // close it; if either already ran, calling again throws
-      // "transaction is closed", which we swallow.
-      if (began) {
+      // Best-effort rollback if the transaction is still open. commit()/rollback()
+      // both close the transaction; calling rollback() on a closed handle throws,
+      // so we guard with tx.closed. The original error is what matters.
+      if (!tx.closed) {
         try {
           await tx.rollback();
         } catch (rollbackError) {
-          // Best-effort: the original error is what matters.
           console.error('withTransaction: failed to rollback (ignored):', rollbackError);
         }
       }
@@ -76,6 +73,17 @@ export async function withTransaction<T>(
         msg
       );
       await new Promise((r) => setTimeout(r, TRANSACTION_RETRY_DELAY_MS * attempt));
+    } finally {
+      // The libsql docs recommend always closing the transaction in a finally
+      // block. commit()/rollback() already close it; this is a safety net that
+      // also releases the underlying Hrana stream when a lifecycle error occurs.
+      if (!tx.closed) {
+        try {
+          tx.close();
+        } catch (closeError) {
+          console.error('withTransaction: failed to close transaction (ignored):', closeError);
+        }
+      }
     }
   }
 

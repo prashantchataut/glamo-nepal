@@ -10,6 +10,9 @@ if (process.env.NODE_ENV === "development") {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  outputFileTracingExcludes: {
+    "**/*": ["node_modules/.pnpm/**"]
+  },
   serverExternalPackages: [
     "@libsql/client",
     "libsql",

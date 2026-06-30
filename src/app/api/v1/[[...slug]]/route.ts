@@ -14,6 +14,11 @@ const API_BASE_URL_CUSTOM =
   process.env.API_BASE_URL ||
   "https://api.glamonepal.com/api/v1";
 
+// Abort backend fetches after this timeout so the proxy (and therefore static
+// page generation during `next build`) fails fast instead of hanging when the
+// backend is unreachable. Can be overridden via env var.
+const PROXY_TIMEOUT_MS = Number(process.env.API_PROXY_TIMEOUT_MS || "10000");
+
 export const dynamic = "force-dynamic";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -200,67 +205,95 @@ async function proxyRequest(request: NextRequest) {
     headers.set(PROXY_TRUST_HEADER, trust.header);
   }
 
-  const bodyInit = request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined;
+  // Buffer the request body ONCE for non-GET/HEAD requests. The fallback loop
+  // below may fetch against several backends; a raw `request.body` is a
+  // ReadableStream that can only be consumed a single time, so reusing it
+  // across attempts causes every fallback after the first to throw (and locks
+  // the stream). Buffering into an ArrayBuffer-backed Uint8Array lets us
+  // replay the body for every fallback. (GET/HEAD have no body.)
+  const bodyBytes =
+    request.method !== "GET" && request.method !== "HEAD"
+      ? new Uint8Array(await request.arrayBuffer())
+      : undefined;
 
-  let response: Response;
+  const abortSignal = () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), PROXY_TIMEOUT_MS);
+    return { signal: controller.signal, timeout };
+  };
 
-  if (useServiceBinding) {
-    try {
-      response = await apiWorker!.fetch(bindingTargetUrl, {
+  interface FallbackTarget {
+    /** A label for log lines (the binding, a custom domain, or workers.dev). */
+    label: string;
+    /**
+     * Fetch this backend. The service binding is only reachable via its own
+     * `.fetch()` (the `https://api-worker.internal` URL is NOT routable by the
+     * global `fetch()`); everything else uses the global fetch.
+     */
+    run: () => Promise<Response>;
+  }
+
+  const targets: FallbackTarget[] = [];
+  if (useServiceBinding && apiWorker) {
+    targets.push({
+      label: "service-binding(api-worker.internal)",
+      run: () => apiWorker.fetch(bindingTargetUrl, {
         method: request.method,
         headers,
-        body: bodyInit,
+        body: bodyBytes,
         redirect: "manual",
-      });
-    } catch {
-      console.error("[proxy] service binding failed, falling back to workers.dev");
-      try {
-        response = await fetch(workersDevUrl, {
-          method: request.method,
-          headers,
-          body: bodyInit,
-          redirect: "manual",
-        });
-      } catch {
-        console.error("[proxy] workers.dev failed, trying custom domain");
-        try {
-          response = await fetch(customDomainUrl, {
-            method: request.method,
-            headers,
-            body: bodyInit,
-            redirect: "manual",
-          });
-        } catch {
-          return new Response(
-            JSON.stringify({ success: false, message: "Backend service unavailable.", code: "BACKEND_UNREACHABLE" }),
-            { status: 502, headers: { "content-type": "application/json" } },
-          );
-        }
-      }
-    }
-  } else {
-    try {
-      response = await fetch(workersDevUrl, {
+      }),
+    });
+  }
+  targets.push({
+    label: `custom-domain(${API_BASE_URL_CUSTOM})`,
+    run: () => {
+      const { signal, timeout } = abortSignal();
+      return fetch(customDomainUrl, {
         method: request.method,
         headers,
-        body: bodyInit,
+        body: bodyBytes,
         redirect: "manual",
-      });
-    } catch {
-      try {
-        response = await fetch(customDomainUrl, {
-          method: request.method,
-          headers,
-          body: bodyInit,
-          redirect: "manual",
-        });
-      } catch {
-        return new Response(
-          JSON.stringify({ success: false, message: "Backend service unavailable.", code: "BACKEND_UNREACHABLE" }),
-          { status: 502, headers: { "content-type": "application/json" } },
-        );
+        signal,
+      }).finally(() => clearTimeout(timeout));
+    },
+  });
+  targets.push({
+    label: `workers-dev(${API_BASE_URL_FALLBACK})`,
+    run: () => {
+      const { signal, timeout } = abortSignal();
+      return fetch(workersDevUrl, {
+        method: request.method,
+        headers,
+        body: bodyBytes,
+        redirect: "manual",
+        signal,
+      }).finally(() => clearTimeout(timeout));
+    },
+  });
+
+  let response: Response | null = null;
+  for (const target of targets) {
+    try {
+      const res = await target.run();
+      // Treat 5xx responses as backend failures and allow fallback. 4xx/3xx
+      // are real API responses that should be returned to the caller.
+      if (res.status >= 500) {
+        console.error(`[proxy] ${target.label} returned ${res.status}; trying next backend`);
+        continue;
       }
+      response = res;
+      break;
+    } catch (err) {
+      console.error(`[proxy] fetch to ${target.label} failed:`, (err as Error).message || err);
     }
+  }
+
+  if (!response) {
+    return new Response(
+      JSON.stringify({ success: false, message: "Backend service unavailable.", code: "BACKEND_UNREACHABLE" }),
+      { status: 502, headers: { "content-type": "application/json" } },
+    );
   }
 
   if (response.status >= 400 && response.status < 500) {

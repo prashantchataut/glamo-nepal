@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AlertCircle, X, ShieldCheck, Truck, Gift, RotateCcw, CreditCard, MapPin, Loader2 } from "lucide-react";
@@ -147,7 +148,7 @@ export function ReviewStep({
             <p className="text-sm font-medium text-amber-900">{submitError}</p>
             <button
               type="button"
-              onClick={() => { onDismissError(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              onClick={onSubmit}
               className="mt-1.5 inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold text-amber-700 underline-offset-4 hover:underline"
             >
               Try again

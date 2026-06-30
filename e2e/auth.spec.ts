@@ -1,5 +1,12 @@
 import { test, expect } from "@playwright/test";
 
+// Next.js always injects a live-region `<div role="alert" id="__next-route-announcer__">`
+// for client-side route changes. Any page that renders its own `role="alert"` (e.g. form
+// validation / Firebase error banners) therefore resolves to 2 elements and trips
+// Playwright's strict mode. Scope to the app-owned alert only.
+const appAlert = (page: import("@playwright/test").Page) =>
+  page.getByRole("alert").exclude({ id: "__next-route-announcer__" });
+
 test.describe("Login page", () => {
   test("loads without error boundary crash", async ({ page }) => {
     const response = await page.goto("/login");
@@ -30,7 +37,7 @@ test.describe("Login page", () => {
     await page.locator("#auth-password").fill("wrongpassword123");
     await page.getByRole("button", { name: /sign in/i }).click();
 
-    await expect(page.getByRole("alert")).toBeVisible({ timeout: 10000 });
+    await expect(appAlert(page)).toBeVisible({ timeout: 10000 });
   });
 
   test("has Google sign-in button", async ({ page }) => {
@@ -122,7 +129,7 @@ test.describe("Register page", () => {
     await page.locator("#auth-password").fill("testpass123");
     await page.getByRole("button", { name: /create account/i }).click();
 
-    await expect(page.getByRole("alert")).toBeVisible({ timeout: 10000 });
+    await expect(appAlert(page)).toBeVisible({ timeout: 10000 });
   });
 });
 

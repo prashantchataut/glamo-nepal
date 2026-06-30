@@ -319,7 +319,7 @@ export function AnalyticsView() {
         ) : salesError ? (
           <ErrorState message={salesError} />
         ) : revenueChartData.length > 0 ? (
-          <div className="mt-4 h-72">
+          <div className="mt-4 h-72 min-h-72 min-w-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={revenueChartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
                 <defs>
@@ -361,7 +361,7 @@ export function AnalyticsView() {
             <div className="mt-4 h-56 animate-pulse rounded bg-brand-bgLight" />
           ) : orderStatusData.length > 0 ? (
             <div className="mt-4">
-              <div className="h-56">
+              <div className="h-56 min-h-56 min-w-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={orderStatusData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2} dataKey="value" nameKey="name">
@@ -391,7 +391,7 @@ export function AnalyticsView() {
           {salesLoading ? (
             <div className="mt-4 h-56 animate-pulse rounded bg-brand-bgLight" />
           ) : paymentData.length > 0 ? (
-            <div className="mt-4 h-56">
+            <div className="mt-4 h-56 min-h-56 min-w-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={paymentData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} horizontal={false} />

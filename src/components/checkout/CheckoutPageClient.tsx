@@ -106,20 +106,27 @@ export function CheckoutPageClient() {
     items.length > 0,
   );
 
+  function clearCheckoutErrors() {
+    setSubmitError(null);
+    useCheckoutStore.setState({ error: null, errorCode: null });
+  }
+
   function goToStep(step: number) {
     if (step <= currentStep || completedSteps.has(step - 1) || step === 0) {
+      clearCheckoutErrors();
       setCurrentStep(step);
     }
   }
 
   function advanceStep(from: number) {
+    clearCheckoutErrors();
     setCompletedSteps((prev) => new Set(prev).add(from));
     setCurrentStep(from + 1);
   }
 
   async function onSubmit() {
     setIsSubmitting(true);
-    setSubmitError(null);
+    clearCheckoutErrors();
 
     const data = watched;
     const shippingAddress = `${data.address}, Ward ${data.ward}, ${data.city}, ${data.district}, ${data.province}, Nepal`;
@@ -368,7 +375,7 @@ export function CheckoutPageClient() {
                   submitError={submitError}
                   onBack={() => setCurrentStep(2)}
                   onSubmit={onSubmit}
-                  onDismissError={() => setSubmitError(null)}
+                  onDismissError={() => { clearCheckoutErrors(); }}
                 />
               )}
             </form>

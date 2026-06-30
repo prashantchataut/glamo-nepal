@@ -82,5 +82,8 @@ export function getDeliveryRule(district: string, province: string = "Bagmati"):
 }
 
 export function calculateDeliveryFee(subtotal: number, district: string, province = "Bagmati"): number {
-  return _calculateDeliveryFee(subtotal, normalizeDistrict(district), normalizeProvince(province));
+  // Do not normalize the district here: the underlying calculator is
+  // case-insensitive and falls back to the province default for unknown
+  // districts, which matches backend/src/utils/delivery.ts exactly.
+  return _calculateDeliveryFee(subtotal, district as District, normalizeProvince(province));
 }

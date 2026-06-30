@@ -7,13 +7,11 @@ import * as path from 'path'
  * Splits on ';' at the end of a line (good enough for this project's migration
  * files, which contain no stored-procedure bodies with embedded semicolons).
  */
-function parseSqlFile(contents: string): string[] {
+export function parseSqlFile(contents: string): string[] {
   return contents
     .split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'))
-    .map((s) =>
-      s
+    .map((chunk) =>
+      chunk
         .split('\n')
         .filter((line) => !line.trim().startsWith('--'))
         .join('\n')
@@ -23,7 +21,7 @@ function parseSqlFile(contents: string): string[] {
 }
 
 /** Errors that mean "this statement is already applied" and are safe to skip. */
-function isAlreadyAppliedError(message: string): boolean {
+export function isAlreadyAppliedError(message: string): boolean {
   const m = message.toLowerCase()
   return (
     m.includes('already exists') ||
